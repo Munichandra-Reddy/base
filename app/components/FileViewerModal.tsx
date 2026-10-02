@@ -86,6 +86,19 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
     }
   };
 
+  const getDownloadHref = () => {
+    if (file.fileUrl) {
+      return file.fileUrl;
+    }
+    if (file.type === 'pdf') {
+      return 'data:application/pdf;base64,JVBERi0xLjQNJSVPRkYNCjEgMCBvYmoNPDwvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFI+Pg1lbmRvYmoNCjIgMCBvYmoNPDwvVHlwZSAvUGFnZXMgL0tpZHMgWzMgMCBSXSAvQ291bnQgMT4+DWVuZG9iag0KMyAwIG9iaiA8PC9UeXBlIC9QYWdlIC9QYXJlbnQgMiAwIFIgL01lZGlhQm94IFswIDAgNjEyIDc5MlIgL0NvbnRlbnRzIDQgMCBSL1Jlc291cmNlcyA8PD4+PjANZW5kb2JqDTQgMCBvYmoNPDwvTGVuZ3RoIDU+PnN0cmVhbQ0KICANCmVuZHN0cmVhbQ1lbmRvYmoNCnhyZWYNCjAgNQ0KMDAwMDAwMDAwMCA2NTUzNSBmDQowMDAwMDAwMDE2IDAwMDAwIG4NCjDAwMDAwMDA2OCAwMDAwMCBuDQowMDAwMDAwMTI1IDAwMDAwIG4NCjDAwMDAwMDAyMzEgMDAwMDAgbg0KdHJhaWxlcg0KPDwvU2l6ZSA1IC9Sb290IDEgMCBSPj4NCnN0YXJ0eHJlZg0KMjg4DQolJUVPRg==';
+    }
+    if (file.type === 'image') {
+      return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="%232563eb"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="white" font-family="sans-serif" font-size="20">Project Image Asset</text></svg>';
+    }
+    return `data:text/plain;charset=utf-8,${encodeURIComponent(`WorkOrbit Project File: ${file.name}\nProject: ${file.project}\nUploaded by: ${file.uploadedBy}`)}`;
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
       <div className="bg-white rounded-3xl border border-slate-200 shadow-xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
@@ -143,7 +156,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
             </button>
 
             <a
-              href={`data:text/plain;charset=utf-8,${encodeURIComponent(file.name)}`}
+              href={getDownloadHref()}
               download={file.name}
               className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
             >

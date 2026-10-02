@@ -70,6 +70,7 @@ export interface FileItem {
   uploadedAt: string;
   type: 'pdf' | 'image' | 'code' | 'document' | 'zip';
   project: string;
+  fileUrl?: string;
 }
 
 export interface WorkspaceStats {

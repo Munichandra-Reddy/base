@@ -21,6 +21,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
   const [fileType, setFileType] = useState<'pdf' | 'image' | 'code' | 'document' | 'zip'>('pdf');
   const [project, setProject] = useState('E-Commerce Website');
   const [selectedFileObj, setSelectedFileObj] = useState<File | null>(null);
+  const [fileDataUrl, setFileDataUrl] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -29,6 +30,12 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
     if (file) {
       setSelectedFileObj(file);
       setFileName(file.name);
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        setFileDataUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
       
       // Calculate file size
       let sizeStr = '';
@@ -67,6 +74,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
       uploadedAt: 'Just now',
       type: fileType,
       project: project,
+      fileUrl: fileDataUrl || undefined,
     };
 
     onUpload(newFileItem);
@@ -75,6 +83,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
     setFileName('');
     setFileSize('');
     setSelectedFileObj(null);
+    setFileDataUrl(null);
     onClose();
   };
 
