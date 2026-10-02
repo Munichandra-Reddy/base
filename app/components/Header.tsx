@@ -276,12 +276,8 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
       </div>
 
-      {/* Right section: Upgrade Plan + Create New + Notifications + User Avatar */}
+      {/* Right section: Create New + Notifications + User Avatar */}
       <div className="flex items-center gap-3 relative" ref={profileRef}>
-        <button className="px-3.5 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-full transition-colors">
-          Upgrade Plan
-        </button>
-
         <button
           onClick={onOpenCreateModal}
           className="px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-sm flex items-center transition-colors"
