@@ -26,9 +26,6 @@ export const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage }) =
       {/* Campfire Header */}
       <div className="p-5 border-b border-slate-200 flex items-center justify-between">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-black text-xl shadow-xs">
-            🔥
-          </div>
           <div>
             <h2 className="text-2xl font-extrabold text-slate-900">Campfire Chat</h2>
             <p className="text-sm font-medium text-slate-500">Real-time team messaging & informal discussions</p>
