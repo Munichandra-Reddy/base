@@ -104,6 +104,14 @@ export default function Home() {
           if (Array.isArray(parsed) && parsed.length > 0) setCheckins(parsed);
         } catch (e) {}
       }
+
+      const savedUnread = localStorage.getItem('workorbit_unread_count');
+      if (savedUnread !== null) {
+        try {
+          const parsed = JSON.parse(savedUnread);
+          if (typeof parsed === 'number') setUnreadCount(parsed);
+        } catch (e) {}
+      }
     }
   }, []);
 
@@ -405,6 +413,13 @@ export default function Home() {
     } catch (err) {}
   };
 
+  const handleClearNotifications = () => {
+    setUnreadCount(0);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('workorbit_unread_count', '0');
+    }
+  };
+
   const pendingTasksCount = tasks.filter((t) => !t.completed).length;
 
   return (
@@ -422,7 +437,8 @@ export default function Home() {
       <NotificationPanel
         isOpen={isNotificationsOpen}
         onClose={() => setIsNotificationsOpen(false)}
-        onClear={() => setUnreadCount(0)}
+        onClear={handleClearNotifications}
+        unreadCount={unreadCount}
       />
 
       {/* Main Container */}
