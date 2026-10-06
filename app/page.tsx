@@ -28,7 +28,7 @@ import {
   initialFiles,
 } from '@/lib/data';
 
-import { Task, Activity, Project, ChatMessage, CheckIn, FileItem } from '@/lib/types';
+import { Task, Activity, Project, ChatMessage, CheckIn, FileItem, Person } from '@/lib/types';
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -39,7 +39,7 @@ export default function Home() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(initialChatMessages);
   const [checkins, setCheckins] = useState<CheckIn[]>(initialCheckIns);
   const [files, setFiles] = useState<FileItem[]>(initialFiles);
-  const [people, setPeople] = useState(initialPeople);
+  const [people, setPeople] = useState<Person[]>(initialPeople);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -49,6 +49,14 @@ export default function Home() {
   // Load persisted state from localStorage on mount so page refreshes don't lose data!
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const savedPeople = localStorage.getItem('workorbit_people');
+      if (savedPeople) {
+        try {
+          const parsed = JSON.parse(savedPeople);
+          if (Array.isArray(parsed) && parsed.length > 0) setPeople(parsed);
+        } catch (e) {}
+      }
+
       const savedProjects = localStorage.getItem('workorbit_projects');
       if (savedProjects) {
         try {
@@ -99,9 +107,83 @@ export default function Home() {
     setIsLoggedIn(false);
   };
 
-  const handleLogin = () => {
+  const handleAddEmployee = async (name: string, email: string, role?: string) => {
+    const cleanEmail = email.trim().toLowerCase();
+    const existing = people.find((p) => p.email.toLowerCase() === cleanEmail);
+    if (existing) return existing;
+
+    const colorOptions = [
+      'bg-blue-100 text-blue-700',
+      'bg-purple-100 text-purple-700',
+      'bg-cyan-100 text-cyan-700',
+      'bg-emerald-100 text-emerald-700',
+      'bg-amber-100 text-amber-700',
+      'bg-indigo-100 text-indigo-700',
+      'bg-rose-100 text-rose-700',
+    ];
+    const randomBg = colorOptions[people.length % colorOptions.length];
+    const formattedName = name.trim() || cleanEmail.split('@')[0];
+
+    const newPerson: Person = {
+      id: `usr-${Date.now()}`,
+      name: formattedName,
+      role: role?.trim() || 'Team Member',
+      email: cleanEmail,
+      status: 'active',
+      avatar: formattedName[0].toUpperCase(),
+      avatarBg: randomBg,
+      projectsCount: 1,
+    };
+
+    setPeople((prev) => {
+      const updated = [...prev, newPerson];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workorbit_people', JSON.stringify(updated));
+      }
+      return updated;
+    });
+
+    const newAct: Activity = {
+      id: `act-${Date.now()}`,
+      userName: formattedName,
+      userAvatar: newPerson.avatar,
+      avatarBg: randomBg,
+      action: 'joined as employee',
+      target: 'Workspace Team',
+      timeAgo: 'Just now',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    setActivities((prev) => {
+      const updated = [newAct, ...prev];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workorbit_activities', JSON.stringify(updated));
+      }
+      return updated;
+    });
+
+    try {
+      await fetch('/api/people', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPerson),
+      });
+    } catch (err) {}
+
+    return newPerson;
+  };
+
+  const handleLogin = (email?: string, fullName?: string) => {
     setIsLoggedIn(true);
     setActiveTab('dashboard');
+
+    if (email) {
+      const cleanEmail = email.toLowerCase().trim();
+      const existing = people.find((p) => p.email.toLowerCase() === cleanEmail);
+      if (!existing) {
+        handleAddEmployee(fullName || email.split('@')[0], cleanEmail);
+      }
+    }
   };
 
   if (!isLoggedIn) {
@@ -335,6 +417,7 @@ export default function Home() {
                 ...initialStats,
                 projectsTotal: projects.length,
                 projectsActive: projects.filter((p) => p.status === 'active').length,
+                teamOnline: people.length,
               }}
               tasks={tasks}
               activities={activities}
@@ -369,7 +452,12 @@ export default function Home() {
             <FilesView files={files} onUploadFile={handleUploadFile} />
           )}
 
-          {activeTab === 'people' && <PeopleView people={people} />}
+          {activeTab === 'people' && (
+            <PeopleView
+              people={people}
+              onOpenAddEmployee={() => setIsCreateModalOpen(true)}
+            />
+          )}
 
           {activeTab === 'checkins' && (
             <CheckinsView checkins={checkins} onAddCheckIn={handleAddCheckIn} />
@@ -385,6 +473,7 @@ export default function Home() {
         onClose={() => setIsCreateModalOpen(false)}
         onAddTask={handleAddTask}
         onAddProject={handleAddProject}
+        onAddEmployee={handleAddEmployee}
       />
 
       <SearchModal

@@ -6,7 +6,7 @@ export const initialStats: WorkspaceStats = {
   todosTotal: 120,
   todosInProgress: 35,
   dueSoon: 8,
-  teamOnline: 14,
+  teamOnline: 5,
   storageUsedGB: 7.5,
   storageTotalGB: 10,
 };

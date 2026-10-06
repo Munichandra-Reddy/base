@@ -5,14 +5,25 @@ import { Person } from '@/lib/types';
 
 interface PeopleViewProps {
   people: Person[];
+  onOpenAddEmployee?: () => void;
 }
 
-export const PeopleView: React.FC<PeopleViewProps> = ({ people }) => {
+export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmployee }) => {
   return (
     <div className="space-y-7">
-      <div className="bg-white p-7 rounded-2xl border border-slate-200 shadow-xs">
-        <h1 className="text-3xl font-extrabold text-slate-900">Workspace Employees Directory</h1>
-        <p className="text-slate-500 text-base font-medium mt-1">Employees, administrators, and team members in your ABC Technologies workspace.</p>
+      <div className="bg-white p-7 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold text-slate-900">Workspace Employees Directory</h1>
+          <p className="text-slate-500 text-base font-medium mt-1">Employees, administrators, and team members in your ABC Technologies workspace.</p>
+        </div>
+        {onOpenAddEmployee && (
+          <button
+            onClick={onOpenAddEmployee}
+            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-xs transition-all shrink-0 self-start md:self-auto cursor-pointer"
+          >
+            + Add Employee
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

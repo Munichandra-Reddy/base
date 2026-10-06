@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { WorkOrbitLogo } from './Icons';
 
 interface AuthViewProps {
-  onLogin: (email: string) => void;
+  onLogin: (email: string, fullName?: string) => void;
 }
 
 const DEFAULT_ACCOUNTS = [
@@ -96,7 +96,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
       setRegisteredEmails((prev) => [...prev, cleanEmail]);
       setSuccessMessage(`Account created successfully for ${fullName}! Entering workspace...`);
       setTimeout(() => {
-        onLogin(cleanEmail);
+        onLogin(cleanEmail, fullName);
       }, 500);
     }
   };
