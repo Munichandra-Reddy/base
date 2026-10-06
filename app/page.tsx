@@ -424,6 +424,7 @@ export default function Home() {
               onToggleTask={handleToggleTask}
               onOpenAddTask={() => setIsCreateModalOpen(true)}
               onViewAllTasks={() => setActiveTab('tasks')}
+              onViewEmployees={() => setActiveTab('people')}
             />
           )}
 

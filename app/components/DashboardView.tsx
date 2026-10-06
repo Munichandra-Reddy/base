@@ -11,6 +11,7 @@ interface DashboardViewProps {
   onToggleTask: (id: string) => void;
   onOpenAddTask: () => void;
   onViewAllTasks: () => void;
+  onViewEmployees?: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -20,6 +21,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onToggleTask,
   onOpenAddTask,
   onViewAllTasks,
+  onViewEmployees,
 }) => {
   return (
     <div className="space-y-7">
@@ -88,10 +90,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
-        {/* TEAM ONLINE */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow">
+        {/* TEAM ONLINE - Clickable to navigate to Employees */}
+        <div
+          onClick={onViewEmployees}
+          className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer group"
+        >
           <div>
-            <div className="text-xs font-black text-slate-400 tracking-wider uppercase mb-1">
+            <div className="text-xs font-black text-slate-400 tracking-wider uppercase mb-1 group-hover:text-emerald-700 transition-colors">
               TEAM ONLINE
             </div>
             <div className="text-4xl font-black text-emerald-600 mb-1">{stats.teamOnline}</div>
@@ -100,7 +105,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span>Active Now</span>
             </div>
           </div>
-          <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
             <UsersIcon className="w-7 h-7" />
           </div>
         </div>
