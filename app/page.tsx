@@ -88,6 +88,22 @@ export default function Home() {
           if (Array.isArray(parsed) && parsed.length > 0) setActivities(parsed);
         } catch (e) {}
       }
+
+      const savedChatMessages = localStorage.getItem('workorbit_chat_messages');
+      if (savedChatMessages) {
+        try {
+          const parsed = JSON.parse(savedChatMessages);
+          if (Array.isArray(parsed) && parsed.length > 0) setChatMessages(parsed);
+        } catch (e) {}
+      }
+
+      const savedCheckins = localStorage.getItem('workorbit_checkins');
+      if (savedCheckins) {
+        try {
+          const parsed = JSON.parse(savedCheckins);
+          if (Array.isArray(parsed) && parsed.length > 0) setCheckins(parsed);
+        } catch (e) {}
+      }
     }
   }, []);
 
@@ -315,7 +331,13 @@ export default function Home() {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       channel,
     };
-    setChatMessages((prev) => [...prev, newMsg]);
+    setChatMessages((prev) => {
+      const updated = [...prev, newMsg];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workorbit_chat_messages', JSON.stringify(updated));
+      }
+      return updated;
+    });
 
     try {
       await fetch('/api/chat', {
@@ -337,7 +359,13 @@ export default function Home() {
       timeAgo: 'Just now',
       responsesCount: 1,
     };
-    setCheckins((prev) => [newChk, ...prev]);
+    setCheckins((prev) => {
+      const updated = [newChk, ...prev];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workorbit_checkins', JSON.stringify(updated));
+      }
+      return updated;
+    });
   };
 
   const handleUploadFile = async (newFile: FileItem) => {
