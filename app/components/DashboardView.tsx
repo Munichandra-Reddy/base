@@ -36,10 +36,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <button
             onClick={onOpenAddTask}
-            className="px-6 py-3 bg-white text-blue-600 font-bold text-base rounded-full shadow-md hover:bg-blue-50 transition-all flex items-center gap-2 self-start md:self-auto cursor-pointer"
+            className="px-6 py-3 bg-white text-blue-600 font-bold text-base rounded-full shadow-md hover:bg-blue-50 transition-all flex items-center justify-center gap-2 self-start md:self-auto cursor-pointer"
           >
-            <PlusIcon className="w-5 h-5 text-blue-600" />
-            <span>+ Add New Task</span>
+            <PlusIcon className="w-5 h-5 text-blue-600 shrink-0" />
+            <span>Add New Task</span>
           </button>
         </div>
       </div>
