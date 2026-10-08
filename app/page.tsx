@@ -469,6 +469,7 @@ export default function Home() {
               onOpenAddTask={() => setIsCreateModalOpen(true)}
               onViewAllTasks={() => setActiveTab('tasks')}
               onViewEmployees={() => setActiveTab('people')}
+              onViewProjects={() => setActiveTab('projects')}
             />
           )}
 

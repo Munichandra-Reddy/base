@@ -12,6 +12,7 @@ interface DashboardViewProps {
   onOpenAddTask: () => void;
   onViewAllTasks: () => void;
   onViewEmployees?: () => void;
+  onViewProjects?: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -22,6 +23,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenAddTask,
   onViewAllTasks,
   onViewEmployees,
+  onViewProjects,
 }) => {
   return (
     <div className="space-y-7">
@@ -46,10 +48,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* Metrics Cards Grid (4 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* PROJECTS */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow">
+        {/* PROJECTS - Clickable to navigate to Projects view */}
+        <div
+          onClick={onViewProjects}
+          className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer group"
+        >
           <div>
-            <div className="text-xs font-black text-slate-400 tracking-wider uppercase mb-1">
+            <div className="text-xs font-black text-slate-400 tracking-wider uppercase mb-1 group-hover:text-blue-700 transition-colors">
               PROJECTS
             </div>
             <div className="text-4xl font-black text-slate-900 mb-1">{stats.projectsTotal}</div>
@@ -57,7 +62,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span>{stats.projectsActive} Active</span>
             </div>
           </div>
-          <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
             <FolderIcon className="w-7 h-7" />
           </div>
         </div>
