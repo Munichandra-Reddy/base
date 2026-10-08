@@ -42,11 +42,15 @@ export const CalendarView: React.FC = () => {
 
   const [events, setEvents] = useState<Record<number, CalendarEvent[]>>(initialMockEvents);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  // Form states for Date Pop-up / Add Event Modal
+  const [targetDay, setTargetDay] = useState<number>(1);
   const [newEventTitle, setNewEventTitle] = useState('');
   const [newEventTime, setNewEventTime] = useState('10:00 AM');
 
-  const handleAddEvent = (e: React.FormEvent) => {
+  // Submit handler for date pop-up form
+  const handleAddEventForSelectedDay = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedDay || !newEventTitle.trim()) return;
 
@@ -64,6 +68,26 @@ export const CalendarView: React.FC = () => {
     setNewEventTitle('');
   };
 
+  // Submit handler for standalone "+ Add Event" modal button
+  const handleAddEventGlobal = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newEventTitle.trim()) return;
+
+    const newEvt: CalendarEvent = {
+      title: newEventTitle.trim(),
+      time: newEventTime.trim() || '10:00 AM',
+      color: 'bg-blue-100 text-blue-800 border border-blue-200',
+    };
+
+    setEvents((prev) => ({
+      ...prev,
+      [targetDay]: [...(prev[targetDay] || []), newEvt],
+    }));
+
+    setNewEventTitle('');
+    setIsAddModalOpen(false);
+  };
+
   const selectedDayEvents = selectedDay ? events[selectedDay] || [] : [];
 
   return (
@@ -79,30 +103,45 @@ export const CalendarView: React.FC = () => {
           </p>
         </div>
 
-        {/* Month / Week View Switcher */}
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl select-none">
+        {/* Right Header Actions: Add Event Button + Month / Week View Switcher */}
+        <div className="flex items-center gap-3 select-none flex-wrap">
           <button
             type="button"
-            onClick={() => setViewMode('month')}
-            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-              viewMode === 'month'
-                ? 'bg-white shadow-xs text-slate-900 font-extrabold'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
+            onClick={() => {
+              setTargetDay(1);
+              setNewEventTitle('');
+              setIsAddModalOpen(true);
+            }}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            Month
+            <span className="text-base leading-none">+</span>
+            <span>Add Event</span>
           </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('week')}
-            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-              viewMode === 'week'
-                ? 'bg-white shadow-xs text-slate-900 font-extrabold'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Week
-          </button>
+
+          <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setViewMode('month')}
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                viewMode === 'month'
+                  ? 'bg-white shadow-xs text-slate-900 font-extrabold'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              Month
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('week')}
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                viewMode === 'week'
+                  ? 'bg-white shadow-xs text-slate-900 font-extrabold'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              Week
+            </button>
+          </div>
         </div>
       </div>
 
@@ -233,7 +272,7 @@ export const CalendarView: React.FC = () => {
               </div>
 
               {/* Add New Event Form */}
-              <form onSubmit={handleAddEvent} className="pt-4 border-t border-slate-100 space-y-3">
+              <form onSubmit={handleAddEventForSelectedDay} className="pt-4 border-t border-slate-100 space-y-3">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
                   + Add Event for Oct {selectedDay}
                 </h4>
@@ -271,6 +310,85 @@ export const CalendarView: React.FC = () => {
                 </div>
               </form>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Global Add Event Modal (Triggered by + Add Event Header Button) */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+              <h3 className="text-lg font-extrabold text-slate-900">Add New Calendar Event</h3>
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-300 text-slate-600 font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleAddEventGlobal} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Select Date (October 2026)
+                </label>
+                <select
+                  value={targetDay}
+                  onChange={(e) => setTargetDay(Number(e.target.value))}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {currentMonthDays.map((d) => (
+                    <option key={d} value={d}>
+                      October {d}, 2026
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Event Title / Milestone Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Q4 Strategy Review & Release"
+                  value={newEventTitle}
+                  onChange={(e) => setNewEventTitle(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Time
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 10:00 AM"
+                  value={newEventTime}
+                  onChange={(e) => setNewEventTime(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
+                >
+                  Create Event
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
