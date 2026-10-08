@@ -2,6 +2,12 @@
 
 import React, { useState } from 'react';
 
+interface CalendarEvent {
+  title: string;
+  time?: string;
+  color: string;
+}
+
 export const CalendarView: React.FC = () => {
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
 
@@ -21,7 +27,7 @@ export const CalendarView: React.FC = () => {
     { dayNumber: 7, dayName: 'Sat', dateStr: 'Oct 7' },
   ];
 
-  const mockEvents: Record<number, { title: string; time?: string; color: string }[]> = {
+  const initialMockEvents: Record<number, CalendarEvent[]> = {
     1: [{ title: 'Weekly Planning', time: '09:00 AM', color: 'bg-sky-100 text-sky-800 border border-sky-200' }],
     2: [{ title: 'Homepage Design Signoff', time: '11:00 AM', color: 'bg-blue-100 text-blue-800 border border-blue-200' }],
     3: [{ title: 'Client Onboarding Sync', time: '02:30 PM', color: 'bg-indigo-100 text-indigo-800 border border-indigo-200' }],
@@ -34,14 +40,41 @@ export const CalendarView: React.FC = () => {
     25: [{ title: 'Infrastructure Maintenance', time: '11:00 PM', color: 'bg-red-100 text-red-800 border border-red-200' }],
   };
 
+  const [events, setEvents] = useState<Record<number, CalendarEvent[]>>(initialMockEvents);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+
+  const [newEventTitle, setNewEventTitle] = useState('');
+  const [newEventTime, setNewEventTime] = useState('10:00 AM');
+
+  const handleAddEvent = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedDay || !newEventTitle.trim()) return;
+
+    const newEvt: CalendarEvent = {
+      title: newEventTitle.trim(),
+      time: newEventTime.trim() || '10:00 AM',
+      color: 'bg-blue-100 text-blue-800 border border-blue-200',
+    };
+
+    setEvents((prev) => ({
+      ...prev,
+      [selectedDay]: [...(prev[selectedDay] || []), newEvt],
+    }));
+
+    setNewEventTitle('');
+  };
+
+  const selectedDayEvents = selectedDay ? events[selectedDay] || [] : [];
+
   return (
     <div className="space-y-7">
+      {/* Header */}
       <div className="bg-white p-7 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900">Workspace Schedule</h1>
           <p className="text-slate-500 text-base font-medium mt-1">
             {viewMode === 'month'
-              ? 'October 2026 Milestone & Deliverables Calendar'
+              ? 'October 2026 Milestone & Deliverables Calendar (Click any date for details)'
               : 'Current Week (Oct 1 - Oct 7, 2026) Schedule'}
           </p>
         </div>
@@ -83,10 +116,21 @@ export const CalendarView: React.FC = () => {
           </div>
           <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-slate-100">
             {currentMonthDays.map((day) => (
-              <div key={day} className="min-h-[110px] p-2.5 bg-white hover:bg-slate-50/50 transition-colors">
-                <div className="text-sm font-bold text-slate-800 mb-1.5">{day}</div>
-                {mockEvents[day] &&
-                  mockEvents[day].map((evt, idx) => (
+              <div
+                key={day}
+                onClick={() => setSelectedDay(day)}
+                className="min-h-[110px] p-2.5 bg-white hover:bg-blue-50/40 transition-colors cursor-pointer group"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-sm font-bold text-slate-800 group-hover:text-blue-600">{day}</span>
+                  {events[day] && events[day].length > 0 && (
+                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                      {events[day].length}
+                    </span>
+                  )}
+                </div>
+                {events[day] &&
+                  events[day].map((evt, idx) => (
                     <div
                       key={idx}
                       className={`text-xs font-bold p-2 rounded-lg mb-1 truncate shadow-2xs ${evt.color}`}
@@ -111,14 +155,17 @@ export const CalendarView: React.FC = () => {
           </div>
           <div className="grid grid-cols-7 divide-x divide-slate-100 bg-white min-h-[360px]">
             {currentWeekDays.map((wDay) => (
-              <div key={wDay.dayNumber} className="p-3 bg-white hover:bg-slate-50/50 transition-colors space-y-2">
-                <div className="text-xs font-extrabold text-slate-400 mb-2">{wDay.dayName}, {wDay.dateStr}</div>
-                {mockEvents[wDay.dayNumber] && mockEvents[wDay.dayNumber].length > 0 ? (
-                  mockEvents[wDay.dayNumber].map((evt, idx) => (
-                    <div
-                      key={idx}
-                      className={`p-2.5 rounded-xl space-y-1 shadow-2xs ${evt.color}`}
-                    >
+              <div
+                key={wDay.dayNumber}
+                onClick={() => setSelectedDay(wDay.dayNumber)}
+                className="p-3 bg-white hover:bg-blue-50/40 transition-colors cursor-pointer space-y-2 group"
+              >
+                <div className="text-xs font-extrabold text-slate-400 group-hover:text-blue-600 mb-2">
+                  {wDay.dayName}, {wDay.dateStr}
+                </div>
+                {events[wDay.dayNumber] && events[wDay.dayNumber].length > 0 ? (
+                  events[wDay.dayNumber].map((evt, idx) => (
+                    <div key={idx} className={`p-2.5 rounded-xl space-y-1 shadow-2xs ${evt.color}`}>
                       {evt.time && <div className="text-[10px] font-extrabold opacity-75">{evt.time}</div>}
                       <div className="text-xs font-bold leading-tight">{evt.title}</div>
                     </div>
@@ -128,6 +175,102 @@ export const CalendarView: React.FC = () => {
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Date Details Pop-up Modal */}
+      {selectedDay !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-900">
+                  October {selectedDay}, 2026 Schedule
+                </h3>
+                <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                  Milestones, events, and task deadlines for this day.
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedDay(null)}
+                className="w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-300 text-slate-600 font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-5 max-h-96 overflow-y-auto">
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+                  Scheduled Events ({selectedDayEvents.length})
+                </h4>
+                {selectedDayEvents.length > 0 ? (
+                  <div className="space-y-2.5">
+                    {selectedDayEvents.map((evt, i) => (
+                      <div
+                        key={i}
+                        className={`p-3.5 rounded-xl flex items-center justify-between shadow-2xs ${evt.color}`}
+                      >
+                        <div className="font-bold text-sm">{evt.title}</div>
+                        {evt.time && (
+                          <div className="text-xs font-extrabold px-2 py-1 bg-white/70 rounded-md shrink-0 ml-3">
+                            ⏰ {evt.time}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-6 text-center bg-slate-50 border border-dashed border-slate-200 rounded-xl">
+                    <p className="text-sm font-semibold text-slate-400">
+                      No events or deliverables scheduled for October {selectedDay}.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Add New Event Form */}
+              <form onSubmit={handleAddEvent} className="pt-4 border-t border-slate-100 space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  + Add Event for Oct {selectedDay}
+                </h4>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Event title or milestone..."
+                    value={newEventTitle}
+                    onChange={(e) => setNewEventTitle(e.target.value)}
+                    className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <input
+                    type="text"
+                    placeholder="10:00 AM"
+                    value={newEventTime}
+                    onChange={(e) => setNewEventTime(e.target.value)}
+                    className="w-28 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDay(null)}
+                    className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
+                  >
+                    Add Event
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
