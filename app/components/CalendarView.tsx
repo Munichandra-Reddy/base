@@ -256,7 +256,7 @@ export const CalendarView: React.FC = () => {
                         <div className="font-bold text-sm">{evt.title}</div>
                         {evt.time && (
                           <div className="text-xs font-extrabold px-2 py-1 bg-white/70 rounded-md shrink-0 ml-3">
-                            ⏰ {evt.time}
+                            {evt.time}
                           </div>
                         )}
                       </div>
