@@ -29,7 +29,18 @@ const OrbitLogoIcon = () => (
 
 export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
-  const [registeredEmails, setRegisteredEmails] = useState<string[]>(DEFAULT_ACCOUNTS);
+  const [registeredEmails, setRegisteredEmails] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('workorbit_registered_emails');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+      }
+    }
+    return DEFAULT_ACCOUNTS;
+  });
 
   // Form Fields
   const [email, setEmail] = useState('rahul@abctech.com');
@@ -102,6 +113,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
         return;
       }
 
+      const isAccountRegistered = registeredEmails.some(
+        (acc) => acc.toLowerCase() === cleanEmail
+      );
+
+      if (!isAccountRegistered) {
+        setErrorMessage('No account found with this email address. Please sign up or create an account first.');
+        return;
+      }
+
       setSuccessMessage('Signing in to workspace...');
       setTimeout(() => {
         onLogin(cleanEmail);
@@ -132,7 +152,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
         return;
       }
 
-      setRegisteredEmails((prev) => [...prev, cleanEmail]);
+      setRegisteredEmails((prev) => {
+        const updated = Array.from(new Set([...prev, cleanEmail]));
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('workorbit_registered_emails', JSON.stringify(updated));
+        }
+        return updated;
+      });
       setSuccessMessage(`Account created for ${fullName}! Logging in...`);
       setTimeout(() => {
         onLogin(cleanEmail, fullName);
@@ -413,18 +439,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                 Create Account
               </button>
             </p>
-
-            {/* Quick Demo Sign In Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setEmail('rahul@abctech.com');
-                onLogin('rahul@abctech.com');
-              }}
-              className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs rounded-2xl transition-colors border border-blue-100"
-            >
-              ⚡ Quick Demo Sign In as Rahul (Admin)
-            </button>
 
             <p className="text-[11px] text-slate-400">Access is available to authorized workspace members.</p>
           </div>
