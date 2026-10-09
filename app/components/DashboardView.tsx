@@ -48,22 +48,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-6 font-sans">
-      {/* 1. TOP WELCOME BANNER (Matching Image 1 Vibe) */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-blue-100/60 p-6 border border-blue-100/90 shadow-2xs">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-blue-100 text-blue-600 font-black text-2xl flex items-center justify-center shadow-2xs shrink-0 border border-blue-200">
-              {avatarInitial}
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                Good morning, {displayGreetingName}!
-              </h1>
-              <p className="text-slate-500 text-sm font-medium mt-0.5">
-                Here's what's happening in your workspace today.
-              </p>
-            </div>
+      {/* 1. TOP WELCOME BANNER (Vibrant Blue Gradient Banner matching Image 1) */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 p-6 sm:p-7 text-white shadow-md">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-1 text-white">
+              Good day, {displayGreetingName}!
+            </h1>
+            <p className="text-blue-100 text-sm sm:text-base font-medium">
+              Here is what is happening across your workspace today.
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={onOpenAddTask}
+            className="px-5 py-2.5 bg-white hover:bg-blue-50 text-blue-600 font-bold text-sm rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-2 cursor-pointer self-start md:self-auto shrink-0"
+          >
+            <PlusIcon className="w-4 h-4 text-blue-600 stroke-[3]" />
+            <span>Add New Task</span>
+          </button>
         </div>
       </div>
 
