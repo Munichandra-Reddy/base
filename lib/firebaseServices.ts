@@ -18,13 +18,22 @@ export const subscribeToChatMessages = (
   channel: string,
   callback: (messages: ChatMessage[]) => void
 ) => {
-  const q = query(collection(db, 'chat_messages'), orderBy('timestamp', 'asc'));
-  return onSnapshot(q, (snapshot) => {
-    const msgs: ChatMessage[] = snapshot.docs
-      .map((d) => ({ id: d.id, ...d.data() } as ChatMessage))
-      .filter((m) => m.channel === channel);
-    callback(msgs);
-  });
+  if (typeof window === 'undefined') return () => {};
+  try {
+    const q = query(collection(db, 'chat_messages'), orderBy('timestamp', 'asc'));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const msgs: ChatMessage[] = snapshot.docs
+          .map((d) => ({ id: d.id, ...d.data() } as ChatMessage))
+          .filter((m) => m.channel === channel);
+        callback(msgs);
+      },
+      (error) => console.error('Chat snapshot error:', error)
+    );
+  } catch (e) {
+    return () => {};
+  }
 };
 
 export const addFirebaseChatMessage = async (msg: Omit<ChatMessage, 'id'>) => {
@@ -43,10 +52,19 @@ export const addFirebaseChatMessage = async (msg: Omit<ChatMessage, 'id'>) => {
 // 2. EMPLOYEES & TEAM MEMBERS (REAL-TIME SYNC)
 // ==========================================
 export const subscribeToEmployees = (callback: (people: Person[]) => void) => {
-  return onSnapshot(collection(db, 'employees'), (snapshot) => {
-    const peopleList: Person[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Person));
-    callback(peopleList);
-  });
+  if (typeof window === 'undefined') return () => {};
+  try {
+    return onSnapshot(
+      collection(db, 'employees'),
+      (snapshot) => {
+        const peopleList: Person[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Person));
+        callback(peopleList);
+      },
+      (error) => console.error('Employees snapshot error:', error)
+    );
+  } catch (e) {
+    return () => {};
+  }
 };
 
 export const addFirebaseEmployee = async (person: Person) => {
@@ -62,10 +80,19 @@ export const addFirebaseEmployee = async (person: Person) => {
 // 3. TASKS MANAGEMENT (REAL-TIME SYNC)
 // ==========================================
 export const subscribeToTasks = (callback: (tasks: Task[]) => void) => {
-  return onSnapshot(collection(db, 'tasks'), (snapshot) => {
-    const tasksList: Task[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Task));
-    callback(tasksList);
-  });
+  if (typeof window === 'undefined') return () => {};
+  try {
+    return onSnapshot(
+      collection(db, 'tasks'),
+      (snapshot) => {
+        const tasksList: Task[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Task));
+        callback(tasksList);
+      },
+      (error) => console.error('Tasks snapshot error:', error)
+    );
+  } catch (e) {
+    return () => {};
+  }
 };
 
 export const addFirebaseTask = async (task: Task) => {
@@ -90,10 +117,19 @@ export const toggleFirebaseTask = async (taskId: string, completed: boolean) => 
 // 4. PROJECTS (REAL-TIME SYNC)
 // ==========================================
 export const subscribeToProjects = (callback: (projects: Project[]) => void) => {
-  return onSnapshot(collection(db, 'projects'), (snapshot) => {
-    const projList: Project[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Project));
-    callback(projList);
-  });
+  if (typeof window === 'undefined') return () => {};
+  try {
+    return onSnapshot(
+      collection(db, 'projects'),
+      (snapshot) => {
+        const projList: Project[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Project));
+        callback(projList);
+      },
+      (error) => console.error('Projects snapshot error:', error)
+    );
+  } catch (e) {
+    return () => {};
+  }
 };
 
 export const addFirebaseProject = async (project: Project) => {
@@ -109,10 +145,19 @@ export const addFirebaseProject = async (project: Project) => {
 // 5. CHECK-INS & FILES
 // ==========================================
 export const subscribeToCheckIns = (callback: (checkins: CheckIn[]) => void) => {
-  return onSnapshot(collection(db, 'checkins'), (snapshot) => {
-    const checkinList: CheckIn[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as CheckIn));
-    callback(checkinList);
-  });
+  if (typeof window === 'undefined') return () => {};
+  try {
+    return onSnapshot(
+      collection(db, 'checkins'),
+      (snapshot) => {
+        const checkinList: CheckIn[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as CheckIn));
+        callback(checkinList);
+      },
+      (error) => console.error('Checkins snapshot error:', error)
+    );
+  } catch (e) {
+    return () => {};
+  }
 };
 
 export const addFirebaseCheckIn = async (checkin: CheckIn) => {
@@ -125,10 +170,19 @@ export const addFirebaseCheckIn = async (checkin: CheckIn) => {
 };
 
 export const subscribeToFiles = (callback: (files: FileItem[]) => void) => {
-  return onSnapshot(collection(db, 'files'), (snapshot) => {
-    const fileList: FileItem[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as FileItem));
-    callback(fileList);
-  });
+  if (typeof window === 'undefined') return () => {};
+  try {
+    return onSnapshot(
+      collection(db, 'files'),
+      (snapshot) => {
+        const fileList: FileItem[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as FileItem));
+        callback(fileList);
+      },
+      (error) => console.error('Files snapshot error:', error)
+    );
+  } catch (e) {
+    return () => {};
+  }
 };
 
 export const addFirebaseFile = async (file: FileItem) => {
