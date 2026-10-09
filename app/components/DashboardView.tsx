@@ -64,18 +64,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </p>
             </div>
           </div>
-
-          {/* Right Background Art Banner Motto */}
-          <div className="hidden lg:flex items-center gap-3 pr-4">
-            <div className="text-right">
-              <span className="font-serif italic font-extrabold text-blue-600/90 text-sm tracking-wide">
-                Plan · Collaborate · Achieve
-              </span>
-            </div>
-            <div className="w-10 h-10 rounded-2xl bg-white/80 border border-blue-100 flex items-center justify-center text-blue-500 text-lg shadow-2xs">
-              🏔️
-            </div>
-          </div>
         </div>
       </div>
 
