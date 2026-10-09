@@ -150,9 +150,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                   <th className="py-3.5 px-4 font-bold text-slate-500">
                     PRIORITY <span className="text-slate-400">✏️</span>
                   </th>
-                  <th className="py-3.5 px-4 text-center font-bold text-slate-400 text-base">
-                    +
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
@@ -240,13 +237,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                           <span className={`w-1.5 h-1.5 rounded-full ${prioDot}`} />
                           <span>{prioLabel}</span>
                         </span>
-                      </td>
-
-                      {/* Action Menu */}
-                      <td className="py-3.5 px-4 text-center">
-                        <button className="text-slate-400 hover:text-slate-700 font-bold p-1 rounded-md text-base">
-                          ⋮
-                        </button>
                       </td>
                     </tr>
                   );
