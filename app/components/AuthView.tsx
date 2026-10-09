@@ -8,13 +8,7 @@ interface AuthViewProps {
   onLogin: (email: string, fullName?: string) => void;
 }
 
-const DEFAULT_ACCOUNTS = [
-  'rahul@abctech.com',
-  'priya@abctech.com',
-  'chandra@abctech.com',
-  'ananya@abctech.com',
-  'michael@abctech.com',
-];
+const DEFAULT_ACCOUNTS: string[] = [];
 
 const OrbitLogoIcon = () => (
   <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-md mx-auto mb-4">
@@ -35,7 +29,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed)) return parsed;
         } catch (e) {}
       }
     }
@@ -43,11 +37,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
   });
 
   // Form Fields
-  const [email, setEmail] = useState('rahul@abctech.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [fullName, setFullName] = useState('Rahul Kumar');
-  const [companyName, setCompanyName] = useState('ABC Technologies');
+  const [fullName, setFullName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(true);
   const [rememberMe, setRememberMe] = useState(true);
 
