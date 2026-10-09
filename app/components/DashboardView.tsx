@@ -1,8 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Task, Activity, WorkspaceStats } from '@/lib/types';
-import { FolderIcon, CheckSquareIcon, ClockIcon, UsersIcon, PlusIcon } from './Icons';
+import {
+  FolderIcon,
+  CheckSquareIcon,
+  ClockIcon,
+  UsersIcon,
+  CalendarIcon,
+  PlusIcon,
+} from './Icons';
 
 interface DashboardViewProps {
   stats: WorkspaceStats;
@@ -27,179 +34,802 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onViewProjects,
   currentUser,
 }) => {
-  const userName = currentUser?.fullName || 'rahul';
+  const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
+
+  const rawName = currentUser?.fullName || 'RAJU';
+  const displayGreetingName = rawName.toUpperCase();
+  const avatarInitial = (rawName[0] || 'R').toUpperCase();
+
+  const filteredTasks = tasks.filter((t) => {
+    if (taskFilter === 'pending') return !t.completed;
+    if (taskFilter === 'completed') return t.completed;
+    return true;
+  });
 
   return (
-    <div className="space-y-7">
-      {/* Top Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 p-8 text-white shadow-md">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div>
-            <h1 className="text-4xl font-extrabold tracking-tight mb-2">Good day, {userName}!</h1>
-            <p className="text-blue-100 text-base font-medium">
-              Here is what is happening across your workspace today.
-            </p>
+    <div className="space-y-6 font-sans">
+      {/* 1. TOP WELCOME BANNER (Matching Image 1 Vibe) */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-blue-100/60 p-6 border border-blue-100/90 shadow-2xs">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-blue-100 text-blue-600 font-black text-2xl flex items-center justify-center shadow-2xs shrink-0 border border-blue-200">
+              {avatarInitial}
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Good morning, {displayGreetingName}!
+              </h1>
+              <p className="text-slate-500 text-sm font-medium mt-0.5">
+                Here's what's happening in your workspace today.
+              </p>
+            </div>
           </div>
-          <button
-            onClick={onOpenAddTask}
-            className="px-6 py-3 bg-white text-blue-600 font-bold text-base rounded-full shadow-md hover:bg-blue-50 transition-all flex items-center justify-center gap-2 self-start md:self-auto cursor-pointer"
-          >
-            <PlusIcon className="w-5 h-5 text-blue-600 shrink-0" />
-            <span>Add New Task</span>
-          </button>
+
+          {/* Right Background Art Banner Motto */}
+          <div className="hidden lg:flex items-center gap-3 pr-4">
+            <div className="text-right">
+              <span className="font-serif italic font-extrabold text-blue-600/90 text-sm tracking-wide">
+                Plan · Collaborate · Achieve
+              </span>
+            </div>
+            <div className="w-10 h-10 rounded-2xl bg-white/80 border border-blue-100 flex items-center justify-center text-blue-500 text-lg shadow-2xs">
+              🏔️
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Metrics Cards Grid (4 Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* PROJECTS - Clickable to navigate to Projects view */}
+      {/* 2. TOP METRICS CARDS BAR (5 Cards Grid matching Image 1) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {/* Card 1: Total Projects */}
         <div
           onClick={onViewProjects}
-          className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer group"
+          className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div>
-            <div className="text-xs font-black text-slate-400 tracking-wider uppercase mb-1 group-hover:text-blue-700 transition-colors">
-              PROJECTS
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+              <FolderIcon className="w-5 h-5" />
             </div>
-            <div className="text-4xl font-black text-slate-900 mb-1">{stats.projectsTotal}</div>
-            <div className="text-sm font-bold text-emerald-600 flex items-center gap-1">
-              <span>{stats.projectsActive} Active</span>
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-bold text-slate-400 group-hover:text-blue-600 transition-colors">
+                Total Projects
+              </span>
+              <span className="text-xs font-bold text-slate-300">→</span>
             </div>
           </div>
-          <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-            <FolderIcon className="w-7 h-7" />
+          <div>
+            <div className="text-2xl font-black text-slate-900 mb-0.5">
+              {stats.projectsTotal || 6}
+            </div>
+            <div className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span>{stats.projectsActive || 2} Active</span>
+            </div>
           </div>
         </div>
 
-        {/* TO-DOS */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow">
-          <div>
-            <div className="text-xs font-black text-slate-400 tracking-wider uppercase mb-1">
-              TO-DOS
+        {/* Card 2: Total Tasks */}
+        <div
+          onClick={onViewAllTasks}
+          className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-100 transition-colors">
+              <CheckSquareIcon className="w-5 h-5" />
             </div>
-            <div className="text-4xl font-black text-slate-900 mb-1">{stats.todosTotal}</div>
-            <div className="text-sm font-bold text-blue-600">{stats.todosInProgress} In Progress</div>
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-bold text-slate-400 group-hover:text-purple-600 transition-colors">
+                Total Tasks
+              </span>
+              <span className="text-xs font-bold text-slate-300">→</span>
+            </div>
           </div>
-          <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
-            <CheckSquareIcon className="w-7 h-7" />
+          <div>
+            <div className="text-2xl font-black text-slate-900 mb-0.5">
+              {stats.todosTotal || 120}
+            </div>
+            <div className="text-[11px] font-bold text-blue-600 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span>{stats.todosInProgress || 35} In Progress</span>
+            </div>
           </div>
         </div>
 
-        {/* DUE SOON */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow">
-          <div>
-            <div className="text-xs font-black text-slate-400 tracking-wider uppercase mb-1">
-              DUE SOON
+        {/* Card 3: Due Soon */}
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <ClockIcon className="w-5 h-5" />
             </div>
-            <div className="text-4xl font-black text-amber-600 mb-1">{stats.dueSoon}</div>
-            <div className="text-sm font-bold text-amber-600">This Week</div>
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-bold text-slate-400">Due Soon</span>
+              <span className="text-xs font-bold text-slate-300">→</span>
+            </div>
           </div>
-          <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
-            <ClockIcon className="w-7 h-7" />
+          <div>
+            <div className="text-2xl font-black text-slate-900 mb-0.5">
+              {stats.dueSoon || 8}
+            </div>
+            <div className="text-[11px] font-bold text-amber-600 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              <span>This Week</span>
+            </div>
           </div>
         </div>
 
-        {/* TEAM ONLINE - Clickable to navigate to Employees */}
+        {/* Card 4: Team Online */}
         <div
           onClick={onViewEmployees}
-          className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer group"
+          className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div>
-            <div className="text-xs font-black text-slate-400 tracking-wider uppercase mb-1 group-hover:text-emerald-700 transition-colors">
-              TEAM ONLINE
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+              <UsersIcon className="w-5 h-5" />
             </div>
-            <div className="text-4xl font-black text-emerald-600 mb-1">{stats.teamOnline}</div>
-            <div className="text-sm font-bold text-emerald-600 flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-bold text-slate-400 group-hover:text-emerald-600 transition-colors">
+                Team Online
+              </span>
+              <span className="text-xs font-bold text-slate-300">→</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-black text-slate-900 mb-0.5">
+              {stats.teamOnline || 7}
+            </div>
+            <div className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Active Now</span>
             </div>
           </div>
-          <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
-            <UsersIcon className="w-7 h-7" />
+        </div>
+
+        {/* Card 5: Overdue Tasks */}
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+              <CalendarIcon className="w-5 h-5" />
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-bold text-slate-400">Overdue Tasks</span>
+              <span className="text-xs font-bold text-slate-300">→</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-black text-slate-900 mb-0.5">15</div>
+            <div className="text-[11px] font-bold text-rose-600 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+              <span>Needs Attention</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Two-Column Split Layout */}
+      {/* 3. MAIN DASHBOARD GRID (Split Layout matching Image 1) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: My Work / My To-dos (2 spans) */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 p-7 shadow-xs">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900">My Work / My To-dos</h2>
-              <p className="text-sm text-slate-500 font-medium mt-0.5">
-                Tasks assigned specifically to you across all active projects.
-              </p>
-            </div>
-            <button
-              onClick={onViewAllTasks}
-              className="text-sm font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
-            >
-              <span>View All Tasks</span>
-              <span>↗</span>
-            </button>
-          </div>
+        {/* LEFT 2 COLUMNS */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* ROW 1 CARDS: Project Progress & Upcoming Deadlines */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Card 1: Project Progress */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-extrabold text-slate-900 text-base">Project Progress</h3>
+                <button
+                  onClick={onViewProjects}
+                  className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+                >
+                  View All
+                </button>
+              </div>
 
-          {/* Task Items List */}
-          <div className="space-y-3">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                onClick={() => onToggleTask(task.id)}
-                className="group flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50/60 hover:bg-slate-50 hover:border-slate-200 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                      task.completed
-                        ? 'bg-blue-600 border-blue-600 text-white'
-                        : 'border-slate-300 group-hover:border-blue-500 bg-white'
-                    }`}
-                  >
-                    {task.completed && (
-                      <svg className="w-3.5 h-3.5 stroke-current" fill="none" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
+              <div className="flex items-center justify-between gap-4 py-2">
+                {/* SVG Donut Chart */}
+                <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      className="text-slate-100"
+                      strokeWidth="4"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      className="text-emerald-500"
+                      strokeDasharray="68, 100"
+                      strokeWidth="4.5"
+                      strokeLinecap="round"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      className="text-blue-500"
+                      strokeDasharray="25, 100"
+                      strokeDashoffset="-68"
+                      strokeWidth="4.5"
+                      strokeLinecap="round"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                  </svg>
+                  <div className="absolute text-center leading-tight">
+                    <div className="text-xl font-black text-slate-900">68%</div>
+                    <div className="text-[10px] font-bold text-slate-400">Overall Progress</div>
                   </div>
-                  <span
-                    className={`text-base font-semibold transition-colors ${
-                      task.completed ? 'line-through text-slate-400' : 'text-slate-900 group-hover:text-blue-600'
-                    }`}
-                  >
-                    {task.title}
+                </div>
+
+                {/* Legend List */}
+                <div className="space-y-2 text-xs font-semibold text-slate-600 flex-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                      <span>Completed</span>
+                    </div>
+                    <span className="font-bold text-slate-900">4</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                      <span>In Progress</span>
+                    </div>
+                    <span className="font-bold text-slate-900">2</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
+                      <span>Not Started</span>
+                    </div>
+                    <span className="font-bold text-slate-900">0</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                      <span>On Hold</span>
+                    </div>
+                    <span className="font-bold text-slate-900">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Upcoming Deadlines */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-extrabold text-slate-900 text-base">Upcoming Deadlines</h3>
+                <button className="text-xs font-bold text-blue-600 hover:underline cursor-pointer">
+                  View Calendar
+                </button>
+              </div>
+
+              <div className="space-y-2.5">
+                {/* Deadline Item 1 */}
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/70 border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 font-extrabold text-[11px] flex flex-col items-center justify-center leading-none border border-rose-100 shrink-0">
+                      <span>10</span>
+                      <span className="text-[9px] uppercase mt-0.5">Oct</span>
+                    </div>
+                    <div>
+                      <div className="font-bold text-xs text-slate-900">Mobile App v2</div>
+                      <div className="text-[11px] text-slate-400 font-medium">UI Design Review</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700">
+                    Overdue
                   </span>
                 </div>
 
-                <span className="text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200/70">
-                  {task.project}
-                </span>
+                {/* Deadline Item 2 */}
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/70 border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 font-extrabold text-[11px] flex flex-col items-center justify-center leading-none border border-blue-100 shrink-0">
+                      <span>12</span>
+                      <span className="text-[9px] uppercase mt-0.5">Oct</span>
+                    </div>
+                    <div>
+                      <div className="font-bold text-xs text-slate-900">Marketing Campaign Q4</div>
+                      <div className="text-[11px] text-slate-400 font-medium">Content Finalization</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                    2 days left
+                  </span>
+                </div>
+
+                {/* Deadline Item 3 */}
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/70 border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 font-extrabold text-[11px] flex flex-col items-center justify-center leading-none border border-emerald-100 shrink-0">
+                      <span>15</span>
+                      <span className="text-[9px] uppercase mt-0.5">Oct</span>
+                    </div>
+                    <div>
+                      <div className="font-bold text-xs text-slate-900">E-Commerce Website</div>
+                      <div className="text-[11px] text-slate-400 font-medium">Backend Development</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                    5 days left
+                  </span>
+                </div>
+
+                {/* Deadline Item 4 */}
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50/70 border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 font-extrabold text-[11px] flex flex-col items-center justify-center leading-none border border-indigo-100 shrink-0">
+                      <span>18</span>
+                      <span className="text-[9px] uppercase mt-0.5">Oct</span>
+                    </div>
+                    <div>
+                      <div className="font-bold text-xs text-slate-900">Design homepage</div>
+                      <div className="text-[11px] text-slate-400 font-medium">Client Presentation</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                    8 days left
+                  </span>
+                </div>
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* ROW 2 CARDS: Top Projects & Task Status / Team Workload */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Card 3: Top Projects Table */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-extrabold text-slate-900 text-base">Top Projects</h3>
+                <button
+                  onClick={onViewProjects}
+                  className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+                >
+                  View All
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="text-[10px] font-bold text-slate-400 uppercase border-b border-slate-100 pb-2">
+                      <th className="pb-2 font-bold">Project Name</th>
+                      <th className="pb-2 font-bold">Progress</th>
+                      <th className="pb-2 font-bold">Due Date</th>
+                      <th className="pb-2 font-bold text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                    {/* Row 1 */}
+                    <tr>
+                      <td className="py-2.5 font-bold text-slate-900 flex items-center gap-2">
+                        <span className="w-5 h-5 rounded bg-blue-100 text-blue-600 flex items-center justify-center text-[10px]">📁</span>
+                        <span className="truncate max-w-[110px]">E-Commerce Website</span>
+                      </td>
+                      <td className="py-2.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div className="bg-blue-600 h-full rounded-full" style={{ width: '68%' }} />
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-500">68%</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 text-[11px] text-slate-500">Oct 30, 2026</td>
+                      <td className="py-2.5 text-right">
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                          Active
+                        </span>
+                      </td>
+                    </tr>
+
+                    {/* Row 2 */}
+                    <tr>
+                      <td className="py-2.5 font-bold text-slate-900 flex items-center gap-2">
+                        <span className="w-5 h-5 rounded bg-blue-100 text-blue-600 flex items-center justify-center text-[10px]">📁</span>
+                        <span className="truncate max-w-[110px]">Mobile App v2</span>
+                      </td>
+                      <td className="py-2.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div className="bg-blue-600 h-full rounded-full" style={{ width: '45%' }} />
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-500">45%</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 text-[11px] text-slate-500">Nov 15, 2026</td>
+                      <td className="py-2.5 text-right">
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                          Active
+                        </span>
+                      </td>
+                    </tr>
+
+                    {/* Row 3 */}
+                    <tr>
+                      <td className="py-2.5 font-bold text-slate-900 flex items-center gap-2">
+                        <span className="w-5 h-5 rounded bg-blue-100 text-blue-600 flex items-center justify-center text-[10px]">📁</span>
+                        <span className="truncate max-w-[110px]">Marketing Campaign Q4</span>
+                      </td>
+                      <td className="py-2.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div className="bg-blue-600 h-full rounded-full" style={{ width: '82%' }} />
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-500">82%</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 text-[11px] text-slate-500">Oct 25, 2026</td>
+                      <td className="py-2.5 text-right">
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                          Active
+                        </span>
+                      </td>
+                    </tr>
+
+                    {/* Row 4 */}
+                    <tr>
+                      <td className="py-2.5 font-bold text-slate-900 flex items-center gap-2">
+                        <span className="w-5 h-5 rounded bg-amber-100 text-amber-600 flex items-center justify-center text-[10px]">📁</span>
+                        <span className="truncate max-w-[110px]">HR Management System</span>
+                      </td>
+                      <td className="py-2.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div className="bg-amber-500 h-full rounded-full" style={{ width: '32%' }} />
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-500">32%</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 text-[11px] text-slate-500">Nov 10, 2026</td>
+                      <td className="py-2.5 text-right">
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                          On Hold
+                        </span>
+                      </td>
+                    </tr>
+
+                    {/* Row 5 */}
+                    <tr>
+                      <td className="py-2.5 font-bold text-slate-900 flex items-center gap-2">
+                        <span className="w-5 h-5 rounded bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px]">📁</span>
+                        <span className="truncate max-w-[110px]">Cloud Migration</span>
+                      </td>
+                      <td className="py-2.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div className="bg-blue-600 h-full rounded-full" style={{ width: '60%' }} />
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-500">60%</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 text-[11px] text-slate-500">Dec 05, 2026</td>
+                      <td className="py-2.5 text-right">
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                          Active
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Card 4: Task Status & Team Workload */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-5">
+              {/* Task Status */}
+              <div>
+                <h3 className="font-extrabold text-slate-900 text-base mb-3">Task Status</h3>
+                <div className="flex items-center justify-between gap-3">
+                  {/* SVG Donut */}
+                  <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                      <path
+                        className="text-slate-100"
+                        strokeWidth="4"
+                        stroke="currentColor"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                      <path
+                        className="text-emerald-500"
+                        strokeDasharray="43, 100"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        stroke="currentColor"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                      <path
+                        className="text-blue-500"
+                        strokeDasharray="29, 100"
+                        strokeDashoffset="-43"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        stroke="currentColor"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                    </svg>
+                    <div className="absolute text-center leading-tight">
+                      <div className="text-base font-black text-slate-900">120</div>
+                      <div className="text-[9px] font-bold text-slate-400">Total Tasks</div>
+                    </div>
+                  </div>
+
+                  {/* Legend list */}
+                  <div className="space-y-1.5 text-xs font-semibold text-slate-600 flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <span>Completed</span>
+                      </div>
+                      <span className="font-bold text-slate-900">52</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-blue-500" />
+                        <span>In Progress</span>
+                      </div>
+                      <span className="font-bold text-slate-900">35</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-amber-500" />
+                        <span>Pending</span>
+                      </div>
+                      <span className="font-bold text-slate-900">18</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-rose-500" />
+                        <span>Overdue</span>
+                      </div>
+                      <span className="font-bold text-slate-900">15</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Team Workload */}
+              <div className="pt-3 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-bold text-xs text-slate-800 uppercase tracking-wider">Team Workload</h4>
+                  <button
+                    onClick={onViewEmployees}
+                    className="text-[11px] font-bold text-blue-600 hover:underline cursor-pointer"
+                  >
+                    View Team
+                  </button>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  {/* Member 1 */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-[100px]">
+                      <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-extrabold text-[10px] flex items-center justify-center">
+                        R
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-900 text-[11px] leading-tight">Raju</div>
+                        <div className="text-[9px] text-slate-400 font-medium">Project Manager</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-1 max-w-[140px]">
+                      <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap">12 tasks</span>
+                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                        <div className="bg-blue-600 h-full rounded-full" style={{ width: '80%' }} />
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-600">80%</span>
+                    </div>
+                  </div>
+
+                  {/* Member 2 */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-[100px]">
+                      <div className="w-6 h-6 rounded-full bg-purple-600 text-white font-extrabold text-[10px] flex items-center justify-center">
+                        M
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-900 text-[11px] leading-tight">Muni</div>
+                        <div className="text-[9px] text-slate-400 font-medium">Developer</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-1 max-w-[140px]">
+                      <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap">10 tasks</span>
+                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                        <div className="bg-blue-600 h-full rounded-full" style={{ width: '60%' }} />
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-600">60%</span>
+                    </div>
+                  </div>
+
+                  {/* Member 3 */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-[100px]">
+                      <div className="w-6 h-6 rounded-full bg-rose-500 text-white font-extrabold text-[10px] flex items-center justify-center">
+                        P
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-900 text-[11px] leading-tight">Priya</div>
+                        <div className="text-[9px] text-slate-400 font-medium">Designer</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-1 max-w-[140px]">
+                      <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap">8 tasks</span>
+                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                        <div className="bg-blue-600 h-full rounded-full" style={{ width: '45%' }} />
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-600">45%</span>
+                    </div>
+                  </div>
+
+                  {/* Member 4 */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-[100px]">
+                      <div className="w-6 h-6 rounded-full bg-blue-500 text-white font-extrabold text-[10px] flex items-center justify-center">
+                        S
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-900 text-[11px] leading-tight">Suresh</div>
+                        <div className="text-[9px] text-slate-400 font-medium">Tester</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-1 max-w-[140px]">
+                      <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap">6 tasks</span>
+                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                        <div className="bg-blue-600 h-full rounded-full" style={{ width: '30%' }} />
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-600">30%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Right Column: Recent Activity Feed */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-7 shadow-xs">
-          <h2 className="text-xl font-bold text-slate-900 mb-5">Recent Activity</h2>
-          <div className="space-y-4.5">
-            {activities.map((act) => (
-              <div key={act.id} className="flex items-start gap-3.5 text-sm">
-                <div
-                  className={`w-9 h-9 rounded-full ${act.avatarBg} font-extrabold flex items-center justify-center shrink-0 shadow-xs text-base`}
-                >
-                  {act.userAvatar}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-slate-800 leading-snug break-words [overflow-wrap:anywhere]">
-                    <span className="font-bold text-slate-900">{act.userName}</span>{' '}
-                    <span className="text-slate-500">{act.action}</span>{' '}
-                    <span className="font-semibold text-slate-800 break-all">"{act.target}"</span>
+        {/* RIGHT COLUMN (1 SPAN): My Tasks & Recent Activity */}
+        <div className="space-y-6">
+          {/* Card 5: My Tasks Widget */}
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-extrabold text-slate-900 text-base">My Tasks</h3>
+              <button
+                onClick={onViewAllTasks}
+                className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+              >
+                View All
+              </button>
+            </div>
+
+            {/* Filter Pills */}
+            <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl text-xs font-bold">
+              <button
+                onClick={() => setTaskFilter('all')}
+                className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
+                  taskFilter === 'all' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setTaskFilter('pending')}
+                className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
+                  taskFilter === 'pending' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Pending
+              </button>
+              <button
+                onClick={() => setTaskFilter('completed')}
+                className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
+                  taskFilter === 'completed' ? 'bg-white text-blue-600 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Completed
+              </button>
+            </div>
+
+            {/* Task Checklist Items */}
+            <div className="space-y-2.5">
+              {filteredTasks.slice(0, 5).map((task, index) => {
+                const priority = task.priority || (index === 0 ? 'high' : index < 3 ? 'medium' : 'low');
+                let prioBadge = 'bg-emerald-50 text-emerald-700 border-emerald-100';
+                let prioLabel = 'Low';
+
+                if (priority === 'high') {
+                  prioBadge = 'bg-rose-50 text-rose-700 border-rose-100';
+                  prioLabel = 'High';
+                } else if (priority === 'medium') {
+                  prioBadge = 'bg-amber-50 text-amber-700 border-amber-100';
+                  prioLabel = 'Medium';
+                }
+
+                const dueDateStr = task.dueDate || 'Oct 14, 2026';
+
+                return (
+                  <div
+                    key={task.id}
+                    onClick={() => onToggleTask(task.id)}
+                    className="p-3 rounded-xl border border-slate-100 bg-slate-50/60 hover:bg-slate-50 transition-all cursor-pointer flex items-center justify-between gap-3 group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                          task.completed
+                            ? 'bg-blue-600 border-blue-600 text-white'
+                            : 'border-slate-300 group-hover:border-blue-500 bg-white'
+                        }`}
+                      >
+                        {task.completed && (
+                          <svg className="w-3 h-3 stroke-current" fill="none" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div
+                          className={`text-xs font-bold truncate transition-colors ${
+                            task.completed ? 'line-through text-slate-400' : 'text-slate-900 group-hover:text-blue-600'
+                          }`}
+                        >
+                          {task.title}
+                        </div>
+                        <div className="text-[10px] font-medium text-slate-400 truncate mt-0.5">
+                          {task.project}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[10px] font-semibold text-slate-400 hidden sm:inline">
+                        📅 {dueDateStr}
+                      </span>
+                      <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${prioBadge}`}>
+                        {prioLabel}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-xs font-medium text-slate-400 mt-1">{act.timeAgo}</div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Card 6: Recent Activity Widget */}
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-extrabold text-slate-900 text-base">Recent Activity</h3>
+              <button className="text-xs font-bold text-blue-600 hover:underline cursor-pointer">
+                View All
+              </button>
+            </div>
+
+            <div className="space-y-3.5">
+              {activities.slice(0, 5).map((act) => (
+                <div key={act.id} className="flex items-start justify-between gap-3 text-xs">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div
+                      className={`w-8 h-8 rounded-full ${act.avatarBg} font-extrabold flex items-center justify-center shrink-0 shadow-2xs text-xs mt-0.5`}
+                    >
+                      {act.userAvatar}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-slate-800 leading-snug break-words">
+                        <span className="font-bold text-slate-900">{act.userName}</span>{' '}
+                        <span className="text-slate-500">{act.action}</span>{' '}
+                        <span className="font-semibold text-slate-800">"{act.target}"</span>
+                      </div>
+                      <div className="text-[10px] font-medium text-slate-400 mt-0.5">
+                        {act.timeAgo}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-slate-400 text-xs shrink-0 mt-1">
+                    {act.action.includes('completed') ? '☑️' : act.action.includes('comment') ? '💬' : act.action.includes('file') || act.action.includes('uploaded') ? '📄' : '📝'}
+                  </span>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
