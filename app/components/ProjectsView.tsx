@@ -276,14 +276,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
         </div>
       )}
 
-      {/* CARDS VIEW GRID (Sleek Compact Cards Layout) */}
+      {/* CARDS VIEW GRID (Small Compact Cards Layout without descriptions) */}
       {viewMode === 'cards' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {projects.map((project) => {
-            const description =
-              project.description ||
-              'Next-gen online shopping platform with real-time checkout.';
-
             const rawStatus = project.status || 'Active';
             let statusStyle = 'bg-emerald-50 text-emerald-700 border-emerald-200';
             if (rawStatus.toLowerCase().includes('design')) {
@@ -298,12 +294,12 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
             return (
               <div
                 key={project.id}
-                className="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between space-y-2.5 max-w-sm"
+                className="bg-white rounded-xl border border-slate-200/90 p-3 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between space-y-2"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold shadow-2xs">
-                      <FolderIcon className="w-4 h-4" />
+                    <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold shadow-2xs">
+                      <FolderIcon className="w-3.5 h-3.5" />
                     </div>
                     <span
                       className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider ${statusStyle}`}
@@ -311,18 +307,15 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                       {rawStatus.toUpperCase()}
                     </span>
                   </div>
-                  <h3 className="text-sm font-bold text-slate-900 mb-0.5 leading-snug">
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
                     {project.name}
                   </h3>
-                  <p className="text-[11px] font-medium text-slate-500 leading-relaxed line-clamp-2 min-h-[30px]">
-                    {description}
-                  </p>
                 </div>
 
                 <div className="space-y-2 pt-2 border-t border-slate-100">
                   {/* Progress Bar */}
                   <div>
-                    <div className="flex justify-between text-[11px] font-bold text-slate-700 mb-1">
+                    <div className="flex justify-between text-[10px] font-bold text-slate-700 mb-1">
                       <span>Progress</span>
                       <span>{project.progress}%</span>
                     </div>
@@ -335,7 +328,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                   </div>
 
                   {/* Footer Meta: Open To-Dos & Team Avatars */}
-                  <div className="flex items-center justify-between pt-0.5 text-[11px] font-semibold text-slate-600">
+                  <div className="flex items-center justify-between pt-0.5 text-[10px] font-semibold text-slate-600">
                     <div>
                       <span className="font-extrabold text-slate-900">{project.openToDos}</span> open to-dos
                     </div>
@@ -343,7 +336,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                       {project.members.map((m, idx) => (
                         <div
                           key={idx}
-                          className="w-6 h-6 rounded-full bg-blue-100 border-2 border-white text-blue-700 font-extrabold text-[9px] flex items-center justify-center shadow-2xs"
+                          className="w-5.5 h-5.5 rounded-full bg-blue-100 border border-white text-blue-700 font-extrabold text-[8px] flex items-center justify-center shadow-2xs"
                           title={m}
                         >
                           {m[0]}
