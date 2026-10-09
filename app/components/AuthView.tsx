@@ -4,11 +4,18 @@ import React, { useState } from 'react';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
-interface AuthViewProps {
-  onLogin: (email: string, fullName?: string) => void;
+export interface UserAccount {
+  email: string;
+  password: string;
+  fullName: string;
+  companyName: string;
 }
 
-const DEFAULT_ACCOUNTS: string[] = [];
+interface AuthViewProps {
+  onLogin: (email: string, fullName?: string, companyName?: string) => void;
+}
+
+const DEFAULT_ACCOUNTS: UserAccount[] = [];
 
 const OrbitLogoIcon = () => (
   <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-md mx-auto mb-4">
@@ -23,9 +30,9 @@ const OrbitLogoIcon = () => (
 
 export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
-  const [registeredEmails, setRegisteredEmails] = useState<string[]>(() => {
+  const [registeredUsers, setRegisteredUsers] = useState<UserAccount[]>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('workorbit_registered_emails');
+      const saved = localStorage.getItem('workorbit_registered_users');
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -107,18 +114,23 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
         return;
       }
 
-      const isAccountRegistered = registeredEmails.some(
-        (acc) => acc.toLowerCase() === cleanEmail
+      const existingUser = registeredUsers.find(
+        (u) => u.email.toLowerCase() === cleanEmail
       );
 
-      if (!isAccountRegistered) {
-        setErrorMessage('No account found with this email address. Please sign up or create an account first.');
+      if (!existingUser) {
+        setErrorMessage('Please create an account first.');
         return;
       }
 
-      setSuccessMessage('Signing in to workspace...');
+      if (existingUser.password !== password) {
+        setErrorMessage('Incorrect password. Please enter the correct password.');
+        return;
+      }
+
+      setSuccessMessage(`Welcome back, ${existingUser.fullName}! Signing in...`);
       setTimeout(() => {
-        onLogin(cleanEmail);
+        onLogin(existingUser.email, existingUser.fullName, existingUser.companyName);
       }, 400);
     } else if (mode === 'signup') {
       if (!fullName.trim()) {
@@ -146,16 +158,32 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
         return;
       }
 
-      setRegisteredEmails((prev) => {
-        const updated = Array.from(new Set([...prev, cleanEmail]));
+      const existingUser = registeredUsers.find(
+        (u) => u.email.toLowerCase() === cleanEmail
+      );
+      if (existingUser) {
+        setErrorMessage('An account with this email already exists. Please sign in instead.');
+        return;
+      }
+
+      const newUser: UserAccount = {
+        email: cleanEmail,
+        password,
+        fullName: fullName.trim(),
+        companyName: companyName.trim(),
+      };
+
+      setRegisteredUsers((prev) => {
+        const updated = [...prev.filter((u) => u.email.toLowerCase() !== cleanEmail), newUser];
         if (typeof window !== 'undefined') {
-          localStorage.setItem('workorbit_registered_emails', JSON.stringify(updated));
+          localStorage.setItem('workorbit_registered_users', JSON.stringify(updated));
         }
         return updated;
       });
-      setSuccessMessage(`Account created for ${fullName}! Logging in...`);
+
+      setSuccessMessage(`Account created for ${newUser.fullName}! Signing in to ${newUser.companyName}...`);
       setTimeout(() => {
-        onLogin(cleanEmail, fullName);
+        onLogin(newUser.email, newUser.fullName, newUser.companyName);
       }, 500);
     }
   };

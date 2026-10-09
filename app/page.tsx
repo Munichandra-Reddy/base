@@ -48,6 +48,21 @@ import {
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [currentUser, setCurrentUser] = useState<{
+    email: string;
+    fullName: string;
+    companyName: string;
+  } | null>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('workorbit_current_user');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {}
+      }
+    }
+    return null;
+  });
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activities, setActivities] = useState<Activity[]>(initialActivities);
@@ -172,6 +187,11 @@ export default function Home() {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    setCurrentUser(null);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('workorbit_logged_in', 'false');
+      localStorage.removeItem('workorbit_current_user');
+    }
   };
 
   const handleAddEmployee = async (name: string, email: string, role?: string) => {
@@ -236,17 +256,31 @@ export default function Home() {
     return newPerson;
   };
 
-  const handleLogin = (email?: string, fullName?: string) => {
+  const handleLogin = (email?: string, fullName?: string, companyName?: string) => {
     setIsLoggedIn(true);
-    setActiveTab('dashboard');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('workorbit_logged_in', 'true');
+    }
 
     if (email) {
       const cleanEmail = email.toLowerCase().trim();
+      const userObj = {
+        email: cleanEmail,
+        fullName: fullName?.trim() || cleanEmail.split('@')[0],
+        companyName: companyName?.trim() || 'ABC Technologies',
+      };
+      setCurrentUser(userObj);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workorbit_current_user', JSON.stringify(userObj));
+      }
+
       const existing = people.find((p) => p.email.toLowerCase() === cleanEmail);
       if (!existing) {
-        handleAddEmployee(fullName || email.split('@')[0], cleanEmail);
+        handleAddEmployee(userObj.fullName, cleanEmail);
       }
     }
+
+    setActiveTab('dashboard');
   };
 
   if (!isLoggedIn) {
@@ -464,6 +498,7 @@ export default function Home() {
         onToggleNotifications={() => setIsNotificationsOpen(!isNotificationsOpen)}
         unreadNotifications={unreadCount}
         onLogout={handleLogout}
+        currentUser={currentUser}
       />
 
       {/* Popover Notifications */}
@@ -503,6 +538,7 @@ export default function Home() {
               onViewAllTasks={() => setActiveTab('tasks')}
               onViewEmployees={() => setActiveTab('people')}
               onViewProjects={() => setActiveTab('projects')}
+              currentUser={currentUser}
             />
           )}
 

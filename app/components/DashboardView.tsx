@@ -13,6 +13,7 @@ interface DashboardViewProps {
   onViewAllTasks: () => void;
   onViewEmployees?: () => void;
   onViewProjects?: () => void;
+  currentUser?: { email: string; fullName: string; companyName: string } | null;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -24,14 +25,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onViewAllTasks,
   onViewEmployees,
   onViewProjects,
+  currentUser,
 }) => {
+  const userName = currentUser?.fullName || 'rahul';
+
   return (
     <div className="space-y-7">
       {/* Top Welcome Banner */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 p-8 text-white shadow-md">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div>
-            <h1 className="text-4xl font-extrabold tracking-tight mb-2">Good day, rahul!</h1>
+            <h1 className="text-4xl font-extrabold tracking-tight mb-2">Good day, {userName}!</h1>
             <p className="text-blue-100 text-base font-medium">
               Here is what is happening across your workspace today.
             </p>

@@ -21,6 +21,7 @@ interface HeaderProps {
   onToggleNotifications: () => void;
   unreadNotifications: number;
   onLogout?: () => void;
+  currentUser?: { email: string; fullName: string; companyName: string } | null;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -29,6 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleNotifications,
   unreadNotifications,
   onLogout,
+  currentUser,
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>(defaultWorkspaces);
@@ -41,6 +43,10 @@ export const Header: React.FC<HeaderProps> = ({
 
   const workspaceRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+
+  const userName = currentUser?.fullName || 'rahul';
+  const userEmail = currentUser?.email || 'rahul@abctech.com';
+  const userAvatar = (userName[0] || 'R').toUpperCase();
 
   // Load persisted localStorage state strictly after initial client mount to prevent SSR hydration errors
   useEffect(() => {
@@ -74,6 +80,8 @@ export const Header: React.FC<HeaderProps> = ({
 
   const activeWorkspace =
     workspaces.find((w) => w.id === activeWorkspaceId) || workspaces[0] || defaultWorkspaces[0];
+
+  const displayWorkspaceName = currentUser?.companyName || activeWorkspace.name;
 
   const handleSelectWorkspace = (ws: WorkspaceItem) => {
     setActiveWorkspaceId(ws.id);
@@ -134,7 +142,7 @@ export const Header: React.FC<HeaderProps> = ({
             }}
             className="flex items-center gap-2.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 font-semibold hover:bg-slate-100 active:bg-slate-200 transition-colors cursor-pointer ml-2 focus:outline-none"
           >
-            <span suppressHydrationWarning>{activeWorkspace.name}</span>
+            <span suppressHydrationWarning>{displayWorkspaceName}</span>
             <span
               suppressHydrationWarning
               className="text-[10px] font-extrabold tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 uppercase"
@@ -307,10 +315,10 @@ export const Header: React.FC<HeaderProps> = ({
           className="flex items-center gap-2 pl-2 border-l border-slate-200 cursor-pointer hover:opacity-90 select-none py-1"
         >
           <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-extrabold flex items-center justify-center text-sm shadow-xs border border-blue-200">
-            R
+            {userAvatar}
           </div>
           <div className="hidden md:block text-left leading-tight">
-            <div className="font-bold text-xs text-slate-900">rahul</div>
+            <div className="font-bold text-xs text-slate-900">{userName}</div>
             <div className="text-[11px] text-slate-500 font-medium">Workspace Admin</div>
           </div>
           <svg className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -324,11 +332,11 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="p-4 border-b border-slate-100 bg-slate-50/50">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
-                  R
+                  {userAvatar}
                 </div>
                 <div className="min-w-0">
-                  <div className="font-bold text-sm text-slate-900 truncate">rahul</div>
-                  <div className="text-xs text-slate-500 truncate">rahul@abctech.com</div>
+                  <div className="font-bold text-sm text-slate-900 truncate">{userName}</div>
+                  <div className="text-xs text-slate-500 truncate">{userEmail}</div>
                 </div>
               </div>
               <div className="mt-2">
