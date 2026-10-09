@@ -29,6 +29,21 @@ import {
 } from '@/lib/data';
 
 import { Task, Activity, Project, ChatMessage, CheckIn, FileItem, Person } from '@/lib/types';
+import {
+  subscribeToChatMessages,
+  addFirebaseChatMessage,
+  subscribeToEmployees,
+  addFirebaseEmployee,
+  subscribeToTasks,
+  addFirebaseTask,
+  toggleFirebaseTask,
+  subscribeToProjects,
+  addFirebaseProject,
+  subscribeToCheckIns,
+  addFirebaseCheckIn,
+  subscribeToFiles,
+  addFirebaseFile,
+} from '@/lib/firebaseServices';
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -112,6 +127,31 @@ export default function Home() {
           if (typeof parsed === 'number') setUnreadCount(parsed);
         } catch (e) {}
       }
+
+      // Live Firestore Subscriptions
+      try {
+        const unsubChat = subscribeToChatMessages('general', (msgs) => {
+          if (msgs && msgs.length > 0) setChatMessages(msgs);
+        });
+        const unsubEmp = subscribeToEmployees((peopleList) => {
+          if (peopleList && peopleList.length > 0) setPeople(peopleList);
+        });
+        const unsubTasks = subscribeToTasks((tasksList) => {
+          if (tasksList && tasksList.length > 0) setTasks(tasksList);
+        });
+        const unsubProj = subscribeToProjects((projList) => {
+          if (projList && projList.length > 0) setProjects(projList);
+        });
+
+        return () => {
+          unsubChat();
+          unsubEmp();
+          unsubTasks();
+          unsubProj();
+        };
+      } catch (err) {
+        console.error('Firebase subscription error:', err);
+      }
     }
   }, []);
 
@@ -187,11 +227,7 @@ export default function Home() {
     });
 
     try {
-      await fetch('/api/people', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPerson),
-      });
+      await addFirebaseEmployee(newPerson);
     } catch (err) {}
 
     return newPerson;
@@ -215,6 +251,9 @@ export default function Home() {
   }
 
   const handleToggleTask = async (id: string) => {
+    const targetTask = tasks.find((t) => t.id === id);
+    const newStatus = targetTask ? !targetTask.completed : true;
+
     setTasks((prev) => {
       const updated = prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t));
       if (typeof window !== 'undefined') {
@@ -224,11 +263,7 @@ export default function Home() {
     });
 
     try {
-      await fetch('/api/tasks', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
-      });
+      await toggleFirebaseTask(id, newStatus);
     } catch (err) {}
   };
 
@@ -271,15 +306,11 @@ export default function Home() {
     });
 
     try {
-      await fetch('/api/tasks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, project }),
-      });
+      await addFirebaseTask(newTask);
     } catch (err) {}
   };
 
-  // Add Project with localStorage Persistence
+  // Add Project with localStorage & Firebase Persistence
   const handleAddProject = async (name: string, description: string) => {
     const newProj: Project = {
       id: `p-${Date.now()}`,
@@ -321,11 +352,7 @@ export default function Home() {
     });
 
     try {
-      await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, description }),
-      });
+      await addFirebaseProject(newProj);
     } catch (err) {}
   };
 
@@ -348,10 +375,13 @@ export default function Home() {
     });
 
     try {
-      await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender: 'Rahul Kumar', content, channel }),
+      await addFirebaseChatMessage({
+        sender: 'Rahul Kumar',
+        senderAvatar: 'R',
+        avatarBg: 'bg-blue-100 text-blue-700',
+        content,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        channel,
       });
     } catch (err) {}
   };
