@@ -43,6 +43,7 @@ import {
   addFirebaseCheckIn,
   subscribeToFiles,
   addFirebaseFile,
+  seedInitialDataToFirebase,
 } from '@/lib/firebaseServices';
 
 export default function Home() {
@@ -128,8 +129,10 @@ export default function Home() {
         } catch (e) {}
       }
 
-      // Live Firestore Subscriptions
+      // Live Firestore Subscriptions & Initial Seeding
       try {
+        seedInitialDataToFirebase();
+
         const unsubChat = subscribeToChatMessages('general', (msgs) => {
           if (msgs && msgs.length > 0) setChatMessages(msgs);
         });

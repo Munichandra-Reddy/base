@@ -10,6 +10,30 @@ import {
   setDoc,
 } from 'firebase/firestore';
 import { Task, Project, ChatMessage, Person, CheckIn, FileItem } from './types';
+import { initialPeople, initialTasks, initialProjects, initialChatMessages } from './data';
+
+// ==========================================
+// AUTO-SEED INITIAL DATA TO FIREBASE FIRESTORE
+// ==========================================
+export const seedInitialDataToFirebase = async () => {
+  if (typeof window === 'undefined') return;
+  try {
+    for (const p of initialPeople) {
+      await setDoc(doc(db, 'employees', p.id), p, { merge: true });
+    }
+    for (const t of initialTasks) {
+      await setDoc(doc(db, 'tasks', t.id), t, { merge: true });
+    }
+    for (const pr of initialProjects) {
+      await setDoc(doc(db, 'projects', pr.id), pr, { merge: true });
+    }
+    for (const c of initialChatMessages) {
+      await setDoc(doc(db, 'chat_messages', c.id), c, { merge: true });
+    }
+  } catch (e) {
+    console.error('Firebase seeding error:', e);
+  }
+};
 
 // ==========================================
 // 1. CAMPFIRE CHAT MESSAGES (REAL-TIME SYNC)
