@@ -9,16 +9,6 @@ interface ProjectsViewProps {
   onOpenCreateProject: () => void;
 }
 
-const BRAND_ICONS = [
-  { bg: 'bg-blue-500 text-white', label: '📊' },
-  { bg: 'bg-orange-500 text-white', label: '🦊' },
-  { bg: 'bg-sky-500 text-white', label: '🚀' },
-  { bg: 'bg-purple-600 text-white', label: 'W9' },
-  { bg: 'bg-amber-400 text-amber-950 font-black', label: 'M' },
-  { bg: 'bg-blue-600 text-white font-extrabold text-[11px]', label: 'JS' },
-  { bg: 'bg-emerald-600 text-white', label: '☕' },
-];
-
 export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCreateProject }) => {
   const [viewMode, setViewMode] = useState<'list' | 'cards' | 'calendar' | 'kanban'>('list');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -88,18 +78,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-slate-200/80">
         {/* Left View Tabs */}
         <div className="flex items-center gap-6 text-xs font-bold text-slate-500 overflow-x-auto">
-          <button
-            type="button"
-            onClick={() => setViewMode('calendar')}
-            className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 ${
-              viewMode === 'calendar'
-                ? 'text-fuchsia-600 border-fuchsia-600 font-extrabold'
-                : 'border-transparent hover:text-slate-800'
-            }`}
-          >
-            <span>📅</span> Calendar
-          </button>
-
           <button
             type="button"
             onClick={() => setViewMode('list')}
@@ -203,7 +181,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
               <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
                 {projects.map((project, idx) => {
                   const isChecked = selectedIds.includes(project.id);
-                  const brand = BRAND_ICONS[idx % BRAND_ICONS.length];
 
                   const startDate = project.startDate || '16/07/2024';
                   const deadline = project.deadline || '24/10/2024';
@@ -258,18 +235,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                         />
                       </td>
 
-                      {/* Project Icon + Name */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-8 h-8 rounded-xl ${brand.bg} flex items-center justify-center shadow-2xs font-bold text-xs shrink-0`}
-                          >
-                            {brand.label}
-                          </div>
-                          <span className="font-bold text-slate-900 text-sm">
-                            {project.name}
-                          </span>
-                        </div>
+                      {/* Project Name */}
+                      <td className="py-3.5 px-4 font-bold text-slate-900 text-sm">
+                        {project.name}
                       </td>
 
                       {/* Start Date */}
