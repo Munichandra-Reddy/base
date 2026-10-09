@@ -11,12 +11,16 @@ export interface Task {
 export interface Project {
   id: string;
   name: string;
-  status: 'active' | 'completed' | 'on_hold';
+  status: 'active' | 'completed' | 'on_hold' | string;
   progress: number;
   openToDos: number;
   members: string[];
   description: string;
   updatedAt: string;
+  startDate?: string;
+  deadline?: string;
+  currency?: string;
+  priority?: 'high' | 'medium' | 'low';
 }
 
 export interface Activity {
