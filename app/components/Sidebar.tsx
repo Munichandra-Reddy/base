@@ -97,7 +97,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom Storage & Workspace Plan Card */}
-      <div className="pt-4 border-t border-slate-100 space-y-3">
+      <div className="pt-4 border-t border-slate-100">
         <div>
           <div className="flex items-center justify-between text-xs font-bold text-slate-600 mb-2">
             <span>Workspace Plan</span>
@@ -112,19 +112,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="text-[11px] font-medium text-slate-400">
             {storageUsedGB} GB of {storageTotalGB} GB storage used
           </div>
-        </div>
-
-        {/* Small steps rocket card matching Image 1 */}
-        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-50/80 to-indigo-50/80 border border-blue-100 text-center space-y-1">
-          <div className="w-9 h-9 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mx-auto text-lg shadow-2xs">
-            🚀
-          </div>
-          <p className="text-xs font-bold text-slate-800 leading-snug">
-            Small steps <br /> create big results.
-          </p>
-          <p className="text-[11px] font-black text-blue-600 italic tracking-wide">
-            WorkOrbit
-          </p>
         </div>
       </div>
     </aside>
