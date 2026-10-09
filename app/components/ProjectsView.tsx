@@ -276,9 +276,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
         </div>
       )}
 
-      {/* CARDS VIEW GRID (Compact Cards Layout matching Image 1 & 2) */}
+      {/* CARDS VIEW GRID (Sleek Compact Cards Layout) */}
       {viewMode === 'cards' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
           {projects.map((project) => {
             const description =
               project.description ||
@@ -298,35 +298,35 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
             return (
               <div
                 key={project.id}
-                className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+                className="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between space-y-2.5 max-w-sm"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shadow-2xs">
-                      <FolderIcon className="w-5 h-5" />
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold shadow-2xs">
+                      <FolderIcon className="w-4 h-4" />
                     </div>
                     <span
-                      className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${statusStyle}`}
+                      className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider ${statusStyle}`}
                     >
                       {rawStatus.toUpperCase()}
                     </span>
                   </div>
-                  <h3 className="text-base font-extrabold text-slate-900 mb-1 leading-snug">
+                  <h3 className="text-sm font-bold text-slate-900 mb-0.5 leading-snug">
                     {project.name}
                   </h3>
-                  <p className="text-xs font-medium text-slate-500 leading-relaxed line-clamp-2 min-h-[34px]">
+                  <p className="text-[11px] font-medium text-slate-500 leading-relaxed line-clamp-2 min-h-[30px]">
                     {description}
                   </p>
                 </div>
 
-                <div className="space-y-3 pt-3 border-t border-slate-100">
+                <div className="space-y-2 pt-2 border-t border-slate-100">
                   {/* Progress Bar */}
                   <div>
-                    <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                    <div className="flex justify-between text-[11px] font-bold text-slate-700 mb-1">
                       <span>Progress</span>
                       <span>{project.progress}%</span>
                     </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                       <div
                         className="bg-blue-600 h-full rounded-full transition-all duration-500"
                         style={{ width: `${project.progress}%` }}
@@ -335,16 +335,15 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                   </div>
 
                   {/* Footer Meta: Open To-Dos & Team Avatars */}
-                  <div className="flex items-center justify-between pt-0.5 text-xs font-semibold text-slate-600">
+                  <div className="flex items-center justify-between pt-0.5 text-[11px] font-semibold text-slate-600">
                     <div>
-                      <span className="font-extrabold text-slate-900">{project.openToDos}</span> open
-                      to-dos
+                      <span className="font-extrabold text-slate-900">{project.openToDos}</span> open to-dos
                     </div>
-                    <div className="flex -space-x-1.5">
+                    <div className="flex -space-x-1">
                       {project.members.map((m, idx) => (
                         <div
                           key={idx}
-                          className="w-7 h-7 rounded-full bg-blue-100 border-2 border-white text-blue-700 font-extrabold text-[10px] flex items-center justify-center shadow-2xs"
+                          className="w-6 h-6 rounded-full bg-blue-100 border-2 border-white text-blue-700 font-extrabold text-[9px] flex items-center justify-center shadow-2xs"
                           title={m}
                         >
                           {m[0]}
