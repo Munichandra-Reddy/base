@@ -11,24 +11,9 @@ interface ProjectsViewProps {
 
 export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCreateProject }) => {
   const [viewMode, setViewMode] = useState<'list' | 'cards' | 'calendar' | 'kanban'>('list');
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showFilter, setShowFilter] = useState('All Projects');
   const [sortFilter, setSortFilter] = useState('Create Date');
   const [groupFilter, setGroupFilter] = useState('Design');
-
-  const toggleSelectAll = () => {
-    if (selectedIds.length === projects.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(projects.map((p) => p.id));
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
 
   return (
     <div className="space-y-6 font-sans">
@@ -152,14 +137,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
             <table className="w-full text-left border-collapse min-w-[900px]">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                  <th className="py-3.5 px-4 w-10 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.length === projects.length && projects.length > 0}
-                      onChange={toggleSelectAll}
-                      className="w-4 h-4 rounded border-slate-300 text-fuchsia-600 focus:ring-fuchsia-500 cursor-pointer"
-                    />
-                  </th>
                   <th className="py-3.5 px-4 font-bold text-slate-500">PROJECT NAME</th>
                   <th className="py-3.5 px-4 font-bold text-slate-500">START DATE</th>
                   <th className="py-3.5 px-4 font-bold text-slate-500">DEADLINE</th>
@@ -180,8 +157,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
                 {projects.map((project, idx) => {
-                  const isChecked = selectedIds.includes(project.id);
-
                   const startDate = project.startDate || '16/07/2024';
                   const deadline = project.deadline || '24/10/2024';
                   const currency = project.currency || (idx % 2 === 0 ? '$$$' : '---');
@@ -221,20 +196,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                   return (
                     <tr
                       key={project.id}
-                      className={`hover:bg-slate-50/80 transition-colors ${
-                        isChecked ? 'bg-fuchsia-50/30' : ''
-                      }`}
+                      className="hover:bg-slate-50/80 transition-colors"
                     >
-                      {/* Checkbox */}
-                      <td className="py-3.5 px-4 text-center">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => toggleSelect(project.id)}
-                          className="w-4 h-4 rounded border-slate-300 text-fuchsia-600 focus:ring-fuchsia-500 cursor-pointer"
-                        />
-                      </td>
-
                       {/* Project Name */}
                       <td className="py-3.5 px-4 font-bold text-slate-900 text-sm">
                         {project.name}
