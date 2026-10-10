@@ -358,30 +358,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="text-[10px] font-bold text-slate-400 uppercase border-b border-slate-100 pb-2">
-                      <th className="pb-2 font-bold">Project Name</th>
-                      <th className="pb-2 font-bold">Progress</th>
-                      <th className="pb-2 font-bold">Due Date</th>
-                      <th className="pb-2 font-bold text-right">Status</th>
+                      <th className="pb-2 font-bold whitespace-nowrap pr-3">Project Name</th>
+                      <th className="pb-2 font-bold whitespace-nowrap pr-3">Progress</th>
+                      <th className="pb-2 font-bold whitespace-nowrap pr-3">Due Date</th>
+                      <th className="pb-2 font-bold text-right whitespace-nowrap pl-2">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                     {/* Row 1 */}
                     <tr>
-                      <td className="py-2.5 font-bold text-slate-900 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px]">📁</span>
-                        <span className="truncate max-w-[110px]">E-Commerce Website</span>
-                      </td>
-                      <td className="py-2.5">
+                      <td className="py-2.5 font-bold text-slate-900 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                          <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px] shrink-0">📁</span>
+                          <span className="truncate max-w-[125px]">E-Commerce Website</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 whitespace-nowrap pr-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden shrink-0">
                             <div className="bg-slate-900 h-full rounded-full" style={{ width: '68%' }} />
                           </div>
                           <span className="text-[10px] font-bold text-slate-500">68%</span>
                         </div>
                       </td>
-                      <td className="py-2.5 text-[11px] text-slate-500">Oct 30, 2026</td>
-                      <td className="py-2.5 text-right">
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-200 text-slate-900">
+                      <td className="py-2.5 text-[11px] text-slate-500 font-semibold whitespace-nowrap pr-3">Oct 30, 2026</td>
+                      <td className="py-2.5 text-right whitespace-nowrap pl-2">
+                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-900 whitespace-nowrap">
                           Active
                         </span>
                       </td>
@@ -389,21 +391,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     {/* Row 2 */}
                     <tr>
-                      <td className="py-2.5 font-bold text-slate-900 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px]">📁</span>
-                        <span className="truncate max-w-[110px]">Mobile App v2</span>
-                      </td>
-                      <td className="py-2.5">
+                      <td className="py-2.5 font-bold text-slate-900 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                          <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px] shrink-0">📁</span>
+                          <span className="truncate max-w-[125px]">Mobile App v2</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 whitespace-nowrap pr-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden shrink-0">
                             <div className="bg-slate-900 h-full rounded-full" style={{ width: '45%' }} />
                           </div>
                           <span className="text-[10px] font-bold text-slate-500">45%</span>
                         </div>
                       </td>
-                      <td className="py-2.5 text-[11px] text-slate-500">Nov 15, 2026</td>
-                      <td className="py-2.5 text-right">
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-200 text-slate-900">
+                      <td className="py-2.5 text-[11px] text-slate-500 font-semibold whitespace-nowrap pr-3">Nov 15, 2026</td>
+                      <td className="py-2.5 text-right whitespace-nowrap pl-2">
+                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-900 whitespace-nowrap">
                           Active
                         </span>
                       </td>
@@ -411,21 +415,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     {/* Row 3 */}
                     <tr>
-                      <td className="py-2.5 font-bold text-slate-900 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px]">📁</span>
-                        <span className="truncate max-w-[110px]">Marketing Campaign Q4</span>
-                      </td>
-                      <td className="py-2.5">
+                      <td className="py-2.5 font-bold text-slate-900 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                          <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px] shrink-0">📁</span>
+                          <span className="truncate max-w-[125px]">Marketing Campaign Q4</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 whitespace-nowrap pr-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden shrink-0">
                             <div className="bg-slate-900 h-full rounded-full" style={{ width: '82%' }} />
                           </div>
                           <span className="text-[10px] font-bold text-slate-500">82%</span>
                         </div>
                       </td>
-                      <td className="py-2.5 text-[11px] text-slate-500">Oct 25, 2026</td>
-                      <td className="py-2.5 text-right">
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-200 text-slate-900">
+                      <td className="py-2.5 text-[11px] text-slate-500 font-semibold whitespace-nowrap pr-3">Oct 25, 2026</td>
+                      <td className="py-2.5 text-right whitespace-nowrap pl-2">
+                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-900 whitespace-nowrap">
                           Active
                         </span>
                       </td>
@@ -433,21 +439,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     {/* Row 4 */}
                     <tr>
-                      <td className="py-2.5 font-bold text-slate-900 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px]">📁</span>
-                        <span className="truncate max-w-[110px]">HR Management System</span>
-                      </td>
-                      <td className="py-2.5">
+                      <td className="py-2.5 font-bold text-slate-900 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                          <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px] shrink-0">📁</span>
+                          <span className="truncate max-w-[125px]">HR Management System</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 whitespace-nowrap pr-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden shrink-0">
                             <div className="bg-slate-500 h-full rounded-full" style={{ width: '32%' }} />
                           </div>
                           <span className="text-[10px] font-bold text-slate-500">32%</span>
                         </div>
                       </td>
-                      <td className="py-2.5 text-[11px] text-slate-500">Nov 10, 2026</td>
-                      <td className="py-2.5 text-right">
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                      <td className="py-2.5 text-[11px] text-slate-500 font-semibold whitespace-nowrap pr-3">Nov 10, 2026</td>
+                      <td className="py-2.5 text-right whitespace-nowrap pl-2">
+                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">
                           On Hold
                         </span>
                       </td>
@@ -455,21 +463,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     {/* Row 5 */}
                     <tr>
-                      <td className="py-2.5 font-bold text-slate-900 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px]">📁</span>
-                        <span className="truncate max-w-[110px]">Cloud Migration</span>
-                      </td>
-                      <td className="py-2.5">
+                      <td className="py-2.5 font-bold text-slate-900 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                          <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px] shrink-0">📁</span>
+                          <span className="truncate max-w-[125px]">Cloud Migration</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 whitespace-nowrap pr-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden shrink-0">
                             <div className="bg-slate-900 h-full rounded-full" style={{ width: '60%' }} />
                           </div>
                           <span className="text-[10px] font-bold text-slate-500">60%</span>
                         </div>
                       </td>
-                      <td className="py-2.5 text-[11px] text-slate-500">Dec 05, 2026</td>
-                      <td className="py-2.5 text-right">
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-200 text-slate-900">
+                      <td className="py-2.5 text-[11px] text-slate-500 font-semibold whitespace-nowrap pr-3">Dec 05, 2026</td>
+                      <td className="py-2.5 text-right whitespace-nowrap pl-2">
+                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-900 whitespace-nowrap">
                           Active
                         </span>
                       </td>

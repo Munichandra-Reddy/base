@@ -1320,17 +1320,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <table className="w-full text-left border-collapse min-w-[900px]">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                  <th className="py-3.5 px-4 font-bold text-slate-500">PROJECT NAME</th>
-                  <th className="py-3.5 px-4 font-bold text-slate-500">START DATE</th>
-                  <th className="py-3.5 px-4 font-bold text-slate-500">DEADLINE</th>
-                  <th className="py-3.5 px-4 font-bold text-slate-500">
+                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">PROJECT NAME</th>
+                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">START DATE</th>
+                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">DEADLINE</th>
+                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">
                     CURRENCY <span className="text-slate-400">✏️</span>
                   </th>
-                  <th className="py-3.5 px-4 font-bold text-slate-500">
+                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">
                     STATUS <span className="text-slate-400">✏️</span>
                   </th>
-                  <th className="py-3.5 px-4 font-bold text-slate-500">PEOPLE</th>
-                  <th className="py-3.5 px-4 font-bold text-slate-500">
+                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">PEOPLE</th>
+                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">
                     PRIORITY <span className="text-slate-400">✏️</span>
                   </th>
                 </tr>
@@ -1392,18 +1392,18 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         className="hover:bg-slate-100/70 transition-colors cursor-pointer"
                         title="Click to view full project details"
                       >
-                        <td className="py-3.5 px-4 font-bold text-slate-900 text-sm">
+                        <td className="py-3.5 px-4 font-bold text-slate-900 text-sm whitespace-nowrap">
                           {project.name}
                         </td>
-                        <td className="py-3.5 px-4 text-slate-600 font-semibold">{startDate}</td>
-                        <td className="py-3.5 px-4 text-slate-600 font-semibold">{deadline}</td>
-                        <td className="py-3.5 px-4 font-medium text-slate-500">{currency}</td>
-                        <td className="py-3.5 px-4">
-                          <span className={`px-3 py-1 rounded-lg font-bold text-[11px] ${statusStyle}`}>
+                        <td className="py-3.5 px-4 text-slate-600 font-semibold whitespace-nowrap">{startDate}</td>
+                        <td className="py-3.5 px-4 text-slate-600 font-semibold whitespace-nowrap">{deadline}</td>
+                        <td className="py-3.5 px-4 font-medium text-slate-500 whitespace-nowrap">{currency}</td>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className={`inline-block px-3 py-1 rounded-lg font-bold text-[11px] whitespace-nowrap ${statusStyle}`}>
                             {statusLabel}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4">
+                        <td className="py-3.5 px-4 whitespace-nowrap">
                           <div className="flex -space-x-1.5">
                             {project.members.map((m, mIdx) => (
                               <div
@@ -1416,8 +1416,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                             ))}
                           </div>
                         </td>
-                        <td className="py-3.5 px-4">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${prioStyle}`}>
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${prioStyle}`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${prioDot}`} />
                             <span>{prioLabel}</span>
                           </span>
