@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Project, Task, FileItem } from '@/lib/types';
 import { PlusIcon, FolderIcon } from './Icons';
+import { getDirectBlobUrl } from '@/lib/fileUtils';
 
 interface ProjectsViewProps {
   projects: Project[];
@@ -130,102 +131,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       }
     }
 
-    const lowerName = docName.toLowerCase();
-    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'].some((ext) =>
-      lowerName.endsWith('.' + ext)
-    );
-    const isPdf = lowerName.endsWith('.pdf');
-
-    if (fileUrl) {
-      const win = window.open();
-      if (win) {
-        win.document.title = docName;
-        if (isImage) {
-          win.document.write(
-            `<!DOCTYPE html><html><head><title>${docName}</title><style>body{margin:0;background:#0b0f19;display:flex;justify-content:center;align-items:center;min-height:100vh;}img{max-width:95vw;max-height:95vh;object-fit:contain;border-radius:8px;box-shadow:0 20px 40px rgba(0,0,0,0.8);}</style></head><body><img src="${fileUrl}" alt="${docName}" /></body></html>`
-          );
-        } else if (isPdf) {
-          win.document.write(
-            `<!DOCTYPE html><html><head><title>${docName}</title><style>body{margin:0;padding:0;overflow:hidden;background:#525659;}</style></head><body><iframe src="${fileUrl}" style="width:100vw;height:100vh;border:none;"></iframe></body></html>`
-          );
-        } else {
-          win.document.write(
-            `<!DOCTYPE html><html><head><title>${docName}</title><style>body{margin:0;background:#0b0f19;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;}iframe{width:100vw;height:100vh;border:none;}</style></head><body><iframe src="${fileUrl}"></iframe></body></html>`
-          );
-        }
-        win.document.close();
-        return;
-      }
-    }
-
-    // Fallback if file was added by typing a name without choosing a file object on disk
-    const win = window.open('', '_blank');
-    if (win) {
-      win.document.title = docName;
-      if (isImage) {
-        win.document.write(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>${docName}</title>
-              <style>
-                body { margin:0; background:#0b0f19; display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:100vh; font-family:sans-serif; color:white; }
-                img { max-width:85vw; max-height:80vh; object-fit:contain; border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.8); }
-                p { margin-top:16px; font-size:14px; color:#94a3b8; font-weight:bold; }
-              </style>
-            </head>
-            <body>
-              <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop" alt="${docName}" />
-              <p>Image File: ${docName}</p>
-            </body>
-          </html>
-        `);
-      } else if (isPdf) {
-        win.document.write(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>${docName}</title>
-              <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 40px; }
-                .card { max-width: 800px; margin: 0 auto; background: #ffffff; color: #0f172a; border-radius: 20px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); }
-                .title { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0 0 10px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
-                .content { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; font-size: 15px; line-height: 1.8; color: #334155; }
-              </style>
-            </head>
-            <body>
-              <div class="card">
-                <h1 class="title">📄 ${docName}</h1>
-                <div class="content">
-                  <p><strong>PDF Document:</strong> ${docName}</p>
-                  <p>Project Deliverable for <strong>${selectedProject?.name || 'Workspace Project'}</strong></p>
-                </div>
-              </div>
-            </body>
-          </html>
-        `);
-      } else {
-        win.document.write(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>${docName}</title>
-              <style>
-                body { font-family: sans-serif; background: #0f172a; color: white; padding: 40px; }
-                .card { max-width: 800px; margin: 0 auto; background: white; color: #0f172a; padding: 40px; border-radius: 16px; }
-              </style>
-            </head>
-            <body>
-              <div class="card">
-                <h2>📄 ${docName}</h2>
-                <p>Project Document for ${selectedProject?.name || 'Workspace Project'}</p>
-              </div>
-            </body>
-          </html>
-        `);
-      }
-      win.document.close();
-    }
+    const targetBlobUrl = getDirectBlobUrl(docName, fileUrl, selectedProject?.name || 'Workspace');
+    window.open(targetBlobUrl, '_blank');
   };
 
   const hasActiveFilters =

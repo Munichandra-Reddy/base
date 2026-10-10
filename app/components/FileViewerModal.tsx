@@ -3,6 +3,7 @@
 import React from 'react';
 import { FileItem } from '@/lib/types';
 import { FileIcon } from './Icons';
+import { getDirectBlobUrl } from '@/lib/fileUtils';
 
 interface FileViewerModalProps {
   file: FileItem | null;
@@ -13,57 +14,22 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
   if (!file) return null;
 
   const handleOpenDocument = () => {
-    if (file.fileUrl && file.fileUrl.startsWith('http')) {
-      window.open(file.fileUrl, '_blank');
-      return;
+    let fileUrl = file.fileUrl;
+
+    if (!fileUrl && typeof window !== 'undefined') {
+      const store = (window as any).__WORKORBIT_FILE_STORE__ || {};
+      fileUrl = store[file.name] || store[file.name.toLowerCase()];
+
+      if (!fileUrl) {
+        try {
+          const saved = JSON.parse(localStorage.getItem('workorbit_file_urls') || '{}');
+          fileUrl = saved[file.name] || saved[file.name.toLowerCase()];
+        } catch (e) {}
+      }
     }
 
-    const win = window.open('', '_blank');
-    if (win) {
-      win.document.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>${file.name} - Document Viewer</title>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 40px; }
-              .container { max-width: 800px; margin: 0 auto; background: #ffffff; color: #0f172a; border-radius: 20px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); }
-              .header { border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-              .title { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0 0 6px 0; }
-              .meta { font-size: 14px; color: #64748b; font-weight: 600; }
-              .content { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 30px; font-size: 15px; line-height: 1.8; color: #334155; }
-              .badge { background: #0f172a; color: #fff; padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 800; text-transform: uppercase; }
-              .btn { background: #0f172a; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; margin-top: 24px; transition: background 0.2s; }
-              .btn:hover { background: #000000; }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <div>
-                  <h1 class="title">${file.name}</h1>
-                  <div class="meta">Project: ${file.project} • Uploaded by ${file.uploadedBy} on ${file.uploadedAt}</div>
-                </div>
-                <span class="badge">Official PDF</span>
-              </div>
-              
-              <div class="content">
-                <h3 style="margin-top:0; color:#0f172a; font-size:18px;">📄 Document Verification & Official Scope</h3>
-                <p>This is the verified PDF document <strong>${file.name}</strong> assigned to the <strong>${file.project}</strong> workspace project.</p>
-                <p>All scope items, requirements, and official deliverables have been validated for workspace access.</p>
-                <hr style="border:0; border-top:1px solid #cbd5e1; margin:20px 0;" />
-                <p style="font-size:13px; color:#64748b; margin:0;">
-                  File Size: ${file.size} • Security Status: Verified & Encrypted • System Status: Active
-                </p>
-              </div>
-              
-              <button class="btn" onclick="window.print()">🖨️ Print / Save Document</button>
-            </div>
-          </body>
-        </html>
-      `);
-      win.document.close();
-    }
+    const targetBlobUrl = getDirectBlobUrl(file.name, fileUrl, file.project);
+    window.open(targetBlobUrl, '_blank');
   };
 
   const handleDownloadFile = (e: React.MouseEvent) => {
