@@ -8,7 +8,6 @@ import {
   ClockIcon,
   UsersIcon,
   CalendarIcon,
-  PlusIcon,
 } from './Icons';
 
 interface DashboardViewProps {
@@ -36,10 +35,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 }) => {
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
 
-  const rawName = currentUser?.fullName || 'RAJU';
-  const displayGreetingName = rawName.toUpperCase();
-  const avatarInitial = (rawName[0] || 'R').toUpperCase();
-
   const filteredTasks = tasks.filter((t) => {
     if (taskFilter === 'pending') return !t.completed;
     if (taskFilter === 'completed') return t.completed;
@@ -48,27 +43,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-6 font-sans">
-      {/* 1. TOP WELCOME BANNER (Monochrome Black/Slate Banner) */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-black p-6 sm:p-7 text-white shadow-md">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-1 text-white">
-              Good day, {displayGreetingName}!
-            </h1>
-            <p className="text-slate-300 text-sm sm:text-base font-medium">
-              Here is what is happening across your workspace today.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onOpenAddTask}
-            className="px-5 py-2.5 bg-white hover:bg-slate-100 text-slate-900 font-bold text-sm rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-2 cursor-pointer self-start md:self-auto shrink-0"
-          >
-            <PlusIcon className="w-4 h-4 text-slate-900 stroke-[3]" />
-            <span>Add New Task</span>
-          </button>
-        </div>
-      </div>
 
       {/* 2. TOP METRICS CARDS BAR (5 Cards Grid Monochrome) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
