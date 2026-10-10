@@ -304,15 +304,47 @@ export default function Home() {
     } catch (err) {}
   };
 
-  const handleAddTask = async (title: string, project: string) => {
+  const handleAddTask = async (
+    taskData:
+      | {
+          title: string;
+          description?: string;
+          project: string;
+          assignedTo?: string;
+          priority?: 'low' | 'medium' | 'high';
+          dueDate?: string;
+        }
+      | string,
+    projectArg?: string
+  ) => {
+    let title = '';
+    let project = 'E-Commerce Website';
+    let description = '';
+    let assignedTo = currentUser?.fullName || 'Rahul Kumar';
+    let priority: 'low' | 'medium' | 'high' = 'medium';
+    let dueDate = '2026-10-25';
+
+    if (typeof taskData === 'object') {
+      title = taskData.title;
+      project = taskData.project || project;
+      description = taskData.description || '';
+      assignedTo = taskData.assignedTo || assignedTo;
+      priority = taskData.priority || priority;
+      dueDate = taskData.dueDate || dueDate;
+    } else {
+      title = taskData;
+      if (projectArg) project = projectArg;
+    }
+
     const newTask: Task = {
       id: `t-${Date.now()}`,
       title,
       project,
       completed: false,
-      dueDate: '2026-10-05',
-      assignedTo: 'Rahul Kumar',
-      priority: 'high',
+      dueDate,
+      assignedTo,
+      priority,
+      description,
     };
 
     setTasks((prev) => {
@@ -325,9 +357,9 @@ export default function Home() {
 
     const newAct: Activity = {
       id: `act-${Date.now()}`,
-      userName: 'Rahul Kumar',
-      userAvatar: 'R',
-      avatarBg: 'bg-blue-100 text-blue-700',
+      userName: assignedTo,
+      userAvatar: assignedTo[0]?.toUpperCase() || 'R',
+      avatarBg: 'bg-slate-800 text-white',
       action: 'created task',
       target: title,
       timeAgo: 'Just now',
@@ -348,16 +380,50 @@ export default function Home() {
   };
 
   // Add Project with localStorage & Firebase Persistence
-  const handleAddProject = async (name: string, description: string) => {
+  const handleAddProject = async (
+    projectData:
+      | {
+          name: string;
+          description: string;
+          manager?: string;
+          members?: string[];
+          deadline?: string;
+          requiredDocuments?: string[];
+        }
+      | string,
+    descArg?: string
+  ) => {
+    let name = '';
+    let description = '';
+    let manager = currentUser?.fullName || 'Rahul Kumar';
+    let members: string[] = [manager];
+    let deadline = '2026-11-30';
+    let requiredDocuments: string[] = [];
+
+    if (typeof projectData === 'object') {
+      name = projectData.name;
+      description = projectData.description || 'New project workspace.';
+      manager = projectData.manager || manager;
+      members = projectData.members && projectData.members.length > 0 ? projectData.members : [manager];
+      deadline = projectData.deadline || deadline;
+      requiredDocuments = projectData.requiredDocuments || [];
+    } else {
+      name = projectData;
+      description = descArg || 'New project workspace.';
+    }
+
     const newProj: Project = {
       id: `p-${Date.now()}`,
       name,
       status: 'active',
-      progress: 10,
-      openToDos: 6,
-      members: ['Rahul Kumar'],
-      description: description || 'New project workspace.',
+      progress: 0,
+      openToDos: 5,
+      members,
+      description,
       updatedAt: 'Just now',
+      deadline,
+      manager,
+      requiredDocuments,
     };
 
     setProjects((prev) => {
@@ -371,9 +437,9 @@ export default function Home() {
     // Record activity for new project creation
     const newAct: Activity = {
       id: `act-${Date.now()}`,
-      userName: 'Rahul Kumar',
-      userAvatar: 'R',
-      avatarBg: 'bg-cyan-100 text-cyan-700',
+      userName: manager,
+      userAvatar: manager[0]?.toUpperCase() || 'R',
+      avatarBg: 'bg-slate-900 text-white',
       action: 'created project',
       target: name,
       timeAgo: 'Just now',
@@ -589,6 +655,8 @@ export default function Home() {
         onAddTask={handleAddTask}
         onAddProject={handleAddProject}
         onAddEmployee={handleAddEmployee}
+        people={people}
+        projects={projects}
       />
 
       <SearchModal

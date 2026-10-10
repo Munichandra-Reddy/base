@@ -6,6 +6,7 @@ export interface Task {
   dueDate?: string;
   assignedTo?: string;
   priority?: 'low' | 'medium' | 'high';
+  description?: string;
 }
 
 export interface Project {
@@ -21,6 +22,8 @@ export interface Project {
   deadline?: string;
   currency?: string;
   priority?: 'high' | 'medium' | 'low';
+  manager?: string;
+  requiredDocuments?: string[];
 }
 
 export interface Activity {
