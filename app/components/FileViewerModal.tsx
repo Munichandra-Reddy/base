@@ -3,7 +3,7 @@
 import React from 'react';
 import { FileItem } from '@/lib/types';
 import { FileIcon } from './Icons';
-import { getDirectBlobUrl } from '@/lib/fileUtils';
+import { getDirectBlobUrl, getDirectFileBlobUrl } from '@/lib/fileUtils';
 
 interface FileViewerModalProps {
   file: FileItem | null;
@@ -13,22 +13,9 @@ interface FileViewerModalProps {
 export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose }) => {
   if (!file) return null;
 
-  const handleOpenDocument = () => {
+  const handleOpenDocument = async () => {
     let fileUrl = file.fileUrl;
-
-    if (!fileUrl && typeof window !== 'undefined') {
-      const store = (window as any).__WORKORBIT_FILE_STORE__ || {};
-      fileUrl = store[file.name] || store[file.name.toLowerCase()];
-
-      if (!fileUrl) {
-        try {
-          const saved = JSON.parse(localStorage.getItem('workorbit_file_urls') || '{}');
-          fileUrl = saved[file.name] || saved[file.name.toLowerCase()];
-        } catch (e) {}
-      }
-    }
-
-    const targetBlobUrl = getDirectBlobUrl(file.name, fileUrl, file.project);
+    const targetBlobUrl = await getDirectFileBlobUrl(file.name, fileUrl, file.project);
     window.open(targetBlobUrl, '_blank');
   };
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { FileItem } from '@/lib/types';
+import { saveFileToDB } from '@/lib/fileUtils';
 
 interface UploadFileModalProps {
   isOpen: boolean;
@@ -31,15 +32,21 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
       setSelectedFileObj(file);
       setFileName(file.name);
 
+      if (typeof window !== 'undefined') {
+        (window as any).__WORKORBIT_FILE_STORE__ = (window as any).__WORKORBIT_FILE_STORE__ || {};
+        (window as any).__WORKORBIT_FILE_STORE__[file.name] = file;
+        (window as any).__WORKORBIT_FILE_STORE__[file.name.toLowerCase()] = file;
+        saveFileToDB(file.name, file);
+      }
+
       const reader = new FileReader();
       reader.onload = () => {
         const dataUrl = reader.result as string;
         setFileDataUrl(dataUrl);
 
         if (typeof window !== 'undefined') {
-          (window as any).__WORKORBIT_FILE_STORE__ = (window as any).__WORKORBIT_FILE_STORE__ || {};
-          (window as any).__WORKORBIT_FILE_STORE__[file.name] = dataUrl;
-          (window as any).__WORKORBIT_FILE_STORE__[file.name.toLowerCase()] = dataUrl;
+          (window as any).__WORKORBIT_FILE_STORE__[file.name + '_dataurl'] = dataUrl;
+          (window as any).__WORKORBIT_FILE_STORE__[file.name.toLowerCase() + '_dataurl'] = dataUrl;
 
           try {
             const saved = JSON.parse(localStorage.getItem('workorbit_file_urls') || '{}');

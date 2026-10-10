@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Project, Task, FileItem } from '@/lib/types';
 import { PlusIcon, FolderIcon } from './Icons';
-import { getDirectBlobUrl } from '@/lib/fileUtils';
+import { getDirectBlobUrl, getDirectFileBlobUrl } from '@/lib/fileUtils';
 
 interface ProjectsViewProps {
   projects: Project[];
@@ -107,31 +107,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     return Array.from(new Set([...fromProject, ...fromFiles]));
   }, [selectedProject, files]);
 
-  const handleViewDocument = (docName: string) => {
+  const handleViewDocument = async (docName: string) => {
     let fileUrl: string | undefined;
 
-    if (typeof window !== 'undefined') {
-      const store = (window as any).__WORKORBIT_FILE_STORE__ || {};
-      fileUrl = store[docName] || store[docName.toLowerCase()];
-
-      if (!fileUrl) {
-        try {
-          const saved = JSON.parse(localStorage.getItem('workorbit_file_urls') || '{}');
-          fileUrl = saved[docName] || saved[docName.toLowerCase()];
-        } catch (e) {}
-      }
+    const existingFile = (files || []).find(
+      (f) => f.name.toLowerCase().trim() === docName.toLowerCase().trim()
+    );
+    if (existingFile && existingFile.fileUrl) {
+      fileUrl = existingFile.fileUrl;
     }
 
-    if (!fileUrl) {
-      const existingFile = (files || []).find(
-        (f) => f.name.toLowerCase().trim() === docName.toLowerCase().trim()
-      );
-      if (existingFile && existingFile.fileUrl) {
-        fileUrl = existingFile.fileUrl;
-      }
-    }
-
-    const targetBlobUrl = getDirectBlobUrl(docName, fileUrl, selectedProject?.name || 'Workspace');
+    const targetBlobUrl = await getDirectFileBlobUrl(docName, fileUrl, selectedProject?.name || 'Workspace');
     window.open(targetBlobUrl, '_blank');
   };
 

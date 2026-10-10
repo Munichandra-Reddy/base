@@ -1,3 +1,55 @@
+const DB_NAME = 'WorkOrbitFileDB';
+const STORE_NAME = 'files';
+
+const openDB = (): Promise<IDBDatabase> => {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined' || !window.indexedDB) {
+      return reject('No indexedDB available');
+    }
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+export const saveFileToDB = async (name: string, dataUrlOrBlob: string | Blob | File): Promise<void> => {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.put(dataUrlOrBlob, name);
+    store.put(dataUrlOrBlob, name.toLowerCase());
+  } catch (e) {
+    console.error('IndexedDB save error:', e);
+  }
+};
+
+export const getFileFromDB = async (name: string): Promise<string | Blob | File | null> => {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    return new Promise((resolve) => {
+      const req1 = store.get(name);
+      req1.onsuccess = () => {
+        if (req1.result) return resolve(req1.result);
+        const req2 = store.get(name.toLowerCase());
+        req2.onsuccess = () => resolve(req2.result || null);
+        req2.onerror = () => resolve(null);
+      };
+      req1.onerror = () => resolve(null);
+    });
+  } catch (e) {
+    return null;
+  }
+};
+
 export const createRealPdfBlobUrl = (docName: string, projectName: string = 'Workspace'): string => {
   const safeTitle = docName.replace(/[()\\]/g, '');
   const safeProject = projectName.replace(/[()\\]/g, '');
@@ -70,6 +122,10 @@ export const getDirectBlobUrl = (docName: string, dataUrl?: string, projectName:
     } catch (e) {}
   }
 
+  if (dataUrl && dataUrl.startsWith('blob:')) {
+    return dataUrl;
+  }
+
   if (isPdf) {
     return createRealPdfBlobUrl(docName, projectName);
   }
@@ -82,4 +138,49 @@ export const getDirectBlobUrl = (docName: string, dataUrl?: string, projectName:
 
   const textBlob = new Blob([`WorkOrbit Document: ${docName}\nProject: ${projectName}\nStatus: Verified Deliverable`], { type: 'text/plain' });
   return URL.createObjectURL(textBlob);
+};
+
+export const getDirectFileBlobUrl = async (
+  docName: string,
+  providedUrl?: string,
+  projectName: string = 'Workspace'
+): Promise<string> => {
+  if (providedUrl && (providedUrl.startsWith('blob:') || providedUrl.startsWith('data:'))) {
+    return getDirectBlobUrl(docName, providedUrl, projectName);
+  }
+
+  if (typeof window !== 'undefined') {
+    const store = (window as any).__WORKORBIT_FILE_STORE__ || {};
+
+    const memoryObj = store[docName] || store[docName.toLowerCase()];
+    if (memoryObj instanceof File || memoryObj instanceof Blob) {
+      return URL.createObjectURL(memoryObj);
+    }
+
+    const memoryUrl = store[docName + '_dataurl'] || store[docName] || store[docName.toLowerCase()];
+    if (typeof memoryUrl === 'string' && (memoryUrl.startsWith('data:') || memoryUrl.startsWith('blob:'))) {
+      return getDirectBlobUrl(docName, memoryUrl, projectName);
+    }
+
+    try {
+      const dbFile = await getFileFromDB(docName);
+      if (dbFile) {
+        if (dbFile instanceof File || dbFile instanceof Blob) {
+          return URL.createObjectURL(dbFile);
+        } else if (typeof dbFile === 'string' && (dbFile.startsWith('data:') || dbFile.startsWith('blob:'))) {
+          return getDirectBlobUrl(docName, dbFile, projectName);
+        }
+      }
+    } catch (e) {}
+
+    try {
+      const saved = JSON.parse(localStorage.getItem('workorbit_file_urls') || '{}');
+      const localUrl = saved[docName] || saved[docName.toLowerCase()];
+      if (localUrl && typeof localUrl === 'string') {
+        return getDirectBlobUrl(docName, localUrl, projectName);
+      }
+    } catch (e) {}
+  }
+
+  return getDirectBlobUrl(docName, providedUrl, projectName);
 };
