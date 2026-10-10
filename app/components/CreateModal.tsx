@@ -17,14 +17,11 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   onAddProject,
   onAddEmployee,
 }) => {
-  const [activeType, setActiveType] = useState<'task' | 'project' | 'employee'>('task');
+  const [activeType, setActiveType] = useState<'task' | 'project'>('task');
   const [taskTitle, setTaskTitle] = useState('');
   const [taskProject, setTaskProject] = useState('E-Commerce Website');
   const [projectName, setProjectName] = useState('');
   const [projectDesc, setProjectDesc] = useState('');
-  const [empName, setEmpName] = useState('');
-  const [empEmail, setEmpEmail] = useState('');
-  const [empRole, setEmpRole] = useState('Software Engineer');
 
   if (!isOpen) return null;
 
@@ -39,14 +36,6 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       onAddProject(projectName, projectDesc);
       setProjectName('');
       setProjectDesc('');
-    } else if (activeType === 'employee') {
-      if (!empName.trim() || !empEmail.trim()) return;
-      if (onAddEmployee) {
-        onAddEmployee(empName, empEmail, empRole);
-      }
-      setEmpName('');
-      setEmpEmail('');
-      setEmpRole('Software Engineer');
     }
     onClose();
   };
@@ -77,14 +66,6 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             }`}
           >
             New Project
-          </button>
-          <button
-            onClick={() => setActiveType('employee')}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              activeType === 'employee' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600'
-            }`}
-          >
-            New Employee
           </button>
         </div>
 
@@ -147,46 +128,6 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             </>
           )}
 
-          {activeType === 'employee' && (
-            <>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Employee Full Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Vikram Sharma"
-                  value={empName}
-                  onChange={(e) => setEmpName(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="vikram@abctech.com"
-                  value={empEmail}
-                  onChange={(e) => setEmpEmail(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Role / Designation</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Senior Full-Stack Engineer"
-                  value={empRole}
-                  onChange={(e) => setEmpRole(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </>
-          )}
-
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
@@ -199,7 +140,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
               type="submit"
               className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-xs"
             >
-              Create {activeType === 'task' ? 'Task' : activeType === 'project' ? 'Project' : 'Employee'}
+              Create {activeType === 'task' ? 'Task' : 'Project'}
             </button>
           </div>
         </form>
