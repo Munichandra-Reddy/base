@@ -21,6 +21,7 @@ interface DashboardViewProps {
   onViewAllTasks: () => void;
   onViewEmployees?: () => void;
   onViewProjects?: () => void;
+  onViewCalendar?: () => void;
   currentUser?: { email: string; fullName: string; companyName: string } | null;
 }
 
@@ -33,6 +34,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onViewAllTasks,
   onViewEmployees,
   onViewProjects,
+  onViewCalendar,
   currentUser,
 }) => {
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
@@ -103,13 +105,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Card 3: Due Soon */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
+        <div
+          onClick={onViewCalendar}
+          className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+        >
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center group-hover:bg-slate-200 transition-colors">
               <ClockIcon className="w-5 h-5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-xs font-bold text-slate-400">Due Soon</span>
+              <span className="text-xs font-bold text-slate-400 group-hover:text-slate-900 transition-colors">
+                Due Soon
+              </span>
               <span className="text-xs font-bold text-slate-300">→</span>
             </div>
           </div>
@@ -265,7 +272,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-extrabold text-slate-900 text-base">Upcoming Deadlines</h3>
-                <button className="text-xs font-bold text-slate-900 hover:underline cursor-pointer">
+                <button
+                  type="button"
+                  onClick={onViewCalendar}
+                  className="text-xs font-bold text-slate-900 hover:underline cursor-pointer"
+                >
                   View Calendar
                 </button>
               </div>

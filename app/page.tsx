@@ -670,6 +670,7 @@ export default function Home() {
               onViewAllTasks={() => handleTabChange('tasks')}
               onViewEmployees={() => handleTabChange('people')}
               onViewProjects={() => handleTabChange('projects')}
+              onViewCalendar={() => handleTabChange('calendar')}
               currentUser={currentUser}
             />
           )}
