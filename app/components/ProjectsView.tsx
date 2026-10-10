@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Project, Task, FileItem } from '@/lib/types';
 import { PlusIcon, FolderIcon } from './Icons';
+import { FileViewerModal } from './FileViewerModal';
 
 interface ProjectsViewProps {
   projects: Project[];
@@ -26,6 +27,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
   // Selected project for Details Pop-up Modal
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  // Document Viewer modal state
+  const [activeViewFile, setActiveViewFile] = useState<FileItem | null>(null);
 
   // Dynamically filter & sort projects
   const processedProjects = useMemo(() => {
@@ -96,14 +100,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     return result;
   }, [projects, showFilter, groupFilter, searchQuery, sortFilter]);
 
-  // Dynamic calculation of tasks and documents for the selected project details popup
-  const projectTasks = useMemo(() => {
-    if (!selectedProject || !tasks) return [];
-    return tasks.filter(
-      (t) => t.project.toLowerCase().trim() === selectedProject.name.toLowerCase().trim()
-    );
-  }, [selectedProject, tasks]);
-
+  // Dynamic calculation of documents for the selected project details popup
   const projectDocs = useMemo(() => {
     if (!selectedProject) return [];
     const fromProject = selectedProject.requiredDocuments || [];
@@ -112,6 +109,33 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       .map((f) => f.name);
     return Array.from(new Set([...fromProject, ...fromFiles]));
   }, [selectedProject, files]);
+
+  const handleViewDocument = (docName: string) => {
+    const existingFile = (files || []).find(
+      (f) => f.name.toLowerCase().trim() === docName.toLowerCase().trim()
+    );
+
+    const isPdf = docName.toLowerCase().endsWith('.pdf');
+    const isImage =
+      docName.toLowerCase().endsWith('.png') ||
+      docName.toLowerCase().endsWith('.jpg') ||
+      docName.toLowerCase().endsWith('.svg');
+
+    const fileToView: FileItem = existingFile || {
+      id: `file-doc-${Date.now()}`,
+      name: docName,
+      size: '1.2 MB',
+      uploadedBy: selectedProject?.manager || selectedProject?.members[0] || 'Workspace Admin',
+      uploadedAt: 'Oct 10, 2026',
+      type: isPdf ? 'pdf' : isImage ? 'image' : 'document',
+      project: selectedProject?.name || 'Project Workspace',
+      fileUrl: isPdf
+        ? 'data:application/pdf;base64,JVBERi0xLjQNJSVPRkYNCjEgMCBvYmoNPDwvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFI+Pg1lbmRvYmoNCjIgMCBvYmoNPDwvVHlwZSAvUGFnZXMgL0tpZHMgWzMgMCBSXSAvQ291bnQgMT4+DWVuZG9iag0KMyAwIG9iaiA8PC9UeXBlIC9QYWdlIC9QYXJlbnQgMiAwIFIgL01lZGlhQm94IFswIDAgNjEyIDc5MlIgL0NvbnRlbnRzIDQgMCBSL1Jlc291cmNlcyA8PD4+PjANZW5kb2JqDTQgMCBvYmoNPDwvTGVuZ3RoIDU+PnN0cmVhbQ0KICANCmVuZHN0cmVhbQ1lbmRvYmoNCnhyZWYNCjAgNQ0KMDAwMDAwMDAwMCA2NTUzNSBmDQowMDAwMDAwMDE2IDAwMDAwIG4NCjDAwMDAwMDA2OCAwMDAwMCBuDQowMDAwMDAwMTI1IDAwMDAwIG4NCjDAwMDAwMDAyMzEgMDAwMDAgbg0KdHJhaWxlcg0KPDwvU2l6ZSA1IC9Sb290IDEgMCBSPj4NCnN0YXJ0eHJlZg0KMjg4DQolJUVPRg=='
+        : undefined,
+    };
+
+    setActiveViewFile(fileToView);
+  };
 
   const hasActiveFilters =
     showFilter !== 'All Projects' ||
@@ -700,49 +724,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 </div>
               </div>
 
-              {/* 4. Project Tasks */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
-                    Project Tasks ({projectTasks.length})
-                  </h4>
-                </div>
-                {projectTasks.length === 0 ? (
-                  <div className="p-3 text-center bg-slate-50 rounded-xl border border-slate-200 text-slate-500 font-medium">
-                    No specific tasks created for this project yet.
-                  </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    {projectTasks.map((t) => (
-                      <div
-                        key={t.id}
-                        className="p-2.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-3 text-xs"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${t.completed ? 'bg-slate-900 border-slate-900 text-white' : 'border-slate-300'}`}>
-                            {t.completed && '✓'}
-                          </span>
-                          <span className={`font-bold truncate ${t.completed ? 'line-through text-slate-400' : 'text-slate-900'}`}>
-                            {t.title}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          {t.assignedTo && (
-                            <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                              {t.assignedTo}
-                            </span>
-                          )}
-                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-200 text-slate-900 uppercase">
-                            {t.priority || 'medium'}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 5. Required Documents / Files */}
+              {/* 4. Required Documents & Files */}
               <div>
                 <h4 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider mb-2">
                   Required Documents & Files ({projectDocs.length})
@@ -754,13 +736,19 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {projectDocs.map((doc, idx) => (
-                      <div
+                      <button
                         key={idx}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 font-semibold text-xs"
+                        type="button"
+                        onClick={() => handleViewDocument(doc)}
+                        className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-xs shadow-2xs transition-all cursor-pointer group"
+                        title={`Click to open and view ${doc}`}
                       >
-                        <span>📄</span>
-                        <span>{doc}</span>
-                      </div>
+                        <span className="text-sm">📄</span>
+                        <span className="group-hover:underline truncate max-w-xs">{doc}</span>
+                        <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-slate-900 text-white ml-1 shrink-0">
+                          View / Open ↗
+                        </span>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -782,6 +770,12 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* DOCUMENT VIEWER MODAL */}
+      <FileViewerModal
+        file={activeViewFile}
+        onClose={() => setActiveViewFile(null)}
+      />
     </div>
   );
 };

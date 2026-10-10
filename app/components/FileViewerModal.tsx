@@ -51,22 +51,30 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
       case 'pdf':
         return (
           <div className="bg-slate-100 rounded-2xl p-6 min-h-[260px] border border-slate-200 flex flex-col justify-between">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-                <div className="w-10 h-10 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold">
-                  PDF
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shadow-2xs">
+                    PDF
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-extrabold text-slate-900">{file.name}</h4>
+                    <p className="text-xs text-slate-500 font-medium">{file.project} Document</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-900">{file.name}</h4>
-                  <p className="text-xs text-slate-400">{file.project} Deliverable</p>
-                </div>
+                <a
+                  href={getDownloadHref()}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3.5 py-1.5 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer"
+                >
+                  Open Document ↗
+                </a>
               </div>
-              <div className="space-y-1.5 text-xs text-slate-600">
-                <div className="h-3 bg-slate-100 rounded w-3/4 animate-pulse"></div>
-                <div className="h-3 bg-slate-100 rounded w-full animate-pulse"></div>
-                <div className="h-3 bg-slate-100 rounded w-5/6 animate-pulse"></div>
-                <p className="text-xs text-slate-500 font-medium pt-2">
-                  Document ready for download and team signoff.
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2 text-slate-700">
+                <p className="font-bold text-slate-900">📄 PDF Document Viewer:</p>
+                <p className="leading-relaxed">
+                  Document <strong>{file.name}</strong> is loaded and ready. Click <strong>"Open Document ↗"</strong> or <strong>"Download File"</strong> to view full pages and inspect content.
                 </p>
               </div>
             </div>
