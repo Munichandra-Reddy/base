@@ -33,7 +33,21 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
 
       const reader = new FileReader();
       reader.onload = () => {
-        setFileDataUrl(reader.result as string);
+        const dataUrl = reader.result as string;
+        setFileDataUrl(dataUrl);
+
+        if (typeof window !== 'undefined') {
+          (window as any).__WORKORBIT_FILE_STORE__ = (window as any).__WORKORBIT_FILE_STORE__ || {};
+          (window as any).__WORKORBIT_FILE_STORE__[file.name] = dataUrl;
+          (window as any).__WORKORBIT_FILE_STORE__[file.name.toLowerCase()] = dataUrl;
+
+          try {
+            const saved = JSON.parse(localStorage.getItem('workorbit_file_urls') || '{}');
+            saved[file.name] = dataUrl;
+            saved[file.name.toLowerCase()] = dataUrl;
+            localStorage.setItem('workorbit_file_urls', JSON.stringify(saved));
+          } catch (err) {}
+        }
       };
       reader.readAsDataURL(file);
       

@@ -134,8 +134,31 @@ export const CreateModal: React.FC<CreateModalProps> = ({
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newFileNames = Array.from(e.target.files).map(f => f.name);
-      setRequiredDocs(prev => Array.from(new Set([...prev, ...newFileNames])));
+      const filesArray = Array.from(e.target.files);
+      const newFileNames: string[] = [];
+
+      filesArray.forEach((file) => {
+        newFileNames.push(file.name);
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result as string;
+          if (typeof window !== 'undefined') {
+            (window as any).__WORKORBIT_FILE_STORE__ = (window as any).__WORKORBIT_FILE_STORE__ || {};
+            (window as any).__WORKORBIT_FILE_STORE__[file.name] = dataUrl;
+            (window as any).__WORKORBIT_FILE_STORE__[file.name.toLowerCase()] = dataUrl;
+
+            try {
+              const saved = JSON.parse(localStorage.getItem('workorbit_file_urls') || '{}');
+              saved[file.name] = dataUrl;
+              saved[file.name.toLowerCase()] = dataUrl;
+              localStorage.setItem('workorbit_file_urls', JSON.stringify(saved));
+            } catch (err) {}
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+
+      setRequiredDocs((prev) => Array.from(new Set([...prev, ...newFileNames])));
     }
   };
 
