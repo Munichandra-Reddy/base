@@ -28,11 +28,25 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   // Selected project for Details Page navigation ("next page")
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
+  // Active sub-tab inside Project Details Page: 'messages' | 'meetings' | 'tasks' | 'updates' | 'overview'
+  const [activeProjectTab, setActiveProjectTab] = useState<'messages' | 'meetings' | 'tasks' | 'updates' | 'overview'>('messages');
+
+  // Messages sub-tabs: 'chats' (Personal) | 'groups' (Group Chat)
+  const [messagesTab, setMessagesTab] = useState<'chats' | 'groups'>('chats');
+  const [activeChatMember, setActiveChatMember] = useState<string | null>(null);
+  const [chatInputText, setChatInputText] = useState('');
+  
+  // Custom message logs per project & thread
+  const [customMessages, setCustomMessages] = useState<Record<string, Array<{ id: string; sender: string; text: string; time: string }>>>({});
+
+  // Work Updates post input state
+  const [newUpdateText, setNewUpdateText] = useState('');
+  const [customUpdates, setCustomUpdates] = useState<Array<{ id: string; project: string; author: string; role: string; timeAgo: string; text: string; category: string }>>([]);
+
   // Dynamically filter & sort projects
   const processedProjects = useMemo(() => {
     let result = [...projects];
 
-    // 1. Show Filter (Status Filter)
     if (showFilter !== 'All Projects') {
       result = result.filter((p) => {
         const s = (p.status || '').toLowerCase();
@@ -45,7 +59,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       });
     }
 
-    // 2. Group Filter
     if (groupFilter !== 'All') {
       result = result.filter((p) => {
         const s = (p.status || '').toLowerCase();
@@ -62,7 +75,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       });
     }
 
-    // 3. Search Query Filter (Add Filter)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter(
@@ -74,7 +86,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       );
     }
 
-    // 4. Sort Projects
     result.sort((a, b) => {
       if (sortFilter === 'Name') {
         return a.name.localeCompare(b.name);
@@ -97,7 +108,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     return result;
   }, [projects, showFilter, groupFilter, searchQuery, sortFilter]);
 
-  // Dynamic calculation of documents for the selected project details view
+  // Dynamic documents for the selected project
   const projectDocs = useMemo(() => {
     if (!selectedProject) return [];
     const fromProject = selectedProject.requiredDocuments || [];
@@ -135,20 +146,69 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     setIsSearchOpen(false);
   };
 
+  // Handle sending message in Chat or Group
+  const handleSendMessage = (threadKey: string) => {
+    if (!chatInputText.trim()) return;
+    const newMsg = {
+      id: `msg-${Date.now()}`,
+      sender: selectedProject?.members[0] || 'Rahul Kumar',
+      text: chatInputText.trim(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    setCustomMessages((prev) => ({
+      ...prev,
+      [threadKey]: [...(prev[threadKey] || []), newMsg],
+    }));
+
+    setChatInputText('');
+  };
+
+  // Handle posting work update
+  const handlePostWorkUpdate = () => {
+    if (!newUpdateText.trim() || !selectedProject) return;
+    const author = selectedProject.members[0] || 'Rahul Kumar';
+    const newUpdate = {
+      id: `upd-${Date.now()}`,
+      project: selectedProject.name,
+      author,
+      role: 'Project Lead',
+      timeAgo: 'Just now',
+      text: newUpdateText.trim(),
+      category: 'Verified Submission',
+    };
+
+    setCustomUpdates((prev) => [newUpdate, ...prev]);
+    setNewUpdateText('');
+  };
+
   // IF A PROJECT IS CLICKED, RENDER DEDICATED PROJECT DETAILS PAGE ("NEXT PAGE")
   if (selectedProject) {
+    const projectMembers = selectedProject.members || ['Rahul Kumar'];
+    const projectLead = projectMembers[0] || 'Rahul Kumar';
+    const otherMembers = projectMembers.filter((m) => m !== projectLead);
+    const memberForPersonalChat = activeChatMember || (otherMembers[0] || projectMembers[0]);
+
     const projectTasks = (tasks || []).filter(
       (t) => t.project.toLowerCase().trim() === selectedProject.name.toLowerCase().trim()
     );
 
+    const projectWorkUpdates = customUpdates.filter(
+      (u) => u.project.toLowerCase().trim() === selectedProject.name.toLowerCase().trim()
+    );
+
     return (
-      <div className="space-y-6 font-sans animate-in fade-in duration-150">
+      <div className="space-y-6 font-sans animate-in fade-in duration-150 text-slate-900">
+        
         {/* Navigation Top Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-xs">
           <div className="flex items-center gap-4 flex-wrap">
             <button
               type="button"
-              onClick={() => setSelectedProject(null)}
+              onClick={() => {
+                setSelectedProject(null);
+                setActiveProjectTab('messages');
+              }}
               className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-200 shadow-2xs flex items-center gap-2 transition-colors cursor-pointer"
             >
               <span className="text-sm font-extrabold">←</span>
@@ -187,165 +247,810 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           </div>
         </div>
 
-        {/* Project Details Main Body */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Main Content Area */}
-          <div className="lg:col-span-2 space-y-6">
-            
-            {/* 1. Progress & Key Metrics Box */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
-              <div className="flex items-center justify-between font-bold text-xs">
-                <span className="text-slate-700">Overall Project Progress</span>
-                <span className="text-slate-900 text-base font-black">{selectedProject.progress}%</span>
-              </div>
-              <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                <div
-                  className="bg-slate-900 h-full rounded-full transition-all duration-500"
-                  style={{ width: `${selectedProject.progress}%` }}
-                />
-              </div>
+        {/* 4 TOP TABS (Messages, Meetings, Tasks, Work Updates + Overview) - MONOCHROME STYLING */}
+        <div className="bg-slate-900 rounded-2xl p-2 flex flex-wrap items-center gap-2 text-xs font-extrabold text-white shadow-xs">
+          <button
+            type="button"
+            onClick={() => setActiveProjectTab('messages')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all cursor-pointer ${
+              activeProjectTab === 'messages'
+                ? 'bg-white text-slate-900 shadow-sm font-black'
+                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <span>💬</span>
+            <span>Messages</span>
+          </button>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-slate-100 text-xs">
-                <div>
-                  <span className="text-slate-400 block font-medium">Open To-Dos</span>
-                  <span className="font-extrabold text-slate-900 text-sm">{selectedProject.openToDos} Tasks</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-medium">Project Manager</span>
-                  <span className="font-bold text-slate-900 text-xs">{selectedProject.manager || selectedProject.members[0] || 'Rahul Kumar'}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-medium">Start Date</span>
-                  <span className="font-semibold text-slate-800">{selectedProject.startDate || '16/07/2024'}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-medium">Deadline</span>
-                  <span className="font-semibold text-slate-800">{selectedProject.deadline || '24/10/2024'}</span>
-                </div>
-              </div>
+          <button
+            type="button"
+            onClick={() => setActiveProjectTab('meetings')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all cursor-pointer ${
+              activeProjectTab === 'meetings'
+                ? 'bg-white text-slate-900 shadow-sm font-black'
+                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <span>📹</span>
+            <span>Meetings</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveProjectTab('tasks')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all cursor-pointer ${
+              activeProjectTab === 'tasks'
+                ? 'bg-white text-slate-900 shadow-sm font-black'
+                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <span>☑️</span>
+            <span>Tasks</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveProjectTab('updates')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all cursor-pointer ${
+              activeProjectTab === 'updates'
+                ? 'bg-white text-slate-900 shadow-sm font-black'
+                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <span>📄</span>
+            <span>Work Updates</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveProjectTab('overview')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all cursor-pointer ml-auto ${
+              activeProjectTab === 'overview'
+                ? 'bg-white text-slate-900 shadow-sm font-black'
+                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <span>📁</span>
+            <span>Overview & Docs</span>
+          </button>
+        </div>
+
+        {/* TAB CONTENT AREA */}
+        
+        {/* TAB 1: MESSAGES (IMAGE 1 MATCH - PERSONAL & GROUP CHATS FOR PROJECT MEMBERS ONLY) */}
+        {activeProjectTab === 'messages' && (
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-5 animate-in fade-in duration-150">
+            {/* Sub-Switch: Chats / Groups */}
+            <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+              <button
+                type="button"
+                onClick={() => setMessagesTab('chats')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  messagesTab === 'chats'
+                    ? 'bg-slate-900 text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                Chats
+              </button>
+              <button
+                type="button"
+                onClick={() => setMessagesTab('groups')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  messagesTab === 'groups'
+                    ? 'bg-slate-900 text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                <span>Groups</span>
+                <span className="px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-900 text-[10px] font-extrabold">
+                  {projectMembers.length}
+                </span>
+              </button>
             </div>
 
-            {/* 2. Project Description */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-3">
-              <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">Project Description</h3>
-              <p className="text-slate-700 leading-relaxed text-xs bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium">
-                {selectedProject.description || 'Comprehensive project scope and key milestones tracked for workspace optimization and delivery.'}
-              </p>
-            </div>
-
-            {/* 3. Project Tasks List */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
-                  Project Tasks ({projectTasks.length})
-                </h3>
-              </div>
-
-              {projectTasks.length === 0 ? (
-                <div className="p-6 text-center bg-slate-50 rounded-xl border border-slate-100 text-slate-500 font-medium text-xs">
-                  No specific tasks assigned to this project yet.
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden">
-                  {projectTasks.map((t) => (
-                    <div key={t.id} className="p-3.5 bg-slate-50/50 hover:bg-slate-50 flex items-center justify-between gap-3 text-xs">
-                      <div className="flex items-center gap-3">
-                        <span className={`w-2 h-2 rounded-full ${t.completed ? 'bg-emerald-500' : 'bg-slate-900'}`} />
-                        <span className={`font-bold text-slate-900 ${t.completed ? 'line-through opacity-60' : ''}`}>
-                          {t.title}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-4 text-[11px] text-slate-500 font-semibold">
-                        <span>Assigned: <strong className="text-slate-800">{t.assignedTo || 'Unassigned'}</strong></span>
-                        <span>Due: {t.dueDate || 'Soon'}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* 4. Required Documents & Files */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
-              <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
-                Required Documents & Files ({projectDocs.length})
-              </h3>
-              {projectDocs.length === 0 ? (
-                <div className="p-6 text-center bg-slate-50 rounded-xl border border-slate-100 text-slate-500 font-medium text-xs">
-                  No documents attached to this project.
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2.5">
-                  {projectDocs.map((doc, idx) => (
-                    <button
+            {/* 1A: PERSONAL CHATS (ONLY PROJECT TEAM MEMBERS) */}
+            {messagesTab === 'chats' && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[380px]">
+                {/* Left: Members List */}
+                <div className="space-y-2 border-r border-slate-100 pr-4">
+                  <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider mb-3">
+                    Project Members ({otherMembers.length > 0 ? otherMembers.length : projectMembers.length})
+                  </h4>
+                  {(otherMembers.length > 0 ? otherMembers : projectMembers).map((memberName, idx) => (
+                    <div
                       key={idx}
-                      type="button"
-                      onClick={() => handleViewDocument(doc)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-xs shadow-2xs transition-all cursor-pointer group"
-                      title={`Click to open and view ${doc}`}
+                      onClick={() => setActiveChatMember(memberName)}
+                      className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                        memberForPersonalChat === memberName
+                          ? 'bg-slate-900 text-white border-slate-900 shadow-2xs'
+                          : 'bg-slate-50 hover:bg-slate-100 border-slate-200/80 text-slate-900'
+                      }`}
                     >
-                      <span className="text-base">📄</span>
-                      <span className="group-hover:underline truncate max-w-xs">{doc}</span>
-                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-900 text-white ml-1 shrink-0">
-                        View / Open ↗
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-xs ${
+                            memberForPersonalChat === memberName
+                              ? 'bg-white text-slate-900'
+                              : 'bg-slate-900 text-white'
+                          }`}
+                        >
+                          {memberName[0]}
+                        </div>
+                        <div>
+                          <div className="font-bold text-xs leading-snug">{memberName}</div>
+                          <span
+                            className={`text-[10px] font-semibold block ${
+                              memberForPersonalChat === memberName ? 'text-slate-300' : 'text-slate-500'
+                            }`}
+                          >
+                            {idx === 0 ? 'Lead Dev' : 'Team Member'}
+                          </span>
+                        </div>
+                      </div>
+                      <span
+                        className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                          memberForPersonalChat === memberName
+                            ? 'bg-white text-slate-900'
+                            : 'bg-slate-200 text-slate-800'
+                        }`}
+                      >
+                        02 ›
                       </span>
-                    </button>
+                    </div>
                   ))}
                 </div>
-              )}
-            </div>
 
-          </div>
-
-          {/* Right Sidebar */}
-          <div className="space-y-6">
-            
-            {/* Team Members List */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
-              <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
-                Team Members ({selectedProject.members.length})
-              </h3>
-              <div className="space-y-2">
-                {selectedProject.members.map((member, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs"
-                  >
-                    <div className="flex items-center gap-3">
+                {/* Right: Active Chat Conversation Box */}
+                <div className="md:col-span-2 flex flex-col justify-between bg-slate-50/60 rounded-xl p-4 border border-slate-200/80">
+                  <div className="pb-3 border-b border-slate-200 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center">
-                        {member[0]}
+                        {memberForPersonalChat[0]}
                       </div>
-                      <span className="font-bold text-slate-900">{member}</span>
+                      <div>
+                        <h4 className="font-extrabold text-xs text-slate-900">{memberForPersonalChat}</h4>
+                        <span className="text-[10px] text-slate-500 font-semibold block">Direct Project Message</span>
+                      </div>
                     </div>
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-200 text-slate-800 uppercase">
-                      {idx === 0 ? 'Lead' : 'Member'}
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-200 text-slate-800">
+                      Verified Member
                     </span>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Project Specifications */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-3 text-xs font-medium text-slate-600">
-              <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider mb-2">Project Overview</h3>
-              <div className="flex justify-between py-2 border-b border-slate-100">
-                <span>Priority Level:</span>
-                <span className="font-bold uppercase text-slate-900">{selectedProject.priority || 'Medium'}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-100">
-                <span>Currency:</span>
-                <span className="font-bold text-slate-900">{selectedProject.currency || 'USD ($)'}</span>
-              </div>
-              <div className="flex justify-between py-2">
-                <span>Status:</span>
-                <span className="font-extrabold text-slate-900 uppercase">{selectedProject.status || 'Active'}</span>
-              </div>
-            </div>
+                  {/* Messages Feed */}
+                  <div className="py-4 space-y-3 overflow-y-auto max-h-[260px] text-xs">
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 text-slate-800 max-w-sm">
+                      <p className="font-bold text-slate-900 text-[11px] mb-1">{memberForPersonalChat}</p>
+                      <p>Reviewing milestone deliverables for <strong>{selectedProject.name}</strong>. Let me know when ready for review.</p>
+                      <span className="text-[9px] text-slate-400 block mt-1">9:41 AM</span>
+                    </div>
 
+                    <div className="bg-slate-900 text-white p-3 rounded-xl ml-auto max-w-sm">
+                      <p className="font-bold text-slate-200 text-[11px] mb-1">You ({projectLead})</p>
+                      <p>Will push the updated benchmark & deliverables right away!</p>
+                      <span className="text-[9px] text-slate-400 block mt-1">9:45 AM</span>
+                    </div>
+
+                    {/* Render newly added custom messages */}
+                    {(customMessages[`personal-${selectedProject.id}-${memberForPersonalChat}`] || []).map((m) => (
+                      <div
+                        key={m.id}
+                        className={`p-3 rounded-xl max-w-sm ${
+                          m.sender === projectLead
+                            ? 'bg-slate-900 text-white ml-auto'
+                            : 'bg-white text-slate-800 border border-slate-200'
+                        }`}
+                      >
+                        <p className="font-bold text-[11px] mb-1">{m.sender}</p>
+                        <p>{m.text}</p>
+                        <span className="text-[9px] opacity-70 block mt-1">{m.time}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Chat Input */}
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSendMessage(`personal-${selectedProject.id}-${memberForPersonalChat}`);
+                    }}
+                    className="flex gap-2 pt-2 border-t border-slate-200"
+                  >
+                    <input
+                      type="text"
+                      placeholder={`Message ${memberForPersonalChat}...`}
+                      value={chatInputText}
+                      onChange={(e) => setChatInputText(e.target.value)}
+                      className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                    />
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-2xs transition-colors cursor-pointer"
+                    >
+                      Send
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* 1B: GROUP CHAT (PROJECT TEAM MEMBERS GROUP) */}
+            {messagesTab === 'groups' && (
+              <div className="flex flex-col justify-between bg-slate-50/60 rounded-xl p-5 border border-slate-200/80 min-h-[360px]">
+                <div className="pb-3 border-b border-slate-200 flex items-center justify-between">
+                  <div>
+                    <h4 className="font-extrabold text-sm text-slate-900">{selectedProject.name} Team Group</h4>
+                    <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                      Members: <strong>{projectMembers.join(', ')}</strong>
+                    </p>
+                  </div>
+                  <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-slate-900 text-white">
+                    {projectMembers.length} Members Active
+                  </span>
+                </div>
+
+                {/* Group Feed */}
+                <div className="py-4 space-y-3 overflow-y-auto max-h-[260px] text-xs">
+                  <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-slate-800 max-w-md">
+                    <p className="font-bold text-slate-900 text-xs mb-1">{projectMembers[1] || 'Priya Sharma'}</p>
+                    <p>Updated base components and uploaded specs to the project workspace.</p>
+                    <span className="text-[9px] text-slate-400 block mt-1">10:15 AM</span>
+                  </div>
+
+                  <div className="bg-slate-900 text-white p-3.5 rounded-xl ml-auto max-w-md">
+                    <p className="font-bold text-slate-200 text-xs mb-1">{projectLead}</p>
+                    <p>Great work! All deliverables confirmed for <strong>{selectedProject.name}</strong>.</p>
+                    <span className="text-[9px] text-slate-400 block mt-1">10:20 AM</span>
+                  </div>
+
+                  {(customMessages[`group-${selectedProject.id}`] || []).map((m) => (
+                    <div
+                      key={m.id}
+                      className={`p-3.5 rounded-xl max-w-md ${
+                        m.sender === projectLead
+                          ? 'bg-slate-900 text-white ml-auto'
+                          : 'bg-white text-slate-800 border border-slate-200'
+                      }`}
+                    >
+                      <p className="font-bold text-xs mb-1">{m.sender}</p>
+                      <p>{m.text}</p>
+                      <span className="text-[9px] opacity-70 block mt-1">{m.time}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Group Input */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSendMessage(`group-${selectedProject.id}`);
+                  }}
+                  className="flex gap-2 pt-3 border-t border-slate-200"
+                >
+                  <input
+                    type="text"
+                    placeholder={`Message ${selectedProject.name} group...`}
+                    value={chatInputText}
+                    onChange={(e) => setChatInputText(e.target.value)}
+                    className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                  />
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+                  >
+                    Send Group Message
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
+        )}
 
-        </div>
+        {/* TAB 2: MEETINGS (IMAGE 2 MATCH - MONOCHROME STYLING) */}
+        {activeProjectTab === 'meetings' && (
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-5 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-900">Upcoming Team Syncs</h3>
+                <p className="text-xs text-slate-500 font-semibold">Scheduled virtual meetings for {selectedProject.name}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => alert(`Launching virtual meeting room for ${selectedProject.name}...`)}
+                className="px-4 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <span>📹</span>
+                <span>Schedule New Sync</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Meeting Card 1 */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h4 className="text-base font-extrabold text-slate-900">
+                    Weekly {selectedProject.name} Strategy & Sprint Sync
+                  </h4>
+                  <span className="text-xs font-bold text-slate-600 bg-slate-200 px-3 py-1 rounded-full self-start sm:self-auto">
+                    {projectMembers.length} Attendees ({projectMembers.join(', ')})
+                  </span>
+                </div>
+
+                <div className="text-xs text-slate-600 font-semibold">
+                  Host: <strong className="text-slate-900">{projectLead}</strong>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 text-xs font-extrabold text-slate-800">
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-slate-200">
+                    <span>📅</span> Today
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-slate-200">
+                    <span>🕒</span> Today 2:00PM - 2:45PM
+                  </div>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed font-medium">
+                  <strong>Meeting Agenda:</strong> To discuss weekly schedule deliverables, code reviews, and product strategy for <strong>{selectedProject.name}</strong>.
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => alert(`Joining Virtual Sync Room for ${selectedProject.name}!`)}
+                    className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white font-extrabold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-2"
+                  >
+                    <span>Join Virtual Room</span>
+                    <span>→</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => alert('Meeting link copied to clipboard!')}
+                    className="p-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl transition-colors cursor-pointer"
+                    title="Copy Meeting Link"
+                  >
+                    📋
+                  </button>
+                </div>
+              </div>
+
+              {/* Meeting Card 2 */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h4 className="text-base font-extrabold text-slate-900">
+                    Product Roadmap & Technical Deliverables Review
+                  </h4>
+                  <span className="text-xs font-bold text-slate-600 bg-slate-200 px-3 py-1 rounded-full self-start sm:self-auto">
+                    {projectMembers.length} Attendees
+                  </span>
+                </div>
+
+                <div className="text-xs text-slate-600 font-semibold">
+                  Host: <strong className="text-slate-900">{projectMembers[1] || 'Priya Sharma'}</strong>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 text-xs font-extrabold text-slate-800">
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-slate-200">
+                    <span>📅</span> Tomorrow
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-slate-200">
+                    <span>🕒</span> Tomorrow 10:30AM - 11:15AM
+                  </div>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed font-medium">
+                  <strong>Meeting Agenda:</strong> Finalize architecture specifications, API contracts, and team member sprint assignments.
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => alert('Joining Virtual Sync Room!')}
+                    className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white font-extrabold text-xs rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-2"
+                  >
+                    <span>Join Virtual Room</span>
+                    <span>→</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => alert('Meeting link copied!')}
+                    className="p-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl transition-colors cursor-pointer"
+                  >
+                    📋
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: TASKS (IMAGE 3 MATCH - MONOCHROME STYLING) */}
+        {activeProjectTab === 'tasks' && (
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-5 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-900">Work Posting & Sprints</h3>
+                <p className="text-xs text-slate-500 font-semibold">Active tasks & sprint metrics for {selectedProject.name}</p>
+              </div>
+              <button
+                type="button"
+                onClick={onOpenCreateProject}
+                className="px-4 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <span>+</span>
+                <span>Post New Sprint Task</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {projectTasks.length === 0 ? (
+                <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                  <p className="text-xs text-slate-500 font-medium">No custom tasks posted for this project yet.</p>
+                </div>
+              ) : (
+                projectTasks.map((t) => (
+                  <div key={t.id} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <h4 className="text-base font-extrabold text-slate-900 leading-snug">
+                        {t.title}
+                      </h4>
+                      <span
+                        className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider ${
+                          t.completed
+                            ? 'bg-slate-200 text-slate-900 border border-slate-300'
+                            : 'bg-slate-900 text-white'
+                        }`}
+                      >
+                        {t.completed ? 'COMPLETED' : 'IN PROGRESS'}
+                      </span>
+                    </div>
+
+                    <div className="text-xs font-semibold text-slate-600">
+                      Assignee: <strong className="text-slate-900">{t.assignedTo || projectLead}</strong>
+                    </div>
+
+                    <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 font-semibold">
+                      Metric: Scope deliverable target assigned for {selectedProject.name}
+                    </div>
+                  </div>
+                ))
+              )}
+
+              {/* Default Sprint Items matching Image 3 layout */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="text-base font-extrabold text-slate-900 leading-snug">
+                    Implement dynamic memory fallback & node benchmarks for {selectedProject.name}
+                  </h4>
+                  <span className="text-[10px] font-black px-3 py-1 rounded-full bg-slate-900 text-white uppercase tracking-wider">
+                    IN PROGRESS
+                  </span>
+                </div>
+
+                <div className="text-xs font-semibold text-slate-600">
+                  Assignee: <strong className="text-slate-900">{projectLead}</strong>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 font-semibold">
+                  Metric: OOM error rate &lt; 0.05% across 200 nodes
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="text-base font-extrabold text-slate-900 leading-snug">
+                    Finalize Master Service Agreement (MSA) & scope specifications
+                  </h4>
+                  <span className="text-[10px] font-black px-3 py-1 rounded-full bg-slate-200 text-slate-900 border border-slate-300 uppercase tracking-wider">
+                    COMPLETED
+                  </span>
+                </div>
+
+                <div className="text-xs font-semibold text-slate-600">
+                  Assignee: <strong className="text-slate-900">{projectMembers[1] || 'Priya Sharma'}</strong>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 font-semibold">
+                  Metric: 3 Signed MSAs & deliverable docs verified
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: WORK UPDATES (IMAGE 4 MATCH - MONOCHROME STYLING) */}
+        {activeProjectTab === 'updates' && (
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-5 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-900">Daily Work Updates</h3>
+                <p className="text-xs text-slate-500 font-semibold">Recent progress submissions from {selectedProject.name} team</p>
+              </div>
+            </div>
+
+            {/* Post New Update Form */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handlePostWorkUpdate();
+              }}
+              className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3"
+            >
+              <label className="block text-xs font-extrabold text-slate-900">Post Daily Progress Update</label>
+              <textarea
+                rows={2}
+                placeholder={`Share your daily work progress update for ${selectedProject.name}...`}
+                value={newUpdateText}
+                onChange={(e) => setNewUpdateText(e.target.value)}
+                className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900 resize-none"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-slate-900 hover:bg-black text-white font-extrabold text-xs rounded-xl shadow-2xs transition-colors cursor-pointer"
+                >
+                  Post Work Update
+                </button>
+              </div>
+            </form>
+
+            {/* Updates Feed */}
+            <div className="space-y-4">
+              {/* Newly posted updates */}
+              {projectWorkUpdates.map((u) => (
+                <div key={u.id} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center">
+                        {u.author[0]}
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-sm text-slate-900">{u.author}</h4>
+                        <p className="text-[11px] text-slate-500 font-semibold">{u.role}</p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-slate-400 font-semibold">{u.timeAgo}</span>
+                  </div>
+
+                  <p className="text-xs text-slate-800 leading-relaxed font-medium bg-white p-4 rounded-xl border border-slate-200">
+                    {u.text}
+                  </p>
+
+                  <div className="flex items-center justify-between pt-1 text-xs">
+                    <span className="text-slate-600 font-semibold">Assignee: <strong>{selectedProject.name} Team</strong></span>
+                    <span className="px-3 py-1 rounded-full bg-slate-900 text-white font-extrabold text-[10px] uppercase tracking-wider">
+                      {u.category}
+                    </span>
+                  </div>
+                </div>
+              ))}
+
+              {/* Default Update 1 */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center">
+                      {(projectMembers[1] || 'Priya Sharma')[0]}
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-sm text-slate-900">{projectMembers[1] || 'Priya Sharma'}</h4>
+                      <p className="text-[11px] text-slate-500 font-semibold">Lead Designer & Developer</p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-slate-400 font-semibold">1 hr ago</span>
+                </div>
+
+                <p className="text-xs text-slate-800 leading-relaxed font-medium bg-white p-4 rounded-xl border border-slate-200">
+                  Completed high-fidelity components, responsive grid architecture, and asset verification for <strong>{selectedProject.name}</strong>. All tests passing cleanly.
+                </p>
+
+                <div className="flex items-center justify-between pt-1 text-xs">
+                  <span className="text-slate-600 font-semibold">Assignee: <strong>Enterprise Scope & LOIs</strong></span>
+                  <span className="px-3 py-1 rounded-full bg-slate-900 text-white font-extrabold text-[10px] uppercase tracking-wider">
+                    Verified Submission
+                  </span>
+                </div>
+              </div>
+
+              {/* Default Update 2 */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center">
+                      {projectLead[0]}
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-sm text-slate-900">{projectLead}</h4>
+                      <p className="text-[11px] text-slate-500 font-semibold">Project Lead & Manager</p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-slate-400 font-semibold">3 hrs ago</span>
+                </div>
+
+                <p className="text-xs text-slate-800 leading-relaxed font-medium bg-white p-4 rounded-xl border border-slate-200">
+                  Configured API integrations, indexed storage subsystems, and data url blob handlers for project document streams.
+                </p>
+
+                <div className="flex items-center justify-between pt-1 text-xs">
+                  <span className="text-slate-600 font-semibold">Assignee: <strong>Core Infrastructure</strong></span>
+                  <span className="px-3 py-1 rounded-full bg-slate-900 text-white font-extrabold text-[10px] uppercase tracking-wider">
+                    Verified Submission
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5 (AND PRESERVED IMAGE 5 OVERVIEW DATA - ALWAYS ACCESSIBLE & PRESERVED) */}
+        {(activeProjectTab === 'overview' || activeProjectTab === 'messages' || activeProjectTab === 'meetings' || activeProjectTab === 'tasks' || activeProjectTab === 'updates') && (
+          <div className="space-y-6 pt-2 border-t border-slate-200/80">
+            <h3 className="font-extrabold text-sm text-slate-900 uppercase tracking-wider pt-2">
+              Project Overview & Required Documents
+            </h3>
+            
+            {/* Project Details Grid (IMAGE 5 EXACT LAYOUT) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* Main Content Area */}
+              <div className="lg:col-span-2 space-y-6">
+                
+                {/* 1. Progress & Key Metrics Box */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between font-bold text-xs">
+                    <span className="text-slate-700">Overall Project Progress</span>
+                    <span className="text-slate-900 text-base font-black">{selectedProject.progress}%</span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className="bg-slate-900 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${selectedProject.progress}%` }}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-slate-100 text-xs">
+                    <div>
+                      <span className="text-slate-400 block font-medium">Open To-Dos</span>
+                      <span className="font-extrabold text-slate-900 text-sm">{selectedProject.openToDos} Tasks</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block font-medium">Project Manager</span>
+                      <span className="font-bold text-slate-900 text-xs">{selectedProject.manager || selectedProject.members[0] || 'Rahul Kumar'}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block font-medium">Start Date</span>
+                      <span className="font-semibold text-slate-800">{selectedProject.startDate || '16/07/2024'}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block font-medium">Deadline</span>
+                      <span className="font-semibold text-slate-800">{selectedProject.deadline || '24/10/2024'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Project Description */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-3">
+                  <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">Project Description</h3>
+                  <p className="text-slate-700 leading-relaxed text-xs bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium">
+                    {selectedProject.description || 'Comprehensive project scope and key milestones tracked for workspace optimization and delivery.'}
+                  </p>
+                </div>
+
+                {/* 3. Project Tasks List */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
+                      Project Tasks ({projectTasks.length})
+                    </h3>
+                  </div>
+
+                  {projectTasks.length === 0 ? (
+                    <div className="p-6 text-center bg-slate-50 rounded-xl border border-slate-100 text-slate-500 font-medium text-xs">
+                      No specific tasks assigned to this project yet.
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden">
+                      {projectTasks.map((t) => (
+                        <div key={t.id} className="p-3.5 bg-slate-50/50 hover:bg-slate-50 flex items-center justify-between gap-3 text-xs">
+                          <div className="flex items-center gap-3">
+                            <span className={`w-2 h-2 rounded-full ${t.completed ? 'bg-slate-400' : 'bg-slate-900'}`} />
+                            <span className={`font-bold text-slate-900 ${t.completed ? 'line-through opacity-60' : ''}`}>
+                              {t.title}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4 text-[11px] text-slate-500 font-semibold">
+                            <span>Assigned: <strong className="text-slate-800">{t.assignedTo || 'Unassigned'}</strong></span>
+                            <span>Due: {t.dueDate || 'Soon'}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 4. Required Documents & Files */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+                  <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
+                    Required Documents & Files ({projectDocs.length})
+                  </h3>
+                  {projectDocs.length === 0 ? (
+                    <div className="p-6 text-center bg-slate-50 rounded-xl border border-slate-100 text-slate-500 font-medium text-xs">
+                      No documents attached to this project.
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2.5">
+                      {projectDocs.map((doc, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleViewDocument(doc)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-xs shadow-2xs transition-all cursor-pointer group"
+                          title={`Click to open and view ${doc}`}
+                        >
+                          <span className="text-base">📄</span>
+                          <span className="group-hover:underline truncate max-w-xs">{doc}</span>
+                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-900 text-white ml-1 shrink-0">
+                            View / Open ↗
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Right Sidebar */}
+              <div className="space-y-6">
+                
+                {/* Team Members List */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+                  <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
+                    Team Members ({selectedProject.members.length})
+                  </h3>
+                  <div className="space-y-2">
+                    {selectedProject.members.map((member, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center">
+                            {member[0]}
+                          </div>
+                          <span className="font-bold text-slate-900">{member}</span>
+                        </div>
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-200 text-slate-800 uppercase">
+                          {idx === 0 ? 'Lead' : 'Member'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Project Specifications */}
+                <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-3 text-xs font-medium text-slate-600">
+                  <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider mb-2">Project Overview</h3>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span>Priority Level:</span>
+                    <span className="font-bold uppercase text-slate-900">{selectedProject.priority || 'Medium'}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span>Currency:</span>
+                    <span className="font-bold text-slate-900">{selectedProject.currency || 'USD ($)'}</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span>Status:</span>
+                    <span className="font-extrabold text-slate-900 uppercase">{selectedProject.status || 'Active'}</span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        )}
+
       </div>
     );
   }
