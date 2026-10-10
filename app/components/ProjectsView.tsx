@@ -369,7 +369,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setActiveProjectTab('overview')}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all cursor-pointer ml-auto ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all cursor-pointer ${
               activeProjectTab === 'overview'
                 ? 'bg-white text-slate-900 shadow-sm font-black'
                 : 'text-slate-300 hover:bg-slate-800 hover:text-white'
