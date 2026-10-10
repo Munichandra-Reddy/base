@@ -8,6 +8,8 @@ import {
   ClockIcon,
   UsersIcon,
   CalendarIcon,
+  ChatIcon,
+  FileIcon,
 } from './Icons';
 
 interface DashboardViewProps {
@@ -767,8 +769,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-[10px] font-semibold text-slate-400 hidden sm:inline">
-                        📅 {dueDateStr}
+                      <span className="text-[10px] font-semibold text-slate-400 hidden sm:inline flex items-center gap-1">
+                        <CalendarIcon className="w-3 h-3 text-slate-400 inline" />
+                        <span>{dueDateStr}</span>
                       </span>
                       <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${prioBadge}`}>
                         {prioLabel}
@@ -809,8 +812,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       </div>
                     </div>
                   </div>
-                  <span className="text-slate-400 text-xs shrink-0 mt-1">
-                    {act.action.includes('completed') ? '☑️' : act.action.includes('comment') ? '💬' : act.action.includes('file') || act.action.includes('uploaded') ? '📄' : '📝'}
+                  <span className="text-slate-400 shrink-0 mt-1">
+                    {act.action.includes('completed') ? (
+                      <CheckSquareIcon className="w-4 h-4 text-slate-700" />
+                    ) : act.action.includes('comment') ? (
+                      <ChatIcon className="w-4 h-4 text-slate-700" />
+                    ) : act.action.includes('file') || act.action.includes('uploaded') ? (
+                      <FileIcon className="w-4 h-4 text-slate-700" />
+                    ) : (
+                      <FolderIcon className="w-4 h-4 text-slate-700" />
+                    )}
                   </span>
                 </div>
               ))}
