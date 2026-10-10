@@ -1323,16 +1323,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">PROJECT NAME</th>
                   <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">START DATE</th>
                   <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">DEADLINE</th>
-                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">
-                    CURRENCY <span className="text-slate-400">✏️</span>
-                  </th>
-                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">
-                    STATUS <span className="text-slate-400">✏️</span>
-                  </th>
+                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">CURRENCY</th>
+                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">STATUS</th>
                   <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">PEOPLE</th>
-                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">
-                    PRIORITY <span className="text-slate-400">✏️</span>
-                  </th>
+                  <th className="py-3.5 px-4 font-bold text-slate-500 whitespace-nowrap">PRIORITY</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">

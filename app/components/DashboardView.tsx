@@ -369,7 +369,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <tr>
                       <td className="py-2.5 font-bold text-slate-900 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px] shrink-0">📁</span>
+                          <div className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
+                            <FolderIcon className="w-3.5 h-3.5 text-slate-800" />
+                          </div>
                           <span className="truncate max-w-[125px]">E-Commerce Website</span>
                         </div>
                       </td>
@@ -393,7 +395,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <tr>
                       <td className="py-2.5 font-bold text-slate-900 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px] shrink-0">📁</span>
+                          <div className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
+                            <FolderIcon className="w-3.5 h-3.5 text-slate-800" />
+                          </div>
                           <span className="truncate max-w-[125px]">Mobile App v2</span>
                         </div>
                       </td>
@@ -417,7 +421,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <tr>
                       <td className="py-2.5 font-bold text-slate-900 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px] shrink-0">📁</span>
+                          <div className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
+                            <FolderIcon className="w-3.5 h-3.5 text-slate-800" />
+                          </div>
                           <span className="truncate max-w-[125px]">Marketing Campaign Q4</span>
                         </div>
                       </td>
@@ -441,7 +447,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <tr>
                       <td className="py-2.5 font-bold text-slate-900 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px] shrink-0">📁</span>
+                          <div className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
+                            <FolderIcon className="w-3.5 h-3.5 text-slate-800" />
+                          </div>
                           <span className="truncate max-w-[125px]">HR Management System</span>
                         </div>
                       </td>
@@ -465,7 +473,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <tr>
                       <td className="py-2.5 font-bold text-slate-900 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center text-[10px] shrink-0">📁</span>
+                          <div className="w-5 h-5 rounded bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
+                            <FolderIcon className="w-3.5 h-3.5 text-slate-800" />
+                          </div>
                           <span className="truncate max-w-[125px]">Cloud Migration</span>
                         </div>
                       </td>
