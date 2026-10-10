@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { Project, Task, FileItem } from '@/lib/types';
-import { PlusIcon, FolderIcon } from './Icons';
-import { getDirectBlobUrl, getDirectFileBlobUrl } from '@/lib/fileUtils';
+import { FolderIcon } from './Icons';
+import { getDirectFileBlobUrl } from '@/lib/fileUtils';
 
 interface ProjectsViewProps {
   projects: Project[];
@@ -25,7 +25,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  // Selected project for Details Pop-up Modal
+  // Selected project for Details Page navigation ("next page")
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   // Dynamically filter & sort projects
@@ -97,7 +97,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     return result;
   }, [projects, showFilter, groupFilter, searchQuery, sortFilter]);
 
-  // Dynamic calculation of documents for the selected project details popup
+  // Dynamic calculation of documents for the selected project details view
   const projectDocs = useMemo(() => {
     if (!selectedProject) return [];
     const fromProject = selectedProject.requiredDocuments || [];
@@ -135,6 +135,222 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     setIsSearchOpen(false);
   };
 
+  // IF A PROJECT IS CLICKED, RENDER DEDICATED PROJECT DETAILS PAGE ("NEXT PAGE")
+  if (selectedProject) {
+    const projectTasks = (tasks || []).filter(
+      (t) => t.project.toLowerCase().trim() === selectedProject.name.toLowerCase().trim()
+    );
+
+    return (
+      <div className="space-y-6 font-sans animate-in fade-in duration-150">
+        {/* Navigation Top Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-xs">
+          <div className="flex items-center gap-4 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setSelectedProject(null)}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-200 shadow-2xs flex items-center gap-2 transition-colors cursor-pointer"
+            >
+              <span className="text-sm font-extrabold">←</span>
+              <span>Back to Projects</span>
+            </button>
+
+            <div className="hidden sm:block h-6 w-px bg-slate-200" />
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-xs">
+                📁
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">{selectedProject.name}</h2>
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-900 text-white uppercase tracking-wider">
+                    {selectedProject.status || 'Active'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                  Updated {selectedProject.updatedAt || 'Recently'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <button
+              type="button"
+              onClick={onOpenCreateProject}
+              className="px-4 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <span className="text-sm font-extrabold">+</span>
+              <span>New Project</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Project Details Main Body */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Main Content Area */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* 1. Progress & Key Metrics Box */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+              <div className="flex items-center justify-between font-bold text-xs">
+                <span className="text-slate-700">Overall Project Progress</span>
+                <span className="text-slate-900 text-base font-black">{selectedProject.progress}%</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div
+                  className="bg-slate-900 h-full rounded-full transition-all duration-500"
+                  style={{ width: `${selectedProject.progress}%` }}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-slate-100 text-xs">
+                <div>
+                  <span className="text-slate-400 block font-medium">Open To-Dos</span>
+                  <span className="font-extrabold text-slate-900 text-sm">{selectedProject.openToDos} Tasks</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-medium">Project Manager</span>
+                  <span className="font-bold text-slate-900 text-xs">{selectedProject.manager || selectedProject.members[0] || 'Rahul Kumar'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-medium">Start Date</span>
+                  <span className="font-semibold text-slate-800">{selectedProject.startDate || '16/07/2024'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-medium">Deadline</span>
+                  <span className="font-semibold text-slate-800">{selectedProject.deadline || '24/10/2024'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Project Description */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-3">
+              <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">Project Description</h3>
+              <p className="text-slate-700 leading-relaxed text-xs bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium">
+                {selectedProject.description || 'Comprehensive project scope and key milestones tracked for workspace optimization and delivery.'}
+              </p>
+            </div>
+
+            {/* 3. Project Tasks List */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
+                  Project Tasks ({projectTasks.length})
+                </h3>
+              </div>
+
+              {projectTasks.length === 0 ? (
+                <div className="p-6 text-center bg-slate-50 rounded-xl border border-slate-100 text-slate-500 font-medium text-xs">
+                  No specific tasks assigned to this project yet.
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden">
+                  {projectTasks.map((t) => (
+                    <div key={t.id} className="p-3.5 bg-slate-50/50 hover:bg-slate-50 flex items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-3">
+                        <span className={`w-2 h-2 rounded-full ${t.completed ? 'bg-emerald-500' : 'bg-slate-900'}`} />
+                        <span className={`font-bold text-slate-900 ${t.completed ? 'line-through opacity-60' : ''}`}>
+                          {t.title}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-[11px] text-slate-500 font-semibold">
+                        <span>Assigned: <strong className="text-slate-800">{t.assignedTo || 'Unassigned'}</strong></span>
+                        <span>Due: {t.dueDate || 'Soon'}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 4. Required Documents & Files */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+              <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
+                Required Documents & Files ({projectDocs.length})
+              </h3>
+              {projectDocs.length === 0 ? (
+                <div className="p-6 text-center bg-slate-50 rounded-xl border border-slate-100 text-slate-500 font-medium text-xs">
+                  No documents attached to this project.
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2.5">
+                  {projectDocs.map((doc, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleViewDocument(doc)}
+                      className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-xs shadow-2xs transition-all cursor-pointer group"
+                      title={`Click to open and view ${doc}`}
+                    >
+                      <span className="text-base">📄</span>
+                      <span className="group-hover:underline truncate max-w-xs">{doc}</span>
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-900 text-white ml-1 shrink-0">
+                        View / Open ↗
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            
+            {/* Team Members List */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+              <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
+                Team Members ({selectedProject.members.length})
+              </h3>
+              <div className="space-y-2">
+                {selectedProject.members.map((member, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center">
+                        {member[0]}
+                      </div>
+                      <span className="font-bold text-slate-900">{member}</span>
+                    </div>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-200 text-slate-800 uppercase">
+                      {idx === 0 ? 'Lead' : 'Member'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Project Specifications */}
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-3 text-xs font-medium text-slate-600">
+              <h3 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider mb-2">Project Overview</h3>
+              <div className="flex justify-between py-2 border-b border-slate-100">
+                <span>Priority Level:</span>
+                <span className="font-bold uppercase text-slate-900">{selectedProject.priority || 'Medium'}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100">
+                <span>Currency:</span>
+                <span className="font-bold text-slate-900">{selectedProject.currency || 'USD ($)'}</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span>Status:</span>
+                <span className="font-extrabold text-slate-900 uppercase">{selectedProject.status || 'Active'}</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // STANDARD ALL PROJECTS GRID / CARDS / KANBAN VIEW
   return (
     <div className="space-y-6 font-sans">
       {/* Top Header */}
@@ -608,150 +824,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               </div>
             );
           })}
-        </div>
-      )}
-
-      {/* PROJECT DETAILS POP-UP MODAL */}
-      {selectedProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-2xl overflow-hidden my-6 flex flex-col max-h-[90vh]">
-            
-            {/* Modal Header */}
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                  📁
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-extrabold text-slate-900">{selectedProject.name}</h3>
-                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-900 text-white uppercase tracking-wider">
-                      {selectedProject.status || 'Active'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                    Updated {selectedProject.updatedAt || 'Recently'}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSelectedProject(null)}
-                className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Modal Body - Scrollable */}
-            <div className="p-6 overflow-y-auto space-y-6 flex-1 text-slate-800 text-xs">
-              
-              {/* 1. Progress & Key Metrics Bar */}
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                <div className="flex items-center justify-between font-bold text-xs">
-                  <span className="text-slate-700">Project Progress</span>
-                  <span className="text-slate-900 text-sm font-black">{selectedProject.progress}%</span>
-                </div>
-                <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-slate-900 h-full rounded-full transition-all duration-500"
-                    style={{ width: `${selectedProject.progress}%` }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-[11px] border-t border-slate-200/60">
-                  <div>
-                    <span className="text-slate-400 block font-medium">Open To-Dos</span>
-                    <span className="font-extrabold text-slate-900 text-sm">{selectedProject.openToDos} Tasks</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block font-medium">Manager</span>
-                    <span className="font-bold text-slate-900 text-xs">{selectedProject.manager || selectedProject.members[0] || 'Rahul Kumar'}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block font-medium">Start Date</span>
-                    <span className="font-semibold text-slate-800">{selectedProject.startDate || '16/07/2024'}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block font-medium">Deadline</span>
-                    <span className="font-semibold text-slate-800">{selectedProject.deadline || '24/10/2024'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 2. Project Description */}
-              <div>
-                <h4 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider mb-1.5">Description</h4>
-                <p className="text-slate-700 leading-relaxed bg-slate-50/70 p-3 rounded-xl border border-slate-100 font-medium">
-                  {selectedProject.description || 'Comprehensive project scope and key milestones tracked for workspace optimization and delivery.'}
-                </p>
-              </div>
-
-              {/* 3. Team Members */}
-              <div>
-                <h4 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider mb-2">
-                  Team Members ({selectedProject.members.length})
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {selectedProject.members.map((member, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 font-bold text-slate-900 text-xs"
-                    >
-                      <span className="w-5 h-5 rounded-full bg-slate-900 text-white font-extrabold text-[10px] flex items-center justify-center">
-                        {member[0]}
-                      </span>
-                      <span>{member}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* 4. Required Documents & Files */}
-              <div>
-                <h4 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider mb-2">
-                  Required Documents & Files ({projectDocs.length})
-                </h4>
-                {projectDocs.length === 0 ? (
-                  <div className="p-3 text-center bg-slate-50 rounded-xl border border-slate-200 text-slate-500 font-medium">
-                    No documents attached yet.
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {projectDocs.map((doc, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handleViewDocument(doc)}
-                        className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-xs shadow-2xs transition-all cursor-pointer group"
-                        title={`Click to open and view ${doc}`}
-                      >
-                        <span className="text-sm">📄</span>
-                        <span className="group-hover:underline truncate max-w-xs">{doc}</span>
-                        <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-slate-900 text-white ml-1 shrink-0">
-                          View / Open ↗
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end shrink-0">
-              <button
-                type="button"
-                onClick={() => setSelectedProject(null)}
-                className="px-5 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
-              >
-                Close Details
-              </button>
-            </div>
-
-          </div>
         </div>
       )}
     </div>
