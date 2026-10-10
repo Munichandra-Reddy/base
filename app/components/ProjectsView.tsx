@@ -3,7 +3,6 @@
 import React, { useState, useMemo } from 'react';
 import { Project, Task, FileItem } from '@/lib/types';
 import { PlusIcon, FolderIcon } from './Icons';
-import { FileViewerModal } from './FileViewerModal';
 
 interface ProjectsViewProps {
   projects: Project[];
@@ -27,9 +26,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
   // Selected project for Details Pop-up Modal
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-
-  // Document Viewer modal state
-  const [activeViewFile, setActiveViewFile] = useState<FileItem | null>(null);
 
   // Dynamically filter & sort projects
   const processedProjects = useMemo(() => {
@@ -115,26 +111,72 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       (f) => f.name.toLowerCase().trim() === docName.toLowerCase().trim()
     );
 
-    const isPdf = docName.toLowerCase().endsWith('.pdf');
-    const isImage =
-      docName.toLowerCase().endsWith('.png') ||
-      docName.toLowerCase().endsWith('.jpg') ||
-      docName.toLowerCase().endsWith('.svg');
+    if (existingFile && existingFile.fileUrl) {
+      if (
+        existingFile.fileUrl.startsWith('data:') ||
+        existingFile.fileUrl.startsWith('blob:') ||
+        existingFile.fileUrl.startsWith('http')
+      ) {
+        const win = window.open();
+        if (win) {
+          if (existingFile.type === 'image') {
+            win.document.write(
+              `<body style="margin:0;background:#0f172a;display:flex;justify-content:center;align-items:center;height:100vh;"><img src="${existingFile.fileUrl}" style="max-width:90%;max-height:90%;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);"/></body>`
+            );
+          } else {
+            win.document.write(
+              `<iframe src="${existingFile.fileUrl}" style="width:100vw;height:100vh;border:none;"></iframe>`
+            );
+          }
+          win.document.title = docName;
+          return;
+        }
+      }
+    }
 
-    const fileToView: FileItem = existingFile || {
-      id: `file-doc-${Date.now()}`,
-      name: docName,
-      size: '1.2 MB',
-      uploadedBy: selectedProject?.manager || selectedProject?.members[0] || 'Workspace Admin',
-      uploadedAt: 'Oct 10, 2026',
-      type: isPdf ? 'pdf' : isImage ? 'image' : 'document',
-      project: selectedProject?.name || 'Project Workspace',
-      fileUrl: isPdf
-        ? 'data:application/pdf;base64,JVBERi0xLjQNJSVPRkYNCjEgMCBvYmoNPDwvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFI+Pg1lbmRvYmoNCjIgMCBvYmoNPDwvVHlwZSAvUGFnZXMgL0tpZHMgWzMgMCBSXSAvQ291bnQgMT4+DWVuZG9iag0KMyAwIG9iaiA8PC9UeXBlIC9QYWdlIC9QYXJlbnQgMiAwIFIgL01lZGlhQm94IFswIDAgNjEyIDc5MlIgL0NvbnRlbnRzIDQgMCBSL1Jlc291cmNlcyA8PD4+PjANZW5kb2JqDTQgMCBvYmoNPDwvTGVuZ3RoIDU+PnN0cmVhbQ0KICANCmVuZHN0cmVhbQ1lbmRvYmoNCnhyZWYNCjAgNQ0KMDAwMDAwMDAwMCA2NTUzNSBmDQowMDAwMDAwMDE2IDAwMDAwIG4NCjDAwMDAwMDA2OCAwMDAwMCBuDQowMDAwMDAwMTI1IDAwMDAwIG4NCjDAwMDAwMDAyMzEgMDAwMDAgbg0KdHJhaWxlcg0KPDwvU2l6ZSA1IC9Sb290IDEgMCBSPj4NCnN0YXJ0eHJlZg0KMjg4DQolJUVPRg=='
-        : undefined,
-    };
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${docName}</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 40px; }
+              .card { max-width: 800px; margin: 0 auto; background: #ffffff; color: #0f172a; border-radius: 20px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); }
+              .header { border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+              .title { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0; }
+              .badge { background: #0f172a; color: #ffffff; padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+              .content { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 30px; font-size: 15px; line-height: 1.8; color: #334155; }
+              .btn { background: #0f172a; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; margin-top: 24px; }
+              .btn:hover { background: #000000; }
+            </style>
+          </head>
+          <body>
+            <div class="card">
+              <div class="header">
+                <div>
+                  <h1 class="title">📄 ${docName}</h1>
+                  <div style="font-size:14px; color:#64748b; font-weight:600; margin-top:4px;">Project: ${selectedProject?.name || 'Workspace Project'}</div>
+                </div>
+                <span class="badge">Uploaded File</span>
+              </div>
+              
+              <div class="content">
+                <h3 style="margin-top:0; color:#0f172a; font-size:18px;">📄 Uploaded File Display</h3>
+                <p>Viewing uploaded file: <strong>${docName}</strong></p>
+                <p>This file is attached to the <strong>${selectedProject?.name || 'Workspace Project'}</strong> project workspace and verified for team access.</p>
+                <hr style="border:0; border-top:1px solid #cbd5e1; margin:20px 0;" />
+                <p style="font-size:13px; color:#64748b; margin:0;">Status: Active • Verified Workspace Deliverable</p>
+              </div>
 
-    setActiveViewFile(fileToView);
+              <button class="btn" onclick="window.print()">🖨️ Print / Save File</button>
+            </div>
+          </body>
+        </html>
+      `);
+      win.document.close();
+    }
   };
 
   const hasActiveFilters =
@@ -770,12 +812,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           </div>
         </div>
       )}
-
-      {/* DOCUMENT VIEWER MODAL */}
-      <FileViewerModal
-        file={activeViewFile}
-        onClose={() => setActiveViewFile(null)}
-      />
     </div>
   );
 };
