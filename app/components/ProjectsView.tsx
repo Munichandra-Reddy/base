@@ -1,21 +1,31 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Project } from '@/lib/types';
+import { Project, Task, FileItem } from '@/lib/types';
 import { PlusIcon, FolderIcon } from './Icons';
 
 interface ProjectsViewProps {
   projects: Project[];
+  tasks?: Task[];
+  files?: FileItem[];
   onOpenCreateProject: () => void;
 }
 
-export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCreateProject }) => {
-  const [viewMode, setViewMode] = useState<'list' | 'cards' | 'calendar' | 'kanban'>('list');
+export const ProjectsView: React.FC<ProjectsViewProps> = ({
+  projects,
+  tasks = [],
+  files = [],
+  onOpenCreateProject,
+}) => {
+  const [viewMode, setViewMode] = useState<'list' | 'cards' | 'kanban'>('cards');
   const [showFilter, setShowFilter] = useState('All Projects');
   const [sortFilter, setSortFilter] = useState('Create Date');
   const [groupFilter, setGroupFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Selected project for Details Pop-up Modal
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   // Dynamically filter & sort projects
   const processedProjects = useMemo(() => {
@@ -80,11 +90,28 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
       if (sortFilter === 'Deadline') {
         return (a.deadline || '').localeCompare(b.deadline || '');
       }
-      return 0; // Default: Create Date (initial order)
+      return 0;
     });
 
     return result;
   }, [projects, showFilter, groupFilter, searchQuery, sortFilter]);
+
+  // Dynamic calculation of tasks and documents for the selected project details popup
+  const projectTasks = useMemo(() => {
+    if (!selectedProject || !tasks) return [];
+    return tasks.filter(
+      (t) => t.project.toLowerCase().trim() === selectedProject.name.toLowerCase().trim()
+    );
+  }, [selectedProject, tasks]);
+
+  const projectDocs = useMemo(() => {
+    if (!selectedProject) return [];
+    const fromProject = selectedProject.requiredDocuments || [];
+    const fromFiles = (files || [])
+      .filter((f) => f.project.toLowerCase().trim() === selectedProject.name.toLowerCase().trim())
+      .map((f) => f.name);
+    return Array.from(new Set([...fromProject, ...fromFiles]));
+  }, [selectedProject, files]);
 
   const hasActiveFilters =
     showFilter !== 'All Projects' ||
@@ -327,7 +354,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                       <button
                         type="button"
                         onClick={handleResetFilters}
-                        className="block mx-auto mt-2 px-3 py-1 bg-fuchsia-50 text-fuchsia-700 font-bold rounded-lg border border-fuchsia-200 hover:bg-fuchsia-100 transition-colors cursor-pointer text-xs"
+                        className="block mx-auto mt-2 px-3 py-1 bg-slate-100 text-slate-900 font-bold rounded-lg border border-slate-200 hover:bg-slate-200 transition-colors cursor-pointer text-xs"
                       >
                         Reset All Filters
                       </button>
@@ -339,7 +366,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                     const deadline = project.deadline || '24/10/2024';
                     const currency = project.currency || (idx % 2 === 0 ? '$$$' : '---');
 
-                    // Normalize Status badge
                     const rawStatus = project.status || 'Active';
                     let statusLabel = 'Active';
                     let statusStyle = 'bg-slate-900 text-white';
@@ -355,7 +381,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                       statusStyle = 'bg-slate-900 text-white';
                     }
 
-                    // Priority pill style
                     const priority = project.priority || (idx % 3 === 0 ? 'high' : idx % 3 === 1 ? 'medium' : 'low');
                     let prioStyle = 'bg-slate-100 text-slate-700';
                     let prioDot = 'bg-slate-500';
@@ -374,30 +399,21 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                     return (
                       <tr
                         key={project.id}
-                        className="hover:bg-slate-50/80 transition-colors"
+                        onClick={() => setSelectedProject(project)}
+                        className="hover:bg-slate-100/70 transition-colors cursor-pointer"
+                        title="Click to view full project details"
                       >
-                        {/* Project Name */}
                         <td className="py-3.5 px-4 font-bold text-slate-900 text-sm">
                           {project.name}
                         </td>
-
-                        {/* Start Date */}
                         <td className="py-3.5 px-4 text-slate-600 font-semibold">{startDate}</td>
-
-                        {/* Deadline */}
                         <td className="py-3.5 px-4 text-slate-600 font-semibold">{deadline}</td>
-
-                        {/* Currency */}
                         <td className="py-3.5 px-4 font-medium text-slate-500">{currency}</td>
-
-                        {/* Status */}
                         <td className="py-3.5 px-4">
                           <span className={`px-3 py-1 rounded-lg font-bold text-[11px] ${statusStyle}`}>
                             {statusLabel}
                           </span>
                         </td>
-
-                        {/* People (Avatars) */}
                         <td className="py-3.5 px-4">
                           <div className="flex -space-x-1.5">
                             {project.members.map((m, mIdx) => (
@@ -411,8 +427,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                             ))}
                           </div>
                         </td>
-
-                        {/* Priority */}
                         <td className="py-3.5 px-4">
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${prioStyle}`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${prioDot}`} />
@@ -427,7 +441,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
             </table>
           </div>
 
-          {/* Table Footer Pagination */}
           <div className="p-4 bg-slate-50/40 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-semibold text-slate-600">
             <div className="flex items-center gap-2">
               <select className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none cursor-pointer">
@@ -458,7 +471,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
         </div>
       )}
 
-      {/* CARDS VIEW GRID (Small Compact Cards Layout without descriptions) */}
+      {/* CARDS VIEW GRID */}
       {viewMode === 'cards' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {processedProjects.length === 0 ? (
@@ -488,11 +501,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
               return (
                 <div
                   key={project.id}
-                  className="bg-white rounded-xl border border-slate-200/90 p-3 shadow-2xs hover:shadow-sm transition-all flex flex-col justify-between space-y-2"
+                  onClick={() => setSelectedProject(project)}
+                  className="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-md hover:border-slate-400 transition-all flex flex-col justify-between space-y-3 cursor-pointer group"
+                  title="Click card to view details"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-900 flex items-center justify-center font-bold shadow-2xs">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-slate-900 group-hover:text-white text-slate-900 flex items-center justify-center font-bold shadow-2xs transition-colors">
                         <FolderIcon className="w-3.5 h-3.5" />
                       </div>
                       <span
@@ -501,13 +516,12 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                         {rawStatus.toUpperCase()}
                       </span>
                     </div>
-                    <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                    <h3 className="text-sm font-bold text-slate-900 leading-snug group-hover:underline">
                       {project.name}
                     </h3>
                   </div>
 
                   <div className="space-y-2 pt-2 border-t border-slate-100">
-                    {/* Progress Bar */}
                     <div>
                       <div className="flex justify-between text-[10px] font-bold text-slate-700 mb-1">
                         <span>Progress</span>
@@ -521,7 +535,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                       </div>
                     </div>
 
-                    {/* Footer Meta: Open To-Dos & Team Avatars */}
                     <div className="flex items-center justify-between pt-0.5 text-[10px] font-semibold text-slate-600">
                       <div>
                         <span className="font-extrabold text-slate-900">{project.openToDos}</span> open to-dos
@@ -546,18 +559,227 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
         </div>
       )}
 
-      {/* CALENDAR & KANBAN PLACEHOLDERS */}
-      {(viewMode === 'calendar' || viewMode === 'kanban') && (
-        <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3">
-          <div className="text-4xl">
-            {viewMode === 'calendar' ? '📅' : '📋'}
+      {/* KANBAN VIEW GRID */}
+      {viewMode === 'kanban' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {['Active', 'Design', 'Brief'].map((columnStatus) => {
+            const colProjects = processedProjects.filter((p) => {
+              const s = (p.status || '').toLowerCase();
+              if (columnStatus === 'Active') return s.includes('active');
+              if (columnStatus === 'Design') return s.includes('design');
+              return s.includes('brief') || s.includes('hold');
+            });
+
+            return (
+              <div key={columnStatus} className="bg-slate-100/70 rounded-2xl p-4 border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between font-extrabold text-xs text-slate-900 uppercase tracking-wider pb-1 border-b border-slate-200">
+                  <span>{columnStatus} ({colProjects.length})</span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {colProjects.length === 0 ? (
+                    <div className="p-4 text-center text-slate-400 text-xs font-medium bg-white/50 rounded-xl border border-dashed border-slate-200">
+                      No {columnStatus} projects
+                    </div>
+                  ) : (
+                    colProjects.map((project) => (
+                      <div
+                        key={project.id}
+                        onClick={() => setSelectedProject(project)}
+                        className="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs hover:shadow-md transition-all cursor-pointer space-y-2 group"
+                      >
+                        <h4 className="font-bold text-xs text-slate-900 group-hover:underline">{project.name}</h4>
+                        <div className="flex justify-between items-center text-[10px] font-semibold text-slate-500">
+                          <span>{project.progress}% completed</span>
+                          <span className="font-bold text-slate-800">{project.openToDos} to-dos</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* PROJECT DETAILS POP-UP MODAL */}
+      {selectedProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-2xl overflow-hidden my-6 flex flex-col max-h-[90vh]">
+            
+            {/* Modal Header */}
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                  📁
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-extrabold text-slate-900">{selectedProject.name}</h3>
+                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-900 text-white uppercase tracking-wider">
+                      {selectedProject.status || 'Active'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                    Updated {selectedProject.updatedAt || 'Recently'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedProject(null)}
+                className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body - Scrollable */}
+            <div className="p-6 overflow-y-auto space-y-6 flex-1 text-slate-800 text-xs">
+              
+              {/* 1. Progress & Key Metrics Bar */}
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between font-bold text-xs">
+                  <span className="text-slate-700">Project Progress</span>
+                  <span className="text-slate-900 text-sm font-black">{selectedProject.progress}%</span>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-slate-900 h-full rounded-full transition-all duration-500"
+                    style={{ width: `${selectedProject.progress}%` }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-[11px] border-t border-slate-200/60">
+                  <div>
+                    <span className="text-slate-400 block font-medium">Open To-Dos</span>
+                    <span className="font-extrabold text-slate-900 text-sm">{selectedProject.openToDos} Tasks</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block font-medium">Manager</span>
+                    <span className="font-bold text-slate-900 text-xs">{selectedProject.manager || selectedProject.members[0] || 'Rahul Kumar'}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block font-medium">Start Date</span>
+                    <span className="font-semibold text-slate-800">{selectedProject.startDate || '16/07/2024'}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block font-medium">Deadline</span>
+                    <span className="font-semibold text-slate-800">{selectedProject.deadline || '24/10/2024'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Project Description */}
+              <div>
+                <h4 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider mb-1.5">Description</h4>
+                <p className="text-slate-700 leading-relaxed bg-slate-50/70 p-3 rounded-xl border border-slate-100 font-medium">
+                  {selectedProject.description || 'Comprehensive project scope and key milestones tracked for workspace optimization and delivery.'}
+                </p>
+              </div>
+
+              {/* 3. Team Members */}
+              <div>
+                <h4 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider mb-2">
+                  Team Members ({selectedProject.members.length})
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedProject.members.map((member, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 font-bold text-slate-900 text-xs"
+                    >
+                      <span className="w-5 h-5 rounded-full bg-slate-900 text-white font-extrabold text-[10px] flex items-center justify-center">
+                        {member[0]}
+                      </span>
+                      <span>{member}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 4. Project Tasks */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">
+                    Project Tasks ({projectTasks.length})
+                  </h4>
+                </div>
+                {projectTasks.length === 0 ? (
+                  <div className="p-3 text-center bg-slate-50 rounded-xl border border-slate-200 text-slate-500 font-medium">
+                    No specific tasks created for this project yet.
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    {projectTasks.map((t) => (
+                      <div
+                        key={t.id}
+                        className="p-2.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-3 text-xs"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${t.completed ? 'bg-slate-900 border-slate-900 text-white' : 'border-slate-300'}`}>
+                            {t.completed && '✓'}
+                          </span>
+                          <span className={`font-bold truncate ${t.completed ? 'line-through text-slate-400' : 'text-slate-900'}`}>
+                            {t.title}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {t.assignedTo && (
+                            <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                              {t.assignedTo}
+                            </span>
+                          )}
+                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-slate-200 text-slate-900 uppercase">
+                            {t.priority || 'medium'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 5. Required Documents / Files */}
+              <div>
+                <h4 className="font-extrabold text-xs text-slate-900 uppercase tracking-wider mb-2">
+                  Required Documents & Files ({projectDocs.length})
+                </h4>
+                {projectDocs.length === 0 ? (
+                  <div className="p-3 text-center bg-slate-50 rounded-xl border border-slate-200 text-slate-500 font-medium">
+                    No documents attached yet.
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {projectDocs.map((doc, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 font-semibold text-xs"
+                      >
+                        <span>📄</span>
+                        <span>{doc}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setSelectedProject(null)}
+                className="px-5 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+              >
+                Close Details
+              </button>
+            </div>
+
           </div>
-          <h3 className="text-lg font-bold text-slate-800 capitalize">
-            {viewMode} View for {processedProjects.length} Projects
-          </h3>
-          <p className="text-sm text-slate-500 max-w-md mx-auto">
-            Switch back to <span className="font-bold text-slate-900">List</span> or <span className="font-bold text-slate-900">Cards</span> view to inspect project deliverables.
-          </p>
         </div>
       )}
     </div>

@@ -619,6 +619,8 @@ export default function Home() {
           {activeTab === 'projects' && (
             <ProjectsView
               projects={projects}
+              tasks={tasks}
+              files={files}
               onOpenCreateProject={() => setIsCreateModalOpen(true)}
             />
           )}
