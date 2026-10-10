@@ -63,7 +63,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     setSelectedProject(project);
     setActiveProjectTab('messages');
     if (typeof window !== 'undefined') {
-      window.history.pushState({ projectId: project.id, view: 'project_details' }, '', `#project-${project.id}`);
+      window.history.pushState({ tab: 'projects', projectId: project.id, view: 'project_details' }, '', `#project-${project.id}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -72,10 +72,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     setSelectedProject(null);
     setActiveProjectTab('messages');
     if (typeof window !== 'undefined') {
-      if (window.location.hash.includes('project-')) {
-        const cleanUrl = window.location.pathname + window.location.search;
-        window.history.pushState({ view: 'projects_list' }, '', cleanUrl);
-      }
+      window.history.pushState({ tab: 'projects', view: 'projects_list' }, '', '#projects');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };

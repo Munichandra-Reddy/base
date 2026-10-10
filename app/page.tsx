@@ -173,6 +173,72 @@ export default function Home() {
     }
   }, []);
 
+  // BROWSER BACK (←) AND FORWARD (→) BUTTON NAVIGATION HANDLING FOR ALL MAIN TABS
+  const handleTabChange = (tab: NavTab) => {
+    setActiveTab(tab);
+    if (typeof window !== 'undefined') {
+      const currentHash = window.location.hash.replace('#', '');
+      if (currentHash !== tab) {
+        window.history.pushState({ tab }, '', `#${tab}`);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (typeof window === 'undefined') return;
+
+      const hash = window.location.hash.replace('#', '');
+      const validTabs: NavTab[] = [
+        'dashboard',
+        'tasks',
+        'projects',
+        'calendar',
+        'chat',
+        'files',
+        'people',
+        'checkins',
+        'reports',
+      ];
+
+      if (e.state && e.state.tab && validTabs.includes(e.state.tab)) {
+        setActiveTab(e.state.tab);
+      } else if (hash.startsWith('project-')) {
+        setActiveTab('projects');
+      } else if (validTabs.includes(hash as NavTab)) {
+        setActiveTab(hash as NavTab);
+      } else {
+        setActiveTab('dashboard');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash.replace('#', '');
+      if (hash.startsWith('project-')) {
+        setActiveTab('projects');
+      } else {
+        const validTabs: NavTab[] = [
+          'dashboard',
+          'tasks',
+          'projects',
+          'calendar',
+          'chat',
+          'files',
+          'people',
+          'checkins',
+          'reports',
+        ];
+        if (validTabs.includes(hash as NavTab)) {
+          setActiveTab(hash as NavTab);
+        }
+      }
+    }
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   // Keyboard shortcut for Cmd+F / Ctrl+K search modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -580,7 +646,7 @@ export default function Home() {
         {/* Left Sidebar - Fixed */}
         <Sidebar
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={handleTabChange}
           tasksCount={pendingTasksCount}
           chatCount={3}
           storageUsedGB={initialStats.storageUsedGB}
@@ -601,9 +667,9 @@ export default function Home() {
               activities={activities}
               onToggleTask={handleToggleTask}
               onOpenAddTask={() => setIsCreateModalOpen(true)}
-              onViewAllTasks={() => setActiveTab('tasks')}
-              onViewEmployees={() => setActiveTab('people')}
-              onViewProjects={() => setActiveTab('projects')}
+              onViewAllTasks={() => handleTabChange('tasks')}
+              onViewEmployees={() => handleTabChange('people')}
+              onViewProjects={() => handleTabChange('projects')}
               currentUser={currentUser}
             />
           )}
