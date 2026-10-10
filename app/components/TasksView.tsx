@@ -38,7 +38,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
         </div>
         <button
           onClick={onOpenAddTask}
-          className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl shadow-xs flex items-center gap-2 cursor-pointer"
+          className="px-5 py-3 bg-slate-900 hover:bg-black text-white font-bold text-base rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
         >
           <PlusIcon className="w-5 h-5" />
           <span>New Task</span>
@@ -53,7 +53,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
               key={tab}
               onClick={() => setFilter(tab)}
               className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all ${
-                filter === tab ? 'bg-white text-blue-600 shadow-xs font-extrabold' : 'text-slate-600 hover:text-slate-900'
+                filter === tab ? 'bg-white text-slate-900 shadow-xs font-extrabold' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               {tab}
@@ -66,7 +66,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
           placeholder="Filter tasks by name or project..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-72"
+          className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900 w-full sm:w-72"
         />
       </div>
 
@@ -89,8 +89,8 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
                   <div
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 mt-0.5 ${
                       task.completed
-                        ? 'bg-blue-600 border-blue-600 text-white'
-                        : 'border-slate-300 hover:border-blue-500 bg-white'
+                        ? 'bg-slate-900 border-slate-900 text-white'
+                        : 'border-slate-300 hover:border-slate-800 bg-white'
                     }`}
                   >
                     {task.completed && (
@@ -120,16 +120,16 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
                     <span
                       className={`w-20 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wider inline-flex items-center justify-center text-center ${
                         task.priority === 'high'
-                          ? 'bg-red-100 text-red-700'
+                          ? 'bg-slate-900 text-white'
                           : task.priority === 'medium'
-                          ? 'bg-amber-100 text-amber-700'
+                          ? 'bg-slate-200 text-slate-800'
                           : 'bg-slate-100 text-slate-700'
                       }`}
                     >
                       {task.priority}
                     </span>
                   )}
-                  <span className="w-44 py-1.5 px-3 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100 inline-flex items-center justify-center text-center truncate">
+                  <span className="w-44 py-1.5 px-3 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200 inline-flex items-center justify-center text-center truncate">
                     {task.project}
                   </span>
                 </div>

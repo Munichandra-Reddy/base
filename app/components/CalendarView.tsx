@@ -28,16 +28,16 @@ export const CalendarView: React.FC = () => {
   ];
 
   const initialMockEvents: Record<number, CalendarEvent[]> = {
-    1: [{ title: 'Weekly Planning', time: '09:00 AM', color: 'bg-sky-100 text-sky-800 border border-sky-200' }],
-    2: [{ title: 'Homepage Design Signoff', time: '11:00 AM', color: 'bg-blue-100 text-blue-800 border border-blue-200' }],
-    3: [{ title: 'Client Onboarding Sync', time: '02:30 PM', color: 'bg-indigo-100 text-indigo-800 border border-indigo-200' }],
-    4: [{ title: 'Database Migration Review', time: '04:00 PM', color: 'bg-violet-100 text-violet-800 border border-violet-200' }],
-    5: [{ title: 'API Release v2.0', time: '10:00 AM', color: 'bg-purple-100 text-purple-800 border border-purple-200' }],
-    6: [{ title: 'Frontend UI Polish', time: '01:00 PM', color: 'bg-teal-100 text-teal-800 border border-teal-200' }],
+    1: [{ title: 'Weekly Planning', time: '09:00 AM', color: 'bg-slate-100 text-slate-900 border border-slate-300' }],
+    2: [{ title: 'Homepage Design Signoff', time: '11:00 AM', color: 'bg-slate-200 text-slate-900 border border-slate-300' }],
+    3: [{ title: 'Client Onboarding Sync', time: '02:30 PM', color: 'bg-slate-100 text-slate-800 border border-slate-200' }],
+    4: [{ title: 'Database Migration Review', time: '04:00 PM', color: 'bg-slate-300 text-slate-900 border border-slate-400' }],
+    5: [{ title: 'API Release v2.0', time: '10:00 AM', color: 'bg-slate-200 text-slate-900 border border-slate-300' }],
+    6: [{ title: 'Frontend UI Polish', time: '01:00 PM', color: 'bg-slate-100 text-slate-800 border border-slate-200' }],
     7: [{ title: 'Team Catchup & QA', time: '05:00 PM', color: 'bg-slate-100 text-slate-800 border border-slate-200' }],
-    12: [{ title: 'Sprint Demo & Retrospective', time: '03:00 PM', color: 'bg-emerald-100 text-emerald-800 border border-emerald-200' }],
-    18: [{ title: 'Q4 Strategy Sync', time: '10:30 AM', color: 'bg-amber-100 text-amber-800 border border-amber-200' }],
-    25: [{ title: 'Infrastructure Maintenance', time: '11:00 PM', color: 'bg-red-100 text-red-800 border border-red-200' }],
+    12: [{ title: 'Sprint Demo & Retrospective', time: '03:00 PM', color: 'bg-slate-800 text-white border border-slate-700' }],
+    18: [{ title: 'Q4 Strategy Sync', time: '10:30 AM', color: 'bg-slate-200 text-slate-900 border border-slate-300' }],
+    25: [{ title: 'Infrastructure Maintenance', time: '11:00 PM', color: 'bg-slate-900 text-white border border-black' }],
   };
 
   const [events, setEvents] = useState<Record<number, CalendarEvent[]>>(initialMockEvents);
@@ -57,7 +57,7 @@ export const CalendarView: React.FC = () => {
     const newEvt: CalendarEvent = {
       title: newEventTitle.trim(),
       time: newEventTime.trim() || '10:00 AM',
-      color: 'bg-blue-100 text-blue-800 border border-blue-200',
+      color: 'bg-slate-200 text-slate-900 border border-slate-300',
     };
 
     setEvents((prev) => ({
@@ -76,7 +76,7 @@ export const CalendarView: React.FC = () => {
     const newEvt: CalendarEvent = {
       title: newEventTitle.trim(),
       time: newEventTime.trim() || '10:00 AM',
-      color: 'bg-blue-100 text-blue-800 border border-blue-200',
+      color: 'bg-slate-200 text-slate-900 border border-slate-300',
     };
 
     setEvents((prev) => ({
@@ -112,7 +112,7 @@ export const CalendarView: React.FC = () => {
               setNewEventTitle('');
               setIsAddModalOpen(true);
             }}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+            className="px-4 py-2 bg-slate-900 hover:bg-black text-white font-bold text-sm rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <span className="text-base leading-none">+</span>
             <span>Add Event</span>
@@ -158,12 +158,12 @@ export const CalendarView: React.FC = () => {
               <div
                 key={day}
                 onClick={() => setSelectedDay(day)}
-                className="min-h-[110px] p-2.5 bg-white hover:bg-blue-50/40 transition-colors cursor-pointer group"
+                className="min-h-[110px] p-2.5 bg-white hover:bg-slate-100 transition-colors cursor-pointer group"
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-sm font-bold text-slate-800 group-hover:text-blue-600">{day}</span>
+                  <span className="text-sm font-bold text-slate-800 group-hover:text-slate-900">{day}</span>
                   {events[day] && events[day].length > 0 && (
-                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-slate-900 text-white">
                       {events[day].length}
                     </span>
                   )}
@@ -197,9 +197,9 @@ export const CalendarView: React.FC = () => {
               <div
                 key={wDay.dayNumber}
                 onClick={() => setSelectedDay(wDay.dayNumber)}
-                className="p-3 bg-white hover:bg-blue-50/40 transition-colors cursor-pointer space-y-2 group"
+                className="p-3 bg-white hover:bg-slate-100 transition-colors cursor-pointer space-y-2 group"
               >
-                <div className="text-xs font-extrabold text-slate-400 group-hover:text-blue-600 mb-2">
+                <div className="text-xs font-extrabold text-slate-400 group-hover:text-slate-900 mb-2">
                   {wDay.dayName}, {wDay.dateStr}
                 </div>
                 {events[wDay.dayNumber] && events[wDay.dayNumber].length > 0 ? (
@@ -283,14 +283,14 @@ export const CalendarView: React.FC = () => {
                     placeholder="Event title or milestone..."
                     value={newEventTitle}
                     onChange={(e) => setNewEventTitle(e.target.value)}
-                    className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
                   />
                   <input
                     type="text"
                     placeholder="10:00 AM"
                     value={newEventTime}
                     onChange={(e) => setNewEventTime(e.target.value)}
-                    className="w-28 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-28 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-1">
@@ -303,7 +303,7 @@ export const CalendarView: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
+                    className="px-5 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
                   >
                     Add Event
                   </button>
@@ -336,7 +336,7 @@ export const CalendarView: React.FC = () => {
                 <select
                   value={targetDay}
                   onChange={(e) => setTargetDay(Number(e.target.value))}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
                 >
                   {currentMonthDays.map((d) => (
                     <option key={d} value={d}>
@@ -356,7 +356,7 @@ export const CalendarView: React.FC = () => {
                   placeholder="e.g. Q4 Strategy Review & Release"
                   value={newEventTitle}
                   onChange={(e) => setNewEventTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
                 />
               </div>
 
@@ -369,7 +369,7 @@ export const CalendarView: React.FC = () => {
                   placeholder="e.g. 10:00 AM"
                   value={newEventTime}
                   onChange={(e) => setNewEventTime(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
                 />
               </div>
 
@@ -383,7 +383,7 @@ export const CalendarView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
+                  className="px-5 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
                 >
                   Create Event
                 </button>

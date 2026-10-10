@@ -111,13 +111,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
         <div className="flex items-center gap-3 self-end sm:self-auto">
           {/* Team Member Avatars Stack */}
           <div className="flex -space-x-2 mr-1">
-            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center justify-center border-2 border-white shadow-2xs">
+            <div className="w-8 h-8 rounded-full bg-slate-800 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-2xs">
               H
             </div>
-            <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center border-2 border-white shadow-2xs">
+            <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-900 font-bold text-xs flex items-center justify-center border-2 border-white shadow-2xs">
               M
             </div>
-            <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center border-2 border-white shadow-2xs">
+            <div className="w-8 h-8 rounded-full bg-slate-400 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-2xs">
               R
             </div>
           </div>
@@ -136,7 +136,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
           <button
             type="button"
             onClick={onOpenCreateProject}
-            className="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-700 active:bg-fuchsia-800 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+            className="px-4 py-2 bg-slate-900 hover:bg-black active:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <span className="text-sm font-extrabold">+</span>
             <span>New Project</span>
@@ -153,7 +153,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
             onClick={() => setViewMode('list')}
             className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 ${
               viewMode === 'list'
-                ? 'text-fuchsia-600 border-fuchsia-600 font-extrabold'
+                ? 'text-slate-900 border-slate-900 font-extrabold'
                 : 'border-transparent hover:text-slate-800'
             }`}
           >
@@ -165,7 +165,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
             onClick={() => setViewMode('cards')}
             className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 ${
               viewMode === 'cards'
-                ? 'text-fuchsia-600 border-fuchsia-600 font-extrabold'
+                ? 'text-slate-900 border-slate-900 font-extrabold'
                 : 'border-transparent hover:text-slate-800'
             }`}
           >
@@ -177,7 +177,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
             onClick={() => setViewMode('kanban')}
             className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 ${
               viewMode === 'kanban'
-                ? 'text-fuchsia-600 border-fuchsia-600 font-extrabold'
+                ? 'text-slate-900 border-slate-900 font-extrabold'
                 : 'border-transparent hover:text-slate-800'
             }`}
           >
@@ -242,7 +242,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
 
           {/* Add Filter & Search Button */}
           {isSearchOpen ? (
-            <div className="flex items-center gap-2 bg-white border border-fuchsia-300 rounded-xl px-2.5 py-1 text-xs shadow-2xs">
+            <div className="flex items-center gap-2 bg-white border border-slate-400 rounded-xl px-2.5 py-1 text-xs shadow-2xs">
               <span className="text-slate-400">🔍</span>
               <input
                 type="text"
@@ -264,7 +264,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
               <button
                 type="button"
                 onClick={() => setIsSearchOpen(false)}
-                className="text-fuchsia-600 hover:text-fuchsia-700 text-xs font-bold ml-1 cursor-pointer"
+                className="text-slate-900 hover:text-slate-700 text-xs font-bold ml-1 cursor-pointer"
               >
                 Done
               </button>
@@ -275,7 +275,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
               onClick={() => setIsSearchOpen(true)}
               className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-xl text-xs font-bold shadow-2xs transition-colors cursor-pointer ${
                 searchQuery
-                  ? 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200'
+                  ? 'bg-slate-200 text-slate-900 border-slate-300'
                   : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
               }`}
             >
@@ -289,7 +289,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
             <button
               type="button"
               onClick={handleResetFilters}
-              className="text-[11px] font-bold text-slate-500 hover:text-red-600 underline px-1 transition-colors cursor-pointer ml-1"
+              className="text-[11px] font-bold text-slate-500 hover:text-slate-900 underline px-1 transition-colors cursor-pointer ml-1"
             >
               Reset
             </button>
@@ -342,32 +342,32 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                     // Normalize Status badge
                     const rawStatus = project.status || 'Active';
                     let statusLabel = 'Active';
-                    let statusStyle = 'bg-emerald-100/90 text-emerald-700';
+                    let statusStyle = 'bg-slate-900 text-white';
 
                     if (rawStatus.toLowerCase().includes('design')) {
                       statusLabel = 'Design';
-                      statusStyle = 'bg-purple-100/90 text-purple-700';
+                      statusStyle = 'bg-slate-200 text-slate-900';
                     } else if (rawStatus.toLowerCase().includes('brief') || rawStatus.toLowerCase().includes('hold')) {
                       statusLabel = 'Brief';
-                      statusStyle = 'bg-amber-100/90 text-amber-700';
+                      statusStyle = 'bg-slate-100 text-slate-700 border border-slate-200';
                     } else {
                       statusLabel = 'Active';
-                      statusStyle = 'bg-emerald-100/90 text-emerald-700';
+                      statusStyle = 'bg-slate-900 text-white';
                     }
 
                     // Priority pill style
                     const priority = project.priority || (idx % 3 === 0 ? 'high' : idx % 3 === 1 ? 'medium' : 'low');
-                    let prioStyle = 'bg-blue-50 text-blue-600';
-                    let prioDot = 'bg-blue-500';
+                    let prioStyle = 'bg-slate-100 text-slate-700';
+                    let prioDot = 'bg-slate-500';
                     let prioLabel = 'Low';
 
                     if (priority === 'high') {
-                      prioStyle = 'bg-red-50 text-red-600';
-                      prioDot = 'bg-red-500';
+                      prioStyle = 'bg-slate-900 text-white';
+                      prioDot = 'bg-white';
                       prioLabel = 'High';
                     } else if (priority === 'medium') {
-                      prioStyle = 'bg-amber-50 text-amber-600';
-                      prioDot = 'bg-amber-500';
+                      prioStyle = 'bg-slate-200 text-slate-800';
+                      prioDot = 'bg-slate-800';
                       prioLabel = 'Medium';
                     }
 
@@ -403,7 +403,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                             {project.members.map((m, mIdx) => (
                               <div
                                 key={mIdx}
-                                className="w-7 h-7 rounded-full bg-blue-100 border-2 border-white text-blue-700 font-extrabold text-[10px] flex items-center justify-center shadow-2xs"
+                                className="w-7 h-7 rounded-full bg-slate-200 border-2 border-white text-slate-900 font-extrabold text-[10px] flex items-center justify-center shadow-2xs"
                                 title={m}
                               >
                                 {m[0]}
@@ -444,7 +444,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
               >
                 ‹ Previous
               </button>
-              <button className="w-8 h-8 bg-fuchsia-50 text-fuchsia-700 font-extrabold rounded-xl border border-fuchsia-200 flex items-center justify-center">
+              <button className="w-8 h-8 bg-slate-900 text-white font-extrabold rounded-xl border border-slate-900 flex items-center justify-center">
                 1
               </button>
               <button
@@ -467,7 +467,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="px-4 py-2 bg-fuchsia-50 text-fuchsia-700 font-bold rounded-xl border border-fuchsia-200 hover:bg-fuchsia-100 transition-colors cursor-pointer text-xs"
+                className="px-4 py-2 bg-slate-200 text-slate-900 font-bold rounded-xl border border-slate-300 hover:bg-slate-300 transition-colors cursor-pointer text-xs"
               >
                 Reset All Filters
               </button>
@@ -475,14 +475,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
           ) : (
             processedProjects.map((project) => {
               const rawStatus = project.status || 'Active';
-              let statusStyle = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+              let statusStyle = 'bg-slate-900 text-white border-slate-800';
               if (rawStatus.toLowerCase().includes('design')) {
-                statusStyle = 'bg-purple-50 text-purple-700 border-purple-200';
+                statusStyle = 'bg-slate-200 text-slate-900 border-slate-300';
               } else if (
                 rawStatus.toLowerCase().includes('brief') ||
                 rawStatus.toLowerCase().includes('hold')
               ) {
-                statusStyle = 'bg-amber-50 text-amber-700 border-amber-200';
+                statusStyle = 'bg-slate-100 text-slate-700 border-slate-200';
               }
 
               return (
@@ -492,7 +492,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold shadow-2xs">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-900 flex items-center justify-center font-bold shadow-2xs">
                         <FolderIcon className="w-3.5 h-3.5" />
                       </div>
                       <span
@@ -515,7 +515,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="bg-blue-600 h-full rounded-full transition-all duration-500"
+                          className="bg-slate-900 h-full rounded-full transition-all duration-500"
                           style={{ width: `${project.progress}%` }}
                         />
                       </div>
@@ -530,7 +530,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
                         {project.members.map((m, idx) => (
                           <div
                             key={idx}
-                            className="w-5.5 h-5.5 rounded-full bg-blue-100 border border-white text-blue-700 font-extrabold text-[8px] flex items-center justify-center shadow-2xs"
+                            className="w-5.5 h-5.5 rounded-full bg-slate-200 border border-white text-slate-900 font-extrabold text-[8px] flex items-center justify-center shadow-2xs"
                             title={m}
                           >
                             {m[0]}
@@ -556,7 +556,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenCrea
             {viewMode} View for {processedProjects.length} Projects
           </h3>
           <p className="text-sm text-slate-500 max-w-md mx-auto">
-            Switch back to <span className="font-bold text-fuchsia-600">List</span> or <span className="font-bold text-fuchsia-600">Cards</span> view to inspect project deliverables.
+            Switch back to <span className="font-bold text-slate-900">List</span> or <span className="font-bold text-slate-900">Cards</span> view to inspect project deliverables.
           </p>
         </div>
       )}

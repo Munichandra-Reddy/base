@@ -72,18 +72,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600 font-bold shadow-2xs'
-                      : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-semibold'
+                      ? 'bg-slate-900 text-white font-bold shadow-2xs'
+                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 font-semibold'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
+                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                     <span className="whitespace-nowrap truncate text-sm font-semibold">{item.label}</span>
                   </div>
                   {item.badge !== undefined && item.badge > 0 && (
                     <span
                       className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ml-2 ${
-                        isActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
+                        isActive ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600'
                       }`}
                     >
                       {item.badge}
@@ -101,11 +101,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div>
           <div className="flex items-center justify-between text-xs font-bold text-slate-600 mb-2">
             <span>Workspace Plan</span>
-            <span className="text-blue-600 font-bold">Pro Plan</span>
+            <span className="text-slate-900 font-bold">Pro Plan</span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden mb-2">
             <div
-              className="bg-blue-600 h-full rounded-full transition-all duration-500"
+              className="bg-slate-900 h-full rounded-full transition-all duration-500"
               style={{ width: `${storagePercentage}%` }}
             />
           </div>

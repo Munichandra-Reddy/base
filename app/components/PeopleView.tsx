@@ -19,7 +19,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmploye
         {onOpenAddEmployee && (
           <button
             onClick={onOpenAddEmployee}
-            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-xl shadow-xs transition-all shrink-0 self-start md:self-auto cursor-pointer"
+            className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white font-bold text-sm rounded-xl shadow-xs transition-all shrink-0 self-start md:self-auto cursor-pointer"
           >
             + Add Employee
           </button>
@@ -39,10 +39,10 @@ export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmploye
             </div>
             <div className="flex-1 min-w-0 space-y-0.5">
               <h3 className="text-lg font-bold text-slate-900 truncate">{person.name}</h3>
-              <p className="text-sm font-bold text-blue-600">{person.role}</p>
+              <p className="text-sm font-bold text-slate-700">{person.role}</p>
               <p className="text-xs font-semibold text-slate-400 truncate">{person.email}</p>
               <div className="pt-2 flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-900" />
                 <span className="text-xs font-bold text-slate-600">{person.projectsCount} active projects</span>
               </div>
             </div>

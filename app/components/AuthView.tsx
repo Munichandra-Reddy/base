@@ -18,7 +18,7 @@ interface AuthViewProps {
 const DEFAULT_ACCOUNTS: UserAccount[] = [];
 
 const OrbitLogoIcon = () => (
-  <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-md mx-auto mb-4">
+  <div className="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-md mx-auto mb-4">
     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <circle cx="12" cy="12" r="7" strokeWidth="2.5" />
       <circle cx="12" cy="5" r="2" fill="currentColor" />
@@ -220,14 +220,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
 
         {/* Validation / Success Messages */}
         {errorMessage && (
-          <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs font-semibold text-red-700 flex items-center gap-2 animate-in fade-in duration-150">
+          <div className="p-3.5 bg-slate-900 border border-black rounded-2xl text-xs font-semibold text-white flex items-center gap-2 animate-in fade-in duration-150">
             <span className="text-sm">⚠️</span>
             <span>{errorMessage}</span>
           </div>
         )}
 
         {successMessage && (
-          <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-bold text-emerald-700 flex items-center gap-2 animate-in fade-in duration-150">
+          <div className="p-3.5 bg-slate-200 border border-slate-300 rounded-2xl text-xs font-bold text-slate-900 flex items-center gap-2 animate-in fade-in duration-150">
             <span className="text-sm">✅</span>
             <span>{successMessage}</span>
           </div>
@@ -244,7 +244,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@company.com"
-                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400"
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all placeholder:text-slate-400"
               />
             </div>
 
@@ -260,7 +260,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
               <button
                 type="button"
                 onClick={() => handleTabSwitch('login')}
-                className="text-xs font-bold text-blue-600 hover:underline"
+                className="text-xs font-bold text-slate-900 hover:underline"
               >
                 ← Back to Sign in
               </button>
@@ -279,7 +279,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Enter your full name"
-                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400"
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all placeholder:text-slate-400"
                   />
                 </div>
 
@@ -291,7 +291,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@company.com"
-                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400"
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all placeholder:text-slate-400"
                   />
                 </div>
 
@@ -303,7 +303,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     placeholder="e.g. ABC Technologies"
-                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400"
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all placeholder:text-slate-400"
                   />
                 </div>
 
@@ -316,7 +316,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Create a strong password"
-                      className="w-full px-4 py-3 pr-10 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400"
+                      className="w-full px-4 py-3 pr-10 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all placeholder:text-slate-400"
                     />
                     <button
                       type="button"
@@ -337,7 +337,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Enter password again"
-                      className="w-full px-4 py-3 pr-10 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400"
+                      className="w-full px-4 py-3 pr-10 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all placeholder:text-slate-400"
                     />
                     <button
                       type="button"
@@ -355,7 +355,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                     id="agreeTerms"
                     checked={agreeTerms}
                     onChange={(e) => setAgreeTerms(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                   />
                   <label htmlFor="agreeTerms" className="text-xs font-medium text-slate-600 cursor-pointer select-none">
                     I agree to the Terms of Service and Privacy Policy.
@@ -374,7 +374,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@company.com"
-                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400"
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all placeholder:text-slate-400"
                   />
                 </div>
 
@@ -384,7 +384,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                     <button
                       type="button"
                       onClick={() => handleTabSwitch('forgot')}
-                      className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+                      className="text-xs font-bold text-slate-900 hover:underline cursor-pointer"
                     >
                       Forgot password?
                     </button>
@@ -396,7 +396,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
-                      className="w-full px-4 py-3 pr-10 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-400"
+                      className="w-full px-4 py-3 pr-10 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all placeholder:text-slate-400"
                     />
                     <button
                       type="button"
@@ -414,7 +414,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                     id="rememberMe"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                   />
                   <label htmlFor="rememberMe" className="text-xs font-semibold text-slate-700 cursor-pointer select-none">
                     Remember me
@@ -425,7 +425,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
 
             <button
               type="submit"
-              className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-full shadow-sm transition-all cursor-pointer mt-2"
+              className="w-full py-3.5 bg-slate-900 hover:bg-black text-white font-bold text-sm rounded-full shadow-sm transition-all cursor-pointer mt-2"
             >
               {mode === 'login' ? 'Continue' : 'Create Account'}
             </button>

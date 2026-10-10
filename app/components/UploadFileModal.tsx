@@ -104,7 +104,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
           {/* File Picker Zone */}
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-slate-200 hover:border-blue-500 bg-slate-50 hover:bg-blue-50/40 p-6 rounded-2xl text-center cursor-pointer transition-all space-y-2"
+            className="border-2 border-dashed border-slate-200 hover:border-slate-800 bg-slate-50 hover:bg-slate-100 p-6 rounded-2xl text-center cursor-pointer transition-all space-y-2"
           >
             <input
               type="file"
@@ -112,13 +112,13 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
               onChange={handleFileChange}
               className="hidden"
             />
-            <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 font-extrabold flex items-center justify-center mx-auto text-xl">
+            <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white font-extrabold flex items-center justify-center mx-auto text-xl">
               📁
             </div>
             {selectedFileObj ? (
               <div>
                 <p className="text-sm font-bold text-slate-900">{selectedFileObj.name}</p>
-                <p className="text-xs text-blue-600 font-semibold">{fileSize}</p>
+                <p className="text-xs text-slate-900 font-semibold">{fileSize}</p>
               </div>
             ) : (
               <div>
@@ -143,7 +143,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
               placeholder="e.g. design_specification_v3.pdf"
               value={fileName}
               onChange={(e) => setFileName(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900"
             />
           </div>
 
@@ -155,7 +155,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
               <select
                 value={fileType}
                 onChange={(e) => setFileType(e.target.value as any)}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900"
               >
                 <option value="pdf">PDF</option>
                 <option value="image">Image</option>
@@ -172,7 +172,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
               <select
                 value={project}
                 onChange={(e) => setProject(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900"
               >
                 <option value="E-Commerce Website">E-Commerce Website</option>
                 <option value="Mobile App v2">Mobile App v2</option>
@@ -192,7 +192,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
               placeholder="e.g. 2.4 MB"
               value={fileSize}
               onChange={(e) => setFileSize(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900"
             />
           </div>
 
@@ -206,7 +206,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl shadow-xs transition-colors"
+              className="px-6 py-2.5 bg-slate-900 hover:bg-black text-white font-bold text-base rounded-xl shadow-xs transition-colors"
             >
               Upload File to Workspace
             </button>

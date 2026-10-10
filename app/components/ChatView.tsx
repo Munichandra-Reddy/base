@@ -39,7 +39,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage }) =
               key={ch}
               onClick={() => setActiveChannel(ch)}
               className={`px-4 py-2 rounded-lg text-xs font-bold capitalize transition-all ${
-                activeChannel === ch ? 'bg-white text-blue-600 shadow-xs font-extrabold' : 'text-slate-600 hover:text-slate-900'
+                activeChannel === ch ? 'bg-white text-slate-900 shadow-xs font-extrabold' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               #{ch}
@@ -75,11 +75,11 @@ export const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage }) =
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={`Type a message in #${activeChannel}...`}
-          className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-base text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-base text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900"
         />
         <button
           type="submit"
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl shadow-xs transition-colors cursor-pointer"
+          className="px-6 py-3 bg-slate-900 hover:bg-black text-white font-bold text-base rounded-xl shadow-xs transition-colors cursor-pointer"
         >
           Send
         </button>

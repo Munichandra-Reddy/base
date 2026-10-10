@@ -30,7 +30,7 @@ export const CheckinsView: React.FC<CheckinsViewProps> = ({ checkins, onAddCheck
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl shadow-xs flex items-center gap-2 cursor-pointer"
+          className="px-5 py-3 bg-slate-900 hover:bg-black text-white font-bold text-base rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
         >
           <PlusIcon className="w-5 h-5" />
           <span>Post Check-in</span>
@@ -45,7 +45,7 @@ export const CheckinsView: React.FC<CheckinsViewProps> = ({ checkins, onAddCheck
             onChange={(e) => setAnswer(e.target.value)}
             rows={3}
             placeholder="Share your accomplishments and key milestones..."
-            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900"
           />
           <div className="flex justify-end gap-3">
             <button
@@ -57,7 +57,7 @@ export const CheckinsView: React.FC<CheckinsViewProps> = ({ checkins, onAddCheck
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-blue-600 text-white font-bold text-sm rounded-xl shadow-xs hover:bg-blue-700"
+              className="px-5 py-2.5 bg-slate-900 text-white font-bold text-sm rounded-xl shadow-xs hover:bg-black transition-colors"
             >
               Submit Check-in
             </button>

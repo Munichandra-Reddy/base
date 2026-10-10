@@ -55,7 +55,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
               className="w-full flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl text-left transition-colors"
             >
               <span className="text-sm font-medium text-slate-800">{item.label}</span>
-              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-600 border border-blue-100">
+              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-200 text-slate-900 border border-slate-300">
                 {item.type}
               </span>
             </button>

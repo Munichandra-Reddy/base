@@ -25,11 +25,11 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
       <div className="p-4 border-b border-slate-100 flex items-center justify-between">
         <h4 className="text-sm font-bold text-slate-900">Notifications</h4>
         {!isRead ? (
-          <button onClick={onClear} className="text-xs text-blue-600 font-semibold hover:underline cursor-pointer">
+          <button onClick={onClear} className="text-xs text-slate-900 font-bold hover:underline cursor-pointer">
             Mark all as read
           </button>
         ) : (
-          <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+          <span className="text-xs text-slate-900 font-bold flex items-center gap-1">
             ✓ All read
           </span>
         )}

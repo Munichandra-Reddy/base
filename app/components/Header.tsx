@@ -145,7 +145,7 @@ export const Header: React.FC<HeaderProps> = ({
             <span suppressHydrationWarning>{displayWorkspaceName}</span>
             <span
               suppressHydrationWarning
-              className="text-[10px] font-extrabold tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 uppercase"
+              className="text-[10px] font-extrabold tracking-wider px-1.5 py-0.5 rounded bg-slate-200 text-slate-900 uppercase border border-slate-300"
             >
               {activeWorkspace.plan}
             </span>
@@ -171,14 +171,14 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsCreatingWorkspace(!isCreatingWorkspace)}
-                  className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 hover:underline"
+                  className="text-xs font-bold text-slate-900 hover:text-slate-700 flex items-center gap-1 hover:underline"
                 >
                   {isCreatingWorkspace ? 'Cancel' : '+ Add Workspace'}
                 </button>
               </div>
 
               {isCreatingWorkspace && (
-                <form onSubmit={handleAddWorkspace} className="p-3 space-y-3 bg-blue-50/40 border-b border-slate-100">
+                <form onSubmit={handleAddWorkspace} className="p-3 space-y-3 bg-slate-100/60 border-b border-slate-100">
                   <div className="text-xs font-bold text-slate-700">Create New Workspace</div>
                   <div>
                     <label className="block text-[11px] font-medium text-slate-500 mb-1">Workspace Name</label>
@@ -188,7 +188,7 @@ export const Header: React.FC<HeaderProps> = ({
                       placeholder="e.g. Acme Corp"
                       value={newWorkspaceName}
                       onChange={(e) => setNewWorkspaceName(e.target.value)}
-                      className="w-full text-xs px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-medium"
+                      className="w-full text-xs px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 font-medium"
                       autoFocus
                     />
                   </div>
@@ -197,7 +197,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <select
                       value={newWorkspacePlan}
                       onChange={(e) => setNewWorkspacePlan(e.target.value)}
-                      className="w-full text-xs px-2 py-1.5 bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 font-medium"
+                      className="w-full text-xs px-2 py-1.5 bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-slate-800 font-medium"
                     >
                       <option value="PRO">PRO</option>
                       <option value="FREE">FREE</option>
@@ -214,7 +214,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </button>
                     <button
                       type="submit"
-                      className="px-3 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-2xs"
+                      className="px-3 py-1 text-xs font-bold text-white bg-slate-900 hover:bg-black rounded-md shadow-2xs"
                     >
                       Add Workspace
                     </button>
@@ -232,7 +232,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => handleSelectWorkspace(ws)}
                       className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between transition-colors ${
                         isSelected
-                          ? 'bg-blue-50/80 text-blue-900 font-bold border border-blue-100'
+                          ? 'bg-slate-200 text-slate-900 font-bold border border-slate-300'
                           : 'hover:bg-slate-50 text-slate-700 font-semibold'
                       }`}
                     >
@@ -243,7 +243,7 @@ export const Header: React.FC<HeaderProps> = ({
                         </span>
                       </div>
                       {isSelected && (
-                        <svg className="w-4 h-4 text-blue-600 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4 text-slate-900 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                         </svg>
                       )}
@@ -257,7 +257,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsCreatingWorkspace(true)}
-                    className="w-full py-2 px-3 text-xs font-bold text-blue-600 hover:bg-blue-50 border border-dashed border-blue-300 rounded-xl flex items-center justify-center gap-1.5 transition-colors"
+                    className="w-full py-2 px-3 text-xs font-bold text-slate-900 hover:bg-slate-100 border border-dashed border-slate-400 rounded-xl flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <span>Add New Workspace</span>
                   </button>
@@ -288,7 +288,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-3 relative" ref={profileRef}>
         <button
           onClick={onOpenCreateModal}
-          className="px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-xl shadow-sm flex items-center transition-colors"
+          className="px-4 py-2 text-sm font-bold text-white bg-slate-900 hover:bg-black active:bg-slate-800 rounded-xl shadow-sm flex items-center transition-colors"
         >
           <span>Create New</span>
         </button>
@@ -300,7 +300,7 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <BellIcon className="w-5 h-5" />
           {unreadNotifications > 0 && (
-            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+            <span className="absolute top-1 right-1 w-4 h-4 bg-slate-900 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
               {unreadNotifications}
             </span>
           )}
@@ -314,7 +314,7 @@ export const Header: React.FC<HeaderProps> = ({
           }}
           className="flex items-center gap-2 pl-2 border-l border-slate-200 cursor-pointer hover:opacity-90 select-none py-1"
         >
-          <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-extrabold flex items-center justify-center text-sm shadow-xs border border-blue-200">
+          <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-900 font-extrabold flex items-center justify-center text-sm shadow-xs border border-slate-300">
             {userAvatar}
           </div>
           <div className="hidden md:block text-left leading-tight">
@@ -331,7 +331,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="absolute right-0 top-14 w-60 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
             <div className="p-4 border-b border-slate-100 bg-slate-50/50">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-blue-600 text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
+                <div className="w-9 h-9 rounded-full bg-slate-900 text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
                   {userAvatar}
                 </div>
                 <div className="min-w-0">
@@ -340,7 +340,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               </div>
               <div className="mt-2">
-                <span className="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded bg-blue-100 text-blue-700 uppercase">
+                <span className="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded bg-slate-200 text-slate-900 uppercase border border-slate-300">
                   Workspace Admin
                 </span>
               </div>
@@ -365,7 +365,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               <button
                 onClick={handleLogoutClick}
-                className="w-full text-left px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors font-bold"
+                className="w-full text-left px-3 py-2 rounded-xl text-slate-900 hover:bg-slate-100 flex items-center gap-2.5 transition-colors font-bold"
               >
                 <span>🚪 Log out</span>
               </button>

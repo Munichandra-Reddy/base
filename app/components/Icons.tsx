@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const WorkOrbitLogo = () => (
-  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-md">
+  <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white font-black text-xl shadow-xs">
     W
   </div>
 );

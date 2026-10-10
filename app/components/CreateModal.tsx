@@ -54,7 +54,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
           <button
             onClick={() => setActiveType('task')}
             className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              activeType === 'task' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600'
+              activeType === 'task' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
             }`}
           >
             New Task
@@ -62,7 +62,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
           <button
             onClick={() => setActiveType('project')}
             className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              activeType === 'project' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600'
+              activeType === 'project' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
             }`}
           >
             New Project
@@ -80,7 +80,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   placeholder="e.g. Design homepage hero banner"
                   value={taskTitle}
                   onChange={(e) => setTaskTitle(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
                 />
               </div>
 
@@ -89,7 +89,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <select
                   value={taskProject}
                   onChange={(e) => setTaskProject(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
                 >
                   <option value="E-Commerce Website">E-Commerce Website</option>
                   <option value="Mobile App v2">Mobile App v2</option>
@@ -111,7 +111,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   placeholder="e.g. AI Customer Service Agent"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
                 />
               </div>
 
@@ -122,7 +122,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   placeholder="Project scope and goals..."
                   value={projectDesc}
                   onChange={(e) => setProjectDesc(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
                 />
               </div>
             </>
@@ -138,7 +138,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-xs"
+              className="px-5 py-2 bg-slate-900 hover:bg-black text-white font-semibold text-xs rounded-xl shadow-xs transition-colors"
             >
               Create {activeType === 'task' ? 'Task' : 'Project'}
             </button>

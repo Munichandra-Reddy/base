@@ -25,7 +25,7 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
         </div>
         <button
           onClick={() => setIsUploadModalOpen(true)}
-          className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
+          className="px-5 py-3 bg-slate-900 hover:bg-black text-white font-bold text-base rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
         >
           <PlusIcon className="w-5 h-5" />
           <span>Upload File</span>
@@ -38,10 +38,10 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
           <div
             key={file.id}
             onClick={() => setViewingFile(file)}
-            className="group bg-white p-6 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-blue-300 transition-all cursor-pointer flex flex-col justify-between"
+            className="group bg-white p-6 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-slate-400 transition-all cursor-pointer flex flex-col justify-between"
           >
             <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors flex items-center justify-center font-bold">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-900 group-hover:bg-slate-900 group-hover:text-white transition-colors flex items-center justify-center font-bold">
                 <FileIcon className="w-6 h-6" />
               </div>
               <span className="text-xs font-bold uppercase px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 tracking-wider">
@@ -50,7 +50,7 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
             </div>
 
             <div className="mb-3">
-              <h4 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate mb-1" title={file.name}>
+              <h4 className="text-base font-bold text-slate-900 group-hover:text-slate-900 transition-colors truncate mb-1" title={file.name}>
                 {file.name}
               </h4>
               <p className="text-xs font-semibold text-slate-400">{file.project}</p>
@@ -58,7 +58,7 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
 
             <div className="flex items-center justify-between pt-3.5 border-t border-slate-100 text-xs font-bold text-slate-500">
               <span>{file.size}</span>
-              <span className="text-blue-600 font-bold group-hover:underline">{file.uploadedAt}</span>
+              <span className="text-slate-900 font-bold group-hover:underline">{file.uploadedAt}</span>
             </div>
           </div>
         ))}

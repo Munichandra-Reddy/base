@@ -35,7 +35,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
               <span>{file.name}</span>
               <span>JSON / REST Spec</span>
             </div>
-            <pre className="text-emerald-400">
+            <pre className="text-slate-300">
 {`{
   "api_version": "2.0",
   "endpoint": "/api/v2/ecommerce/checkout",
@@ -53,7 +53,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
           <div className="bg-slate-100 rounded-2xl p-6 min-h-[260px] border border-slate-200 flex flex-col justify-between">
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
               <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-                <div className="w-10 h-10 rounded-lg bg-red-100 text-red-600 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold">
                   PDF
                 </div>
                 <div>
@@ -76,7 +76,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
       default:
         return (
           <div className="bg-slate-50 rounded-2xl p-8 text-center border border-slate-200 min-h-[220px] flex flex-col items-center justify-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center font-extrabold text-2xl">
+            <div className="w-14 h-14 rounded-2xl bg-slate-200 text-slate-900 flex items-center justify-center font-extrabold text-2xl">
               📄
             </div>
             <h4 className="text-base font-bold text-slate-900">{file.name}</h4>
@@ -105,12 +105,12 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
         {/* Header */}
         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">
               <FileIcon className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-lg font-extrabold text-slate-900 truncate max-w-xs">{file.name}</h3>
-              <span className="text-xs font-bold text-blue-600">{file.project}</span>
+              <span className="text-xs font-bold text-slate-700">{file.project}</span>
             </div>
           </div>
           <button
@@ -144,7 +144,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
 
         {/* Footer Actions */}
         <div className="p-5 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <span className="text-xs font-bold uppercase px-3 py-1 rounded-md bg-blue-100 text-blue-700">
+          <span className="text-xs font-bold uppercase px-3 py-1 rounded-md bg-slate-200 text-slate-900">
             {file.type}
           </span>
           <div className="flex gap-2">
@@ -158,7 +158,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
             <a
               href={getDownloadHref()}
               download={file.name}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <span>📥 Download File</span>
             </a>
