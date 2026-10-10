@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Project, Task, FileItem } from '@/lib/types';
 import {
   FolderIcon,
@@ -57,6 +57,64 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   // Work Updates post input state
   const [newUpdateText, setNewUpdateText] = useState('');
   const [customUpdates, setCustomUpdates] = useState<Array<{ id: string; project: string; author: string; role: string; timeAgo: string; text: string; category: string }>>([]);
+
+  // BROWSER BACK (←) AND FORWARD (→) BUTTON NAVIGATION HANDLING
+  const handleSelectProject = (project: Project) => {
+    setSelectedProject(project);
+    setActiveProjectTab('messages');
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ projectId: project.id, view: 'project_details' }, '', `#project-${project.id}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleBackToProjects = () => {
+    setSelectedProject(null);
+    setActiveProjectTab('messages');
+    if (typeof window !== 'undefined') {
+      if (window.location.hash.includes('project-')) {
+        const cleanUrl = window.location.pathname + window.location.search;
+        window.history.pushState({ view: 'projects_list' }, '', cleanUrl);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state && e.state.projectId) {
+        const found = projects.find((p) => p.id === e.state.projectId);
+        if (found) {
+          setSelectedProject(found);
+          return;
+        }
+      }
+
+      if (typeof window !== 'undefined' && window.location.hash.includes('project-')) {
+        const hashId = window.location.hash.replace('#project-', '');
+        const found = projects.find((p) => p.id === hashId);
+        if (found) {
+          setSelectedProject(found);
+          return;
+        }
+      }
+
+      setSelectedProject(null);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    // Initial check on mount if URL has #project-id
+    if (typeof window !== 'undefined' && window.location.hash.includes('project-')) {
+      const hashId = window.location.hash.replace('#project-', '');
+      const found = projects.find((p) => p.id === hashId);
+      if (found) {
+        setSelectedProject(found);
+      }
+    }
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [projects]);
 
   // Dynamically filter & sort projects
   const processedProjects = useMemo(() => {
@@ -218,10 +276,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <div className="flex items-center gap-4 flex-wrap">
             <button
               type="button"
-              onClick={() => {
-                setSelectedProject(null);
-                setActiveProjectTab('messages');
-              }}
+              onClick={handleBackToProjects}
               className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-200 shadow-2xs flex items-center gap-2 transition-colors cursor-pointer"
             >
               <span className="text-sm font-extrabold">←</span>
@@ -1336,7 +1391,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     return (
                       <tr
                         key={project.id}
-                        onClick={() => setSelectedProject(project)}
+                        onClick={() => handleSelectProject(project)}
                         className="hover:bg-slate-100/70 transition-colors cursor-pointer"
                         title="Click to view full project details"
                       >
@@ -1438,7 +1493,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               return (
                 <div
                   key={project.id}
-                  onClick={() => setSelectedProject(project)}
+                  onClick={() => handleSelectProject(project)}
                   className="bg-white rounded-xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-md hover:border-slate-400 transition-all flex flex-col justify-between space-y-3 cursor-pointer group"
                   title="Click card to view details"
                 >
@@ -1522,7 +1577,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     colProjects.map((project) => (
                       <div
                         key={project.id}
-                        onClick={() => setSelectedProject(project)}
+                        onClick={() => handleSelectProject(project)}
                         className="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs hover:shadow-md transition-all cursor-pointer space-y-2 group"
                       >
                         <h4 className="font-bold text-xs text-slate-900 group-hover:underline">{project.name}</h4>
