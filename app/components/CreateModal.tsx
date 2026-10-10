@@ -57,28 +57,22 @@ export const CreateModal: React.FC<CreateModalProps> = ({
 
   const [activeType, setActiveType] = useState<'task' | 'project'>('task');
 
-  // Task Form State
+  // Task Form State (Initially Empty)
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDesc, setTaskDesc] = useState('');
   const [taskProject, setTaskProject] = useState(projectList[0] || 'E-Commerce Website');
-  const [assignedMember, setAssignedMember] = useState(employeeList[0]?.name || 'Rahul Kumar');
+  const [assignedMember, setAssignedMember] = useState('');
   const [taskPriority, setTaskPriority] = useState<'high' | 'medium' | 'low'>('medium');
-  const [taskDueDate, setTaskDueDate] = useState('2026-10-25');
+  const [taskDueDate, setTaskDueDate] = useState('');
 
-  // Project Form State
+  // Project Form State (Initially Empty)
   const [projectName, setProjectName] = useState('');
   const [projectDesc, setProjectDesc] = useState('');
-  const [projectManager, setProjectManager] = useState(employeeList[0]?.name || 'Rahul Kumar');
-  const [projectMembers, setProjectMembers] = useState<string[]>([employeeList[0]?.name || 'Rahul Kumar']);
-  const [projectDeadline, setProjectDeadline] = useState('2026-11-30');
+  const [projectManager, setProjectManager] = useState('');
+  const [projectMembers, setProjectMembers] = useState<string[]>([]);
+  const [projectDeadline, setProjectDeadline] = useState('');
   const [docInputText, setDocInputText] = useState('');
-  const [requiredDocs, setRequiredDocs] = useState<string[]>(['PRD_Specification.pdf']);
-
-  // Pop-up modals state inside CreateModal
-  const [showMemberPicker, setShowMemberPicker] = useState(false);
-  const [showManagerPicker, setShowManagerPicker] = useState(false);
-  const [showMultiMemberPicker, setShowMultiMemberPicker] = useState(false);
-  const [searchFilter, setSearchFilter] = useState('');
+  const [requiredDocs, setRequiredDocs] = useState<string[]>([]);
 
   if (!isOpen) return null;
 
@@ -90,13 +84,15 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       title: taskTitle.trim(),
       description: taskDesc.trim(),
       project: taskProject,
-      assignedTo: assignedMember,
+      assignedTo: assignedMember.trim() || undefined,
       priority: taskPriority,
-      dueDate: taskDueDate,
+      dueDate: taskDueDate || undefined,
     });
 
     setTaskTitle('');
     setTaskDesc('');
+    setAssignedMember('');
+    setTaskDueDate('');
     onClose();
   };
 
@@ -112,15 +108,19 @@ export const CreateModal: React.FC<CreateModalProps> = ({
     onAddProject({
       name: projectName.trim(),
       description: projectDesc.trim(),
-      manager: projectManager,
-      members: projectMembers.length > 0 ? projectMembers : [projectManager],
-      deadline: projectDeadline,
+      manager: projectManager.trim() || undefined,
+      members: projectMembers,
+      deadline: projectDeadline || undefined,
       requiredDocuments: finalDocs,
     });
 
     setProjectName('');
     setProjectDesc('');
+    setProjectManager('');
+    setProjectMembers([]);
+    setProjectDeadline('');
     setDocInputText('');
+    setRequiredDocs([]);
     onClose();
   };
 
@@ -141,19 +141,11 @@ export const CreateModal: React.FC<CreateModalProps> = ({
 
   const toggleProjectMember = (memberName: string) => {
     if (projectMembers.includes(memberName)) {
-      if (projectMembers.length > 1) {
-        setProjectMembers(projectMembers.filter(m => m !== memberName));
-      }
+      setProjectMembers(projectMembers.filter(m => m !== memberName));
     } else {
       setProjectMembers([...projectMembers, memberName]);
     }
   };
-
-  const filteredEmployees = employeeList.filter(emp =>
-    emp.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
-    emp.role.toLowerCase().includes(searchFilter.toLowerCase()) ||
-    emp.email.toLowerCase().includes(searchFilter.toLowerCase())
-  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 overflow-y-auto">
@@ -243,29 +235,21 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 </select>
               </div>
 
-              {/* 4. Team Member (Single Select Popup) */}
+              {/* 4. Team Member (Assignee) - Direct Dropdown, Initially Empty */}
               <div>
                 <label className="block text-xs font-extrabold text-slate-800 mb-1">Team Member (Assignee)</label>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchFilter('');
-                      setShowMemberPicker(true);
-                    }}
-                    className="w-full p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 flex items-center justify-between transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-slate-900 text-white font-extrabold text-[10px] flex items-center justify-center">
-                        {assignedMember[0]?.toUpperCase() || 'U'}
-                      </span>
-                      <span>{assignedMember}</span>
-                    </div>
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-200 text-slate-900 border border-slate-300">
-                      Choose Member (Pop-up)
-                    </span>
-                  </button>
-                </div>
+                <select
+                  value={assignedMember}
+                  onChange={(e) => setAssignedMember(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all cursor-pointer"
+                >
+                  <option value="">Select Team Member...</option>
+                  {employeeList.map((emp) => (
+                    <option key={emp.id} value={emp.name}>
+                      {emp.name} ({emp.role})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* 5. Priority & 6. Deadline (Grid) */}
@@ -323,68 +307,77 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 />
               </div>
 
-              {/* 3. Project Manager */}
+              {/* 3. Project Manager - Direct Dropdown, Initially Empty */}
               <div>
                 <label className="block text-xs font-extrabold text-slate-800 mb-1">Manager</label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchFilter('');
-                    setShowManagerPicker(true);
-                  }}
-                  className="w-full p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 flex items-center justify-between transition-colors cursor-pointer"
+                <select
+                  value={projectManager}
+                  onChange={(e) => setProjectManager(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all cursor-pointer"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-slate-900 text-white font-extrabold text-[10px] flex items-center justify-center">
-                      {projectManager[0]?.toUpperCase() || 'M'}
-                    </span>
-                    <span>{projectManager}</span>
-                  </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-200 text-slate-900 border border-slate-300">
-                    Select Manager
-                  </span>
-                </button>
+                  <option value="">Select Manager...</option>
+                  {employeeList.map((emp) => (
+                    <option key={emp.id} value={emp.name}>
+                      {emp.name} ({emp.role})
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* 4. Team Members (Multi Select according to project requirement: 1, 2, or more) */}
+              {/* 4. Team Members - Checkable List, Initially Empty */}
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-extrabold text-slate-800">
-                    Team Members ({projectMembers.length})
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchFilter('');
-                      setShowMultiMemberPicker(true);
-                    }}
-                    className="text-xs font-extrabold text-slate-900 hover:underline cursor-pointer"
-                  >
-                    + Add / Select Members
-                  </button>
-                </div>
+                <label className="block text-xs font-extrabold text-slate-800 mb-1">
+                  Team Members {projectMembers.length > 0 ? `(${projectMembers.length})` : ''}
+                </label>
 
-                <div className="flex flex-wrap gap-1.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl min-h-[44px]">
-                  {projectMembers.map((m) => (
-                    <span
-                      key={m}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold shadow-2xs"
-                    >
-                      <span className="w-4 h-4 rounded-full bg-slate-700 text-white text-[9px] flex items-center justify-center font-bold">
-                        {m[0]}
-                      </span>
-                      <span>{m}</span>
-                      {projectMembers.length > 1 && (
+                {/* Selected Member Badges Display */}
+                {projectMembers.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 p-2 bg-slate-50 border border-slate-200 rounded-xl mb-2">
+                    {projectMembers.map((m) => (
+                      <span
+                        key={m}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold shadow-2xs"
+                      >
+                        <span className="w-4 h-4 rounded-full bg-slate-700 text-white text-[9px] flex items-center justify-center font-bold">
+                          {m[0]}
+                        </span>
+                        <span>{m}</span>
                         <button
                           type="button"
                           onClick={() => setProjectMembers(projectMembers.filter((item) => item !== m))}
-                          className="hover:text-slate-300 text-xs ml-0.5"
+                          className="hover:text-slate-300 text-xs ml-0.5 cursor-pointer"
                         >
                           ✕
                         </button>
-                      )}
-                    </span>
-                  ))}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Inline Employee Checklist */}
+                <div className="p-2 bg-slate-50 border border-slate-200 rounded-xl max-h-36 overflow-y-auto space-y-1">
+                  {employeeList.map((emp) => {
+                    const isChecked = projectMembers.includes(emp.name);
+                    return (
+                      <label
+                        key={emp.id}
+                        className={`p-2 rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
+                          isChecked ? 'bg-slate-200/90 font-bold text-slate-900' : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleProjectMember(emp.name)}
+                            className="w-4 h-4 rounded text-slate-900 focus:ring-slate-900 accent-slate-900 cursor-pointer"
+                          />
+                          <span className="text-xs font-semibold">{emp.name}</span>
+                          <span className="text-[10px] text-slate-400">({emp.role})</span>
+                        </div>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -443,7 +436,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                           <button
                             type="button"
                             onClick={() => setRequiredDocs(requiredDocs.filter((_, i) => i !== idx))}
-                            className="text-slate-400 hover:text-slate-700"
+                            className="text-slate-400 hover:text-slate-700 cursor-pointer"
                           >
                             ✕
                           </button>
@@ -474,206 +467,6 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             Create {activeType === 'task' ? 'Task' : 'Project'}
           </button>
         </div>
-
-        {/* POP-UP MODAL: Single Team Member Picker (For Task) */}
-        {showMemberPicker && (
-          <div className="absolute inset-0 z-20 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-sm overflow-hidden flex flex-col max-h-[85vh]">
-              <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                <div>
-                  <h4 className="font-extrabold text-sm text-slate-900">Select Team Member</h4>
-                  <p className="text-[11px] text-slate-500 font-medium">Choose 1 employee for this task</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowMemberPicker(false)}
-                  className="text-slate-400 hover:text-slate-600 font-bold text-sm"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="p-3 border-b border-slate-100">
-                <input
-                  type="text"
-                  placeholder="Search employees..."
-                  value={searchFilter}
-                  onChange={(e) => setSearchFilter(e.target.value)}
-                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
-                />
-              </div>
-
-              <div className="p-2 overflow-y-auto space-y-1 divide-y divide-slate-100 max-h-60">
-                {filteredEmployees.map((emp) => (
-                  <button
-                    key={emp.id}
-                    type="button"
-                    onClick={() => {
-                      setAssignedMember(emp.name);
-                      setShowMemberPicker(false);
-                    }}
-                    className={`w-full p-2.5 rounded-xl flex items-center justify-between text-left transition-colors cursor-pointer ${
-                      assignedMember === emp.name ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-900'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-8 h-8 rounded-full font-extrabold text-xs flex items-center justify-center ${
-                          assignedMember === emp.name ? 'bg-slate-700 text-white' : 'bg-slate-200 text-slate-800'
-                        }`}
-                      >
-                        {emp.avatar}
-                      </div>
-                      <div>
-                        <div className="font-bold text-xs">{emp.name}</div>
-                        <div className={`text-[10px] ${assignedMember === emp.name ? 'text-slate-300' : 'text-slate-500'}`}>
-                          {emp.role}
-                        </div>
-                      </div>
-                    </div>
-                    {assignedMember === emp.name && <span className="font-bold text-xs">✓ Selected</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* POP-UP MODAL: Single Manager Picker (For Project) */}
-        {showManagerPicker && (
-          <div className="absolute inset-0 z-20 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-sm overflow-hidden flex flex-col max-h-[85vh]">
-              <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                <div>
-                  <h4 className="font-extrabold text-sm text-slate-900">Select Project Manager</h4>
-                  <p className="text-[11px] text-slate-500 font-medium">Choose manager for this project</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowManagerPicker(false)}
-                  className="text-slate-400 hover:text-slate-600 font-bold text-sm"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="p-3 border-b border-slate-100">
-                <input
-                  type="text"
-                  placeholder="Search employees..."
-                  value={searchFilter}
-                  onChange={(e) => setSearchFilter(e.target.value)}
-                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
-                />
-              </div>
-
-              <div className="p-2 overflow-y-auto space-y-1 divide-y divide-slate-100 max-h-60">
-                {filteredEmployees.map((emp) => (
-                  <button
-                    key={emp.id}
-                    type="button"
-                    onClick={() => {
-                      setProjectManager(emp.name);
-                      setShowManagerPicker(false);
-                    }}
-                    className={`w-full p-2.5 rounded-xl flex items-center justify-between text-left transition-colors cursor-pointer ${
-                      projectManager === emp.name ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-900'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-8 h-8 rounded-full font-extrabold text-xs flex items-center justify-center ${
-                          projectManager === emp.name ? 'bg-slate-700 text-white' : 'bg-slate-200 text-slate-800'
-                        }`}
-                      >
-                        {emp.avatar}
-                      </div>
-                      <div>
-                        <div className="font-bold text-xs">{emp.name}</div>
-                        <div className={`text-[10px] ${projectManager === emp.name ? 'text-slate-300' : 'text-slate-500'}`}>
-                          {emp.role}
-                        </div>
-                      </div>
-                    </div>
-                    {projectManager === emp.name && <span className="font-bold text-xs">✓ Selected</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* POP-UP MODAL: Multi Team Members Picker (For Project) */}
-        {showMultiMemberPicker && (
-          <div className="absolute inset-0 z-20 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-sm overflow-hidden flex flex-col max-h-[85vh]">
-              <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                <div>
-                  <h4 className="font-extrabold text-sm text-slate-900">Select Team Members</h4>
-                  <p className="text-[11px] text-slate-500 font-medium">Add 1, 2, or more members to project</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowMultiMemberPicker(false)}
-                  className="text-slate-400 hover:text-slate-600 font-bold text-sm"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="p-3 border-b border-slate-100">
-                <input
-                  type="text"
-                  placeholder="Search employees..."
-                  value={searchFilter}
-                  onChange={(e) => setSearchFilter(e.target.value)}
-                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900"
-                />
-              </div>
-
-              <div className="p-2 overflow-y-auto space-y-1 max-h-60">
-                {filteredEmployees.map((emp) => {
-                  const isChecked = projectMembers.includes(emp.name);
-                  return (
-                    <div
-                      key={emp.id}
-                      onClick={() => toggleProjectMember(emp.name)}
-                      className={`p-2.5 rounded-xl flex items-center justify-between cursor-pointer transition-colors ${
-                        isChecked ? 'bg-slate-100 border border-slate-300' : 'hover:bg-slate-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center">
-                          {emp.avatar}
-                        </div>
-                        <div>
-                          <div className="font-bold text-xs text-slate-900">{emp.name}</div>
-                          <div className="text-[10px] text-slate-500">{emp.role}</div>
-                        </div>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => {}}
-                        className="w-4 h-4 rounded text-slate-900 focus:ring-slate-900 accent-slate-900 cursor-pointer"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="p-3 border-t border-slate-100 bg-slate-50 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowMultiMemberPicker(false)}
-                  className="px-4 py-1.5 bg-slate-900 text-white font-bold text-xs rounded-xl shadow-xs"
-                >
-                  Done ({projectMembers.length} Selected)
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
       </div>
     </div>
