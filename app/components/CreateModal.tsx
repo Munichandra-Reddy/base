@@ -204,7 +204,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             type="button"
             onClick={() => setActiveType('task')}
             className={`flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-              activeType === 'task' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              activeType === 'task'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
             }`}
           >
             New Task
@@ -213,7 +215,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             type="button"
             onClick={() => setActiveType('project')}
             className={`flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-              activeType === 'project' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              activeType === 'project'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
             }`}
           >
             New Project
