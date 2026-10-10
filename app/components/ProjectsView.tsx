@@ -2,7 +2,22 @@
 
 import React, { useState, useMemo } from 'react';
 import { Project, Task, FileItem } from '@/lib/types';
-import { FolderIcon } from './Icons';
+import {
+  FolderIcon,
+  FileIcon,
+  ChatIcon,
+  VideoIcon,
+  CheckSquareIcon,
+  ListIcon,
+  GridIcon,
+  KanbanIcon,
+  UserPlusIcon,
+  FilterIcon,
+  CalendarIcon,
+  ClockIcon,
+  SearchIcon,
+  PlusIcon,
+} from './Icons';
 import { getDirectFileBlobUrl } from '@/lib/fileUtils';
 
 interface ProjectsViewProps {
@@ -146,7 +161,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     setIsSearchOpen(false);
   };
 
-  // Handle sending message in Chat or Group
   const handleSendMessage = (threadKey: string) => {
     if (!chatInputText.trim()) return;
     const newMsg = {
@@ -164,7 +178,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     setChatInputText('');
   };
 
-  // Handle posting work update
   const handlePostWorkUpdate = () => {
     if (!newUpdateText.trim() || !selectedProject) return;
     const author = selectedProject.members[0] || 'Rahul Kumar';
@@ -218,8 +231,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="hidden sm:block h-6 w-px bg-slate-200" />
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-xs">
-                📁
+              <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs">
+                <FolderIcon className="w-5 h-5 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -241,7 +254,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               onClick={onOpenCreateProject}
               className="px-4 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <span className="text-sm font-extrabold">+</span>
+              <PlusIcon className="w-4 h-4" />
               <span>New Project</span>
             </button>
           </div>
@@ -258,7 +271,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 : 'text-slate-300 hover:bg-slate-800 hover:text-white'
             }`}
           >
-            <span>💬</span>
+            <ChatIcon className="w-4 h-4" />
             <span>Messages</span>
           </button>
 
@@ -271,7 +284,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 : 'text-slate-300 hover:bg-slate-800 hover:text-white'
             }`}
           >
-            <span>📹</span>
+            <VideoIcon className="w-4 h-4" />
             <span>Meetings</span>
           </button>
 
@@ -284,7 +297,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 : 'text-slate-300 hover:bg-slate-800 hover:text-white'
             }`}
           >
-            <span>☑️</span>
+            <CheckSquareIcon className="w-4 h-4" />
             <span>Tasks</span>
           </button>
 
@@ -297,7 +310,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 : 'text-slate-300 hover:bg-slate-800 hover:text-white'
             }`}
           >
-            <span>📄</span>
+            <FileIcon className="w-4 h-4" />
             <span>Work Updates</span>
           </button>
 
@@ -310,14 +323,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 : 'text-slate-300 hover:bg-slate-800 hover:text-white'
             }`}
           >
-            <span>📁</span>
+            <FolderIcon className="w-4 h-4" />
             <span>Overview & Docs</span>
           </button>
         </div>
 
         {/* TAB CONTENT AREA */}
         
-        {/* TAB 1: MESSAGES (IMAGE 1 MATCH - PERSONAL & GROUP CHATS FOR PROJECT MEMBERS ONLY) */}
+        {/* TAB 1: MESSAGES (PERSONAL & GROUP CHATS FOR PROJECT MEMBERS ONLY) */}
         {activeProjectTab === 'messages' && (
           <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-5 animate-in fade-in duration-150">
             {/* Sub-Switch: Chats / Groups */}
@@ -432,7 +445,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <span className="text-[9px] text-slate-400 block mt-1">9:45 AM</span>
                     </div>
 
-                    {/* Render newly added custom messages */}
                     {(customMessages[`personal-${selectedProject.id}-${memberForPersonalChat}`] || []).map((m) => (
                       <div
                         key={m.id}
@@ -547,7 +559,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           </div>
         )}
 
-        {/* TAB 2: MEETINGS (IMAGE 2 MATCH - MONOCHROME STYLING) */}
+        {/* TAB 2: MEETINGS */}
         {activeProjectTab === 'meetings' && (
           <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-5 animate-in fade-in duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -560,7 +572,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 onClick={() => alert(`Launching virtual meeting room for ${selectedProject.name}...`)}
                 className="px-4 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
               >
-                <span>📹</span>
+                <VideoIcon className="w-4 h-4" />
                 <span>Schedule New Sync</span>
               </button>
             </div>
@@ -583,10 +595,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                 <div className="flex flex-wrap items-center gap-4 text-xs font-extrabold text-slate-800">
                   <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-slate-200">
-                    <span>📅</span> Today
+                    <CalendarIcon className="w-3.5 h-3.5 text-slate-700" /> Today
                   </div>
                   <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-slate-200">
-                    <span>🕒</span> Today 2:00PM - 2:45PM
+                    <ClockIcon className="w-3.5 h-3.5 text-slate-700" /> Today 2:00PM - 2:45PM
                   </div>
                 </div>
 
@@ -606,10 +618,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => alert('Meeting link copied to clipboard!')}
-                    className="p-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl transition-colors cursor-pointer"
-                    title="Copy Meeting Link"
+                    className="px-4 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
                   >
-                    📋
+                    <span>Copy Link</span>
                   </button>
                 </div>
               </div>
@@ -631,10 +642,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                 <div className="flex flex-wrap items-center gap-4 text-xs font-extrabold text-slate-800">
                   <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-slate-200">
-                    <span>📅</span> Tomorrow
+                    <CalendarIcon className="w-3.5 h-3.5 text-slate-700" /> Tomorrow
                   </div>
                   <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-slate-200">
-                    <span>🕒</span> Tomorrow 10:30AM - 11:15AM
+                    <ClockIcon className="w-3.5 h-3.5 text-slate-700" /> Tomorrow 10:30AM - 11:15AM
                   </div>
                 </div>
 
@@ -654,9 +665,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => alert('Meeting link copied!')}
-                    className="p-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl transition-colors cursor-pointer"
+                    className="px-4 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition-colors cursor-pointer"
                   >
-                    📋
+                    Copy Link
                   </button>
                 </div>
               </div>
@@ -664,7 +675,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           </div>
         )}
 
-        {/* TAB 3: TASKS (IMAGE 3 MATCH - MONOCHROME STYLING) */}
+        {/* TAB 3: TASKS */}
         {activeProjectTab === 'tasks' && (
           <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-5 animate-in fade-in duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -677,7 +688,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 onClick={onOpenCreateProject}
                 className="px-4 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
               >
-                <span>+</span>
+                <PlusIcon className="w-4 h-4" />
                 <span>Post New Sprint Task</span>
               </button>
             </div>
@@ -716,7 +727,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 ))
               )}
 
-              {/* Default Sprint Items matching Image 3 layout */}
+              {/* Default Sprint Items */}
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <h4 className="text-base font-extrabold text-slate-900 leading-snug">
@@ -758,7 +769,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           </div>
         )}
 
-        {/* TAB 4: WORK UPDATES (IMAGE 4 MATCH - MONOCHROME STYLING) */}
+        {/* TAB 4: WORK UPDATES */}
         {activeProjectTab === 'updates' && (
           <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-5 animate-in fade-in duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -796,7 +807,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
             {/* Updates Feed */}
             <div className="space-y-4">
-              {/* Newly posted updates */}
               {projectWorkUpdates.map((u) => (
                 <div key={u.id} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                   <div className="flex items-center justify-between">
@@ -825,7 +835,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 </div>
               ))}
 
-              {/* Default Update 1 */}
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -852,7 +861,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 </div>
               </div>
 
-              {/* Default Update 2 */}
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -987,7 +995,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-xs shadow-2xs transition-all cursor-pointer group"
                           title={`Click to open and view ${doc}`}
                         >
-                          <span className="text-base">📄</span>
+                          <FileIcon className="w-4 h-4 text-slate-700" />
                           <span className="group-hover:underline truncate max-w-xs">{doc}</span>
                           <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-900 text-white ml-1 shrink-0">
                             View / Open ↗
@@ -1084,7 +1092,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => alert('Invite feature active — workspace members updated!')}
             className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs rounded-xl shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <span className="text-sm">👤+</span>
+            <UserPlusIcon className="w-4 h-4 text-slate-700" />
             <span>Invite</span>
           </button>
 
@@ -1094,7 +1102,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={onOpenCreateProject}
             className="px-4 py-2 bg-slate-900 hover:bg-black active:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <span className="text-sm font-extrabold">+</span>
+            <PlusIcon className="w-4 h-4" />
             <span>New Project</span>
           </button>
         </div>
@@ -1113,7 +1121,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 : 'border-transparent hover:text-slate-800'
             }`}
           >
-            <span>📑</span> List
+            <ListIcon className="w-4 h-4" /> List
           </button>
 
           <button
@@ -1125,7 +1133,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 : 'border-transparent hover:text-slate-800'
             }`}
           >
-            <span>🔲</span> Cards
+            <GridIcon className="w-4 h-4" /> Cards
           </button>
 
           <button
@@ -1137,7 +1145,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 : 'border-transparent hover:text-slate-800'
             }`}
           >
-            <span>📋</span> Kanban
+            <KanbanIcon className="w-4 h-4" /> Kanban
           </button>
         </div>
 
@@ -1199,7 +1207,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           {/* Add Filter & Search Button */}
           {isSearchOpen ? (
             <div className="flex items-center gap-2 bg-white border border-slate-400 rounded-xl px-2.5 py-1 text-xs shadow-2xs">
-              <span className="text-slate-400">🔍</span>
+              <SearchIcon className="w-3.5 h-3.5 text-slate-400" />
               <input
                 type="text"
                 autoFocus
@@ -1235,7 +1243,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
               }`}
             >
-              <span>⚙️</span>
+              <FilterIcon className="w-3.5 h-3.5 text-slate-700" />
               <span>{searchQuery ? `Filter: "${searchQuery}"` : 'Add Filter'}</span>
             </button>
           )}

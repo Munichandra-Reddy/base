@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { FileItem } from '@/lib/types';
-import { FileIcon } from './Icons';
+import { FileIcon, DownloadIcon } from './Icons';
 import { getDirectBlobUrl, getDirectFileBlobUrl } from '@/lib/fileUtils';
 
 interface FileViewerModalProps {
@@ -120,8 +120,8 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
       default:
         return (
           <div className="bg-slate-50 rounded-2xl p-8 text-center border border-slate-200 min-h-[220px] flex flex-col items-center justify-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-slate-200 text-slate-900 flex items-center justify-center font-extrabold text-2xl">
-              📄
+            <div className="w-14 h-14 rounded-2xl bg-slate-200 text-slate-900 flex items-center justify-center">
+              <FileIcon className="w-8 h-8 text-slate-900" />
             </div>
             <h4 className="text-base font-bold text-slate-900">{file.name}</h4>
             <p className="text-xs text-slate-500 font-medium">Standard Project Document</p>
@@ -193,7 +193,8 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
               onClick={handleDownloadFile}
               className="px-5 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
             >
-              <span>📥 Download File</span>
+              <DownloadIcon className="w-4 h-4" />
+              <span>Download File</span>
             </button>
           </div>
         </div>

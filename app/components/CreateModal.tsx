@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Person, Project } from '@/lib/types';
 import { saveFileToDB } from '@/lib/fileUtils';
+import { FolderIcon, FileIcon } from './Icons';
 
 interface CreateModalProps {
   isOpen: boolean;
@@ -446,7 +447,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
 
                   <div className="relative">
                     <label className="w-full p-2.5 bg-slate-100 hover:bg-slate-200 border border-dashed border-slate-300 rounded-xl text-xs font-bold text-slate-700 flex items-center justify-center gap-2 cursor-pointer transition-colors">
-                      <span>📁 Upload Document Files</span>
+                      <FolderIcon className="w-4 h-4 text-slate-700" />
+                      <span>Upload Document Files</span>
                       <input
                         type="file"
                         multiple
@@ -463,7 +465,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                           key={idx}
                           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-slate-800 text-[11px] font-semibold"
                         >
-                          <span>📄 {doc}</span>
+                          <FileIcon className="w-3.5 h-3.5 text-slate-700" />
+                          <span>{doc}</span>
                           <button
                             type="button"
                             onClick={() => setRequiredDocs(requiredDocs.filter((_, i) => i !== idx))}
