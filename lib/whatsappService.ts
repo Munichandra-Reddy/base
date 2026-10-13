@@ -515,7 +515,7 @@ export async function sendWhatsAppNotification(params: {
       },
     };
 
-    const response = await fetch(endpoint, {
+    let response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${creds.token}`,
@@ -524,7 +524,36 @@ export async function sendWhatsAppNotification(params: {
       body: JSON.stringify(payload),
     });
 
-    const resData = await response.json();
+    let resData = await response.json();
+
+    // If template doesn't exist in Meta WABA yet, fall back to official pre-approved "hello_world" template
+    if (!response.ok && (resData?.error?.code === 132001 || resData?.error?.message?.toLowerCase().includes('template'))) {
+      const fallbackPayload = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: formattedPhone.replace('+', ''),
+        type: 'template',
+        template: {
+          name: 'hello_world',
+          language: { code: 'en_US' },
+        },
+      };
+
+      const fallbackResponse = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${creds.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(fallbackPayload),
+      });
+
+      const fallbackData = await fallbackResponse.json();
+      if (fallbackResponse.ok) {
+        response = fallbackResponse;
+        resData = fallbackData;
+      }
+    }
 
     if (!response.ok) {
       const errorMsg = resData?.error?.message || `Meta API Error (${response.status})`;
