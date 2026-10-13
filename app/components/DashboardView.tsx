@@ -10,6 +10,7 @@ import {
   CalendarIcon,
   ChatIcon,
   FileIcon,
+  WhatsAppIcon,
 } from './Icons';
 
 interface DashboardViewProps {
@@ -38,6 +39,44 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   currentUser,
 }) => {
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
+  const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
+  const [sentWhatsApp, setSentWhatsApp] = useState<string | null>(null);
+
+  const handleTriggerWhatsAppAlert = async (
+    e: React.MouseEvent,
+    title: string,
+    project: string,
+    date: string,
+    isOverdue: boolean
+  ) => {
+    e.stopPropagation();
+    const key = `${project}-${title}`;
+    setSendingWhatsApp(key);
+    try {
+      await fetch('/api/whatsapp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventType: isOverdue ? 'overdue_task' : 'upcoming_deadline',
+          data: {
+            recipientName: currentUser?.fullName || 'Rahul Kumar',
+            taskTitle: title,
+            projectName: project,
+            dueDate: date,
+            workspaceName: currentUser?.companyName || 'GEONIXA',
+          },
+          referenceId: `dash-alert-${key}-${Date.now()}`,
+          forceSend: true,
+        }),
+      });
+      setSentWhatsApp(key);
+      setTimeout(() => setSentWhatsApp(null), 3500);
+    } catch (err) {
+      console.error('Failed to trigger WhatsApp deadline alert:', err);
+    } finally {
+      setSendingWhatsApp(null);
+    }
+  };
 
   const filteredTasks = tasks.filter((t) => {
     if (taskFilter === 'pending') return !t.completed;
@@ -294,9 +333,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <div className="text-[11px] text-slate-400 font-medium">UI Design Review</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-900">
-                    Overdue
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => handleTriggerWhatsAppAlert(e, 'UI Design Review', 'Mobile App v2', '2026-10-10', true)}
+                      title="Dispatch WhatsApp Alert"
+                      className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
+                    >
+                      {sentWhatsApp === 'Mobile App v2-UI Design Review' ? (
+                        <span className="text-[10px] font-black text-emerald-600">✓ Sent</span>
+                      ) : (
+                        <WhatsAppIcon className={`w-3.5 h-3.5 ${sendingWhatsApp === 'Mobile App v2-UI Design Review' ? 'animate-pulse' : ''}`} />
+                      )}
+                    </button>
+                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-900">
+                      Overdue
+                    </span>
+                  </div>
                 </div>
 
                 {/* Deadline Item 2 */}
@@ -311,9 +364,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <div className="text-[11px] text-slate-400 font-medium">Content Finalization</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                    2 days left
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => handleTriggerWhatsAppAlert(e, 'Content Finalization', 'Marketing Campaign Q4', '2026-10-12', false)}
+                      title="Dispatch WhatsApp Alert"
+                      className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
+                    >
+                      {sentWhatsApp === 'Marketing Campaign Q4-Content Finalization' ? (
+                        <span className="text-[10px] font-black text-emerald-600">✓ Sent</span>
+                      ) : (
+                        <WhatsAppIcon className={`w-3.5 h-3.5 ${sendingWhatsApp === 'Marketing Campaign Q4-Content Finalization' ? 'animate-pulse' : ''}`} />
+                      )}
+                    </button>
+                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                      2 days left
+                    </span>
+                  </div>
                 </div>
 
                 {/* Deadline Item 3 */}
@@ -328,9 +395,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <div className="text-[11px] text-slate-400 font-medium">Backend Development</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                    5 days left
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => handleTriggerWhatsAppAlert(e, 'Backend Development', 'E-Commerce Website', '2026-10-15', false)}
+                      title="Dispatch WhatsApp Alert"
+                      className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
+                    >
+                      {sentWhatsApp === 'E-Commerce Website-Backend Development' ? (
+                        <span className="text-[10px] font-black text-emerald-600">✓ Sent</span>
+                      ) : (
+                        <WhatsAppIcon className={`w-3.5 h-3.5 ${sendingWhatsApp === 'E-Commerce Website-Backend Development' ? 'animate-pulse' : ''}`} />
+                      )}
+                    </button>
+                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                      5 days left
+                    </span>
+                  </div>
                 </div>
 
                 {/* Deadline Item 4 */}
@@ -345,9 +426,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <div className="text-[11px] text-slate-400 font-medium">Client Presentation</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                    8 days left
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => handleTriggerWhatsAppAlert(e, 'Client Presentation', 'Design homepage', '2026-10-18', false)}
+                      title="Dispatch WhatsApp Alert"
+                      className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
+                    >
+                      {sentWhatsApp === 'Design homepage-Client Presentation' ? (
+                        <span className="text-[10px] font-black text-emerald-600">✓ Sent</span>
+                      ) : (
+                        <WhatsAppIcon className={`w-3.5 h-3.5 ${sendingWhatsApp === 'Design homepage-Client Presentation' ? 'animate-pulse' : ''}`} />
+                      )}
+                    </button>
+                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                      8 days left
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

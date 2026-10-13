@@ -90,3 +90,43 @@ export interface WorkspaceStats {
   storageUsedGB: number;
   storageTotalGB: number;
 }
+
+export type WhatsAppConnectionStatus = 'connected' | 'demo' | 'disconnected' | 'error';
+
+export interface WhatsAppPreferences {
+  taskAssignments: boolean;
+  upcomingDeadlines: boolean;
+  overdueTasks: boolean;
+  projectUpdates: boolean;
+  optInConfirmed: boolean;
+  recipientPhone: string;
+  selectedProjects: string[];
+}
+
+export interface WhatsAppConfig {
+  status: WhatsAppConnectionStatus;
+  isDemoMode: boolean;
+  phoneNumberId?: string;
+  businessAccountId?: string;
+  displayPhoneNumber?: string;
+  webhookUrl: string;
+  webhookVerified: boolean;
+  webhookVerifyToken: string;
+  preferences: WhatsAppPreferences;
+  lastConnectedAt?: string;
+}
+
+export interface WhatsAppMessageLog {
+  id: string;
+  wamid?: string;
+  recipientPhone: string;
+  eventType: 'task_assignment' | 'upcoming_deadline' | 'overdue_task' | 'project_update' | 'test_message';
+  templateName: string;
+  content: string;
+  status: 'sent' | 'delivered' | 'read' | 'failed';
+  timestamp: string;
+  errorMessage?: string;
+  isDemo: boolean;
+  metadata?: Record<string, any>;
+}
+

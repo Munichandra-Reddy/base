@@ -11,6 +11,7 @@ import {
   UsersIcon,
   CheckCircleIcon,
   ChartIcon,
+  WhatsAppIcon,
 } from './Icons';
 
 export type NavTab =
@@ -19,6 +20,7 @@ export type NavTab =
   | 'projects'
   | 'calendar'
   | 'chat'
+  | 'whatsapp'
   | 'files'
   | 'people'
   | 'checkins'
@@ -47,6 +49,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'projects' as NavTab, label: 'Projects', icon: FolderIcon },
     { id: 'calendar' as NavTab, label: 'Calendar', icon: CalendarIcon },
     { id: 'chat' as NavTab, label: 'Campfire Chat', icon: ChatIcon, badge: chatCount },
+    { id: 'whatsapp' as NavTab, label: 'WhatsApp', icon: WhatsAppIcon },
     { id: 'files' as NavTab, label: 'Files', icon: FileIcon },
     { id: 'people' as NavTab, label: 'Employees', icon: UsersIcon },
     { id: 'checkins' as NavTab, label: 'Check-ins', icon: CheckCircleIcon },

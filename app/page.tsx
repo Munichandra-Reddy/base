@@ -16,6 +16,7 @@ import { CreateModal } from './components/CreateModal';
 import { SearchModal } from './components/SearchModal';
 import { NotificationPanel } from './components/NotificationPanel';
 import { AuthView } from './components/AuthView';
+import { WhatsAppView } from './components/WhatsAppView';
 
 import {
   initialStats,
@@ -195,6 +196,7 @@ export default function Home() {
         'projects',
         'calendar',
         'chat',
+        'whatsapp',
         'files',
         'people',
         'checkins',
@@ -225,6 +227,7 @@ export default function Home() {
           'projects',
           'calendar',
           'chat',
+          'whatsapp',
           'files',
           'people',
           'checkins',
@@ -442,6 +445,25 @@ export default function Home() {
 
     try {
       await addFirebaseTask(newTask);
+    } catch (err) {}
+
+    // Dispatch automated WhatsApp notification for task assignment
+    try {
+      fetch('/api/whatsapp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventType: 'task_assignment',
+          data: {
+            recipientName: assignedTo,
+            taskTitle: title,
+            projectName: project,
+            dueDate,
+            workspaceName: currentUser?.companyName || 'GEONIXA',
+          },
+          referenceId: newTask.id,
+        }),
+      }).catch(() => {});
     } catch (err) {}
   };
 
@@ -696,6 +718,10 @@ export default function Home() {
 
           {activeTab === 'chat' && (
             <ChatView messages={chatMessages} onSendMessage={handleSendMessage} />
+          )}
+
+          {activeTab === 'whatsapp' && (
+            <WhatsAppView projects={projects} />
           )}
 
           {activeTab === 'files' && (
