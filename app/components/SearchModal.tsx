@@ -15,13 +15,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
   if (!isOpen) return null;
 
   const quickLinks = [
-    { label: 'WhatsApp Integration Hub & Alerts', type: 'WhatsApp', tab: 'whatsapp' },
     { label: 'E-Commerce Homepage Design', type: 'Task', tab: 'tasks' },
     { label: 'Mobile App v2 Architecture', type: 'Project', tab: 'projects' },
     { label: 'Login API Endpoint Spec', type: 'File', tab: 'files' },
     { label: 'Priya Sharma (Lead UI/UX)', type: 'People', tab: 'people' },
     { label: 'Daily Standup Campfire', type: 'Chat', tab: 'chat' },
-    { label: 'WhatsApp Automation Settings', type: 'WhatsApp', tab: 'whatsapp' },
   ];
 
   const filtered = quickLinks.filter((l) =>

@@ -10,7 +10,6 @@ import {
   CalendarIcon,
   ChatIcon,
   FileIcon,
-  WhatsAppIcon,
 } from './Icons';
 
 interface DashboardViewProps {
@@ -23,7 +22,6 @@ interface DashboardViewProps {
   onViewEmployees?: () => void;
   onViewProjects?: () => void;
   onViewCalendar?: () => void;
-  onOpenWhatsAppTask?: (task: Task) => void;
   currentUser?: { email: string; fullName: string; companyName: string } | null;
 }
 
@@ -37,7 +35,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onViewEmployees,
   onViewProjects,
   onViewCalendar,
-  onOpenWhatsAppTask,
   currentUser,
 }) => {
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
@@ -790,19 +787,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${prioBadge}`}>
                         {prioLabel}
                       </span>
-                      {onOpenWhatsAppTask && (
-                        <button
-                          type="button"
-                          title="Send WhatsApp Task Reminder"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenWhatsAppTask(task);
-                          }}
-                          className="p-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all shadow-2xs flex items-center justify-center cursor-pointer"
-                        >
-                          <WhatsAppIcon className="w-3 h-3" />
-                        </button>
-                      )}
                     </div>
                   </div>
                 );

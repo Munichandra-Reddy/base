@@ -2,21 +2,15 @@
 
 import React, { useState } from 'react';
 import { Task } from '@/lib/types';
-import { PlusIcon, CheckSquareIcon, WhatsAppIcon } from './Icons';
+import { PlusIcon, CheckSquareIcon } from './Icons';
 
 interface TasksViewProps {
   tasks: Task[];
   onToggleTask: (id: string) => void;
   onOpenAddTask: () => void;
-  onOpenWhatsAppTask?: (task: Task) => void;
 }
 
-export const TasksView: React.FC<TasksViewProps> = ({
-  tasks,
-  onToggleTask,
-  onOpenAddTask,
-  onOpenWhatsAppTask,
-}) => {
+export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpenAddTask }) => {
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -138,19 +132,6 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   <span className="w-44 py-1.5 px-3 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200 inline-flex items-center justify-center text-center truncate">
                     {task.project}
                   </span>
-                  {onOpenWhatsAppTask && (
-                    <button
-                      type="button"
-                      title="Send WhatsApp Task Reminder"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenWhatsAppTask(task);
-                      }}
-                      className="p-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white transition-all shadow-2xs flex items-center justify-center cursor-pointer"
-                    >
-                      <WhatsAppIcon className="w-4 h-4" />
-                    </button>
-                  )}
                 </div>
               </div>
             ))

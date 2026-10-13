@@ -52,7 +52,6 @@ export interface Person {
   name: string;
   role: string;
   email: string;
-  phone?: string;
   status: 'active' | 'away' | 'offline';
   avatar: string;
   avatarBg: string;
@@ -90,30 +89,4 @@ export interface WorkspaceStats {
   teamOnline: number;
   storageUsedGB: number;
   storageTotalGB: number;
-}
-
-export interface WhatsAppMessage {
-  id: string;
-  recipientName: string;
-  recipientPhone: string;
-  message: string;
-  templateType: 'task_assigned' | 'deadline_reminder' | 'checkin_request' | 'announcement' | 'custom';
-  status: 'sent' | 'delivered' | 'read' | 'failed';
-  timestamp: string;
-  relatedTaskId?: string;
-}
-
-export interface WhatsAppConfig {
-  provider: 'direct' | 'cloud_api' | 'twilio';
-  phoneNumberId?: string;
-  businessAccountId?: string;
-  apiAccessToken?: string;
-  webhookVerifyToken?: string;
-  twilioAccountSid?: string;
-  twilioAuthToken?: string;
-  twilioFromNumber?: string;
-  enableTaskAlerts: boolean;
-  enableDeadlineReminders: boolean;
-  enableCheckinPings: boolean;
-  enableTaskCompletionAlerts: boolean;
 }
