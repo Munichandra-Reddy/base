@@ -11,6 +11,7 @@ import {
   UsersIcon,
   CheckCircleIcon,
   ChartIcon,
+  WhatsAppIcon,
 } from './Icons';
 
 export type NavTab =
@@ -22,7 +23,8 @@ export type NavTab =
   | 'files'
   | 'people'
   | 'checkins'
-  | 'reports';
+  | 'reports'
+  | 'whatsapp';
 
 interface SidebarProps {
   activeTab: NavTab;
@@ -51,6 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'people' as NavTab, label: 'Employees', icon: UsersIcon },
     { id: 'checkins' as NavTab, label: 'Check-ins', icon: CheckCircleIcon },
     { id: 'reports' as NavTab, label: 'Reports', icon: ChartIcon },
+    { id: 'whatsapp' as NavTab, label: 'WhatsApp', icon: WhatsAppIcon, badgeText: 'Live' },
   ];
 
   const storagePercentage = Math.min(100, Math.round((storageUsedGB / storageTotalGB) * 100));
@@ -87,6 +90,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       }`}
                     >
                       {item.badge}
+                    </span>
+                  )}
+                  {item.badgeText && (
+                    <span
+                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ml-2 flex items-center gap-1 ${
+                        isActive
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      {item.badgeText}
                     </span>
                   )}
                 </button>

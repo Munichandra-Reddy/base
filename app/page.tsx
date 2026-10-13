@@ -16,6 +16,8 @@ import { CreateModal } from './components/CreateModal';
 import { SearchModal } from './components/SearchModal';
 import { NotificationPanel } from './components/NotificationPanel';
 import { AuthView } from './components/AuthView';
+import { WhatsAppView } from './components/WhatsAppView';
+import { WhatsAppTaskModal } from './components/WhatsAppTaskModal';
 
 import {
   initialStats,
@@ -76,6 +78,13 @@ export default function Home() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
+  const [whatsAppTask, setWhatsAppTask] = useState<Task | null>(null);
+  const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+
+  const handleOpenWhatsAppTask = (task: Task) => {
+    setWhatsAppTask(task);
+    setIsWhatsAppModalOpen(true);
+  };
 
   // Load persisted state from localStorage on mount so page refreshes don't lose data!
   useEffect(() => {
@@ -199,6 +208,7 @@ export default function Home() {
         'people',
         'checkins',
         'reports',
+        'whatsapp',
       ];
 
       if (e.state && e.state.tab && validTabs.includes(e.state.tab)) {
@@ -229,6 +239,7 @@ export default function Home() {
           'people',
           'checkins',
           'reports',
+          'whatsapp',
         ];
         if (validTabs.includes(hash as NavTab)) {
           setActiveTab(hash as NavTab);
@@ -671,6 +682,7 @@ export default function Home() {
               onViewEmployees={() => handleTabChange('people')}
               onViewProjects={() => handleTabChange('projects')}
               onViewCalendar={() => handleTabChange('calendar')}
+              onOpenWhatsAppTask={handleOpenWhatsAppTask}
               currentUser={currentUser}
             />
           )}
@@ -680,6 +692,7 @@ export default function Home() {
               tasks={tasks}
               onToggleTask={handleToggleTask}
               onOpenAddTask={() => setIsCreateModalOpen(true)}
+              onOpenWhatsAppTask={handleOpenWhatsAppTask}
             />
           )}
 
@@ -714,10 +727,26 @@ export default function Home() {
           )}
 
           {activeTab === 'reports' && <ReportsView />}
+
+          {activeTab === 'whatsapp' && (
+            <WhatsAppView
+              tasks={tasks}
+              people={people}
+              projects={projects}
+              currentUser={currentUser}
+            />
+          )}
         </main>
       </div>
 
       {/* Modals */}
+      <WhatsAppTaskModal
+        isOpen={isWhatsAppModalOpen}
+        onClose={() => setIsWhatsAppModalOpen(false)}
+        task={whatsAppTask}
+        people={people}
+      />
+
       <CreateModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}

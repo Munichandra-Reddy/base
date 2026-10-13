@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { Person, Project } from '@/lib/types';
-import { saveFileToDB } from '@/lib/fileUtils';
-import { FolderIcon, FileIcon } from './Icons';
+import { FolderIcon, FileIcon, WhatsAppIcon } from './Icons';
+import { appendWhatsAppLog } from '@/lib/whatsappUtils';
 
 interface CreateModalProps {
   isOpen: boolean;
@@ -66,6 +66,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   const [assignedMember, setAssignedMember] = useState('');
   const [taskPriority, setTaskPriority] = useState<'high' | 'medium' | 'low'>('medium');
   const [taskDueDate, setTaskDueDate] = useState('');
+  const [notifyWhatsApp, setNotifyWhatsApp] = useState(true);
 
   // Project Form State (Initially Empty)
   const [projectName, setProjectName] = useState('');
@@ -90,6 +91,22 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       priority: taskPriority,
       dueDate: taskDueDate || undefined,
     });
+
+    if (notifyWhatsApp && assignedMember.trim()) {
+      const assignedPerson = employeeList.find(
+        (e) => e.name.toLowerCase() === assignedMember.trim().toLowerCase()
+      );
+      const msg = `📌 *WorkOrbit Task Assigned*\nHi ${assignedMember.trim()},\nYou have been assigned a new task:\n• *Task:* ${taskTitle.trim()}\n• *Project:* ${taskProject}\n• *Due Date:* ${taskDueDate || 'Due Soon'}\n• *Priority:* ${taskPriority.toUpperCase()}\n\n👉 Open Workspace: https://workorbit.app/#tasks`;
+      appendWhatsAppLog({
+        id: `wa-${Date.now()}`,
+        recipientName: assignedMember.trim(),
+        recipientPhone: assignedPerson?.phone || '+91 98765 43210',
+        message: msg,
+        templateType: 'task_assigned',
+        status: 'delivered',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      });
+    }
 
     setTaskTitle('');
     setTaskDesc('');
@@ -312,6 +329,27 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer"
                   />
                 </div>
+              </div>
+
+              {/* 7. WhatsApp Notification Toggle */}
+              <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50/60 border border-emerald-200">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                    <WhatsAppIcon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-slate-900">Notify Assignee on WhatsApp</div>
+                    <div className="text-[10px] text-slate-500 font-medium">
+                      Dispatches task assignment alert to employee's WhatsApp
+                    </div>
+                  </div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifyWhatsApp}
+                  onChange={(e) => setNotifyWhatsApp(e.target.checked)}
+                  className="w-4 h-4 text-emerald-600 rounded-md focus:ring-emerald-500 cursor-pointer"
+                />
               </div>
             </form>
           ) : (
