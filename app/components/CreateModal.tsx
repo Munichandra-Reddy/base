@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Person, Project } from '@/lib/types';
+import { saveFileToDB } from '@/lib/fileUtils';
 import { FolderIcon, FileIcon, WhatsAppIcon } from './Icons';
 import { appendWhatsAppLog } from '@/lib/whatsappUtils';
 

@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { Task, Person } from '@/lib/types';
 import { WhatsAppIcon } from './Icons';
 import {
-  formatPhoneForWhatsApp,
   buildWhatsAppLink,
   generateTaskReminderMessage,
   generateTaskAssignmentMessage,
