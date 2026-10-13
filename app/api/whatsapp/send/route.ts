@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import {
   sendWhatsAppNotification,
   validateAndFormatPhone,
-  getCredentials,
 } from '@/lib/whatsappService';
 
 export async function POST(request: Request) {

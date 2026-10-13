@@ -265,11 +265,11 @@ export function isDuplicateEvent(
 
   // Prune cache if it gets large (> 500 entries)
   if (store.deduplicationCache.size > 500) {
-    for (const [k, timestamp] of store.deduplicationCache.entries()) {
+    store.deduplicationCache.forEach((timestamp, k) => {
       if (now - timestamp > windowMs) {
         store.deduplicationCache.delete(k);
       }
-    }
+    });
   }
 
   return false;
