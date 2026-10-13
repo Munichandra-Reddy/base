@@ -3,6 +3,7 @@ import {
   getPublicConfig,
   updatePreferences,
   setDemoOverride,
+  updateCredentials,
   validateAndFormatPhone,
 } from '@/lib/whatsappService';
 
@@ -57,15 +58,22 @@ export async function PUT(request: Request) {
     if (typeof body.isDemoMode === 'boolean') {
       setDemoOverride(body.isDemoMode);
     }
+    if (body.token || body.phoneId || body.businessAccountId) {
+      updateCredentials({
+        token: body.token,
+        phoneId: body.phoneId,
+        businessAccountId: body.businessAccountId,
+      });
+    }
     const config = getPublicConfig();
     return NextResponse.json({
       success: true,
-      message: body.isDemoMode ? 'Switched to Demo Mode' : 'Switched to Live Mode',
+      message: body.token ? 'Live Meta credentials updated successfully' : 'Configuration updated',
       config,
     });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, error: error?.message || 'Failed to update connection mode' },
+      { success: false, error: error?.message || 'Failed to update credentials' },
       { status: 400 }
     );
   }

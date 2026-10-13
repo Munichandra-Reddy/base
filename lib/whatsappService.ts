@@ -6,7 +6,7 @@ import {
   WhatsAppConnectionStatus,
 } from './types';
 
-const FALLBACK_TOKEN = 'EAAhcupau3R8BSuNNQ7kUsT9mhNgHf6qmBxDluz8GJCO9JK9GVlKcL3bC9ESZAeYI7z9UQN4IoVJKcNCIWCcZAAlKqyirQgCPmONmxKgzPnvjQKCNZBD1d9Cn0qmf4HHTH0mn2Vn2FqID6NrcshiqCsjDvBfn9PYqlHYlSuOP0eFdCNIeH5Ks2JoU7c9ZCUjkiUQYaVcqrlfGpigffpZCBDUwnXsTUaXeFiRZBdSaentU8mbxToHIyu2E75SWKmJBYKI0SMzZA1tvp5muwzLv5si';
+const FALLBACK_TOKEN = 'EAAhcupau3R8BSuHdmWvCZCYXZBAdYcLVQOgXVH0trcssfK1pI9X9Lfuniw1zT2fL2bKNva7iCmkeIB5ijlU6SlCuTYO7GlWfvZCXad7HEbgnaGImDLSsGjlYRg17VKwv2D1A3d9BwpKFNaDgKLG0oZAvYV181DkSIde4KqzG4E5qUWg1zh36LJE35lwmzTBxbqDg37tCbhiyhH6njbssXoxt725yqaPUlXIjU6lez7oT0jR4WGZAkmQof1pAr3SDvxG5cPUCbWUdtODQg3ZBByHwZDZD';
 const FALLBACK_PHONE_ID = '1280116715195570';
 const FALLBACK_ACCOUNT_ID = '2589369698176046';
 
@@ -35,6 +35,9 @@ interface WhatsAppStore {
   deduplicationCache: Map<string, number>;
   liveConnectionVerified: boolean;
   manualDemoOverride?: boolean;
+  customToken?: string;
+  customPhoneId?: string;
+  customAccountId?: string;
 }
 
 // Global store to persist across Next.js API requests in development/production
@@ -46,10 +49,34 @@ if (!globalStore.__workorbit_whatsapp_store) {
     deduplicationCache: new Map<string, number>(),
     liveConnectionVerified: true,
     manualDemoOverride: false,
+    customToken: undefined,
+    customPhoneId: undefined,
+    customAccountId: undefined,
   } as WhatsAppStore;
 }
 
 const store: WhatsAppStore = globalStore.__workorbit_whatsapp_store;
+store.customToken = undefined;
+store.manualDemoOverride = false;
+store.liveConnectionVerified = true;
+
+export function updateCredentials(creds: {
+  token?: string;
+  phoneId?: string;
+  businessAccountId?: string;
+}) {
+  if (creds.token && creds.token.trim()) {
+    store.customToken = creds.token.trim();
+  }
+  if (creds.phoneId && creds.phoneId.trim()) {
+    store.customPhoneId = creds.phoneId.trim();
+  }
+  if (creds.businessAccountId && creds.businessAccountId.trim()) {
+    store.customAccountId = creds.businessAccountId.trim();
+  }
+  store.manualDemoOverride = false;
+  store.liveConnectionVerified = true;
+}
 
 // Helper to mask secrets like "109823478912345" -> "••••••••2345"
 export function maskIdentifier(val?: string, visibleChars = 4): string {
@@ -98,14 +125,17 @@ export function validateAndFormatPhone(phone: string): {
 
 // Check if live Meta WhatsApp credentials are fully configured
 export function getCredentials() {
+  const customToken = store.customToken;
   const envToken = process.env.WHATSAPP_API_TOKEN?.trim();
-  const token = (envToken && !envToken.includes('your_meta')) ? envToken : FALLBACK_TOKEN;
+  const token = customToken || ((envToken && !envToken.includes('your_meta')) ? envToken : FALLBACK_TOKEN);
 
+  const customPhoneId = store.customPhoneId;
   const envPhoneId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
-  const phoneId = (envPhoneId && !envPhoneId.includes('your_whatsapp')) ? envPhoneId : FALLBACK_PHONE_ID;
+  const phoneId = customPhoneId || ((envPhoneId && !envPhoneId.includes('your_whatsapp')) ? envPhoneId : FALLBACK_PHONE_ID);
 
+  const customAccountId = store.customAccountId;
   const envAccountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID?.trim();
-  const businessAccountId = (envAccountId && !envAccountId.includes('your_whatsapp')) ? envAccountId : FALLBACK_ACCOUNT_ID;
+  const businessAccountId = customAccountId || ((envAccountId && !envAccountId.includes('your_whatsapp')) ? envAccountId : FALLBACK_ACCOUNT_ID);
 
   const webhookVerifyToken =
     process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN?.trim() || 'workorbit_secure_verify_token_2026';

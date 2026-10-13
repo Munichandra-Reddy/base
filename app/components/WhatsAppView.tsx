@@ -825,6 +825,16 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                     <span>Dispatch Failed</span>
                   </div>
                   <p className="text-[11px] text-rose-700">{testResult.message}</p>
+                  {(testResult.message?.includes('190') || testResult.message?.toLowerCase().includes('token')) && (
+                    <button
+                      type="button"
+                      onClick={() => setIsConnectModalOpen(true)}
+                      className="mt-2 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] rounded-lg shadow-2xs transition-colors cursor-pointer inline-flex items-center gap-1"
+                    >
+                      <span>Update Meta Token Now</span>
+                      <span>&rarr;</span>
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -1107,16 +1117,45 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setConnectFeedback(
-                      'To persist live credentials in production, add WHATSAPP_API_TOKEN and WHATSAPP_PHONE_NUMBER_ID to your .env.local file. Switched to Live API mode verification.'
-                    );
-                    handleToggleDemoMode(false);
-                    setTimeout(() => setIsConnectModalOpen(false), 2000);
+                  disabled={isSubmittingConnect}
+                  onClick={async () => {
+                    if (!connectToken.trim()) {
+                      setConnectFeedback('Please enter your Meta Access Token (EAAG...).');
+                      return;
+                    }
+                    setIsSubmittingConnect(true);
+                    setConnectFeedback('Saving and activating credentials...');
+                    try {
+                      const res = await fetch('/api/whatsapp/config', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          token: connectToken.trim(),
+                          phoneId: connectPhoneId.trim() || undefined,
+                          businessAccountId: connectAccountId.trim() || undefined,
+                          isDemoMode: false,
+                        }),
+                      });
+                      const data = await res.json();
+                      if (data.success) {
+                        setConnectFeedback('✓ Live Meta credentials activated successfully!');
+                        await fetchConfig();
+                        setTimeout(() => {
+                          setIsConnectModalOpen(false);
+                          setConnectFeedback(null);
+                        }, 1200);
+                      } else {
+                        setConnectFeedback(data.error || 'Failed to activate credentials.');
+                      }
+                    } catch (err: any) {
+                      setConnectFeedback(err?.message || 'Network error saving credentials.');
+                    } finally {
+                      setIsSubmittingConnect(false);
+                    }
                   }}
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs"
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
                 >
-                  Verify & Save Credentials
+                  {isSubmittingConnect ? 'Verifying...' : 'Verify & Save Credentials'}
                 </button>
               </div>
             </div>
