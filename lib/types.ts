@@ -123,7 +123,7 @@ export interface WhatsAppMessageLog {
   eventType: 'task_assignment' | 'upcoming_deadline' | 'overdue_task' | 'project_update' | 'test_message';
   templateName: string;
   content: string;
-  status: 'sent' | 'delivered' | 'read' | 'failed';
+  status: 'sent' | 'delivered' | 'read' | 'failed' | 'simulated';
   timestamp: string;
   errorMessage?: string;
   isDemo: boolean;

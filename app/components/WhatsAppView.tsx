@@ -36,7 +36,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
     overdueTasks: true,
     projectUpdates: false,
     optInConfirmed: true,
-    recipientPhone: '+15550198234',
+    recipientPhone: '+919441150546',
     selectedProjects: ['E-Commerce Website', 'Mobile App v2', 'Marketing Campaign Q4'],
   });
 
@@ -47,8 +47,8 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
   // Test Message State
   const [testEventType, setTestEventType] = useState<
     'task_assignment' | 'upcoming_deadline' | 'overdue_task' | 'project_update' | 'test_message'
-  >('task_assignment');
-  const [testPhone, setTestPhone] = useState('+15550198234');
+  >('test_message');
+  const [testPhone, setTestPhone] = useState('+919441150546');
   const [testSelectedProject, setTestSelectedProject] = useState('E-Commerce Website');
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [testResult, setTestResult] = useState<{
@@ -910,27 +910,38 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                 </tr>
               ) : (
                 filteredLogs.map((log) => {
-                  let statusBadge = (
-                    <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-slate-100 text-slate-600 flex items-center gap-1 w-fit">
-                      ✓ Sent
-                    </span>
-                  );
-                  if (log.status === 'delivered') {
+                  let statusBadge;
+                  if (log.isDemo || log.status === 'simulated') {
                     statusBadge = (
-                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1 w-fit">
+                      <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1 w-fit">
+                        ⚡ Demo Simulated (Not Sent)
+                      </span>
+                    );
+                  } else if (log.status === 'failed') {
+                    statusBadge = (
+                      <span
+                        className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300 flex items-center gap-1 w-fit"
+                        title={log.errorMessage || 'Failed to deliver'}
+                      >
+                        ✕ Failed
+                      </span>
+                    );
+                  } else if (log.status === 'delivered') {
+                    statusBadge = (
+                      <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 w-fit">
                         ✓✓ Delivered
                       </span>
                     );
                   } else if (log.status === 'read') {
                     statusBadge = (
-                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-100 text-blue-800 flex items-center gap-1 w-fit">
+                      <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-300 flex items-center gap-1 w-fit">
                         ✓✓ Read
                       </span>
                     );
-                  } else if (log.status === 'failed') {
+                  } else {
                     statusBadge = (
-                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-rose-100 text-rose-800 flex items-center gap-1 w-fit">
-                        ✕ Failed
+                      <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 w-fit">
+                        ✓ Sent via Meta API
                       </span>
                     );
                   }
@@ -944,8 +955,13 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                       <td className="py-3.5 px-3 whitespace-nowrap font-mono text-slate-600 font-medium">
                         {log.recipientPhone}
                       </td>
-                      <td className="py-3.5 px-3 max-w-md truncate text-slate-700 font-medium" title={log.content}>
-                        {log.content}
+                      <td className="py-3.5 px-3 max-w-md text-slate-700 font-medium">
+                        <div className="truncate" title={log.content}>{log.content}</div>
+                        {log.errorMessage && (
+                          <div className="text-[11px] text-rose-600 font-bold mt-1 bg-rose-50 p-1.5 rounded-lg border border-rose-200">
+                            {log.errorMessage}
+                          </div>
+                        )}
                       </td>
                       <td className="py-3.5 px-3 whitespace-nowrap text-slate-400 font-medium">
                         {log.timestamp}
@@ -957,7 +973,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                           </span>
                         ) : (
                           <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
-                            Meta Cloud API
+                            Live Meta API
                           </span>
                         )}
                       </td>

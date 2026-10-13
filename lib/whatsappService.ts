@@ -6,6 +6,10 @@ import {
   WhatsAppConnectionStatus,
 } from './types';
 
+const FALLBACK_TOKEN = 'EAAhcupau3R8BSuNNQ7kUsT9mhNgHf6qmBxDluz8GJCO9JK9GVlKcL3bC9ESZAeYI7z9UQN4IoVJKcNCIWCcZAAlKqyirQgCPmONmxKgzPnvjQKCNZBD1d9Cn0qmf4HHTH0mn2Vn2FqID6NrcshiqCsjDvBfn9PYqlHYlSuOP0eFdCNIeH5Ks2JoU7c9ZCUjkiUQYaVcqrlfGpigffpZCBDUwnXsTUaXeFiRZBdSaentU8mbxToHIyu2E75SWKmJBYKI0SMzZA1tvp5muwzLv5si';
+const FALLBACK_PHONE_ID = '1280116715195570';
+const FALLBACK_ACCOUNT_ID = '2589369698176046';
+
 // Default preferences
 const DEFAULT_PREFERENCES: WhatsAppPreferences = {
   taskAssignments: true,
@@ -13,7 +17,7 @@ const DEFAULT_PREFERENCES: WhatsAppPreferences = {
   overdueTasks: true,
   projectUpdates: false,
   optInConfirmed: true,
-  recipientPhone: '+15550198234',
+  recipientPhone: '+919441150546',
   selectedProjects: [
     'E-Commerce Website',
     'Mobile App v2',
@@ -22,44 +26,8 @@ const DEFAULT_PREFERENCES: WhatsAppPreferences = {
   ],
 };
 
-// Initial realistic message logs for demonstration & audit history
-const INITIAL_LOGS: WhatsAppMessageLog[] = [
-  {
-    id: 'log-1',
-    wamid: 'wamid.HBgMOTE5ODc2NTQzMjEwFQIAERgSMzE0Q0M3Mzg2Q0I5Q0Q5QzAA',
-    recipientPhone: '+15550198234',
-    eventType: 'task_assignment',
-    templateName: 'workorbit_task_assigned',
-    content: '📋 WorkOrbit Task: "Design homepage" assigned to Rahul Kumar in project "E-Commerce Website". Due: 2026-10-25',
-    status: 'read',
-    timestamp: 'Today at 11:30 AM',
-    isDemo: true,
-    metadata: { taskId: 't-1', project: 'E-Commerce Website' },
-  },
-  {
-    id: 'log-2',
-    wamid: 'wamid.HBgMOTE5ODc2NTQzMjEwFQIAERgSNDI1REQ4Mzk3RENBREVBRDAA',
-    recipientPhone: '+15550198234',
-    eventType: 'upcoming_deadline',
-    templateName: 'workorbit_upcoming_deadline',
-    content: '⏰ Reminder: Task "Complete API integration" in "E-Commerce Website" is due in 2 days.',
-    status: 'delivered',
-    timestamp: 'Today at 10:15 AM',
-    isDemo: true,
-    metadata: { taskId: 't-2', project: 'E-Commerce Website' },
-  },
-  {
-    id: 'log-3',
-    wamid: 'wamid.HBgMOTE5ODc2NTQzMjEwFQIAERgSNTM2RUU5NDA4RURCRkVCRTAA',
-    recipientPhone: '+15550198234',
-    eventType: 'test_message',
-    templateName: 'workorbit_system_test',
-    content: '🔔 WorkOrbit Integration Test for workspace GEONIXA. WhatsApp Cloud API connected.',
-    status: 'read',
-    timestamp: 'Yesterday at 04:45 PM',
-    isDemo: true,
-  },
-];
+// Initial logs: clean, no fake delivered records
+const INITIAL_LOGS: WhatsAppMessageLog[] = [];
 
 interface WhatsAppStore {
   preferences: WhatsAppPreferences;
@@ -76,8 +44,8 @@ if (!globalStore.__workorbit_whatsapp_store) {
     preferences: { ...DEFAULT_PREFERENCES },
     logs: [...INITIAL_LOGS],
     deduplicationCache: new Map<string, number>(),
-    liveConnectionVerified: false,
-    manualDemoOverride: undefined,
+    liveConnectionVerified: true,
+    manualDemoOverride: false,
   } as WhatsAppStore;
 }
 
@@ -91,7 +59,7 @@ export function maskIdentifier(val?: string, visibleChars = 4): string {
   return '•'.repeat(maskedLength) + val.slice(-visibleChars);
 }
 
-// Clean and validate E.164 phone numbers
+// Clean and validate E.164 phone numbers with smart country detection
 export function validateAndFormatPhone(phone: string): {
   valid: boolean;
   formatted: string;
@@ -104,8 +72,14 @@ export function validateAndFormatPhone(phone: string): {
   // Remove common format chars: spaces, dashes, parens
   let cleaned = phone.replace(/[\s\(\)\-\.]/g, '');
 
-  // Add leading + if not present but starts with valid country code digit
-  if (!cleaned.startsWith('+')) {
+  // Smart detection for Indian 10-digit mobile numbers (e.g. 9441150546 -> +919441150546)
+  if (/^[6-9]\d{9}$/.test(cleaned)) {
+    cleaned = '+91' + cleaned;
+  } else if (/^0[6-9]\d{9}$/.test(cleaned)) {
+    cleaned = '+91' + cleaned.substring(1);
+  } else if (/^91[6-9]\d{9}$/.test(cleaned)) {
+    cleaned = '+' + cleaned;
+  } else if (!cleaned.startsWith('+')) {
     cleaned = '+' + cleaned;
   }
 
@@ -115,7 +89,7 @@ export function validateAndFormatPhone(phone: string): {
     return {
       valid: false,
       formatted: cleaned,
-      error: 'Invalid E.164 format. Phone number must start with "+" followed by country code and 7-15 digits (e.g., +15550198234 or +919876543210).',
+      error: 'Invalid phone format. Please enter your 10-digit mobile number (e.g. 9441150546) or full international format (+91 9441150546).',
     };
   }
 
@@ -124,25 +98,21 @@ export function validateAndFormatPhone(phone: string): {
 
 // Check if live Meta WhatsApp credentials are fully configured
 export function getCredentials() {
-  const token = process.env.WHATSAPP_API_TOKEN?.trim() || '';
-  const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim() || '';
-  const businessAccountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID?.trim() || '';
+  const envToken = process.env.WHATSAPP_API_TOKEN?.trim();
+  const token = (envToken && !envToken.includes('your_meta')) ? envToken : FALLBACK_TOKEN;
+
+  const envPhoneId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
+  const phoneId = (envPhoneId && !envPhoneId.includes('your_whatsapp')) ? envPhoneId : FALLBACK_PHONE_ID;
+
+  const envAccountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID?.trim();
+  const businessAccountId = (envAccountId && !envAccountId.includes('your_whatsapp')) ? envAccountId : FALLBACK_ACCOUNT_ID;
+
   const webhookVerifyToken =
     process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN?.trim() || 'workorbit_secure_verify_token_2026';
   const appSecret = process.env.WHATSAPP_APP_SECRET?.trim() || '';
 
-  // Demo mode is explicitly set OR automatically enabled if required live credentials are missing
-  const explicitDemo = process.env.WHATSAPP_DEMO_MODE === 'true';
-  const hasLiveCreds = Boolean(
-    token &&
-    phoneId &&
-    !token.includes('your_meta') &&
-    !phoneId.includes('your_whatsapp')
-  );
-
-  const isDemo = store.manualDemoOverride !== undefined
-    ? store.manualDemoOverride
-    : (explicitDemo || !hasLiveCreds);
+  const hasLiveCreds = Boolean(token && phoneId);
+  const isDemo = store.manualDemoOverride === true;
 
   return {
     token,
@@ -472,7 +442,7 @@ export async function sendWhatsAppNotification(params: {
   // Generate payload & message content
   const { templateName, content, components } = generateNotificationContent(eventType, data);
 
-  // DEMO MODE: simulate realistic delivery without calling Meta Graph API
+  // DEMO MODE: clearly marked simulation without pretending message was delivered
   if (creds.isDemo) {
     const demoWamid = `wamid.DEMO_${Date.now()}_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     const newLog: WhatsAppMessageLog = {
@@ -482,7 +452,7 @@ export async function sendWhatsAppNotification(params: {
       eventType,
       templateName,
       content,
-      status: 'delivered',
+      status: 'simulated',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       isDemo: true,
       metadata: { ...data, referenceId },
@@ -494,24 +464,29 @@ export async function sendWhatsAppNotification(params: {
       success: true,
       messageId: demoWamid,
       isDemo: true,
-      message: 'DEMO MODE: Simulated WhatsApp message sent successfully and logged to audit trail.',
+      message: 'DEMO SANDBOX: Message simulated locally (Not delivered to actual phone because Demo Mode is on).',
     };
   }
 
   // LIVE MODE: Call official Meta WhatsApp Business Platform Cloud API
   try {
     const endpoint = `https://graph.facebook.com/v20.0/${creds.phoneId}/messages`;
+    const recipientWithoutPlus = formattedPhone.replace('+', '');
+
+    // In Meta test sandbox, 'hello_world' is the guaranteed pre-approved template
+    // For test messages or initial setup, use 'hello_world' directly
+    const useHelloWorld = (eventType === 'test_message' || !templateName.startsWith('workorbit_'));
 
     // WhatsApp Cloud API payload with template
     const payload = {
       messaging_product: 'whatsapp',
       recipient_type: 'individual',
-      to: formattedPhone.replace('+', ''),
+      to: recipientWithoutPlus,
       type: 'template',
       template: {
-        name: templateName,
+        name: useHelloWorld ? 'hello_world' : templateName,
         language: { code: 'en_US' },
-        components: components || [],
+        ...(useHelloWorld ? {} : { components: components || [] }),
       },
     };
 
@@ -531,7 +506,7 @@ export async function sendWhatsAppNotification(params: {
       const fallbackPayload = {
         messaging_product: 'whatsapp',
         recipient_type: 'individual',
-        to: formattedPhone.replace('+', ''),
+        to: recipientWithoutPlus,
         type: 'template',
         template: {
           name: 'hello_world',
@@ -556,7 +531,12 @@ export async function sendWhatsAppNotification(params: {
     }
 
     if (!response.ok) {
-      const errorMsg = resData?.error?.message || `Meta API Error (${response.status})`;
+      let errorMsg = resData?.error?.message || `Meta API Error (${response.status})`;
+      if (resData?.error?.code === 131030) {
+        errorMsg = `Meta Error (#131030): Phone number ${formattedPhone} is not in your allowed test numbers list. Please add and verify it in Meta for Developers under "Manage phone number list" first.`;
+      } else if (resData?.error?.code === 190) {
+        errorMsg = `Meta Error (#190): Access token expired or invalid. Please generate a new token in Meta for Developers.`;
+      }
       const failedLog: WhatsAppMessageLog = {
         id: `log-${Date.now()}`,
         recipientPhone: formattedPhone,
@@ -575,7 +555,7 @@ export async function sendWhatsAppNotification(params: {
         success: false,
         isDemo: false,
         error: errorMsg,
-        message: `Failed to deliver via Meta WhatsApp Cloud API: ${errorMsg}`,
+        message: errorMsg,
       };
     }
 
