@@ -503,20 +503,17 @@ export async function sendWhatsAppNotification(params: {
     const endpoint = `https://graph.facebook.com/v20.0/${creds.phoneId}/messages`;
     const recipientWithoutPlus = formattedPhone.replace('+', '');
 
-    // In Meta test sandbox, 'hello_world' is the guaranteed pre-approved template
-    // For test messages or initial setup, use 'hello_world' directly
-    const useHelloWorld = (eventType === 'test_message' || !templateName.startsWith('workorbit_'));
-
-    // WhatsApp Cloud API payload with template
-    const payload = {
+    // 1. Try Direct Text Message first (Active 24-hour Customer Session)
+    // When the recipient messages the business ("Hi"), direct text messages deliver instantly
+    // and bypass template restrictions or India TRAI template spam holding.
+    const textPayload = {
       messaging_product: 'whatsapp',
       recipient_type: 'individual',
       to: recipientWithoutPlus,
-      type: 'template',
-      template: {
-        name: useHelloWorld ? 'hello_world' : templateName,
-        language: { code: 'en_US' },
-        ...(useHelloWorld ? {} : { components: components || [] }),
+      type: 'text',
+      text: {
+        preview_url: false,
+        body: content,
       },
     };
 
@@ -526,37 +523,67 @@ export async function sendWhatsAppNotification(params: {
         Authorization: `Bearer ${creds.token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(textPayload),
     });
 
     let resData = await response.json();
 
-    // If template doesn't exist in Meta WABA yet, fall back to official pre-approved "hello_world" template
-    if (!response.ok && (resData?.error?.code === 132001 || resData?.error?.message?.toLowerCase().includes('template'))) {
-      const fallbackPayload = {
+    // 2. If 24-hour window is not open (Error 131047: Re-engagement message),
+    // or if text is rejected, fall back to template dispatch
+    if (!response.ok && (resData?.error?.code === 131047 || resData?.error?.message?.toLowerCase().includes('re-engagement'))) {
+      const useHelloWorld = (eventType === 'test_message' || !templateName.startsWith('workorbit_'));
+      const templatePayload = {
         messaging_product: 'whatsapp',
         recipient_type: 'individual',
         to: recipientWithoutPlus,
         type: 'template',
         template: {
-          name: 'hello_world',
+          name: useHelloWorld ? 'hello_world' : templateName,
           language: { code: 'en_US' },
+          ...(useHelloWorld ? {} : { components: components || [] }),
         },
       };
 
-      const fallbackResponse = await fetch(endpoint, {
+      const templateResponse = await fetch(endpoint, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${creds.token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(fallbackPayload),
+        body: JSON.stringify(templatePayload),
       });
 
-      const fallbackData = await fallbackResponse.json();
-      if (fallbackResponse.ok) {
-        response = fallbackResponse;
-        resData = fallbackData;
+      const templateData = await templateResponse.json();
+      response = templateResponse;
+      resData = templateData;
+
+      // 3. Fallback to pre-approved 'hello_world' if custom template not found in WABA
+      if (!response.ok && (resData?.error?.code === 132001 || resData?.error?.message?.toLowerCase().includes('template'))) {
+        const helloPayload = {
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: recipientWithoutPlus,
+          type: 'template',
+          template: {
+            name: 'hello_world',
+            language: { code: 'en_US' },
+          },
+        };
+
+        const helloResponse = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${creds.token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(helloPayload),
+        });
+
+        const helloData = await helloResponse.json();
+        if (helloResponse.ok) {
+          response = helloResponse;
+          resData = helloData;
+        }
       }
     }
 
