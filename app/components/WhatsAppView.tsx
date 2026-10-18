@@ -815,6 +815,19 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                       ID: {testResult.messageId}
                     </div>
                   )}
+                  {testResult.message?.toLowerCase().includes('blocked') && (
+                    <div className="mt-2 pt-2 border-t border-emerald-200/80 flex items-center justify-between gap-2 flex-wrap">
+                      <span className="text-[10.5px] text-emerald-800 font-medium">Live Meta API restricted? Reassign WABA assets or update token.</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsConnectModalOpen(true)}
+                        className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[10px] rounded-lg shadow-2xs transition-colors cursor-pointer inline-flex items-center gap-1"
+                      >
+                        <span>Update Meta Token</span>
+                        <span>&rarr;</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -825,15 +838,24 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                     <span>Dispatch Failed</span>
                   </div>
                   <p className="text-[11px] text-rose-700">{testResult.message}</p>
-                  {(testResult.message?.includes('190') || testResult.message?.toLowerCase().includes('token')) && (
-                    <button
-                      type="button"
-                      onClick={() => setIsConnectModalOpen(true)}
-                      className="mt-2 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] rounded-lg shadow-2xs transition-colors cursor-pointer inline-flex items-center gap-1"
-                    >
-                      <span>Update Meta Token Now</span>
-                      <span>&rarr;</span>
-                    </button>
+                  {(testResult.message?.includes('190') || testResult.message?.toLowerCase().includes('token') || testResult.message?.toLowerCase().includes('blocked')) && (
+                    <div className="flex items-center gap-2 mt-2 pt-1 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={() => setIsConnectModalOpen(true)}
+                        className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] rounded-lg shadow-2xs transition-colors cursor-pointer inline-flex items-center gap-1"
+                      >
+                        <span>Update Meta Token / Credentials</span>
+                        <span>&rarr;</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleDemoMode(true)}
+                        className="px-3 py-1.5 bg-slate-800 hover:bg-black text-white font-bold text-[11px] rounded-lg shadow-2xs transition-colors cursor-pointer inline-flex items-center gap-1"
+                      >
+                        <span>Switch to Demo Mode</span>
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
@@ -1041,6 +1063,19 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                   <li>Copy your <strong>Phone Number ID</strong> and <strong>WhatsApp Business Account ID</strong>.</li>
                   <li>Generate a Permanent System User <strong>Access Token</strong> with <code className="bg-slate-200 px-1 py-0.5 rounded">whatsapp_business_messaging</code> permission.</li>
                 </ol>
+              </div>
+
+              {/* Troubleshooting "API access blocked" */}
+              <div className="p-3 bg-amber-50 border border-amber-200/90 rounded-xl space-y-1.5 text-[11px] text-amber-950">
+                <div className="font-bold flex items-center gap-1.5 text-amber-900">
+                  <AlertCircleIcon className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>How to unblock Meta "API access blocked" (Code 200):</span>
+                </div>
+                <ul className="list-disc list-inside space-y-1 text-amber-900 text-[10.5px] leading-relaxed">
+                  <li><strong>Assign Assets:</strong> In Meta Business Settings &gt; Users &gt; System Users &gt; select your System User &gt; click <strong>Assign Assets</strong> &gt; select your WhatsApp Business Account (WABA) &gt; toggle <strong>Full Control / Admin</strong>.</li>
+                  <li><strong>Add Test Phone:</strong> In Meta Developers &gt; WhatsApp &gt; API Setup &gt; under "Manage phone number list", add and verify the recipient mobile number (+91...).</li>
+                  <li><strong>Account Quality:</strong> Check <a href="https://business.facebook.com/accountquality" target="_blank" rel="noopener noreferrer" className="underline font-bold text-amber-800">business.facebook.com/accountquality</a> to ensure your Meta Business account has no unverified policy holds.</li>
+                </ul>
               </div>
 
               {/* Masked Credentials Overview */}
