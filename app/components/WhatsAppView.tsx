@@ -58,6 +58,12 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
     isDemo?: boolean;
   }>({ status: 'idle', message: '' });
 
+  // Hydration-safe preview time
+  const [previewTime, setPreviewTime] = useState('11:00 AM');
+  useEffect(() => {
+    setPreviewTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  }, []);
+
   // Filter logs state
   const [logFilter, setLogFilter] = useState<'all' | 'delivered' | 'read' | 'failed'>('all');
 
@@ -287,7 +293,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
         return `🚀 *WorkOrbit Project Update*\n\nHello Rahul Kumar,\nImportant update for project *${testSelectedProject}*:\nMilestone 2 reached: Frontend components ready for testing.\n\nWorkspace: GEONIXA`;
       case 'test_message':
       default:
-        return `🔔 *WorkOrbit WhatsApp Integration Test*\n\nWorkspace: GEONIXA\nRecipient: Rahul Kumar\nTime: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}\n\n✅ Your WhatsApp Business Platform Cloud API connection is active and operational!`;
+        return `🔔 *WorkOrbit WhatsApp Integration Test*\n\nWorkspace: GEONIXA\nRecipient: Rahul Kumar\nTime: ${previewTime}\n\n✅ Your WhatsApp Business Platform Cloud API connection is active and operational!`;
     }
   };
 
@@ -798,11 +804,11 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                       <span>WorkOrbit Bot</span>
                       <span className="text-[9px] text-slate-400 font-normal">Official Business</span>
                     </div>
-                    <pre className="text-xs text-slate-800 whitespace-pre-wrap font-sans leading-relaxed">
+                    <pre suppressHydrationWarning className="text-xs text-slate-800 whitespace-pre-wrap font-sans leading-relaxed">
                       {getPreviewText()}
                     </pre>
                     <div className="flex items-center justify-end gap-1 text-[10px] text-slate-400 pt-1">
-                      <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span suppressHydrationWarning>{previewTime}</span>
                       <span className="text-blue-500 font-bold">✓✓</span>
                     </div>
                   </div>

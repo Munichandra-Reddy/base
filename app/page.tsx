@@ -53,17 +53,7 @@ export default function Home() {
     email: string;
     fullName: string;
     companyName: string;
-  } | null>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('workorbit_current_user');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {}
-      }
-    }
-    return null;
-  });
+  } | null>(null);
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activities, setActivities] = useState<Activity[]>(initialActivities);
@@ -142,6 +132,14 @@ export default function Home() {
         try {
           const parsed = JSON.parse(savedUnread);
           if (typeof parsed === 'number') setUnreadCount(parsed);
+        } catch (e) {}
+      }
+
+      const savedUser = localStorage.getItem('workorbit_current_user');
+      if (savedUser) {
+        try {
+          const parsed = JSON.parse(savedUser);
+          if (parsed && typeof parsed === 'object') setCurrentUser(parsed);
         } catch (e) {}
       }
 
