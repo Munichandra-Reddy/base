@@ -620,16 +620,16 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                       <div
                         key={proj.id}
                         onClick={() => handleToggleProject(proj.name)}
-                        className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-between cursor-pointer transition-all ${
+                        className={`p-2.5 rounded-lg border text-xs font-semibold flex items-center justify-between cursor-pointer transition-all ${
                           isSelected
-                            ? 'bg-slate-900 text-white border-slate-900 shadow-2xs'
-                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                            ? 'bg-[#0B192C] text-white border-[#0B192C] shadow-xs'
+                            : 'bg-white text-slate-700 border-[#E2E8F0] hover:bg-[#EBF0F5]'
                         }`}
                       >
                         <span className="truncate pr-2">{proj.name}</span>
                         <span
                           className={`w-4 h-4 rounded flex items-center justify-center text-[10px] ${
-                            isSelected ? 'bg-white text-slate-900 font-black' : 'border border-slate-300'
+                            isSelected ? 'bg-white text-[#0B192C] font-black' : 'border border-slate-300'
                           }`}
                         >
                           {isSelected ? '✓' : ''}
@@ -704,7 +704,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                 <button
                   type="submit"
                   disabled={isSavingPrefs}
-                  className="px-6 py-2.5 bg-slate-900 hover:bg-black text-white font-bold text-sm rounded-xl shadow-2xs flex items-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                  className="px-6 py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-sm rounded-md shadow-xs flex items-center gap-2 cursor-pointer transition-all disabled:opacity-50"
                 >
                   {isSavingPrefs ? (
                     <>
@@ -877,7 +877,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
               <button
                 onClick={handleSendTestMessage}
                 disabled={isSendingTest}
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                className="w-full py-3 bg-[#10B981] hover:bg-emerald-600 active:bg-emerald-700 text-white font-extrabold text-sm rounded-md shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
               >
                 {isSendingTest ? (
                   <>
@@ -896,7 +896,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                 href={`https://api.whatsapp.com/send?phone=${encodeURIComponent(testPhone.replace(/[\s\-\(\)]/g, '').replace('+', ''))}&text=${encodeURIComponent(getPreviewText())}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all border border-slate-200/80"
+                className="w-full py-2.5 bg-[#EBF0F5] hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-md flex items-center justify-center gap-2 cursor-pointer transition-all border border-[#E2E8F0]"
                 title="Directly opens WhatsApp Web / App with this notification pre-filled"
               >
                 <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />

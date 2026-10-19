@@ -272,13 +272,13 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex-1 max-w-lg mx-6">
         <button
           onClick={onOpenSearchModal}
-          className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200/90 rounded-full px-4 py-2 flex items-center justify-between text-slate-400 text-sm transition-all shadow-inner group"
+          className="w-full bg-[#EBF0F5] hover:bg-slate-100 border border-[#E2E8F0] rounded-full px-4 py-2 flex items-center justify-between text-slate-400 text-sm transition-all group"
         >
           <div className="flex items-center gap-2.5">
             <SearchIcon className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
             <span className="text-slate-600 font-medium">Search projects, tasks, employees, files...</span>
           </div>
-          <kbd className="hidden sm:inline-flex items-center gap-1 bg-white border border-slate-200 text-slate-500 text-xs font-mono font-semibold px-2 py-0.5 rounded shadow-2xs">
+          <kbd className="hidden sm:inline-flex items-center gap-1 bg-white border border-[#E2E8F0] text-slate-500 text-xs font-mono font-semibold px-2 py-0.5 rounded shadow-2xs">
             ⌘F / Ctrl+K
           </kbd>
         </button>
@@ -288,7 +288,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-3 relative" ref={profileRef}>
         <button
           onClick={onOpenCreateModal}
-          className="px-4 py-2 text-sm font-bold text-white bg-slate-900 hover:bg-black active:bg-slate-800 rounded-xl shadow-sm flex items-center transition-colors"
+          className="px-4 py-2 text-sm font-bold text-white bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] rounded-md shadow-sm flex items-center transition-colors"
         >
           <span>Create New</span>
         </button>

@@ -642,7 +642,7 @@ export default function Home() {
   const pendingTasksCount = tasks.filter((t) => !t.completed).length;
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col bg-slate-50">
+    <div className="h-screen w-screen overflow-hidden flex flex-col bg-[#F1F3F6]">
       {/* Top Header - Fixed at Top */}
       <Header
         onOpenCreateModal={() => setIsCreateModalOpen(true)}

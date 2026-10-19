@@ -3,22 +3,100 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 15, 23, 42;
-  --background-start-rgb: 248, 250, 252;
-  --background-end-rgb: 255, 255, 255;
+  /* 2. Color Palette & Tokens (Core Brand & Layout Colors) */
+  --primary: #0B192C;
+  --sidebar-surface-dark: #15293F;
+  --sidebar-border-line: #1E2E42;
+  --background: #F1F3F6;
+  --card: #FFFFFF;
+  --muted: #EBF0F5;
+  --border: #E2E8F0;
+
+  /* Typography Colors (Hierarchy) */
+  --text-high: #0F172A;
+  --text-medium: #334155;
+  --text-low: #64748B;
+  --border-muted: #CBD5E1;
+
+  /* Semantic Status Colors */
+  --color-success: #10B981;
+  --bg-success: #ECFDF5;
+  --color-warning: #F59E0B;
+  --bg-warning: #FFFBEB;
+  --color-destructive: #EF4444;
+  --bg-destructive: #FEF2F2;
+  --color-info: #2563EB;
+  --bg-info: #EFF6FF;
+  --color-teal: #0D9488;
+  --bg-teal: #F0FDFA;
 }
 
 html {
   font-size: 15px;
-  font-family: var(--font-sans), 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: #f8fafc;
-  font-family: var(--font-sans), 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: var(--text-high);
+  background: var(--background);
+  font-family: var(--font-sans), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 1rem;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Monospace font stack for Data, Code & Currency */
+code, pre, .font-mono {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* 3. Component Patterns: .paper-card */
+.paper-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: 0.5rem;
+}
+
+/* Background Grid Effect: .bg-dotgrid */
+.bg-dotgrid {
+  background-image: radial-gradient(circle, rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Micro-Animations */
+@keyframes marquee-scrolling {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-scrolling {
+  display: flex;
+  width: max-content;
+  animation: marquee-scrolling 25s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer-loader {
+  background: linear-gradient(90deg, #EBF0F5 25%, #F1F3F6 50%, #EBF0F5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes caretBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.caret-blink {
+  animation: caretBlink 1s infinite;
 }
 
 /* Custom smooth scrollbars */
@@ -32,10 +110,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #CBD5E1;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #94A3B8;
 }
