@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import {
   WhatsAppConfig,
   WhatsAppPreferences,
@@ -9,6 +11,66 @@ import {
 const FALLBACK_TOKEN = 'EAAZAVOxdS9QoBS9I5iOqkFK7BZCZBQrDCAFyk4QOWnFjhmjPABs4T8ylq2iilPcTfEEx9PMkgDtGQnkcn9pMw4HiZBlVob8V3P1yZAH9A7JfQg9Dqy795L6uJesvZAnBU1HRpZCYASV40V3ZB4iZATSX1oJkt86y6f3i6P7pUpjw55zJN1tT28BWcgLRMpSZAQ93ZBIWhsYbAOMdZCXmk3ZCBi5j8Lp5SueBzZCAVBWBzElpgVKaMyVWwyYt7820xgI1fBulgZCo0nX8D8gZBhCMWDmWZCVz4';
 const FALLBACK_PHONE_ID = '1280116715195570';
 const FALLBACK_ACCOUNT_ID = '2589369698176046';
+
+// Persistent storage helper for credentials so updates persist across restarts & reloads
+function getCredentialsFilePath(): string {
+  return path.join(process.cwd(), '.whatsapp_credentials.json');
+}
+
+export function loadStoredCredentials(): { token?: string; phoneId?: string; businessAccountId?: string } {
+  try {
+    const credsPath = getCredentialsFilePath();
+    if (fs.existsSync(credsPath)) {
+      const data = JSON.parse(fs.readFileSync(credsPath, 'utf8'));
+      if (typeof data === 'object' && data !== null) {
+        return data;
+      }
+    }
+  } catch (e) {}
+  return {};
+}
+
+export function saveStoredCredentials(creds: { token?: string; phoneId?: string; businessAccountId?: string }) {
+  try {
+    const credsPath = getCredentialsFilePath();
+    const existing = loadStoredCredentials();
+    const updated = { ...existing };
+    if (creds.token && creds.token.trim()) updated.token = creds.token.trim();
+    if (creds.phoneId && creds.phoneId.trim()) updated.phoneId = creds.phoneId.trim();
+    if (creds.businessAccountId && creds.businessAccountId.trim()) updated.businessAccountId = creds.businessAccountId.trim();
+    fs.writeFileSync(credsPath, JSON.stringify(updated, null, 2), 'utf8');
+
+    // Also update .env.local on disk so Next.js env always stays in sync
+    const envPath = path.join(process.cwd(), '.env.local');
+    if (fs.existsSync(envPath)) {
+      let envContent = fs.readFileSync(envPath, 'utf8');
+      if (updated.token) {
+        if (/WHATSAPP_API_TOKEN=.*/.test(envContent)) {
+          envContent = envContent.replace(/WHATSAPP_API_TOKEN=.*/, `WHATSAPP_API_TOKEN="${updated.token}"`);
+        } else {
+          envContent += `\nWHATSAPP_API_TOKEN="${updated.token}"`;
+        }
+      }
+      if (updated.phoneId) {
+        if (/WHATSAPP_PHONE_NUMBER_ID=.*/.test(envContent)) {
+          envContent = envContent.replace(/WHATSAPP_PHONE_NUMBER_ID=.*/, `WHATSAPP_PHONE_NUMBER_ID="${updated.phoneId}"`);
+        } else {
+          envContent += `\nWHATSAPP_PHONE_NUMBER_ID="${updated.phoneId}"`;
+        }
+      }
+      if (updated.businessAccountId) {
+        if (/WHATSAPP_BUSINESS_ACCOUNT_ID=.*/.test(envContent)) {
+          envContent = envContent.replace(/WHATSAPP_BUSINESS_ACCOUNT_ID=.*/, `WHATSAPP_BUSINESS_ACCOUNT_ID="${updated.businessAccountId}"`);
+        } else {
+          envContent += `\nWHATSAPP_BUSINESS_ACCOUNT_ID="${updated.businessAccountId}"`;
+        }
+      }
+      fs.writeFileSync(envPath, envContent, 'utf8');
+    }
+  } catch (e) {
+    console.error('Failed to persist credentials to disk:', e);
+  }
+}
 
 // Default preferences
 const DEFAULT_PREFERENCES: WhatsAppPreferences = {
@@ -43,6 +105,7 @@ interface WhatsAppStore {
 // Global store to persist across Next.js API requests in development/production
 const globalStore = (globalThis as any);
 if (!globalStore.__workorbit_whatsapp_store) {
+  const diskCreds = loadStoredCredentials();
   const envDemo = process.env.WHATSAPP_DEMO_MODE === 'true';
   globalStore.__workorbit_whatsapp_store = {
     preferences: { ...DEFAULT_PREFERENCES },
@@ -50,17 +113,13 @@ if (!globalStore.__workorbit_whatsapp_store) {
     deduplicationCache: new Map<string, number>(),
     liveConnectionVerified: true,
     manualDemoOverride: envDemo,
-    customToken: undefined,
-    customPhoneId: undefined,
-    customAccountId: undefined,
+    customToken: diskCreds.token,
+    customPhoneId: diskCreds.phoneId,
+    customAccountId: diskCreds.businessAccountId,
   } as WhatsAppStore;
 }
 
 const store: WhatsAppStore = globalStore.__workorbit_whatsapp_store;
-if (store) {
-  store.customToken = undefined;
-  store.manualDemoOverride = false;
-}
 
 export function updateCredentials(creds: {
   token?: string;
@@ -69,15 +128,19 @@ export function updateCredentials(creds: {
 }) {
   if (creds.token && creds.token.trim()) {
     store.customToken = creds.token.trim();
+    process.env.WHATSAPP_API_TOKEN = creds.token.trim();
   }
   if (creds.phoneId && creds.phoneId.trim()) {
     store.customPhoneId = creds.phoneId.trim();
+    process.env.WHATSAPP_PHONE_NUMBER_ID = creds.phoneId.trim();
   }
   if (creds.businessAccountId && creds.businessAccountId.trim()) {
     store.customAccountId = creds.businessAccountId.trim();
+    process.env.WHATSAPP_BUSINESS_ACCOUNT_ID = creds.businessAccountId.trim();
   }
   store.manualDemoOverride = false;
   store.liveConnectionVerified = true;
+  saveStoredCredentials(creds);
 }
 
 // Helper to mask secrets like "109823478912345" -> "••••••••2345"
@@ -127,15 +190,16 @@ export function validateAndFormatPhone(phone: string): {
 
 // Check if live Meta WhatsApp credentials are fully configured
 export function getCredentials() {
-  const customToken = store.customToken;
+  const diskCreds = loadStoredCredentials();
+  const customToken = store.customToken || diskCreds.token;
   const envToken = process.env.WHATSAPP_API_TOKEN?.trim();
   const token = customToken || ((envToken && !envToken.includes('your_meta')) ? envToken : FALLBACK_TOKEN);
 
-  const customPhoneId = store.customPhoneId;
+  const customPhoneId = store.customPhoneId || diskCreds.phoneId;
   const envPhoneId = process.env.WHATSAPP_PHONE_NUMBER_ID?.trim();
   const phoneId = customPhoneId || ((envPhoneId && !envPhoneId.includes('your_whatsapp')) ? envPhoneId : FALLBACK_PHONE_ID);
 
-  const customAccountId = store.customAccountId;
+  const customAccountId = store.customAccountId || diskCreds.businessAccountId;
   const envAccountId = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID?.trim();
   const businessAccountId = customAccountId || ((envAccountId && !envAccountId.includes('your_whatsapp')) ? envAccountId : FALLBACK_ACCOUNT_ID);
 
@@ -531,6 +595,8 @@ export async function sendWhatsAppNotification(params: {
 
     let resData = await response.json();
 
+    let usedTemplate = false;
+
     // 2. If direct text is rejected (outside 24-hour window), fall back to official templates (en_US, then en)
     if (!response.ok && (resData?.error?.code === 131047 || resData?.error?.message?.toLowerCase().includes('re-engagement') || resData?.error?.message?.toLowerCase().includes('window'))) {
       for (const langCode of ['en_US', 'en']) {
@@ -558,6 +624,7 @@ export async function sendWhatsAppNotification(params: {
         if (helloResponse.ok) {
           response = helloResponse;
           resData = helloData;
+          usedTemplate = true;
           break;
         }
       }
@@ -642,11 +709,15 @@ export async function sendWhatsAppNotification(params: {
     };
     store.logs.unshift(successLog);
 
+    const deliveryMessage = usedTemplate
+      ? `Real WhatsApp notification successfully delivered to your mobile phone (${formattedPhone}) via official Meta Cloud API! (Template delivered. Reply "Hi" from WhatsApp to open a direct 24-hour session for full custom task text.)`
+      : `Real WhatsApp notification successfully delivered directly to your mobile phone (${formattedPhone}) via official Meta Cloud API!`;
+
     return {
       success: true,
       messageId: realWamid,
       isDemo: false,
-      message: 'Notification successfully delivered via official WhatsApp Business Platform Cloud API.',
+      message: deliveryMessage,
     };
   } catch (err: any) {
     const errorMessage = err?.message || 'Network exception while connecting to Meta Cloud API.';

@@ -66,12 +66,19 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   // Meta Credentials Form State inside Connect Modal
-  const [connectPhoneId, setConnectPhoneId] = useState('');
-  const [connectAccountId, setConnectAccountId] = useState('');
+  const [connectPhoneId, setConnectPhoneId] = useState('1280116715195570');
+  const [connectAccountId, setConnectAccountId] = useState('2589369698176046');
   const [connectToken, setConnectToken] = useState('');
   const [connectAppSecret, setConnectAppSecret] = useState('');
   const [isSubmittingConnect, setIsSubmittingConnect] = useState(false);
-  const [connectFeedback, setConnectFeedback] = useState<string | null>(null);
+  const [connectFeedback, setConnectFeedback] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
+
+  const openConnectModal = () => {
+    setConnectPhoneId('1280116715195570');
+    setConnectAccountId('2589369698176046');
+    setConnectFeedback(null);
+    setIsConnectModalOpen(true);
+  };
 
   // Load WhatsApp config on mount
   const fetchConfig = async () => {
@@ -319,7 +326,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
           </button>
 
           <button
-            onClick={() => setIsConnectModalOpen(true)}
+            onClick={openConnectModal}
             className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-xs flex items-center gap-2.5 cursor-pointer transition-all"
           >
             <WhatsAppIcon className="w-4 h-4 text-white" />
@@ -820,7 +827,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                       <span className="text-[10.5px] text-emerald-800 font-medium">Live Meta API restricted? Reassign WABA assets or update token.</span>
                       <button
                         type="button"
-                        onClick={() => setIsConnectModalOpen(true)}
+                        onClick={openConnectModal}
                         className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[10px] rounded-lg shadow-2xs transition-colors cursor-pointer inline-flex items-center gap-1"
                       >
                         <span>Update Meta Token</span>
@@ -842,7 +849,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                     <div className="flex items-center gap-2 mt-2 pt-1 flex-wrap">
                       <button
                         type="button"
-                        onClick={() => setIsConnectModalOpen(true)}
+                        onClick={openConnectModal}
                         className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] rounded-lg shadow-2xs transition-colors cursor-pointer inline-flex items-center gap-1"
                       >
                         <span>Update Meta Token / Credentials</span>
@@ -860,7 +867,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                 </div>
               )}
 
-              {/* Action Button */}
+              {/* Action Buttons */}
               <button
                 onClick={handleSendTestMessage}
                 disabled={isSendingTest}
@@ -878,6 +885,18 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                   </>
                 )}
               </button>
+
+              <a
+                href={`https://api.whatsapp.com/send?phone=${encodeURIComponent(testPhone.replace(/[\s\-\(\)]/g, '').replace('+', ''))}&text=${encodeURIComponent(getPreviewText())}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all border border-slate-200/80"
+                title="Directly opens WhatsApp Web / App with this notification pre-filled"
+              >
+                <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Open & Send directly in WhatsApp ({testPhone})</span>
+                <ExternalLinkIcon className="w-3 h-3 text-slate-400" />
+              </a>
             </div>
           </div>
         </div>
@@ -1047,7 +1066,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
             <div className="space-y-4 text-xs text-slate-600">
               <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
                 <div className="font-bold text-slate-900 flex items-center justify-between">
-                  <span>How to obtain Meta WhatsApp credentials:</span>
+                  <span>How to obtain or renew your Meta WhatsApp Token:</span>
                   <a
                     href="https://developers.facebook.com"
                     target="_blank"
@@ -1057,11 +1076,12 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                     developers.facebook.com <ExternalLinkIcon className="w-3 h-3" />
                   </a>
                 </div>
+                <div className="p-2.5 bg-amber-50 rounded-lg border border-amber-200 text-amber-900 text-[11px] font-medium leading-relaxed">
+                  <span className="font-bold text-amber-950">Why did Error #190 occur?</span> Meta's temporary test tokens expire every 24 hours. To send messages again, copy a new token from Meta for Developers &gt; WhatsApp &gt; API Setup, or generate a Permanent System User Token.
+                </div>
                 <ol className="list-decimal list-inside space-y-1 text-slate-600 text-[11px] leading-relaxed">
-                  <li>Create a Meta App and choose <strong>Business</strong> type.</li>
-                  <li>Add the <strong>WhatsApp</strong> product to your App.</li>
-                  <li>Copy your <strong>Phone Number ID</strong> and <strong>WhatsApp Business Account ID</strong>.</li>
-                  <li>Generate a Permanent System User <strong>Access Token</strong> with <code className="bg-slate-200 px-1 py-0.5 rounded">whatsapp_business_messaging</code> permission.</li>
+                  <li><strong>Quick Fix (24 Hours):</strong> Go to Meta for Developers &gt; App &gt; <strong>WhatsApp</strong> &gt; <strong>API Setup</strong> &gt; Copy <strong>Temporary access token</strong>.</li>
+                  <li><strong>Permanent Fix (Never Expires):</strong> Go to <a href="https://business.facebook.com/settings/system-users" target="_blank" rel="noopener noreferrer" className="underline font-bold text-slate-800">business.facebook.com</a> &gt; System Users &gt; Create User &gt; Assign WABA Full Control &gt; Generate Token (Never Expires) with <code className="bg-slate-200 px-1 py-0.5 rounded">whatsapp_business_messaging</code>.</li>
                 </ol>
               </div>
 
@@ -1069,12 +1089,11 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
               <div className="p-3 bg-amber-50 border border-amber-200/90 rounded-xl space-y-1.5 text-[11px] text-amber-950">
                 <div className="font-bold flex items-center gap-1.5 text-amber-900">
                   <AlertCircleIcon className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>How to unblock Meta "API access blocked" (Code 200):</span>
+                  <span>Important for Delivery to your Mobile (+919441150546):</span>
                 </div>
                 <ul className="list-disc list-inside space-y-1 text-amber-900 text-[10.5px] leading-relaxed">
-                  <li><strong>Assign Assets:</strong> In Meta Business Settings &gt; Users &gt; System Users &gt; select your System User &gt; click <strong>Assign Assets</strong> &gt; select your WhatsApp Business Account (WABA) &gt; toggle <strong>Full Control / Admin</strong>.</li>
-                  <li><strong>Add Test Phone:</strong> In Meta Developers &gt; WhatsApp &gt; API Setup &gt; under "Manage phone number list", add and verify the recipient mobile number (+91...).</li>
-                  <li><strong>Account Quality:</strong> Check <a href="https://business.facebook.com/accountquality" target="_blank" rel="noopener noreferrer" className="underline font-bold text-amber-800">business.facebook.com/accountquality</a> to ensure your Meta Business account has no unverified policy holds.</li>
+                  <li><strong>Allowed Test Numbers:</strong> Ensure <code className="font-mono bg-amber-100 px-1 rounded font-bold">+919441150546</code> is added and verified in Meta for Developers &gt; WhatsApp &gt; API Setup under "Manage phone number list".</li>
+                  <li><strong>Customer Service Window:</strong> Outside the 24-hr session, Meta sends the official template. Send a quick "Hi" message from your mobile WhatsApp to the test bot number to open direct full-text chat!</li>
                 </ul>
               </div>
 
@@ -1088,9 +1107,10 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                     type="text"
                     value={connectPhoneId}
                     onChange={(e) => setConnectPhoneId(e.target.value)}
-                    placeholder="e.g. 109823478912345"
+                    placeholder="1280116715195570"
                     className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:ring-2 focus:ring-slate-900"
                   />
+                  <p className="text-[10px] text-slate-400 mt-0.5">Default Phone ID: 1280116715195570</p>
                 </div>
 
                 <div>
@@ -1101,31 +1121,42 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                     type="text"
                     value={connectAccountId}
                     onChange={(e) => setConnectAccountId(e.target.value)}
-                    placeholder="e.g. 104782918239012"
+                    placeholder="2589369698176046"
                     className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:ring-2 focus:ring-slate-900"
                   />
+                  <p className="text-[10px] text-slate-400 mt-0.5">Default Account ID: 2589369698176046</p>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
-                    Meta System User Access Token (Bearer Token)
+                    Meta Access Token (Bearer Token)
                   </label>
                   <input
                     type="password"
                     value={connectToken}
                     onChange={(e) => setConnectToken(e.target.value)}
-                    placeholder="EAAG... (stored securely in environment variables)"
+                    placeholder="Paste EAAG... or EAAZ... token here"
                     className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:ring-2 focus:ring-slate-900"
                   />
                   <p className="text-[10px] text-slate-400 mt-1">
-                    Access tokens are never sent to the client and remain protected on the Node.js server.
+                    Saved directly to server environment and automatically tested with Meta Graph API.
                   </p>
                 </div>
               </div>
 
               {connectFeedback && (
-                <div className="p-3 rounded-xl bg-slate-100 text-slate-800 font-bold text-xs">
-                  {connectFeedback}
+                <div
+                  className={`p-3 rounded-xl font-bold text-xs flex items-start gap-2 ${
+                    connectFeedback.type === 'success'
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      : connectFeedback.type === 'error'
+                      ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                      : 'bg-slate-100 text-slate-800 border border-slate-200'
+                  }`}
+                >
+                  {connectFeedback.type === 'success' && <CheckCircle2Icon className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />}
+                  {connectFeedback.type === 'error' && <AlertCircleIcon className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />}
+                  <span>{connectFeedback.text}</span>
                 </div>
               )}
             </div>
@@ -1155,11 +1186,11 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                   disabled={isSubmittingConnect}
                   onClick={async () => {
                     if (!connectToken.trim()) {
-                      setConnectFeedback('Please enter your Meta Access Token (EAAG...).');
+                      setConnectFeedback({ type: 'error', text: 'Please enter your Meta Access Token (EAAG... or EAAZ...).' });
                       return;
                     }
                     setIsSubmittingConnect(true);
-                    setConnectFeedback('Saving and activating credentials...');
+                    setConnectFeedback({ type: 'info', text: 'Verifying with Meta Graph API...' });
                     try {
                       const res = await fetch('/api/whatsapp/config', {
                         method: 'PUT',
@@ -1173,24 +1204,24 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                       });
                       const data = await res.json();
                       if (data.success) {
-                        setConnectFeedback('✓ Live Meta credentials activated successfully!');
+                        setConnectFeedback({ type: 'success', text: '✓ Live Meta credentials verified and activated successfully!' });
                         await fetchConfig();
                         setTimeout(() => {
                           setIsConnectModalOpen(false);
                           setConnectFeedback(null);
                         }, 1200);
                       } else {
-                        setConnectFeedback(data.error || 'Failed to activate credentials.');
+                        setConnectFeedback({ type: 'error', text: data.error || 'Failed to activate credentials.' });
                       }
                     } catch (err: any) {
-                      setConnectFeedback(err?.message || 'Network error saving credentials.');
+                      setConnectFeedback({ type: 'error', text: err?.message || 'Network error saving credentials.' });
                     } finally {
                       setIsSubmittingConnect(false);
                     }
                   }}
                   className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer disabled:opacity-50"
                 >
-                  {isSubmittingConnect ? 'Verifying...' : 'Verify & Save Credentials'}
+                  {isSubmittingConnect ? 'Verifying with Meta...' : 'Verify & Save Credentials'}
                 </button>
               </div>
             </div>
