@@ -1085,6 +1085,9 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                 <div className="p-2.5 bg-amber-50 rounded-lg border border-amber-200 text-amber-900 text-[11px] font-medium leading-relaxed">
                   <span className="font-bold text-amber-950">Why did Error #190 occur?</span> Meta's temporary test tokens expire every 24 hours. To send messages again, copy a new token from Meta for Developers &gt; WhatsApp &gt; API Setup, or generate a Permanent System User Token.
                 </div>
+                <div className="p-2.5 bg-rose-50 rounded-lg border border-rose-200 text-rose-900 text-[11px] font-medium leading-relaxed">
+                  <span className="font-bold text-rose-950">Meta Error #131031 (Business Account locked):</span> If Meta status fails with code 131031, your WABA has an active security/policy hold by Meta. Visit <a href="https://business.facebook.com/business-support-home/" target="_blank" rel="noopener noreferrer" className="underline font-bold text-rose-950">Meta Account Quality (Business Support Home)</a> to request review, or switch to your other WhatsApp account in Meta Business Settings.
+                </div>
                 <ol className="list-decimal list-inside space-y-1 text-slate-600 text-[11px] leading-relaxed">
                   <li><strong>Quick Fix (24 Hours):</strong> Go to Meta for Developers &gt; App &gt; <strong>WhatsApp</strong> &gt; <strong>API Setup</strong> &gt; Copy <strong>Temporary access token</strong>.</li>
                   <li><strong>Permanent Fix (Never Expires):</strong> Go to <a href="https://business.facebook.com/settings/system-users" target="_blank" rel="noopener noreferrer" className="underline font-bold text-slate-800">business.facebook.com</a> &gt; System Users &gt; Create User &gt; Assign WABA Full Control &gt; Generate Token (Never Expires) with <code className="bg-slate-200 px-1 py-0.5 rounded">whatsapp_business_messaging</code>.</li>

@@ -8,7 +8,7 @@ import {
   WhatsAppConnectionStatus,
 } from './types';
 
-const FALLBACK_TOKEN = 'EAAZAVOxdS9QoBSw5co3QIV4noZC5qZBSh0ZAs82iZBmC09TQVq1qcND7I0d7gvLgFjtv3BWcYTfekiHd8f4sHulffHwDZBKQQDBNLeuypk54F90UdNv9vzyZANaJDNhK6qboVvArbkTDoI9xeAy25sSqAlNdZCyN6gkphs6nyxRMlu2crAuv4j9enB4jpn56F3FRDvNibsL3pYk5IkYt9dhZCWg6cZC6McvngwsLCBzThpl6RR0uECt1Gs0wRXFlTpUS5CXCaSGEZBaG7btevCPiK5V';
+const FALLBACK_TOKEN = 'EAAZAVOxdS9QoBSyZAgVGNFlCGgMCkyO2LI4c6ml9OYuc9nyf7aaPhEBHNqh3c1mMZCxsz26jMoKxCG6DNnc3l07KtfWZAGVxVRFfhCRKCZCds7hRAEVRpiNE0SGM86CTjb3j11CEublJjAuwkG4xvtZCXT8XJ6VPLtuaZBoKDbhiup25oX9ip7U0eBP1d9nQwZDZD';
 const FALLBACK_PHONE_ID = '1280116715195570';
 const FALLBACK_ACCOUNT_ID = '2589369698176046';
 
@@ -842,12 +842,31 @@ export function processWebhookPayload(payload: any) {
           const newStatus = statusItem?.status; // 'sent' | 'delivered' | 'read' | 'failed'
 
           if (wamid && newStatus) {
-            const match = store.logs.find((l) => l.wamid === wamid);
+            let match = store.logs.find((l) => l.wamid === wamid);
+            if (!match) {
+              match = {
+                id: `log-${Date.now()}`,
+                wamid,
+                recipientPhone: statusItem?.recipient_id ? `+${statusItem.recipient_id}` : '+919441150546',
+                eventType: 'test_message',
+                templateName: 'hello_world',
+                content: 'WhatsApp Notification Update',
+                status: newStatus,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                isDemo: false,
+              };
+              store.logs.unshift(match);
+            }
             if (match) {
               if (newStatus === 'read' || newStatus === 'delivered' || newStatus === 'sent' || newStatus === 'failed') {
                 match.status = newStatus;
                 if (statusItem?.errors && statusItem.errors.length > 0) {
-                  match.errorMessage = statusItem.errors[0]?.message || 'Webhook reported delivery failure.';
+                  const errObj = statusItem.errors[0];
+                  if (errObj.code === 131031) {
+                    match.errorMessage = `Meta Error #131031 (Business Account locked): WABA account ${value?.metadata?.phone_number_id || '2589369698176046'} has been locked by Meta. Unlock it at https://business.facebook.com/business-support-home/ or switch to your other WABA account.`;
+                  } else {
+                    match.errorMessage = `Meta Error #${errObj.code} (${errObj.title || 'Delivery Failed'}): ${errObj.error_data?.details || errObj.message}`;
+                  }
                 }
               }
             }
