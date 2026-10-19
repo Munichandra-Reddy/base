@@ -570,48 +570,39 @@ export async function sendWhatsAppNotification(params: {
     const endpoint = `https://graph.facebook.com/v20.0/${creds.phoneId}/messages`;
     const recipientWithoutPlus = formattedPhone.replace('+', '');
 
-    // 1. Direct Real Notification Message (Active 24-hour session)
-    // The recipient messaged the test bot ("hi"), opening the 24-hour conversation window.
-    // Real text message delivers the actual WorkOrbit alert directly to the open chat!
-    const textPayload = {
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
-      to: recipientWithoutPlus,
-      type: 'text',
-      text: {
-        preview_url: false,
-        body: content,
-      },
-    };
-
-    let response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${creds.token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(textPayload),
-    });
-
-    let resData = await response.json();
-
+    let response: any;
+    let resData: any;
     let usedTemplate = false;
 
-    // 2. If direct text is rejected (outside 24-hour window), fall back to official templates (en_US, then en)
-    if (!response.ok && (resData?.error?.code === 131047 || resData?.error?.message?.toLowerCase().includes('re-engagement') || resData?.error?.message?.toLowerCase().includes('window'))) {
-      for (const langCode of ['en_US', 'en']) {
-        const helloPayload = {
-          messaging_product: 'whatsapp',
-          recipient_type: 'individual',
-          to: recipientWithoutPlus,
-          type: 'template',
-          template: {
-            name: 'hello_world',
-            language: { code: langCode },
-          },
-        };
+    if (eventType === 'test_message') {
+      // For test notifications on Meta developer numbers, official pre-approved template 'hello_world'
+      // is guaranteed by Meta to deliver to verified test phones outside 24h window
+      const helloPayload = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: recipientWithoutPlus,
+        type: 'template',
+        template: {
+          name: 'hello_world',
+          language: { code: 'en_US' },
+        },
+      };
 
-        const helloResponse = await fetch(endpoint, {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${creds.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(helloPayload),
+      });
+
+      resData = await response.json();
+      usedTemplate = true;
+
+      if (!response.ok) {
+        helloPayload.template.language.code = 'en';
+        const fallbackRes = await fetch(endpoint, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${creds.token}`,
@@ -619,13 +610,81 @@ export async function sendWhatsAppNotification(params: {
           },
           body: JSON.stringify(helloPayload),
         });
+        if (fallbackRes.ok) {
+          response = fallbackRes;
+          resData = await fallbackRes.json();
+        }
+      }
 
-        const helloData = await helloResponse.json();
-        if (helloResponse.ok) {
-          response = helloResponse;
-          resData = helloData;
-          usedTemplate = true;
-          break;
+      // Also dispatch direct text so user sees custom details if chat is active
+      try {
+        const textPayload = {
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: recipientWithoutPlus,
+          type: 'text',
+          text: { preview_url: false, body: content },
+        };
+        await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${creds.token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(textPayload),
+        });
+      } catch (e) {}
+    } else {
+      // Direct text payload for workspace task assignments and updates
+      const textPayload = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: recipientWithoutPlus,
+        type: 'text',
+        text: { preview_url: false, body: content },
+      };
+
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${creds.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(textPayload),
+      });
+
+      resData = await response.json();
+
+      // If direct text is rejected (outside 24-hr customer window), fall back to official template
+      if (!response.ok && (resData?.error?.code === 131047 || resData?.error?.message?.toLowerCase().includes('re-engagement') || resData?.error?.message?.toLowerCase().includes('window'))) {
+        for (const langCode of ['en_US', 'en']) {
+          const helloPayload = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: recipientWithoutPlus,
+            type: 'template',
+            template: {
+              name: 'hello_world',
+              language: { code: langCode },
+            },
+          };
+
+          const helloResponse = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${creds.token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(helloPayload),
+          });
+
+          const helloData = await helloResponse.json();
+          if (helloResponse.ok) {
+            response = helloResponse;
+            resData = helloData;
+            usedTemplate = true;
+            break;
+          }
         }
       }
     }
