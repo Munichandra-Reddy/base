@@ -87,29 +87,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-6 font-sans">
 
-      {/* 2. TOP METRICS CARDS BAR (5 Cards Grid - Compact Sleek Design) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      {/* 2. TOP METRICS CARDS BAR (5 Cards Grid - Ultra-Compact Sleek) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
         {/* Card 1: Total Projects */}
         <div
           onClick={onViewProjects}
-          className="bg-white p-3 rounded-xl border border-[#E2E8F0] shadow-micro hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-8 h-8 rounded-lg bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center group-hover:bg-[#CBD5E1]/40 transition-colors">
-              <FolderIcon className="w-4 h-4" />
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="w-7 h-7 rounded-lg bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center group-hover:bg-[#CBD5E1]/40 transition-colors">
+              <FolderIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[11px] font-bold text-[#64748B] group-hover:text-[#0F172A] transition-colors">
+              <span className="text-[10.5px] font-bold text-[#64748B] group-hover:text-[#0F172A] transition-colors">
                 Total Projects
               </span>
-              <span className="text-[11px] font-bold text-[#CBD5E1]">→</span>
+              <span className="text-[10px] font-bold text-[#CBD5E1]">→</span>
             </div>
           </div>
           <div>
-            <div className="text-xl font-black text-[#0F172A] mb-0.5">
+            <div className="text-lg font-black text-[#0F172A] leading-tight">
               {stats.projectsTotal || 6}
             </div>
-            <div className="text-[10.5px] font-bold text-[#334155] flex items-center gap-1">
+            <div className="text-[10px] font-bold text-[#334155] flex items-center gap-1 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
               <span>{stats.projectsActive || 2} Active</span>
             </div>
@@ -119,24 +119,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 2: Total Tasks */}
         <div
           onClick={onViewAllTasks}
-          className="bg-white p-3 rounded-xl border border-[#E2E8F0] shadow-micro hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-8 h-8 rounded-lg bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center group-hover:bg-[#CBD5E1]/40 transition-colors">
-              <CheckSquareIcon className="w-4 h-4" />
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="w-7 h-7 rounded-lg bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center group-hover:bg-[#CBD5E1]/40 transition-colors">
+              <CheckSquareIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[11px] font-bold text-[#64748B] group-hover:text-[#0F172A] transition-colors">
+              <span className="text-[10.5px] font-bold text-[#64748B] group-hover:text-[#0F172A] transition-colors">
                 Total Tasks
               </span>
-              <span className="text-[11px] font-bold text-[#CBD5E1]">→</span>
+              <span className="text-[10px] font-bold text-[#CBD5E1]">→</span>
             </div>
           </div>
           <div>
-            <div className="text-xl font-black text-[#0F172A] mb-0.5">
+            <div className="text-lg font-black text-[#0F172A] leading-tight">
               {stats.todosTotal || 120}
             </div>
-            <div className="text-[10.5px] font-bold text-[#334155] flex items-center gap-1">
+            <div className="text-[10px] font-bold text-[#334155] flex items-center gap-1 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
               <span>{stats.todosInProgress || 35} In Progress</span>
             </div>
@@ -146,24 +146,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 3: Due Soon */}
         <div
           onClick={onViewCalendar}
-          className="bg-white p-3 rounded-xl border border-[#E2E8F0] shadow-micro hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-8 h-8 rounded-lg bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center group-hover:bg-[#CBD5E1]/40 transition-colors">
-              <ClockIcon className="w-4 h-4" />
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="w-7 h-7 rounded-lg bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center group-hover:bg-[#CBD5E1]/40 transition-colors">
+              <ClockIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[11px] font-bold text-[#64748B] group-hover:text-[#0F172A] transition-colors">
+              <span className="text-[10.5px] font-bold text-[#64748B] group-hover:text-[#0F172A] transition-colors">
                 Due Soon
               </span>
-              <span className="text-[11px] font-bold text-[#CBD5E1]">→</span>
+              <span className="text-[10px] font-bold text-[#CBD5E1]">→</span>
             </div>
           </div>
           <div>
-            <div className="text-xl font-black text-[#0F172A] mb-0.5">
+            <div className="text-lg font-black text-[#0F172A] leading-tight">
               {stats.dueSoon || 8}
             </div>
-            <div className="text-[10.5px] font-bold text-[#334155] flex items-center gap-1">
+            <div className="text-[10px] font-bold text-[#334155] flex items-center gap-1 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
               <span>This Week</span>
             </div>
@@ -173,24 +173,24 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 4: Team Online */}
         <div
           onClick={onViewEmployees}
-          className="bg-white p-3 rounded-xl border border-[#E2E8F0] shadow-micro hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-8 h-8 rounded-lg bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center group-hover:bg-[#CBD5E1]/40 transition-colors">
-              <UsersIcon className="w-4 h-4" />
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="w-7 h-7 rounded-lg bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center group-hover:bg-[#CBD5E1]/40 transition-colors">
+              <UsersIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[11px] font-bold text-[#64748B] group-hover:text-[#0F172A] transition-colors">
+              <span className="text-[10.5px] font-bold text-[#64748B] group-hover:text-[#0F172A] transition-colors">
                 Team Online
               </span>
-              <span className="text-[11px] font-bold text-[#CBD5E1]">→</span>
+              <span className="text-[10px] font-bold text-[#CBD5E1]">→</span>
             </div>
           </div>
           <div>
-            <div className="text-xl font-black text-[#0F172A] mb-0.5">
+            <div className="text-lg font-black text-[#0F172A] leading-tight">
               {stats.teamOnline || 7}
             </div>
-            <div className="text-[10.5px] font-bold text-[#334155] flex items-center gap-1">
+            <div className="text-[10px] font-bold text-[#334155] flex items-center gap-1 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
               <span>Active Now</span>
             </div>
@@ -198,19 +198,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Card 5: Overdue Tasks */}
-        <div className="bg-white p-3 rounded-xl border border-[#E2E8F0] shadow-micro hover:shadow-md transition-all flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-8 h-8 rounded-lg bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center">
-              <CalendarIcon className="w-4 h-4" />
+        <div className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro transition-all flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="w-7 h-7 rounded-lg bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center">
+              <CalendarIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[11px] font-bold text-[#64748B]">Overdue Tasks</span>
-              <span className="text-[11px] font-bold text-[#CBD5E1]">→</span>
+              <span className="text-[10.5px] font-bold text-[#64748B]">Overdue Tasks</span>
+              <span className="text-[10px] font-bold text-[#CBD5E1]">→</span>
             </div>
           </div>
           <div>
-            <div className="text-xl font-black text-[#0F172A] mb-0.5">15</div>
-            <div className="text-[10.5px] font-bold text-[#EF4444] flex items-center gap-1">
+            <div className="text-lg font-black text-[#0F172A] leading-tight">15</div>
+            <div className="text-[10px] font-bold text-[#EF4444] flex items-center gap-1 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" />
               <span>Needs Attention</span>
             </div>
