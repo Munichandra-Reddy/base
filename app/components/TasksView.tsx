@@ -27,18 +27,18 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
   });
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-7 font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white p-7 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900">My Tasks & To-Dos</h1>
-          <p className="text-slate-500 text-base font-medium mt-1">
+          <h1 className="text-3xl font-extrabold text-[#0F172A]">My Tasks & To-Dos</h1>
+          <p className="text-[#64748B] text-base font-medium mt-1">
             Track, filter, and complete assigned tasks across all active Basecamp projects.
           </p>
         </div>
         <button
           onClick={onOpenAddTask}
-          className="px-5 py-3 bg-slate-900 hover:bg-black text-white font-bold text-base rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
+          className="px-5 py-3 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-base rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
         >
           <PlusIcon className="w-5 h-5" />
           <span>New Task</span>
@@ -46,14 +46,14 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
       </div>
 
       {/* Filter Tabs & Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-white p-4.5 rounded-2xl border border-slate-200 shadow-xs">
-        <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-white p-4.5 rounded-2xl border border-[#E2E8F0] shadow-micro">
+        <div className="flex items-center gap-2 bg-[#EBF0F5] p-1.5 rounded-xl">
           {(['all', 'pending', 'completed'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
               className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all ${
-                filter === tab ? 'bg-white text-slate-900 shadow-xs font-extrabold' : 'text-slate-600 hover:text-slate-900'
+                filter === tab ? 'bg-[#0B192C] text-white shadow-xs font-extrabold' : 'text-[#64748B] hover:text-[#0F172A]'
               }`}
             >
               {tab}
@@ -66,15 +66,15 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
           placeholder="Filter tasks by name or project..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900 w-full sm:w-72"
+          className="px-4 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-base text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B192C] w-full sm:w-72"
         />
       </div>
 
       {/* Tasks List Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-        <div className="divide-y divide-slate-100">
+      <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden shadow-micro">
+        <div className="divide-y divide-[#E2E8F0]">
           {filteredTasks.length === 0 ? (
-            <div className="p-14 text-center text-slate-400">
+            <div className="p-14 text-center text-[#64748B]">
               <CheckSquareIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p className="text-base font-semibold">No tasks found matching your filter criteria.</p>
             </div>
@@ -83,14 +83,14 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
               <div
                 key={task.id}
                 onClick={() => onToggleTask(task.id)}
-                className="flex items-center justify-between p-5 hover:bg-slate-50/70 transition-colors cursor-pointer gap-4"
+                className="flex items-center justify-between p-5 hover:bg-[#EBF0F5] transition-colors cursor-pointer gap-4"
               >
                 <div className="flex items-start gap-4 min-w-0">
                   <div
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 mt-0.5 ${
                       task.completed
-                        ? 'bg-slate-900 border-slate-900 text-white'
-                        : 'border-slate-300 hover:border-slate-800 bg-white'
+                        ? 'bg-[#10B981] border-[#10B981] text-white'
+                        : 'border-[#CBD5E1] hover:border-[#0B192C] bg-white'
                     }`}
                   >
                     {task.completed && (
@@ -102,12 +102,12 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
                   <div className="min-w-0">
                     <h4
                       className={`text-lg font-bold transition-colors truncate ${
-                        task.completed ? 'line-through text-slate-400' : 'text-slate-900'
+                        task.completed ? 'line-through text-[#64748B]' : 'text-[#0F172A]'
                       }`}
                     >
                       {task.title}
                     </h4>
-                    <div className="flex items-center gap-3 text-xs font-semibold text-slate-400 mt-1">
+                    <div className="flex items-center gap-3 text-xs font-semibold text-[#64748B] mt-1">
                       <span>Due {task.dueDate || 'Soon'}</span>
                       <span>•</span>
                       <span>Assigned to {task.assignedTo}</span>
@@ -120,16 +120,16 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
                     <span
                       className={`w-20 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wider inline-flex items-center justify-center text-center ${
                         task.priority === 'high'
-                          ? 'bg-slate-900 text-white'
+                          ? 'bg-[#FEF2F2] text-[#EF4444] border border-[#EF4444]/20'
                           : task.priority === 'medium'
-                          ? 'bg-slate-200 text-slate-800'
-                          : 'bg-slate-100 text-slate-700'
+                          ? 'bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/20'
+                          : 'bg-[#F0FDFA] text-[#0D9488] border border-[#0D9488]/20'
                       }`}
                     >
                       {task.priority}
                     </span>
                   )}
-                  <span className="w-44 py-1.5 px-3 rounded-lg text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200 inline-flex items-center justify-center text-center truncate">
+                  <span className="w-44 py-1.5 px-3 rounded-lg text-xs font-bold bg-[#EBF0F5] text-[#334155] border border-[#E2E8F0] inline-flex items-center justify-center text-center truncate">
                     {task.project}
                   </span>
                 </div>

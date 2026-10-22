@@ -125,10 +125,10 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 z-30 shadow-xs">
+    <header className="h-16 bg-[#0B192C] border-b border-[#1E2E42] px-6 flex items-center justify-between shrink-0 z-30 shadow-sm text-white">
       {/* Left section: Clean Title + Workspace Dropdown */}
       <div className="flex items-center gap-4">
-        <div className="flex items-center font-black text-2xl text-slate-900 tracking-tight cursor-pointer">
+        <div className="flex items-center font-black text-2xl text-white tracking-tight cursor-pointer">
           <span>WorkOrbit</span>
         </div>
 
@@ -140,12 +140,12 @@ export const Header: React.FC<HeaderProps> = ({
               setIsWorkspaceOpen(!isWorkspaceOpen);
               setIsProfileOpen(false);
             }}
-            className="flex items-center gap-2.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 font-semibold hover:bg-slate-100 active:bg-slate-200 transition-colors cursor-pointer ml-2 focus:outline-none"
+            className="flex items-center gap-2.5 px-3 py-1.5 bg-[#15293F] border border-[#1E2E42] rounded-xl text-sm text-white font-semibold hover:bg-[#1E2E42] transition-colors cursor-pointer ml-2 focus:outline-none"
           >
             <span suppressHydrationWarning>{displayWorkspaceName}</span>
             <span
               suppressHydrationWarning
-              className="text-[10px] font-extrabold tracking-wider px-1.5 py-0.5 rounded bg-slate-200 text-slate-900 uppercase border border-slate-300"
+              className="text-[10px] font-extrabold tracking-wider px-1.5 py-0.5 rounded bg-[#0B192C] text-slate-200 uppercase border border-[#1E2E42]"
             >
               {activeWorkspace.plan}
             </span>
@@ -163,41 +163,41 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Workspace Dropdown Menu */}
           {isWorkspaceOpen && (
-            <div className="absolute left-2 top-12 w-72 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-              <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <div className="absolute left-2 top-12 w-72 bg-white rounded-2xl border border-[#E2E8F0] shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-slate-900">
+              <div className="p-3 border-b border-[#E2E8F0] bg-[#F1F3F6] flex items-center justify-between">
+                <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider">
                   Workspaces ({workspaces.length})
                 </span>
                 <button
                   type="button"
                   onClick={() => setIsCreatingWorkspace(!isCreatingWorkspace)}
-                  className="text-xs font-bold text-slate-900 hover:text-slate-700 flex items-center gap-1 hover:underline"
+                  className="text-xs font-bold text-[#0B192C] hover:text-slate-700 flex items-center gap-1 hover:underline"
                 >
                   {isCreatingWorkspace ? 'Cancel' : '+ Add Workspace'}
                 </button>
               </div>
 
               {isCreatingWorkspace && (
-                <form onSubmit={handleAddWorkspace} className="p-3 space-y-3 bg-slate-100/60 border-b border-slate-100">
-                  <div className="text-xs font-bold text-slate-700">Create New Workspace</div>
+                <form onSubmit={handleAddWorkspace} className="p-3 space-y-3 bg-[#F1F3F6]/60 border-b border-[#E2E8F0]">
+                  <div className="text-xs font-bold text-[#0F172A]">Create New Workspace</div>
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-500 mb-1">Workspace Name</label>
+                    <label className="block text-[11px] font-medium text-[#64748B] mb-1">Workspace Name</label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. Acme Corp"
                       value={newWorkspaceName}
                       onChange={(e) => setNewWorkspaceName(e.target.value)}
-                      className="w-full text-xs px-3 py-1.5 bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 font-medium"
+                      className="w-full text-xs px-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:border-[#0B192C] focus:ring-1 focus:ring-[#0B192C] font-medium text-[#0F172A]"
                       autoFocus
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-500 mb-1">Plan</label>
+                    <label className="block text-[11px] font-medium text-[#64748B] mb-1">Plan</label>
                     <select
                       value={newWorkspacePlan}
                       onChange={(e) => setNewWorkspacePlan(e.target.value)}
-                      className="w-full text-xs px-2 py-1.5 bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-slate-800 font-medium"
+                      className="w-full text-xs px-2 py-1.5 bg-white border border-[#E2E8F0] rounded-lg focus:outline-none focus:border-[#0B192C] font-medium text-[#0F172A]"
                     >
                       <option value="PRO">PRO</option>
                       <option value="FREE">FREE</option>
@@ -208,13 +208,13 @@ export const Header: React.FC<HeaderProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsCreatingWorkspace(false)}
-                      className="px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-200/60 rounded-md"
+                      className="px-2.5 py-1 text-xs font-semibold text-[#64748B] hover:bg-[#EBF0F5] rounded-md"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-3 py-1 text-xs font-bold text-white bg-slate-900 hover:bg-black rounded-md shadow-2xs"
+                      className="px-3 py-1 text-xs font-bold text-white bg-[#0B192C] hover:bg-[#15293F] rounded-md shadow-2xs"
                     >
                       Add Workspace
                     </button>
@@ -232,18 +232,18 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => handleSelectWorkspace(ws)}
                       className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between transition-colors ${
                         isSelected
-                          ? 'bg-slate-200 text-slate-900 font-bold border border-slate-300'
-                          : 'hover:bg-slate-50 text-slate-700 font-semibold'
+                          ? 'bg-[#EBF0F5] text-[#0F172A] font-bold border border-[#CBD5E1]'
+                          : 'hover:bg-[#F1F3F6] text-[#334155] font-semibold'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <span className="truncate text-xs">{ws.name}</span>
-                        <span className="text-[9px] font-black tracking-wider px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 uppercase border border-slate-200">
+                        <span className="text-[9px] font-black tracking-wider px-1.5 py-0.2 rounded bg-[#EBF0F5] text-[#64748B] uppercase border border-[#E2E8F0]">
                           {ws.plan}
                         </span>
                       </div>
                       {isSelected && (
-                        <svg className="w-4 h-4 text-slate-900 shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4 text-[#0B192C] shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                         </svg>
                       )}
@@ -253,11 +253,11 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
 
               {!isCreatingWorkspace && (
-                <div className="p-2 border-t border-slate-100 bg-slate-50/60">
+                <div className="p-2 border-t border-[#E2E8F0] bg-[#F1F3F6]/60">
                   <button
                     type="button"
                     onClick={() => setIsCreatingWorkspace(true)}
-                    className="w-full py-2 px-3 text-xs font-bold text-slate-900 hover:bg-slate-100 border border-dashed border-slate-400 rounded-xl flex items-center justify-center gap-1.5 transition-colors"
+                    className="w-full py-2 px-3 text-xs font-bold text-[#0F172A] hover:bg-[#EBF0F5] border border-dashed border-[#CBD5E1] rounded-xl flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <span>Add New Workspace</span>
                   </button>
@@ -272,13 +272,13 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex-1 max-w-lg mx-6">
         <button
           onClick={onOpenSearchModal}
-          className="w-full bg-[#EBF0F5] hover:bg-slate-100 border border-[#E2E8F0] rounded-full px-4 py-2 flex items-center justify-between text-slate-400 text-sm transition-all group"
+          className="w-full bg-[#15293F] hover:bg-[#1E2E42] border border-[#1E2E42] rounded-full px-4 py-2 flex items-center justify-between text-slate-300 text-sm transition-all group"
         >
           <div className="flex items-center gap-2.5">
-            <SearchIcon className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
-            <span className="text-slate-600 font-medium">Search projects, tasks, employees, files...</span>
+            <SearchIcon className="w-4 h-4 text-slate-400 group-hover:text-slate-200" />
+            <span className="text-slate-300 font-medium">Search projects, tasks, employees, files...</span>
           </div>
-          <kbd className="hidden sm:inline-flex items-center gap-1 bg-white border border-[#E2E8F0] text-slate-500 text-xs font-mono font-semibold px-2 py-0.5 rounded shadow-2xs">
+          <kbd className="hidden sm:inline-flex items-center gap-1 bg-[#0B192C] border border-[#1E2E42] text-slate-300 text-xs font-mono font-semibold px-2 py-0.5 rounded shadow-2xs">
             ⌘F / Ctrl+K
           </kbd>
         </button>
@@ -288,7 +288,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-3 relative" ref={profileRef}>
         <button
           onClick={onOpenCreateModal}
-          className="px-4 py-2 text-sm font-bold text-white bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] rounded-md shadow-sm flex items-center transition-colors"
+          className="px-4 py-2 text-sm font-bold text-[#0B192C] bg-white hover:bg-slate-100 active:bg-slate-200 rounded-md shadow-sm flex items-center transition-colors"
         >
           <span>Create New</span>
         </button>
@@ -296,11 +296,11 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Bell Notifications */}
         <button
           onClick={onToggleNotifications}
-          className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors"
+          className="relative p-2 text-slate-300 hover:text-white hover:bg-[#15293F] rounded-full transition-colors"
         >
           <BellIcon className="w-5 h-5" />
           {unreadNotifications > 0 && (
-            <span className="absolute top-1 right-1 w-4 h-4 bg-slate-900 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+            <span className="absolute top-1 right-1 w-4 h-4 bg-[#EF4444] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
               {unreadNotifications}
             </span>
           )}
@@ -312,14 +312,14 @@ export const Header: React.FC<HeaderProps> = ({
             setIsProfileOpen(!isProfileOpen);
             setIsWorkspaceOpen(false);
           }}
-          className="flex items-center gap-2 pl-2 border-l border-slate-200 cursor-pointer hover:opacity-90 select-none py-1"
+          className="flex items-center gap-2 pl-2 border-l border-[#1E2E42] cursor-pointer hover:opacity-90 select-none py-1"
         >
-          <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-900 font-extrabold flex items-center justify-center text-sm shadow-xs border border-slate-300">
+          <div className="w-8 h-8 rounded-full bg-[#15293F] text-white font-extrabold flex items-center justify-center text-sm shadow-xs border border-[#1E2E42]">
             {userAvatar}
           </div>
           <div className="hidden md:block text-left leading-tight">
-            <div className="font-bold text-xs text-slate-900">{userName}</div>
-            <div className="text-[11px] text-slate-500 font-medium">Workspace Admin</div>
+            <div className="font-bold text-xs text-white">{userName}</div>
+            <div className="text-[11px] text-slate-400 font-medium">Workspace Admin</div>
           </div>
           <svg className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -328,44 +328,44 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Profile Dropdown Menu */}
         {isProfileOpen && (
-          <div className="absolute right-0 top-14 w-60 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-            <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+          <div className="absolute right-0 top-14 w-60 bg-white rounded-2xl border border-[#E2E8F0] shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-slate-900">
+            <div className="p-4 border-b border-[#E2E8F0] bg-[#F1F3F6]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-slate-900 text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
+                <div className="w-9 h-9 rounded-full bg-[#0B192C] text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
                   {userAvatar}
                 </div>
                 <div className="min-w-0">
-                  <div className="font-bold text-sm text-slate-900 truncate">{userName}</div>
-                  <div className="text-xs text-slate-500 truncate">{userEmail}</div>
+                  <div className="font-bold text-sm text-[#0F172A] truncate">{userName}</div>
+                  <div className="text-xs text-[#64748B] truncate">{userEmail}</div>
                 </div>
               </div>
               <div className="mt-2">
-                <span className="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded bg-slate-200 text-slate-900 uppercase border border-slate-300">
+                <span className="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded bg-[#EBF0F5] text-[#0F172A] uppercase border border-[#CBD5E1]">
                   Workspace Admin
                 </span>
               </div>
             </div>
 
-            <div className="p-1.5 space-y-0.5 text-xs font-semibold text-slate-700">
+            <div className="p-1.5 space-y-0.5 text-xs font-semibold text-[#334155]">
               <button
                 onClick={() => setIsProfileOpen(false)}
-                className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F1F3F6] flex items-center gap-2.5 transition-colors"
               >
                 <span>👤 Profile & Settings</span>
               </button>
 
               <button
                 onClick={() => setIsProfileOpen(false)}
-                className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
+                className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F1F3F6] flex items-center gap-2.5 transition-colors"
               >
                 <span>⚙️ Workspace Preferences</span>
               </button>
 
-              <div className="my-1 border-t border-slate-100" />
+              <div className="my-1 border-t border-[#E2E8F0]" />
 
               <button
                 onClick={handleLogoutClick}
-                className="w-full text-left px-3 py-2 rounded-xl text-slate-900 hover:bg-slate-100 flex items-center gap-2.5 transition-colors font-bold"
+                className="w-full text-left px-3 py-2 rounded-xl text-[#EF4444] hover:bg-[#FEF2F2] flex items-center gap-2.5 transition-colors font-bold"
               >
                 <span>🚪 Log out</span>
               </button>

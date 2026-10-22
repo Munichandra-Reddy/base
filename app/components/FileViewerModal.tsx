@@ -3,7 +3,7 @@
 import React from 'react';
 import { FileItem } from '@/lib/types';
 import { FileIcon, DownloadIcon } from './Icons';
-import { getDirectBlobUrl, getDirectFileBlobUrl } from '@/lib/fileUtils';
+import { getDirectFileBlobUrl } from '@/lib/fileUtils';
 
 interface FileViewerModalProps {
   file: FileItem | null;
@@ -41,22 +41,22 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
     switch (file.type) {
       case 'image':
         return (
-          <div className="bg-slate-900 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[260px] text-white">
-            <div className="w-full max-h-[300px] overflow-hidden rounded-xl bg-slate-800 flex items-center justify-center border border-slate-700 p-4">
+          <div className="bg-[#0B192C] rounded-2xl p-6 flex flex-col items-center justify-center min-h-[260px] text-white">
+            <div className="w-full max-h-[300px] overflow-hidden rounded-xl bg-[#15293F] flex items-center justify-center border border-[#1E2E42] p-4">
               <img
                 src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop"
                 alt={file.name}
                 className="max-h-[240px] w-auto object-contain rounded-lg shadow-md"
               />
             </div>
-            <p className="text-xs text-slate-400 mt-3 font-medium">Image Preview • {file.name}</p>
+            <p className="text-xs text-[#CBD5E1] mt-3 font-medium">Image Preview • {file.name}</p>
           </div>
         );
 
       case 'code':
         return (
-          <div className="bg-slate-900 text-slate-100 rounded-2xl p-5 font-mono text-xs overflow-x-auto min-h-[240px] border border-slate-800">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-slate-400 text-[11px]">
+          <div className="bg-[#0B192C] text-slate-100 rounded-2xl p-5 font-mono text-xs overflow-x-auto min-h-[240px] border border-[#1E2E42]">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#1E2E42] text-[#64748B] text-[11px]">
               <span>{file.name}</span>
               <span>JSON / REST Spec</span>
             </div>
@@ -75,40 +75,40 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
 
       case 'pdf':
         return (
-          <div className="bg-slate-100 rounded-2xl p-5 border border-slate-200 space-y-4">
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="bg-[#F1F3F6] rounded-2xl p-5 border border-[#E2E8F0] space-y-4">
+            <div className="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-xs space-y-4">
+              <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shadow-2xs">
+                  <div className="w-10 h-10 rounded-xl bg-[#0B192C] text-white flex items-center justify-center font-black text-xs shadow-2xs">
                     PDF
                   </div>
                   <div>
-                    <h4 className="text-sm font-extrabold text-slate-900">{file.name}</h4>
-                    <p className="text-xs text-slate-500 font-semibold">{file.project} Deliverable</p>
+                    <h4 className="text-sm font-extrabold text-[#0F172A]">{file.name}</h4>
+                    <p className="text-xs text-[#64748B] font-semibold">{file.project} Deliverable</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={handleOpenDocument}
-                  className="px-3.5 py-2 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-3.5 py-2 bg-[#0B192C] hover:bg-[#15293F] text-white text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   <span>Open Document ↗</span>
                 </button>
               </div>
 
               {/* Document Pages Preview Box */}
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-3 text-slate-800">
-                <div className="flex items-center justify-between font-bold text-slate-900 border-b border-slate-200 pb-2">
+              <div className="p-4 bg-[#F1F3F6] rounded-xl border border-[#E2E8F0] text-xs space-y-3 text-[#334155]">
+                <div className="flex items-center justify-between font-bold text-[#0F172A] border-b border-[#E2E8F0] pb-2">
                   <span>📄 PDF Document View (Verified)</span>
-                  <span className="text-[10px] bg-slate-900 text-white px-2 py-0.5 rounded font-extrabold uppercase">
+                  <span className="text-[10px] bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/25 px-2 py-0.5 rounded font-extrabold uppercase">
                     Ready
                   </span>
                 </div>
-                <div className="space-y-2 font-medium text-slate-700 leading-relaxed">
+                <div className="space-y-2 font-medium text-[#334155] leading-relaxed">
                   <p><strong>Document Name:</strong> {file.name}</p>
                   <p><strong>Project Space:</strong> {file.project}</p>
                   <p><strong>Uploaded By:</strong> {file.uploadedBy} ({file.uploadedAt})</p>
-                  <div className="p-3 bg-white rounded-lg border border-slate-200 text-[11px] text-slate-700 font-sans">
+                  <div className="p-3 bg-white rounded-lg border border-[#E2E8F0] text-[11px] text-[#334155] font-sans">
                     Document loaded successfully. Click <strong>"Open Document ↗"</strong> to view full document in tab or <strong>"Download File"</strong> below to save to device.
                   </div>
                 </div>
@@ -119,35 +119,35 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
 
       default:
         return (
-          <div className="bg-slate-50 rounded-2xl p-8 text-center border border-slate-200 min-h-[220px] flex flex-col items-center justify-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-slate-200 text-slate-900 flex items-center justify-center">
-              <FileIcon className="w-8 h-8 text-slate-900" />
+          <div className="bg-[#F1F3F6] rounded-2xl p-8 text-center border border-[#E2E8F0] min-h-[220px] flex flex-col items-center justify-center space-y-2">
+            <div className="w-14 h-14 rounded-2xl bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center">
+              <FileIcon className="w-8 h-8 text-[#0F172A]" />
             </div>
-            <h4 className="text-base font-bold text-slate-900">{file.name}</h4>
-            <p className="text-xs text-slate-500 font-medium">Standard Project Document</p>
+            <h4 className="text-base font-bold text-[#0F172A]">{file.name}</h4>
+            <p className="text-xs text-[#64748B] font-medium">Standard Project Document</p>
           </div>
         );
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B192C]/50 backdrop-blur-xs p-4 overflow-y-auto font-sans">
+      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-6">
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="p-6 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-[#0B192C] text-white flex items-center justify-center font-bold">
               <FileIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-extrabold text-slate-900 truncate max-w-xs">{file.name}</h3>
-              <span className="text-xs font-bold text-slate-700">{file.project}</span>
+              <h3 className="text-lg font-extrabold text-[#0F172A] truncate max-w-xs">{file.name}</h3>
+              <span className="text-xs font-bold text-[#334155]">{file.project}</span>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[#EBF0F5] hover:bg-[#CBD5E1]/40 text-[#64748B] hover:text-[#0F172A] font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
           >
             ✕
           </button>
@@ -158,32 +158,32 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
           {getFilePreviewContent()}
 
           {/* File Metadata Details */}
-          <div className="grid grid-cols-3 gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 text-xs font-semibold text-slate-600">
+          <div className="grid grid-cols-3 gap-3 p-4 bg-[#F1F3F6] rounded-2xl border border-[#E2E8F0] text-xs font-semibold text-[#334155]">
             <div>
-              <span className="text-[10px] text-slate-400 block font-bold uppercase">Size</span>
-              <span className="text-slate-900 font-bold">{file.size}</span>
+              <span className="text-[10px] text-[#64748B] block font-bold uppercase">Size</span>
+              <span className="text-[#0F172A] font-bold">{file.size}</span>
             </div>
             <div>
-              <span className="text-[10px] text-slate-400 block font-bold uppercase">Uploaded By</span>
-              <span className="text-slate-900 font-bold">{file.uploadedBy}</span>
+              <span className="text-[10px] text-[#64748B] block font-bold uppercase">Uploaded By</span>
+              <span className="text-[#0F172A] font-bold">{file.uploadedBy}</span>
             </div>
             <div>
-              <span className="text-[10px] text-slate-400 block font-bold uppercase">Uploaded Date</span>
-              <span className="text-slate-900 font-bold">{file.uploadedAt}</span>
+              <span className="text-[10px] text-[#64748B] block font-bold uppercase">Uploaded Date</span>
+              <span className="text-[#0F172A] font-bold">{file.uploadedAt}</span>
             </div>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="p-5 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <span className="text-xs font-bold uppercase px-3 py-1 rounded-md bg-slate-200 text-slate-900">
+        <div className="p-5 border-t border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
+          <span className="text-xs font-bold uppercase px-3 py-1 rounded-md bg-[#EBF0F5] text-[#334155] border border-[#E2E8F0]">
             {file.type}
           </span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-bold text-[#64748B] hover:bg-[#EBF0F5] rounded-xl transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -191,7 +191,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
             <button
               type="button"
               onClick={handleDownloadFile}
-              className="px-5 py-2 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="px-5 py-2 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <DownloadIcon className="w-4 h-4" />
               <span>Download File</span>

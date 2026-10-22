@@ -53,12 +53,43 @@ code, pre, .font-mono {
   font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-/* 3. Component Patterns: .paper-card */
+/* Component Patterns: .paper-card */
 .paper-card {
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border-radius: 0.5rem;
+}
+
+/* Semantic Status Indicator Badges */
+.status-badge-success {
+  background-color: #ECFDF5;
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.status-badge-warning {
+  background-color: #FFFBEB;
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.status-badge-destructive {
+  background-color: #FEF2F2;
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.status-badge-info {
+  background-color: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.status-badge-teal {
+  background-color: #F0FDFA;
+  color: #0D9488;
+  border: 1px solid rgba(13, 148, 136, 0.25);
 }
 
 /* Background Grid Effect: .bg-dotgrid */
