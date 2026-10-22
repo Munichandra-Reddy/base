@@ -118,20 +118,17 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
-                  {task.priority && (
-                    <span
-                      className={`w-20 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wider inline-flex items-center justify-center text-center ${
-                        task.priority === 'high'
-                          ? 'bg-[#FEF2F2] text-[#EF4444] border border-[#EF4444]/20'
-                          : task.priority === 'medium'
-                          ? 'bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/20'
-                          : 'bg-[#F0FDFA] text-[#0D9488] border border-[#0D9488]/20'
-                      }`}
-                    >
-                      {task.priority}
-                    </span>
-                  )}
-                  <span className="w-44 py-1.5 px-3 rounded-lg text-xs font-bold bg-[#EBF0F5] text-[#334155] border border-[#E2E8F0] inline-flex items-center justify-center text-center truncate">
+                  <span
+                    className={`min-w-[130px] max-w-[190px] py-1.5 px-3 rounded-lg text-xs font-bold border inline-flex items-center justify-center text-center truncate transition-colors ${
+                      task.priority === 'high'
+                        ? 'bg-[#FEF2F2] text-[#EF4444] border-[#EF4444]/25'
+                        : task.priority === 'medium'
+                        ? 'bg-[#FFFBEB] text-[#F59E0B] border-[#F59E0B]/25'
+                        : task.priority === 'low'
+                        ? 'bg-[#F0FDFA] text-[#0D9488] border-[#0D9488]/25'
+                        : 'bg-[#EBF0F5] text-[#334155] border-[#E2E8F0]'
+                    }`}
+                  >
                     {task.project}
                   </span>
                 </div>

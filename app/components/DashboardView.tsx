@@ -834,14 +834,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {filteredTasks.slice(0, 5).map((task, index) => {
                 const priority = task.priority || (index === 0 ? 'high' : index < 3 ? 'medium' : 'low');
                 let prioBadge = 'bg-[#F0FDFA] text-[#0D9488] border-[#0D9488]/20';
-                let prioLabel = 'Low';
 
                 if (priority === 'high') {
                   prioBadge = 'bg-[#FEF2F2] text-[#EF4444] border-[#EF4444]/20';
-                  prioLabel = 'High';
                 } else if (priority === 'medium') {
                   prioBadge = 'bg-[#FFFBEB] text-[#F59E0B] border-[#F59E0B]/20';
-                  prioLabel = 'Medium';
                 }
 
                 const dueDateStr = task.dueDate || 'Oct 14, 2026';
@@ -875,18 +872,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           {task.title}
                         </div>
                         <div className="text-[10px] font-medium text-[#64748B] truncate mt-0.5">
-                          {task.project}
+                          {dueDateStr}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-[10px] font-semibold text-[#64748B] hidden sm:inline flex items-center gap-1">
-                        <CalendarIcon className="w-3 h-3 text-[#CBD5E1] inline" />
-                        <span>{dueDateStr}</span>
-                      </span>
-                      <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${prioBadge}`}>
-                        {prioLabel}
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${prioBadge}`}>
+                        {task.project}
                       </span>
                     </div>
                   </div>
