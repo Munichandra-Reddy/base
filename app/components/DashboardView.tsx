@@ -606,14 +606,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </table>
               </div>
             </div>
-                          Active
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
 
             {/* Card 4: Task Status & Team Workload */}
             <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-micro space-y-5">
