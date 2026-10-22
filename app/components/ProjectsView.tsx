@@ -1204,7 +1204,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         {/* Right Dropdowns & Filter Controls */}
         <div className="flex items-center gap-2 flex-wrap">
           {/* Show Filter Dropdown */}
-          <div className="flex items-center gap-1 px-3 py-1.5 bg-[#EBF0F5] border border-[#E2E8F0] rounded-lg text-xs text-[#334155] relative hover:bg-slate-200 transition-colors">
+          <div className="flex items-center gap-1 px-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg text-xs text-[#334155] relative hover:bg-slate-50 transition-colors shadow-2xs">
             <span className="text-[#64748B] font-normal">Show:</span>
             <select
               value={showFilter}
@@ -1221,7 +1221,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           </div>
 
           {/* Sort Filter Dropdown */}
-          <div className="flex items-center gap-1 px-3 py-1.5 bg-[#EBF0F5] border border-[#E2E8F0] rounded-lg text-xs text-[#334155] relative hover:bg-slate-200 transition-colors">
+          <div className="flex items-center gap-1 px-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg text-xs text-[#334155] relative hover:bg-slate-50 transition-colors shadow-2xs">
             <span className="text-[#64748B] font-normal">Sort:</span>
             <select
               value={sortFilter}
@@ -1238,7 +1238,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           </div>
 
           {/* Group Filter Dropdown */}
-          <div className="flex items-center gap-1 px-3 py-1.5 bg-[#EBF0F5] border border-[#E2E8F0] rounded-lg text-xs text-[#334155] relative hover:bg-slate-200 transition-colors">
+          <div className="flex items-center gap-1 px-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg text-xs text-[#334155] relative hover:bg-slate-50 transition-colors shadow-2xs">
             <span className="text-[#64748B] font-normal">Group:</span>
             <select
               value={groupFilter}

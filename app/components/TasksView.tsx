@@ -47,13 +47,15 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
 
       {/* Filter Tabs & Search */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-white p-4.5 rounded-2xl border border-[#E2E8F0] shadow-micro">
-        <div className="flex items-center gap-2 bg-[#EBF0F5] p-1.5 rounded-xl">
+        <div className="flex items-center gap-1.5 bg-white border border-[#E2E8F0] p-1.5 rounded-xl shadow-2xs">
           {(['all', 'pending', 'completed'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all ${
-                filter === tab ? 'bg-[#0B192C] text-white shadow-xs font-extrabold' : 'text-[#64748B] hover:text-[#0F172A]'
+              className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all cursor-pointer ${
+                filter === tab
+                  ? 'bg-[#0B192C] text-white shadow-xs font-extrabold'
+                  : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
               }`}
             >
               {tab}
@@ -66,7 +68,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
           placeholder="Filter tasks by name or project..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="px-4 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-base text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B192C] w-full sm:w-72"
+          className="px-4 py-2.5 bg-white border border-[#E2E8F0] rounded-xl text-base text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B192C] w-full sm:w-72"
         />
       </div>
 

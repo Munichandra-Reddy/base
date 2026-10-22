@@ -796,11 +796,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Filter Pills */}
-            <div className="flex items-center gap-1.5 bg-[#EBF0F5] p-1 rounded-xl text-xs font-bold">
+            <div className="flex items-center gap-1 bg-white border border-[#E2E8F0] p-1 rounded-xl text-xs font-bold shadow-2xs">
               <button
                 onClick={() => setTaskFilter('all')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
-                  taskFilter === 'all' ? 'bg-[#0B192C] text-white shadow-2xs font-extrabold' : 'text-[#64748B] hover:text-[#0F172A]'
+                  taskFilter === 'all'
+                    ? 'bg-[#0B192C] text-white shadow-2xs font-extrabold'
+                    : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
                 }`}
               >
                 All
@@ -808,7 +810,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 onClick={() => setTaskFilter('pending')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
-                  taskFilter === 'pending' ? 'bg-[#0B192C] text-white shadow-2xs font-extrabold' : 'text-[#64748B] hover:text-[#0F172A]'
+                  taskFilter === 'pending'
+                    ? 'bg-[#0B192C] text-white shadow-2xs font-extrabold'
+                    : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
                 }`}
               >
                 Pending
@@ -816,7 +820,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 onClick={() => setTaskFilter('completed')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
-                  taskFilter === 'completed' ? 'bg-[#0B192C] text-white shadow-2xs font-extrabold' : 'text-[#64748B] hover:text-[#0F172A]'
+                  taskFilter === 'completed'
+                    ? 'bg-[#0B192C] text-white shadow-2xs font-extrabold'
+                    : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
                 }`}
               >
                 Completed

@@ -118,14 +118,14 @@ export const CalendarView: React.FC = () => {
             <span>Add Event</span>
           </button>
 
-          <div className="flex items-center gap-1.5 bg-[#EBF0F5] p-1.5 rounded-xl">
+          <div className="flex items-center gap-1.5 bg-white border border-[#E2E8F0] p-1.5 rounded-xl shadow-2xs">
             <button
               type="button"
               onClick={() => setViewMode('month')}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
                 viewMode === 'month'
                   ? 'bg-[#0B192C] shadow-xs text-white font-extrabold'
-                  : 'text-[#64748B] hover:text-[#0F172A]'
+                  : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
               }`}
             >
               Month
@@ -133,10 +133,10 @@ export const CalendarView: React.FC = () => {
             <button
               type="button"
               onClick={() => setViewMode('week')}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
                 viewMode === 'week'
                   ? 'bg-[#0B192C] shadow-xs text-white font-extrabold'
-                  : 'text-[#64748B] hover:text-[#0F172A]'
+                  : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
               }`}
             >
               Week

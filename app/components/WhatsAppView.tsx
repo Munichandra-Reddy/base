@@ -381,19 +381,23 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
 
           <div className="mt-4 pt-3 border-t border-[#E2E8F0] flex items-center justify-between">
             <span className="text-xs font-bold text-[#334155]">Operating Mode:</span>
-            <div className="flex items-center gap-1.5 bg-[#EBF0F5] p-1 rounded-lg border border-[#E2E8F0]">
+            <div className="flex items-center gap-1.5 bg-white p-1 rounded-lg border border-[#E2E8F0] shadow-2xs">
               <button
                 onClick={() => handleToggleDemoMode(true)}
-                className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all ${
-                  isDemo ? 'bg-[#0B192C] text-white shadow-micro font-extrabold' : 'text-[#64748B] hover:text-[#0F172A]'
+                className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                  isDemo
+                    ? 'bg-[#0B192C] text-white shadow-micro font-extrabold'
+                    : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
                 }`}
               >
                 Demo Mode
               </button>
               <button
                 onClick={() => handleToggleDemoMode(false)}
-                className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all ${
-                  !isDemo ? 'bg-[#0B192C] text-white shadow-micro font-extrabold' : 'text-[#64748B] hover:text-[#0F172A]'
+                className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                  !isDemo
+                    ? 'bg-[#0B192C] text-white shadow-micro font-extrabold'
+                    : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
                 }`}
               >
                 Live API
