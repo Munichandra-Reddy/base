@@ -691,6 +691,7 @@ export default function Home() {
               onViewEmployees={() => handleTabChange('people')}
               onViewProjects={() => handleTabChange('projects')}
               onViewCalendar={() => handleTabChange('calendar')}
+              onViewActivity={() => handleTabChange('reports')}
               currentUser={currentUser}
             />
           )}
@@ -737,7 +738,7 @@ export default function Home() {
             <CheckinsView checkins={checkins} onAddCheckIn={handleAddCheckIn} />
           )}
 
-          {activeTab === 'reports' && <ReportsView />}
+          {activeTab === 'reports' && <ReportsView activities={activities} />}
         </main>
       </div>
 

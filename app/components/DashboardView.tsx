@@ -23,6 +23,7 @@ interface DashboardViewProps {
   onViewEmployees?: () => void;
   onViewProjects?: () => void;
   onViewCalendar?: () => void;
+  onViewActivity?: () => void;
   currentUser?: { email: string; fullName: string; companyName: string } | null;
 }
 
@@ -36,6 +37,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onViewEmployees,
   onViewProjects,
   onViewCalendar,
+  onViewActivity,
   currentUser,
 }) => {
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
@@ -872,7 +874,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-micro space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-extrabold text-[#0F172A] text-base">Recent Activity</h3>
-              <button className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer">
+              <button
+                type="button"
+                onClick={onViewActivity}
+                className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
+              >
                 View All
               </button>
             </div>

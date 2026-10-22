@@ -1,8 +1,16 @@
 'use client';
 
 import React from 'react';
+import { Activity } from '@/lib/types';
+import { initialActivities } from '@/lib/data';
 
-export const ReportsView: React.FC = () => {
+interface ReportsViewProps {
+  activities?: Activity[];
+}
+
+export const ReportsView: React.FC<ReportsViewProps> = ({ activities }) => {
+  const activityList = activities && activities.length > 0 ? activities : initialActivities;
+
   return (
     <div className="space-y-7 font-sans">
       <div className="bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro">
@@ -48,6 +56,49 @@ export const ReportsView: React.FC = () => {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* All Workspace Activities Stream */}
+      <div className="bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+          <div>
+            <h3 className="text-xl font-extrabold text-[#0F172A]">All Workspace Activity</h3>
+            <p className="text-xs text-[#64748B] font-medium mt-0.5">
+              Complete timeline of tasks, projects, employees, and team actions
+            </p>
+          </div>
+          <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-[#EBF0F5] text-[#334155] border border-[#E2E8F0]">
+            {activityList.length} Total Activities
+          </span>
+        </div>
+
+        <div className="divide-y divide-[#E2E8F0]">
+          {activityList.map((act) => (
+            <div key={act.id} className="py-3.5 flex items-start gap-3.5 text-xs">
+              <div
+                className={`w-9 h-9 rounded-full ${act.avatarBg} font-extrabold flex items-center justify-center shrink-0 shadow-2xs text-xs mt-0.5`}
+              >
+                {act.userAvatar}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[#334155] leading-snug break-words">
+                  <span className="font-bold text-[#0F172A] text-sm">{act.userName}</span>{' '}
+                  <span className="text-[#64748B]">{act.action}</span>{' '}
+                  <span className="font-semibold text-[#0F172A]">"{act.target}"</span>
+                </div>
+                <div className="text-[11px] font-medium text-[#64748B] mt-1 flex items-center gap-2">
+                  <span>{act.timeAgo}</span>
+                  {act.timestamp && (
+                    <>
+                      <span>•</span>
+                      <span>{act.timestamp}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
