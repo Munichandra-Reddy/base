@@ -90,7 +90,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     <div className="space-y-6 font-sans">
 
       {/* 2. TOP METRICS CARDS BAR (5 Cards Grid - Ultra-Attractive Vibrant Polish) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 max-w-4xl">
         {/* Card 1: Total Projects */}
         <div
           onClick={onViewProjects}
@@ -101,7 +101,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <FolderIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-indigo-600 transition-colors">
+              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-indigo-600 transition-colors whitespace-nowrap">
                 Total Projects
               </span>
               <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all">→</span>
@@ -111,9 +111,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-lg font-black text-[#0F172A] leading-tight">
               {stats.projectsTotal || 6}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-              <span>{stats.projectsActive || 2} Active</span>
+            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] shrink-0" />
+              <span className="whitespace-nowrap">{stats.projectsActive || 2} Active</span>
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <CheckSquareIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-emerald-600 transition-colors">
+              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-emerald-600 transition-colors whitespace-nowrap">
                 Total Tasks
               </span>
               <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all">→</span>
@@ -138,9 +138,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-lg font-black text-[#0F172A] leading-tight">
               {stats.todosTotal || 120}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
-              <span>{stats.todosInProgress || 35} In Progress</span>
+            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] shrink-0" />
+              <span className="whitespace-nowrap">{stats.todosInProgress || 35} In Progress</span>
             </div>
           </div>
         </div>
@@ -155,7 +155,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <ClockIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-amber-600 transition-colors">
+              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-amber-600 transition-colors whitespace-nowrap">
                 Due Soon
               </span>
               <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all">→</span>
@@ -165,9 +165,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-lg font-black text-[#0F172A] leading-tight">
               {stats.dueSoon || 8}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
-              <span>This Week</span>
+            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shrink-0" />
+              <span className="whitespace-nowrap">{stats.dueSoon ? 'This Week' : 'None'}</span>
             </div>
           </div>
         </div>
@@ -182,7 +182,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <UsersIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-sky-600 transition-colors">
+              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-sky-600 transition-colors whitespace-nowrap">
                 Team Online
               </span>
               <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-sky-600 group-hover:translate-x-0.5 transition-all">→</span>
@@ -192,9 +192,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-lg font-black text-[#0F172A] leading-tight">
               {stats.teamOnline || 7}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-              <span>Active Now</span>
+            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse shrink-0" />
+              <span className="whitespace-nowrap">Active Now</span>
             </div>
           </div>
         </div>
@@ -209,7 +209,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <CalendarIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-rose-600 transition-colors">
+              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-rose-600 transition-colors whitespace-nowrap">
                 Overdue Tasks
               </span>
               <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-rose-600 group-hover:translate-x-0.5 transition-all">→</span>
@@ -217,9 +217,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div>
             <div className="text-lg font-black text-[#0F172A] leading-tight">15</div>
-            <div className="text-[9.5px] font-semibold text-[#EF4444] flex items-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" />
-              <span>Needs Attention</span>
+            <div className="text-[9.5px] font-semibold text-[#EF4444] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444] shrink-0" />
+              <span className="whitespace-nowrap">Needs Attention</span>
             </div>
           </div>
         </div>
