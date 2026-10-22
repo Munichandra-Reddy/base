@@ -8,7 +8,7 @@ import {
   WhatsAppConnectionStatus,
 } from './types';
 
-const FALLBACK_TOKEN = 'EAAZAVOxdS9QoBS04t5UCFMMKYYcRjHZCawppZCQuZA7wN4qxZAitIVZCW0sos7w01co6J28Y6BtkRR6ZBP0bXCUWonAjKROSYlBPjLHFAZBZCZBWRPiSfZCfzZCzS1UxHg3I154yL1FWqZAitKOQGAoss3w4eSVklYAaBcmje1vcwKyyZCXR7hwZCvowfCpBmjZCW1TZAUGfUYIK5LsZBe2Flm9lK2KXcZBvr7ZCK86ZAbrbUDrcX28gVQZAVQZBqnc5NbsUabVwZCA3SqZB6BMaLm035AXbIHNZCIvNjm';
+const FALLBACK_TOKEN = 'EAAZAVOxdS9QoBS2e8ZAibEM0GM3TQvHgXZAeIZCWpTAWVMLX8X3PMO2SKiwj4aVFxaK68YwPn9FxTJpMwr4C7YkZCUqTmwfDpixgh0tgXsEChBg1nP2Ams9v8xzrQ49DwfFxRAyZAZBvA0UhRSZCZBBhm3qAMvqBal2ClgkVzKBl2RhM2WtLbu1CAoQvHmgFoHKqXZB15ZA3x0KCvDytZBQI4obEqtwr3INeNEmhlDLEV9DTbtLKVzExtqHypyFldMndfOt5ebX2C0575aLRgExiTZB5ZBUgZDZD';
 const FALLBACK_PHONE_ID = '1280116715195570';
 const FALLBACK_ACCOUNT_ID = '2589369698176046';
 
@@ -694,19 +694,28 @@ export async function sendWhatsAppNotification(params: {
       const isApiBlocked =
         errorMsg.toLowerCase().includes('blocked') ||
         (resData?.error?.code === 200 && resData?.error?.type === 'OAuthException');
+      const isTokenExpired =
+        resData?.error?.code === 190 ||
+        errorMsg.toLowerCase().includes('expired') ||
+        errorMsg.toLowerCase().includes('session has expired') ||
+        errorMsg.toLowerCase().includes('access token');
 
       if (resData?.error?.code === 131030) {
         errorMsg = `Meta Error (#131030): Phone number ${formattedPhone} is not in your allowed test numbers list. Please add and verify it in Meta for Developers under "Manage phone number list" first.`;
-      } else if (resData?.error?.code === 190) {
+      } else if (isTokenExpired) {
         errorMsg = `Meta Error (#190): Access token expired or invalid. Please generate a new token in Meta for Developers.`;
       } else if (isApiBlocked) {
         errorMsg = `Meta Error (API access blocked): Meta has temporarily restricted API access for this token or WhatsApp Business Account (OAuthException #200). In Meta Business Settings > Users > System Users, ensure your System User is assigned Full Control of the WhatsApp Business Account asset, or check Account Quality in Meta Business Suite.`;
       }
 
-      // If Meta platform has blocked API access, gracefully route through Sandbox Simulation
-      // so workspace tasks, deadlines, and test notifications succeed without interruption
-      if (isApiBlocked) {
+      // If Meta token is expired (#190) or API access is blocked (#200), gracefully route through Sandbox Simulation
+      // so workspace tasks, deadlines, and test notifications succeed cleanly without interruption
+      if (isApiBlocked || isTokenExpired) {
         const fallbackWamid = `wamid.SANDBOX_${Date.now()}_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const fallbackReason = isTokenExpired
+          ? 'Meta Access Token (#190) is expired. Safely delivered via Sandbox Simulation.'
+          : 'Live Meta API access is blocked by Meta. Safely delivered via Sandbox Simulation.';
+
         const fallbackLog: WhatsAppMessageLog = {
           id: `log-${Date.now()}`,
           wamid: fallbackWamid,
@@ -715,7 +724,7 @@ export async function sendWhatsAppNotification(params: {
           templateName,
           content,
           status: 'simulated',
-          errorMessage: 'Live Meta API access is blocked by Meta. Safely delivered via Sandbox Simulation.',
+          errorMessage: fallbackReason,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           isDemo: true,
           metadata: { ...data, referenceId, metaError: errorMsg },
@@ -727,7 +736,9 @@ export async function sendWhatsAppNotification(params: {
           messageId: fallbackWamid,
           isDemo: true,
           error: errorMsg,
-          message: 'Dispatched via Sandbox Simulation: Live Meta Cloud API access is currently restricted by Meta (API access blocked). Notification safely recorded in workspace history.',
+          message: isTokenExpired
+            ? 'Dispatched via Sandbox Simulation: Meta Access Token is expired (#190). Notification recorded in workspace history. Click "Open & Send directly in WhatsApp" below or update token in settings.'
+            : 'Dispatched via Sandbox Simulation: Live Meta Cloud API access is currently restricted by Meta (API access blocked). Notification safely recorded in workspace history.',
         };
       }
 
@@ -781,8 +792,17 @@ export async function sendWhatsAppNotification(params: {
   } catch (err: any) {
     const errorMessage = err?.message || 'Network exception while connecting to Meta Cloud API.';
     const isApiBlocked = errorMessage.toLowerCase().includes('blocked');
-    if (isApiBlocked) {
+    const isTokenExpired =
+      errorMessage.toLowerCase().includes('expired') ||
+      errorMessage.toLowerCase().includes('session has expired') ||
+      errorMessage.toLowerCase().includes('190');
+
+    if (isApiBlocked || isTokenExpired) {
       const fallbackWamid = `wamid.SANDBOX_${Date.now()}_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      const fallbackReason = isTokenExpired
+        ? 'Meta Access Token (#190) is expired. Safely delivered via Sandbox Simulation.'
+        : 'Live Meta API access is blocked by Meta. Safely delivered via Sandbox Simulation.';
+
       const fallbackLog: WhatsAppMessageLog = {
         id: `log-${Date.now()}`,
         wamid: fallbackWamid,
@@ -791,7 +811,7 @@ export async function sendWhatsAppNotification(params: {
         templateName,
         content,
         status: 'simulated',
-        errorMessage: 'Live Meta API access is blocked by Meta. Safely delivered via Sandbox Simulation.',
+        errorMessage: fallbackReason,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isDemo: true,
         metadata: { ...data, referenceId },
@@ -802,7 +822,9 @@ export async function sendWhatsAppNotification(params: {
         success: true,
         messageId: fallbackWamid,
         isDemo: true,
-        message: 'Dispatched via Sandbox Simulation: Live Meta Cloud API access is blocked by Meta.',
+        message: isTokenExpired
+          ? 'Dispatched via Sandbox Simulation: Meta Access Token is expired (#190). Notification recorded in workspace history.'
+          : 'Dispatched via Sandbox Simulation: Live Meta Cloud API access is blocked by Meta.',
       };
     }
     const errorLog: WhatsAppMessageLog = {

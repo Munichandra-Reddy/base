@@ -139,6 +139,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
   // Toggle Demo Mode
   const handleToggleDemoMode = async (enableDemo: boolean) => {
     try {
+      setTestResult({ status: 'idle', message: '' });
       const res = await fetch('/api/whatsapp/config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -828,9 +829,13 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                       ID: {testResult.messageId}
                     </div>
                   )}
-                  {testResult.message?.toLowerCase().includes('blocked') && (
+                  {(testResult.message?.toLowerCase().includes('blocked') || testResult.message?.includes('190') || testResult.message?.toLowerCase().includes('expired')) && (
                     <div className="mt-2 pt-2 border-t border-emerald-200/80 flex items-center justify-between gap-2 flex-wrap">
-                      <span className="text-[10.5px] text-emerald-800 font-medium">Live Meta API restricted? Reassign WABA assets or update token.</span>
+                      <span className="text-[10.5px] text-emerald-800 font-medium">
+                        {testResult.message?.includes('190') || testResult.message?.toLowerCase().includes('expired')
+                          ? 'Token Expired (#190) — Handled via Sandbox. Update token or click WhatsApp below.'
+                          : 'Live Meta API restricted? Reassign WABA assets or update token.'}
+                      </span>
                       <button
                         type="button"
                         onClick={openConnectModal}
@@ -896,12 +901,12 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                 href={`https://api.whatsapp.com/send?phone=${encodeURIComponent(testPhone.replace(/[\s\-\(\)]/g, '').replace('+', ''))}&text=${encodeURIComponent(getPreviewText())}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2.5 bg-[#EBF0F5] hover:bg-slate-200 text-[#0F172A] font-bold text-xs rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all border border-[#E2E8F0]"
+                className="w-full py-2.5 px-3 bg-[#EBF0F5] hover:bg-slate-200 text-[#0F172A] font-bold text-xs rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all border border-[#E2E8F0]"
                 title="Directly opens WhatsApp Web / App with this notification pre-filled"
               >
-                <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Open & Send directly in WhatsApp ({testPhone})</span>
-                <ExternalLinkIcon className="w-3 h-3 text-[#64748B]" />
+                <WhatsAppIcon className="w-4 h-4 text-[#10B981] shrink-0" />
+                <span className="truncate">Open &amp; Send directly in WhatsApp ({testPhone || '+919441150546'})</span>
+                <ExternalLinkIcon className="w-3.5 h-3.5 text-[#64748B] shrink-0" />
               </a>
             </div>
           </div>
