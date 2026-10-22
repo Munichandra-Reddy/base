@@ -879,35 +879,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             <div className="space-y-3.5">
               {activities.slice(0, 5).map((act) => (
-                <div key={act.id} className="flex items-start justify-between gap-3 text-xs">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div
-                      className={`w-8 h-8 rounded-full ${act.avatarBg} font-extrabold flex items-center justify-center shrink-0 shadow-2xs text-xs mt-0.5`}
-                    >
-                      {act.userAvatar}
+                <div key={act.id} className="flex items-start gap-3 text-xs">
+                  <div
+                    className={`w-8 h-8 rounded-full ${act.avatarBg} font-extrabold flex items-center justify-center shrink-0 shadow-2xs text-xs mt-0.5`}
+                  >
+                    {act.userAvatar}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[#334155] leading-snug break-words">
+                      <span className="font-bold text-[#0F172A]">{act.userName}</span>{' '}
+                      <span className="text-[#64748B]">{act.action}</span>{' '}
+                      <span className="font-semibold text-[#0F172A]">"{act.target}"</span>
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-[#334155] leading-snug break-words">
-                        <span className="font-bold text-[#0F172A]">{act.userName}</span>{' '}
-                        <span className="text-[#64748B]">{act.action}</span>{' '}
-                        <span className="font-semibold text-[#0F172A]">"{act.target}"</span>
-                      </div>
-                      <div className="text-[10px] font-medium text-[#64748B] mt-0.5">
-                        {act.timeAgo}
-                      </div>
+                    <div className="text-[10px] font-medium text-[#64748B] mt-0.5">
+                      {act.timeAgo}
                     </div>
                   </div>
-                  <span className="text-[#CBD5E1] shrink-0 mt-1">
-                    {act.action.includes('completed') ? (
-                      <CheckSquareIcon className="w-4 h-4 text-[#10B981]" />
-                    ) : act.action.includes('comment') ? (
-                      <ChatIcon className="w-4 h-4 text-[#2563EB]" />
-                    ) : act.action.includes('file') || act.action.includes('uploaded') ? (
-                      <FileIcon className="w-4 h-4 text-[#F59E0B]" />
-                    ) : (
-                      <FolderIcon className="w-4 h-4 text-[#334155]" />
-                    )}
-                  </span>
                 </div>
               ))}
             </div>
