@@ -481,12 +481,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {/* Row 1 */}
                     <tr className="hover:bg-[#EBF0F5] transition-colors">
                       <td className="py-2.5 font-bold text-[#0F172A] whitespace-nowrap pr-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shrink-0 shadow-2xs">
-                            <FolderIcon className="w-3.5 h-3.5" />
-                          </div>
-                          <span className="truncate max-w-[125px]">E-Commerce Website</span>
-                        </div>
+                        <span className="truncate max-w-[125px]">E-Commerce Website</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
@@ -507,12 +502,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {/* Row 2 */}
                     <tr className="hover:bg-[#EBF0F5] transition-colors">
                       <td className="py-2.5 font-bold text-[#0F172A] whitespace-nowrap pr-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shrink-0 shadow-2xs">
-                            <FolderIcon className="w-3.5 h-3.5" />
-                          </div>
-                          <span className="truncate max-w-[125px]">Mobile App v2</span>
-                        </div>
+                        <span className="truncate max-w-[125px]">Mobile App v2</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
@@ -533,12 +523,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {/* Row 3 */}
                     <tr className="hover:bg-[#EBF0F5] transition-colors">
                       <td className="py-2.5 font-bold text-[#0F172A] whitespace-nowrap pr-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shrink-0 shadow-2xs">
-                            <FolderIcon className="w-3.5 h-3.5" />
-                          </div>
-                          <span className="truncate max-w-[125px]">Marketing Campaign Q4</span>
-                        </div>
+                        <span className="truncate max-w-[125px]">Marketing Campaign Q4</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
@@ -559,12 +544,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {/* Row 4 */}
                     <tr className="hover:bg-[#EBF0F5] transition-colors">
                       <td className="py-2.5 font-bold text-[#0F172A] whitespace-nowrap pr-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shrink-0 shadow-2xs">
-                            <FolderIcon className="w-3.5 h-3.5" />
-                          </div>
-                          <span className="truncate max-w-[125px]">HR Management System</span>
-                        </div>
+                        <span className="truncate max-w-[125px]">HR Management System</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
@@ -585,12 +565,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {/* Row 5 */}
                     <tr className="hover:bg-[#EBF0F5] transition-colors">
                       <td className="py-2.5 font-bold text-[#0F172A] whitespace-nowrap pr-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-lg bg-indigo-50 border border-indigo-100/80 text-indigo-600 flex items-center justify-center shrink-0 shadow-2xs">
-                            <FolderIcon className="w-3.5 h-3.5" />
-                          </div>
-                          <span className="truncate max-w-[125px]">Cloud Migration</span>
-                        </div>
+                        <span className="truncate max-w-[125px]">Cloud Migration</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
