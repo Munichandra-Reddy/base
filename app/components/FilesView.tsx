@@ -21,7 +21,6 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro">
         <div>
           <h1 className="text-3xl font-extrabold text-[#0F172A]">Project Docs & Files</h1>
-          <p className="text-[#64748B] text-base font-medium mt-1">Centralized document repository and asset storage.</p>
         </div>
         <button
           onClick={() => setIsUploadModalOpen(true)}
@@ -44,9 +43,6 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
               <div className="w-12 h-12 rounded-2xl bg-[#EBF0F5] text-[#0F172A] group-hover:bg-[#0B192C] group-hover:text-white transition-colors flex items-center justify-center font-bold">
                 <FileIcon className="w-6 h-6" />
               </div>
-              <span className="text-xs font-bold uppercase px-2.5 py-1 rounded-md bg-[#EBF0F5] text-[#334155] tracking-wider border border-[#E2E8F0]">
-                {file.type}
-              </span>
             </div>
 
             <div className="mb-3">
