@@ -16,7 +16,6 @@ import { CreateModal } from './components/CreateModal';
 import { SearchModal } from './components/SearchModal';
 import { NotificationPanel } from './components/NotificationPanel';
 import { AuthView } from './components/AuthView';
-import { AdminView } from './components/AdminView';
 
 import {
   initialStats,
@@ -198,7 +197,6 @@ export default function Home() {
         'people',
         'checkins',
         'reports',
-        'admin',
       ];
 
       if (e.state && e.state.tab && validTabs.includes(e.state.tab)) {
@@ -229,7 +227,6 @@ export default function Home() {
           'people',
           'checkins',
           'reports',
-          'admin',
         ];
         if (validTabs.includes(hash as NavTab)) {
           setActiveTab(hash as NavTab);
@@ -631,7 +628,6 @@ export default function Home() {
         onToggleNotifications={() => setIsNotificationsOpen(!isNotificationsOpen)}
         unreadNotifications={unreadCount}
         onLogout={handleLogout}
-        onNavigateToAdmin={() => handleTabChange('admin')}
         currentUser={currentUser}
       />
 
@@ -719,14 +715,6 @@ export default function Home() {
           )}
 
           {activeTab === 'reports' && <ReportsView activities={activities} />}
-
-          {activeTab === 'admin' && (
-            <AdminView
-              people={people}
-              onOpenAddEmployee={() => setIsCreateModalOpen(true)}
-              currentUser={currentUser}
-            />
-          )}
         </main>
       </div>
 
