@@ -100,8 +100,8 @@ export const subscribeToEmployees = (callback: (people: Person[]) => void) => {
         const peopleList: Person[] = [];
 
         snapshot.docs.forEach((d) => {
-          const data = d.data() as Person;
-          const email = (data.email || '').toLowerCase().trim();
+          const data = d.data();
+          const email = String(data.email || '').toLowerCase().trim();
           const isDummy =
             dummyIds.includes(d.id) ||
             email === 'cr7156816@gmail.com' ||
@@ -112,7 +112,7 @@ export const subscribeToEmployees = (callback: (people: Person[]) => void) => {
               deleteDoc(doc(db, 'employees', d.id)).catch(() => {});
             } catch (e) {}
           } else {
-            peopleList.push({ id: d.id, ...data });
+            peopleList.push({ ...data, id: d.id } as Person);
           }
         });
 
