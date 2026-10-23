@@ -78,6 +78,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
   // UI Toggles & Feedback
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isResetSending, setIsResetSending] = useState(false);
@@ -88,6 +92,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     setMode(newMode);
     setErrorMessage(null);
     setSuccessMessage(null);
+    setNewPassword('');
+    setConfirmNewPassword('');
   };
 
   const handleRoleSwitch = (newRole: 'admin' | 'employee') => {
@@ -111,7 +117,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
     const cleanEmail = email.toLowerCase().trim();
     if (!cleanEmail || !validateEmail(cleanEmail)) {
-      setErrorMessage('Please enter a valid work email address.');
+      setErrorMessage('Please enter a valid email address.');
       return;
     }
 
@@ -120,11 +126,90 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       if (auth) {
         await sendPasswordResetEmail(auth, cleanEmail);
       }
-      setSuccessMessage(`Password reset link sent to ${cleanEmail}! Please check your email inbox.`);
+      setSuccessMessage(`Direct password reset link sent to your mail (${cleanEmail})! Please check your email inbox to change your password.`);
     } catch (err: any) {
-      setSuccessMessage(`Password reset instructions sent to ${cleanEmail}! Please check your inbox.`);
+      setSuccessMessage(`Password reset message sent to your mail (${cleanEmail})! Please check your email inbox to change your password.`);
     } finally {
       setIsResetSending(false);
+    }
+  };
+
+  // Direct Change Password Handler
+  const handleDirectChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    const cleanEmail = email.toLowerCase().trim();
+    if (!cleanEmail || !validateEmail(cleanEmail)) {
+      setErrorMessage('Please enter your registered email address first.');
+      return;
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      setErrorMessage('New password must be at least 6 characters long.');
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setErrorMessage('Passwords do not match. Please re-enter matching passwords.');
+      return;
+    }
+
+    const isAdmin = cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase();
+    const employeeAcc = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+
+    if (!isAdmin && !employeeAcc) {
+      setErrorMessage('No account found with this email address. Please check your email or sign up.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      if (isAdmin) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('workorbit_admin_password', newPassword);
+        }
+        await addFirebaseUserAccount({
+          email: ADMIN_CREDENTIALS.email,
+          password: newPassword,
+          fullName: ADMIN_CREDENTIALS.fullName,
+          companyName: ADMIN_CREDENTIALS.companyName,
+          role: 'admin',
+          createdAt: new Date().toISOString(),
+        });
+      } else if (employeeAcc) {
+        const updatedUsers = registeredUsers.map((u) =>
+          u.email.toLowerCase() === cleanEmail ? { ...u, password: newPassword } : u
+        );
+        setRegisteredUsers(updatedUsers);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('workorbit_registered_users', JSON.stringify(updatedUsers));
+        }
+        await addFirebaseUserAccount({
+          ...employeeAcc,
+          password: newPassword,
+        });
+      }
+
+      setSuccessMessage('Password changed successfully! You can now sign in with your new password.');
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setPassword('');
+
+      setTimeout(() => {
+        setMode('login');
+        if (isAdmin) {
+          setLoginRole('admin');
+        } else {
+          setLoginRole('employee');
+        }
+      }, 1000);
+    } catch (err) {
+      console.error('Password change error:', err);
+      setErrorMessage('Failed to update password. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -152,7 +237,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
       // ADMIN LOGIN
       if (loginRole === 'admin') {
-        if (cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase() && password === ADMIN_CREDENTIALS.password) {
+        const adminPass =
+          (typeof window !== 'undefined' && localStorage.getItem('workorbit_admin_password')) ||
+          ADMIN_CREDENTIALS.password;
+        if (
+          cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase() &&
+          (password === adminPass || password === ADMIN_CREDENTIALS.password)
+        ) {
           setSuccessMessage('Administrator verified! Opening Admin Dashboard...');
           setIsSubmitting(true);
           setTimeout(() => {
@@ -392,39 +483,105 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
           </div>
         )}
 
-        {/* FORGOT PASSWORD FORM */}
+        {/* FORGOT PASSWORD & CHANGE PASSWORD FORM */}
         {mode === 'forgot' ? (
-          <form onSubmit={handleForgotPassword} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-[#334155] mb-1.5">Work email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com"
-                className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-              />
+          <div className="space-y-4">
+            {/* Direct message to mail */}
+            <form onSubmit={handleForgotPassword} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-[#334155] mb-1.5">Registered Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@company.com"
+                  className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isResetSending}
+                className="w-full py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>✉️</span>
+                <span>{isResetSending ? 'Sending direct message to mail...' : 'Send Password Reset Email'}</span>
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative flex py-1 items-center">
+              <div className="flex-grow border-t border-[#E2E8F0]"></div>
+              <span className="flex-shrink mx-3 text-[10px] font-extrabold text-[#64748B] uppercase tracking-wider">
+                Or Change Password Directly
+              </span>
+              <div className="flex-grow border-t border-[#E2E8F0]"></div>
             </div>
 
-            <button
-              type="submit"
-              disabled={isResetSending}
-              className="w-full py-3 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-sm rounded-full shadow-sm transition-all cursor-pointer"
-            >
-              {isResetSending ? 'Sending Link...' : 'Send Password Reset Email'}
-            </button>
+            {/* Direct Change Password Option */}
+            <form onSubmit={handleDirectChangePassword} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-[#334155] mb-1">New Password (min 6 characters)</label>
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
+                  >
+                    {showNewPassword ? '🙈' : '👁️'}
+                  </button>
+                </div>
+              </div>
 
-            <div className="text-center pt-1">
+              <div>
+                <label className="block text-xs font-bold text-[#334155] mb-1">Confirm New Password</label>
+                <div className="relative">
+                  <input
+                    type={showConfirmNewPassword ? 'text' : 'password'}
+                    required
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                    className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                    className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
+                  >
+                    {showConfirmNewPassword ? '🙈' : '👁️'}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-2.5 bg-[#10B981] hover:bg-[#059669] active:bg-[#047857] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-1"
+              >
+                {isSubmitting ? 'Updating Password...' : 'Save & Update Password →'}
+              </button>
+            </form>
+
+            <div className="text-center pt-1 border-t border-[#E2E8F0]">
               <button
                 type="button"
                 onClick={() => handleTabSwitch('login')}
-                className="text-xs font-bold text-[#0B192C] hover:underline"
+                className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
               >
                 ← Back to Sign in
               </button>
             </div>
-          </form>
+          </div>
         ) : (
           /* SIGN IN & SIGN UP FORM */
           <form onSubmit={handleSubmit} className="space-y-3.5">
@@ -557,15 +714,18 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-bold text-[#334155]">Password</label>
-                    {loginRole === 'employee' && (
-                      <button
-                        type="button"
-                        onClick={() => handleTabSwitch('forgot')}
-                        className="text-[11px] font-bold text-[#0B192C] hover:underline cursor-pointer"
-                      >
-                        Forgot password?
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleTabSwitch('forgot');
+                        if (!email) {
+                          setEmail(loginRole === 'admin' ? ADMIN_CREDENTIALS.email : '');
+                        }
+                      }}
+                      className="text-[11px] font-bold text-[#0B192C] hover:underline cursor-pointer"
+                    >
+                      Forgot password?
+                    </button>
                   </div>
                   <div className="relative">
                     <input
