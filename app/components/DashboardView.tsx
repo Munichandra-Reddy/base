@@ -95,7 +95,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     <div className="space-y-6 font-sans">
 
       {/* 2. TOP METRICS CARDS BAR (6 Cards Grid - Ultra-Attractive Vibrant Polish) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 max-w-5xl">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 w-full">
         {/* Card 1: Total Projects */}
         <div
           onClick={onViewProjects}
