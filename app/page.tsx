@@ -193,7 +193,6 @@ export default function Home() {
         'projects',
         'calendar',
         'chat',
-        'whatsapp',
         'files',
         'people',
         'checkins',
@@ -224,7 +223,6 @@ export default function Home() {
           'projects',
           'calendar',
           'chat',
-          'whatsapp',
           'files',
           'people',
           'checkins',
@@ -442,25 +440,6 @@ export default function Home() {
 
     try {
       await addFirebaseTask(newTask);
-    } catch (err) {}
-
-    // Dispatch automated WhatsApp notification for task assignment
-    try {
-      fetch('/api/whatsapp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          eventType: 'task_assignment',
-          data: {
-            recipientName: assignedTo,
-            taskTitle: title,
-            projectName: project,
-            dueDate,
-            workspaceName: currentUser?.companyName || 'GEONIXA',
-          },
-          referenceId: newTask.id,
-        }),
-      }).catch(() => {});
     } catch (err) {}
   };
 
