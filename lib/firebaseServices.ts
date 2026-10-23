@@ -10,7 +10,7 @@ import {
   setDoc,
 } from 'firebase/firestore';
 import { Task, Project, ChatMessage, Person, CheckIn, FileItem } from './types';
-import { initialPeople, initialTasks, initialProjects, initialChatMessages } from './data';
+import { initialTasks, initialProjects, initialChatMessages } from './data';
 
 // ==========================================
 // AUTO-SEED INITIAL DATA TO FIREBASE FIRESTORE

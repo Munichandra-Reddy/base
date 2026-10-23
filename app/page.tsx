@@ -24,7 +24,6 @@ import {
   initialActivities,
   initialProjects,
   initialChatMessages,
-  initialPeople,
   initialCheckIns,
   initialFiles,
 } from '@/lib/data';
@@ -169,14 +168,6 @@ export default function Home() {
         try {
           const parsed = JSON.parse(savedUnread);
           if (typeof parsed === 'number') setUnreadCount(parsed);
-        } catch (e) {}
-      }
-
-      const savedUser = localStorage.getItem('workorbit_current_user');
-      if (savedUser) {
-        try {
-          const parsed = JSON.parse(savedUser);
-          if (parsed && typeof parsed === 'object') setCurrentUser(parsed);
         } catch (e) {}
       }
 

@@ -51,26 +51,11 @@ export interface Person {
   id: string;
   name: string;
   role: string;
-  roleType?: 'admin' | 'manager' | 'member' | 'guest';
   email: string;
   status: 'active' | 'away' | 'offline';
   avatar: string;
   avatarBg: string;
   projectsCount: number;
-}
-
-export interface AuditLog {
-  id: string;
-  actor: string;
-  actorEmail?: string;
-  avatar: string;
-  avatarBg: string;
-  action: string;
-  target: string;
-  category: 'security' | 'user' | 'project' | 'system' | 'billing';
-  timestamp: string;
-  ipAddress?: string;
-  status: 'success' | 'warning' | 'info';
 }
 
 export interface CheckIn {

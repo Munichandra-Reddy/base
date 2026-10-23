@@ -29,16 +29,6 @@ interface CreateModalProps {
   onAddEmployee?: (name: string, email: string, role?: string) => void;
 }
 
-const DEFAULT_EMPLOYEES: Person[] = [
-  { id: 'usr-1', name: 'Rahul Kumar', role: 'Workspace Admin & Lead Dev', email: 'rahul@abctech.com', status: 'active', avatar: 'R', avatarBg: 'bg-slate-900 text-white', projectsCount: 5 },
-  { id: 'usr-2', name: 'Priya Sharma', role: 'Product Designer', email: 'priya@abctech.com', status: 'active', avatar: 'P', avatarBg: 'bg-slate-700 text-white', projectsCount: 3 },
-  { id: 'usr-3', name: 'Chandra Reddy', role: 'Backend Lead', email: 'chandra@abctech.com', status: 'active', avatar: 'C', avatarBg: 'bg-slate-800 text-white', projectsCount: 4 },
-  { id: 'usr-4', name: 'Ananya Verma', role: 'Frontend Developer', email: 'ananya@abctech.com', status: 'active', avatar: 'A', avatarBg: 'bg-slate-600 text-white', projectsCount: 2 },
-  { id: 'usr-5', name: 'Michael Chen', role: 'DevOps Engineer', email: 'michael@abctech.com', status: 'active', avatar: 'M', avatarBg: 'bg-slate-500 text-white', projectsCount: 3 },
-  { id: 'usr-6', name: 'Suresh Patel', role: 'QA Lead', email: 'suresh@abctech.com', status: 'active', avatar: 'S', avatarBg: 'bg-slate-800 text-white', projectsCount: 2 },
-  { id: 'usr-7', name: 'Muni', role: 'Software Developer', email: 'muni@abctech.com', status: 'active', avatar: 'M', avatarBg: 'bg-slate-900 text-white', projectsCount: 1 },
-];
-
 export const CreateModal: React.FC<CreateModalProps> = ({
   isOpen,
   onClose,
