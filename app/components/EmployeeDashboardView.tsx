@@ -251,7 +251,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             </div>
             <div className="text-[9.5px] font-semibold text-[#10B981] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] shrink-0" />
-              <span>Great Velocity 🚀</span>
+              <span>Great Velocity</span>
             </div>
           </div>
         </div>
@@ -387,7 +387,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             <div className="space-y-2.5">
               {filteredTaskList.length === 0 ? (
                 <div className="text-center py-8 text-[#64748B] text-xs font-semibold bg-[#F8FAFC] rounded-xl border border-dashed border-[#E2E8F0]">
-                  🎉 All tasks completed in this view! Enjoy your productive day.
+                  All tasks completed in this view! Enjoy your productive day.
                 </div>
               ) : (
                 filteredTaskList.map((task) => {
