@@ -559,28 +559,29 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             </div>
 
             <div className="space-y-3">
-              {(people.length > 0 ? people.slice(0, 4) : [
-                { id: '1', name: 'Raju', role: 'Project Manager', avatar: 'R', avatarBg: 'bg-slate-900 text-white' },
-                { id: '2', name: 'Muni', role: 'Software Developer', avatar: 'M', avatarBg: 'bg-slate-800 text-white' },
-                { id: '3', name: 'Suresh', role: 'QA Lead', avatar: 'S', avatarBg: 'bg-slate-700 text-white' },
-                { id: '4', name: 'Chandra', role: 'Backend Lead', avatar: 'C', avatarBg: 'bg-slate-900 text-white' },
-              ]).map((member, idx) => (
-                <div key={member.id} className="flex items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-2.5">
-                    <div className={`w-7 h-7 rounded-full ${member.avatarBg || 'bg-slate-800 text-white'} flex items-center justify-center font-black text-xs shrink-0`}>
-                      {member.avatar}
+              {people && people.length > 0 ? (
+                people.slice(0, 4).map((member) => (
+                  <div key={member.id} className="flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-7 h-7 rounded-full ${member.avatarBg || 'bg-slate-800 text-white'} flex items-center justify-center font-black text-xs shrink-0`}>
+                        {member.avatar}
+                      </div>
+                      <div>
+                        <div className="font-bold text-[#0F172A] leading-tight">{member.name}</div>
+                        <div className="text-[10px] text-[#64748B] font-medium">{member.role}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-bold text-[#0F172A] leading-tight">{member.name}</div>
-                      <div className="text-[10px] text-[#64748B] font-medium">{member.role}</div>
-                    </div>
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#10B981]/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                      Online
+                    </span>
                   </div>
-                  <span className="flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#10B981]/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-                    Online
-                  </span>
+                ))
+              ) : (
+                <div className="p-3 text-center text-[11px] text-[#64748B] bg-[#F8FAFC] rounded-xl border border-dashed border-[#E2E8F0]">
+                  No other employees registered yet.
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

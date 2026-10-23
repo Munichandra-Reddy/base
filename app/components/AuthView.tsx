@@ -1,24 +1,35 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { addFirebaseUserAccount, addFirebaseEmployee, StoredUserAccount } from '@/lib/firebaseServices';
+import { Person } from '@/lib/types';
 
 export interface UserAccount {
   email: string;
-  password: string;
+  password?: string;
   fullName: string;
   companyName: string;
+  role: 'admin' | 'employee';
+  designation?: string;
 }
 
 interface AuthViewProps {
-  onLogin: (email: string, fullName?: string, companyName?: string) => void;
+  onLogin: (email: string, fullName?: string, companyName?: string, role?: 'admin' | 'employee') => void;
+  people?: Person[];
 }
 
-const DEFAULT_ACCOUNTS: UserAccount[] = [];
+// Single Fixed Admin Credentials
+export const ADMIN_CREDENTIALS = {
+  email: 'cr7156816@gmail.com',
+  password: 'Muni@526',
+  fullName: 'Muni',
+  companyName: 'GEONIXA',
+};
 
 const OrbitLogoIcon = () => (
-  <div className="w-14 h-14 rounded-2xl bg-[#0B192C] flex items-center justify-center text-white shadow-md mx-auto mb-4">
+  <div className="w-14 h-14 rounded-2xl bg-[#0B192C] flex items-center justify-center text-white shadow-md mx-auto mb-3">
     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <circle cx="12" cy="12" r="7" strokeWidth="2.5" />
       <circle cx="12" cy="5" r="2" fill="currentColor" />
@@ -28,8 +39,14 @@ const OrbitLogoIcon = () => (
   </div>
 );
 
-export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
+export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
+  // Mode: 'login' | 'signup' | 'forgot'
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
+  
+  // Login Role: 'admin' | 'employee'
+  const [loginRole, setLoginRole] = useState<'admin' | 'employee'>('admin');
+
+  // Registered Employees from localStorage
   const [registeredUsers, setRegisteredUsers] = useState<UserAccount[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('workorbit_registered_users');
@@ -40,7 +57,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
         } catch (e) {}
       }
     }
-    return DEFAULT_ACCOUNTS;
+    return [];
   });
 
   // Form Fields
@@ -48,7 +65,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [companyName, setCompanyName] = useState('');
+  const [designation, setDesignation] = useState('');
+  const [companyName, setCompanyName] = useState('GEONIXA');
   const [agreeTerms, setAgreeTerms] = useState(true);
   const [rememberMe, setRememberMe] = useState(true);
 
@@ -58,11 +76,21 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isResetSending, setIsResetSending] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Clear messages when switching tabs
   const handleTabSwitch = (newMode: 'login' | 'signup' | 'forgot') => {
     setMode(newMode);
     setErrorMessage(null);
     setSuccessMessage(null);
+  };
+
+  const handleRoleSwitch = (newRole: 'admin' | 'employee') => {
+    setLoginRole(newRole);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setEmail('');
+    setPassword('');
   };
 
   const validateEmail = (val: string) => {
@@ -89,56 +117,99 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
       }
       setSuccessMessage(`Password reset link sent to ${cleanEmail}! Please check your email inbox.`);
     } catch (err: any) {
-      setSuccessMessage(`Password reset link sent to ${cleanEmail}! Please check your email inbox.`);
+      setSuccessMessage(`Password reset instructions sent to ${cleanEmail}! Please check your inbox.`);
     } finally {
       setIsResetSending(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
 
     const cleanEmail = email.toLowerCase().trim();
 
+    // 1. Email Format Validation
     if (!cleanEmail || !validateEmail(cleanEmail)) {
-      setErrorMessage('Please enter a valid work email address.');
+      setErrorMessage('Please enter a valid email address (e.g., name@company.com).');
       return;
     }
 
+    // ==========================================
+    // A. LOGIN SUBMISSION
+    // ==========================================
     if (mode === 'login') {
       if (!password) {
         setErrorMessage('Please enter your password.');
         return;
       }
 
-      const existingUser = registeredUsers.find(
-        (u) => u.email.toLowerCase() === cleanEmail
-      );
-
-      if (!existingUser) {
-        setErrorMessage('Please create an account first.');
-        return;
+      // ADMIN LOGIN
+      if (loginRole === 'admin') {
+        if (cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase() && password === ADMIN_CREDENTIALS.password) {
+          setSuccessMessage('Administrator verified! Opening Admin Dashboard...');
+          setIsSubmitting(true);
+          setTimeout(() => {
+            onLogin(ADMIN_CREDENTIALS.email, ADMIN_CREDENTIALS.fullName, ADMIN_CREDENTIALS.companyName, 'admin');
+          }, 450);
+          return;
+        } else {
+          setErrorMessage('Invalid administrator credentials. Access restricted to authorized admin only.');
+          return;
+        }
       }
 
-      if (existingUser.password !== password) {
-        setErrorMessage('Incorrect password. Please enter the correct password.');
+      // EMPLOYEE LOGIN
+      if (loginRole === 'employee') {
+        // Prevent using admin email in employee login
+        if (cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase()) {
+          setErrorMessage('This is the administrator email. Please switch to "Admin Login" above.');
+          return;
+        }
+
+        const employeeAccount = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+
+        if (!employeeAccount) {
+          setErrorMessage('Employee account not found. Please click "Create Employee Account" below to register.');
+          return;
+        }
+
+        if (employeeAccount.password !== password) {
+          setErrorMessage('Incorrect password. Please enter the correct password.');
+          return;
+        }
+
+        setSuccessMessage(`Welcome back, ${employeeAccount.fullName}! Opening Employee Dashboard...`);
+        setIsSubmitting(true);
+        setTimeout(() => {
+          onLogin(employeeAccount.email, employeeAccount.fullName, employeeAccount.companyName || 'GEONIXA', 'employee');
+        }, 450);
         return;
       }
+    }
 
-      setSuccessMessage(`Welcome back, ${existingUser.fullName}! Signing in...`);
-      setTimeout(() => {
-        onLogin(existingUser.email, existingUser.fullName, existingUser.companyName);
-      }, 400);
-    } else if (mode === 'signup') {
+    // ==========================================
+    // B. SIGN UP SUBMISSION (ONLY FOR EMPLOYEES)
+    // ==========================================
+    if (mode === 'signup') {
       if (!fullName.trim()) {
         setErrorMessage('Please enter your full name.');
         return;
       }
 
-      if (!companyName.trim()) {
-        setErrorMessage('Please enter your company or workspace name.');
+      // Prohibit using the admin email
+      if (cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase()) {
+        setErrorMessage('This email is reserved for the Administrator. Please register with your personal or work email.');
+        return;
+      }
+
+      // Duplicate Employee Email Check (Rules & Regulations)
+      const isDuplicate = registeredUsers.some((u) => u.email.toLowerCase() === cleanEmail) ||
+        people.some((p) => p.email && p.email.toLowerCase() === cleanEmail);
+
+      if (isDuplicate) {
+        setErrorMessage('An employee account with this email already exists. Duplicate employee registrations are not allowed.');
         return;
       }
 
@@ -148,7 +219,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
       }
 
       if (password !== confirmPassword) {
-        setErrorMessage('Passwords do not match. Please enter password again.');
+        setErrorMessage('Passwords do not match. Please re-enter your password.');
         return;
       }
 
@@ -157,76 +228,160 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
         return;
       }
 
-      const existingUser = registeredUsers.find(
-        (u) => u.email.toLowerCase() === cleanEmail
-      );
-      if (existingUser) {
-        setErrorMessage('An account with this email already exists. Please sign in instead.');
-        return;
-      }
+      setIsSubmitting(true);
 
-      const newUser: UserAccount = {
+      const assignedRole = designation.trim() || 'Software Engineer';
+      const userCompanyName = companyName.trim() || 'GEONIXA';
+
+      const newAccount: UserAccount = {
         email: cleanEmail,
         password,
         fullName: fullName.trim(),
-        companyName: companyName.trim(),
+        companyName: userCompanyName,
+        role: 'employee',
+        designation: assignedRole,
       };
 
-      setRegisteredUsers((prev) => {
-        const updated = [...prev.filter((u) => u.email.toLowerCase() !== cleanEmail), newUser];
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('workorbit_registered_users', JSON.stringify(updated));
-        }
-        return updated;
-      });
+      // 1. Save to localStorage registered users
+      const updatedUsers = [...registeredUsers.filter((u) => u.email.toLowerCase() !== cleanEmail), newAccount];
+      setRegisteredUsers(updatedUsers);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workorbit_registered_users', JSON.stringify(updatedUsers));
+      }
 
-      setSuccessMessage(`Account created for ${newUser.fullName}! Signing in to ${newUser.companyName}...`);
+      // 2. Create Employee Person entry
+      const avatarColors = [
+        'bg-[#0B192C] text-white',
+        'bg-[#15293F] text-white',
+        'bg-indigo-600 text-white',
+        'bg-purple-600 text-white',
+        'bg-emerald-600 text-white',
+        'bg-sky-600 text-white',
+      ];
+      const randomAvatarColor = avatarColors[updatedUsers.length % avatarColors.length];
+
+      const newEmployee: Person = {
+        id: `emp-${Date.now()}`,
+        name: fullName.trim(),
+        role: assignedRole,
+        email: cleanEmail,
+        status: 'active',
+        avatar: fullName.trim()[0]?.toUpperCase() || 'E',
+        avatarBg: randomAvatarColor,
+        projectsCount: 1,
+      };
+
+      // 3. Save to localStorage people
+      if (typeof window !== 'undefined') {
+        const savedPeople = localStorage.getItem('workorbit_people');
+        let currentPeopleList: Person[] = [];
+        if (savedPeople) {
+          try {
+            currentPeopleList = JSON.parse(savedPeople);
+          } catch (e) {}
+        }
+        const updatedPeople = [...currentPeopleList.filter((p) => p.email?.toLowerCase() !== cleanEmail), newEmployee];
+        localStorage.setItem('workorbit_people', JSON.stringify(updatedPeople));
+      }
+
+      // 4. Save to Firebase Firestore Database (Both user_accounts & employees collections)
+      try {
+        await addFirebaseUserAccount({
+          email: cleanEmail,
+          password,
+          fullName: fullName.trim(),
+          companyName: userCompanyName,
+          role: 'employee',
+          designation: assignedRole,
+          createdAt: new Date().toISOString(),
+        });
+        await addFirebaseEmployee(newEmployee);
+      } catch (err) {
+        console.warn('Firebase account sync warning:', err);
+      }
+
+      setSuccessMessage(`Employee account created for ${newAccount.fullName}! Opening your Employee Dashboard...`);
+
       setTimeout(() => {
-        onLogin(newUser.email, newUser.fullName, newUser.companyName);
+        onLogin(newAccount.email, newAccount.fullName, newAccount.companyName, 'employee');
       }, 500);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#F1F3F6] flex flex-col justify-center items-center p-4 sm:p-6 font-sans">
-      <div className="w-full max-w-md bg-white rounded-3xl border border-[#E2E8F0] shadow-xl p-8 sm:p-9 space-y-6">
+      <div className="w-full max-w-md bg-white rounded-3xl border border-[#E2E8F0] shadow-xl p-8 sm:p-9 space-y-5">
         
         {/* Logo Header */}
-        <div className="text-center space-y-1.5">
+        <div className="text-center space-y-1">
           <OrbitLogoIcon />
 
           {mode === 'login' && (
             <>
-              <h1 className="text-2xl font-extrabold text-[#0F172A] tracking-tight">WorkOrbit</h1>
-              <p className="text-sm font-medium text-[#64748B]">Sign in to your workspace</p>
+              <h1 className="text-2xl font-black text-[#0F172A] tracking-tight">WorkOrbit</h1>
+              <p className="text-xs font-semibold text-[#64748B]">
+                {loginRole === 'admin'
+                  ? 'Administrator Access Portal'
+                  : 'Employee Workspace Portal'}
+              </p>
             </>
           )}
 
           {mode === 'signup' && (
             <>
-              <h1 className="text-xl font-extrabold text-[#0F172A] tracking-tight">Create your WorkOrbit account</h1>
-              <p className="text-sm font-medium text-[#64748B]">Bring your team and projects together.</p>
+              <h1 className="text-xl font-black text-[#0F172A] tracking-tight">Create Employee Account</h1>
+              <p className="text-xs font-medium text-[#64748B]">Join your team on WorkOrbit.</p>
             </>
           )}
 
           {mode === 'forgot' && (
             <>
-              <h1 className="text-xl font-extrabold text-[#0F172A] tracking-tight">Reset your password</h1>
-              <p className="text-sm font-medium text-[#64748B]">Enter your email and we'll send you a reset link.</p>
+              <h1 className="text-xl font-black text-[#0F172A] tracking-tight">Reset your password</h1>
+              <p className="text-xs font-medium text-[#64748B]">Enter your email to receive a password reset link.</p>
             </>
           )}
         </div>
 
+        {/* ADMIN vs EMPLOYEE LOGIN SWITCHER (ONLY IN LOGIN MODE) */}
+        {mode === 'login' && (
+          <div className="grid grid-cols-2 p-1 bg-[#F1F3F6] rounded-2xl border border-[#E2E8F0]">
+            <button
+              type="button"
+              onClick={() => handleRoleSwitch('admin')}
+              className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                loginRole === 'admin'
+                  ? 'bg-[#0B192C] text-white shadow-xs font-black'
+                  : 'text-[#64748B] hover:text-[#0F172A]'
+              }`}
+            >
+              <span>👑</span>
+              <span>Admin Login</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleRoleSwitch('employee')}
+              className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                loginRole === 'employee'
+                  ? 'bg-[#0B192C] text-white shadow-xs font-black'
+                  : 'text-[#64748B] hover:text-[#0F172A]'
+              }`}
+            >
+              <span>👤</span>
+              <span>Employee Login</span>
+            </button>
+          </div>
+        )}
+
         {/* Validation / Success Messages */}
         {errorMessage && (
-          <div className="p-3.5 bg-[#FEF2F2] border border-[#EF4444]/30 rounded-2xl text-xs font-semibold text-[#EF4444] flex items-center gap-2 animate-in fade-in duration-150">
+          <div className="p-3 bg-[#FEF2F2] border border-[#EF4444]/30 rounded-2xl text-xs font-semibold text-[#EF4444] flex items-center gap-2 animate-in fade-in duration-150">
             <span className="text-sm">⚠️</span>
             <span>{errorMessage}</span>
           </div>
         )}
 
         {successMessage && (
-          <div className="p-3.5 bg-[#ECFDF5] border border-[#10B981]/30 rounded-2xl text-xs font-bold text-[#10B981] flex items-center gap-2 animate-in fade-in duration-150">
+          <div className="p-3 bg-[#ECFDF5] border border-[#10B981]/30 rounded-2xl text-xs font-bold text-[#10B981] flex items-center gap-2 animate-in fade-in duration-150">
             <span className="text-sm">✅</span>
             <span>{successMessage}</span>
           </div>
@@ -243,19 +398,19 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@company.com"
-                className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#64748B]"
+                className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
               />
             </div>
 
             <button
               type="submit"
               disabled={isResetSending}
-              className="w-full py-3.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-sm rounded-full shadow-sm transition-all cursor-pointer"
+              className="w-full py-3 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-sm rounded-full shadow-sm transition-all cursor-pointer"
             >
               {isResetSending ? 'Sending Link...' : 'Send Password Reset Email'}
             </button>
 
-            <div className="text-center pt-2">
+            <div className="text-center pt-1">
               <button
                 type="button"
                 onClick={() => handleTabSwitch('login')}
@@ -267,88 +422,102 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
           </form>
         ) : (
           /* SIGN IN & SIGN UP FORM */
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            {/* SIGN UP FIELDS (ONLY EMPLOYEE REGISTRATION) */}
             {mode === 'signup' && (
               <>
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1.5">Full name</label>
+                  <label className="block text-xs font-bold text-[#334155] mb-1">Full name *</label>
                   <input
                     type="text"
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Enter your full name"
-                    className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#64748B]"
+                    placeholder="e.g. Priya Sharma"
+                    className="w-full px-4 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1.5">Work email</label>
+                  <label className="block text-xs font-bold text-[#334155] mb-1">Employee Work Email *</label>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@company.com"
-                    className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#64748B]"
+                    placeholder="priya@company.com"
+                    className="w-full px-4 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1.5">Company / Workspace name</label>
-                  <input
-                    type="text"
-                    required
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    placeholder="e.g. ABC Technologies"
-                    className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#64748B]"
-                  />
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block text-xs font-bold text-[#334155] mb-1">Role / Title *</label>
+                    <input
+                      type="text"
+                      required
+                      value={designation}
+                      onChange={(e) => setDesignation(e.target.value)}
+                      placeholder="e.g. Developer"
+                      className="w-full px-3 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#334155] mb-1">Company *</label>
+                    <input
+                      type="text"
+                      required
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="GEONIXA"
+                      className="w-full px-3 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1.5">Password</label>
+                  <label className="block text-xs font-bold text-[#334155] mb-1">Password (min 6 characters) *</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Create a strong password"
-                      className="w-full px-4 py-3 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#64748B]"
+                      placeholder="Create password"
+                      className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer"
+                      className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
                     >
-                      👁️
+                      {showPassword ? '🙈' : '👁️'}
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1.5">Confirm password</label>
+                  <label className="block text-xs font-bold text-[#334155] mb-1">Confirm password *</label>
                   <div className="relative">
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
                       required
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Enter password again"
-                      className="w-full px-4 py-3 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#64748B]"
+                      placeholder="Re-enter password"
+                      className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3.5 top-3.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer"
+                      className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
                     >
-                      👁️
+                      {showConfirmPassword ? '🙈' : '👁️'}
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 pt-1">
+                <div className="flex items-center gap-2 pt-1">
                   <input
                     type="checkbox"
                     id="agreeTerms"
@@ -356,37 +525,42 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                     onChange={(e) => setAgreeTerms(e.target.checked)}
                     className="w-4 h-4 rounded border-[#CBD5E1] text-[#0B192C] focus:ring-[#0B192C] accent-[#0B192C] cursor-pointer"
                   />
-                  <label htmlFor="agreeTerms" className="text-xs font-medium text-[#334155] cursor-pointer select-none">
-                    I agree to the Terms of Service and Privacy Policy.
+                  <label htmlFor="agreeTerms" className="text-[11px] font-medium text-[#334155] cursor-pointer select-none">
+                    I agree to company Terms of Service & Privacy Policy.
                   </label>
                 </div>
               </>
             )}
 
+            {/* LOGIN FIELDS */}
             {mode === 'login' && (
               <>
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1.5">Email address</label>
+                  <label className="block text-xs font-bold text-[#334155] mb-1.5">
+                    {loginRole === 'admin' ? 'Admin Email Address' : 'Employee Work Email'}
+                  </label>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@company.com"
-                    className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#64748B]"
+                    placeholder={loginRole === 'admin' ? 'cr7156816@gmail.com' : 'employee@company.com'}
+                    className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-bold text-[#334155]">Password</label>
-                    <button
-                      type="button"
-                      onClick={() => handleTabSwitch('forgot')}
-                      className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
-                    >
-                      Forgot password?
-                    </button>
+                    {loginRole === 'employee' && (
+                      <button
+                        type="button"
+                        onClick={() => handleTabSwitch('forgot')}
+                        className="text-[11px] font-bold text-[#0B192C] hover:underline cursor-pointer"
+                      >
+                        Forgot password?
+                      </button>
+                    )}
                   </div>
                   <div className="relative">
                     <input
@@ -394,20 +568,20 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      className="w-full px-4 py-3 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#64748B]"
+                      placeholder={loginRole === 'admin' ? 'Enter admin password' : 'Enter your password'}
+                      className="w-full px-4 py-3 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer"
+                      className="absolute right-3.5 top-3.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
                     >
-                      👁️
+                      {showPassword ? '🙈' : '👁️'}
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 pt-1">
+                <div className="flex items-center gap-2 pt-1">
                   <input
                     type="checkbox"
                     id="rememberMe"
@@ -416,7 +590,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                     className="w-4 h-4 rounded border-[#CBD5E1] text-[#0B192C] focus:ring-[#0B192C] accent-[#0B192C] cursor-pointer"
                   />
                   <label htmlFor="rememberMe" className="text-xs font-semibold text-[#334155] cursor-pointer select-none">
-                    Remember me
+                    Remember my session
                   </label>
                 </div>
               </>
@@ -424,34 +598,43 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
 
             <button
               type="submit"
-              className="w-full py-3.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-sm rounded-full shadow-sm transition-all cursor-pointer mt-2"
+              disabled={isSubmitting}
+              className="w-full py-3 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-2"
             >
-              {mode === 'login' ? 'Continue' : 'Create Account'}
+              {isSubmitting
+                ? 'Verifying...'
+                : mode === 'signup'
+                ? 'Create Employee Account'
+                : loginRole === 'admin'
+                ? 'Sign in as Administrator →'
+                : 'Sign in as Employee →'}
             </button>
           </form>
         )}
 
-        {/* Footer Navigation Switcher */}
+        {/* Footer Navigation */}
         {mode === 'signup' && (
-          <div className="text-center space-y-2 pt-1 border-t border-[#E2E8F0]">
+          <div className="text-center space-y-1.5 pt-2 border-t border-[#E2E8F0]">
             <p className="text-xs text-[#334155] font-medium">
-              Already have an account?{' '}
+              Already have an employee account?{' '}
               <button
                 type="button"
-                onClick={() => handleTabSwitch('login')}
+                onClick={() => {
+                  handleTabSwitch('login');
+                  setLoginRole('employee');
+                }}
                 className="font-bold text-[#0B192C] hover:underline cursor-pointer"
               >
                 Sign in
               </button>
             </p>
-            <p className="text-[11px] text-[#64748B]">Visual prototype only — account accesses workspace.</p>
           </div>
         )}
 
-        {mode === 'login' && (
-          <div className="text-center space-y-3 pt-1 border-t border-[#E2E8F0]">
+        {mode === 'login' && loginRole === 'employee' && (
+          <div className="text-center space-y-2 pt-2 border-t border-[#E2E8F0]">
             <p className="text-xs text-[#334155] font-medium">
-              Need an account?{' '}
+              Need an employee account?{' '}
               <button
                 type="button"
                 onClick={() => handleTabSwitch('signup')}
@@ -460,8 +643,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
                 Create Account
               </button>
             </p>
+            <p className="text-[11px] text-[#64748B]">Employee registrations are automatically verified.</p>
+          </div>
+        )}
 
-            <p className="text-[11px] text-[#64748B]">Access is available to authorized workspace members.</p>
+        {mode === 'login' && loginRole === 'admin' && (
+          <div className="text-center pt-2 border-t border-[#E2E8F0]">
+            <p className="text-[11px] text-[#64748B]">
+              🔒 Protected administrative console. Single master administrator credentials only.
+            </p>
           </div>
         )}
       </div>

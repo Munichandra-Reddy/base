@@ -26,29 +26,41 @@ export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmploye
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {people.map((person) => (
-          <div
-            key={person.id}
-            className="bg-white rounded-xl border border-[#E2E8F0] p-4 shadow-micro flex items-center gap-3.5 hover:shadow-md transition-shadow"
-          >
+      {people && people.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {people.map((person) => (
             <div
-              className={`w-11 h-11 rounded-full ${person.avatarBg} font-extrabold text-base flex items-center justify-center shadow-xs shrink-0`}
+              key={person.id}
+              className="bg-white rounded-xl border border-[#E2E8F0] p-4 shadow-micro flex items-center gap-3.5 hover:shadow-md transition-shadow"
             >
-              {person.avatar}
-            </div>
-            <div className="flex-1 min-w-0 space-y-0.5">
-              <h3 className="text-sm font-bold text-[#0F172A] truncate">{person.name}</h3>
-              <p className="text-xs font-semibold text-[#334155] truncate">{person.role}</p>
-              <p className="text-[11px] font-medium text-[#64748B] truncate">{person.email}</p>
-              <div className="pt-1.5 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                <span className="text-[11px] font-bold text-[#334155]">{person.projectsCount} active projects</span>
+              <div
+                className={`w-11 h-11 rounded-full ${person.avatarBg || 'bg-[#0B192C] text-white'} font-extrabold text-base flex items-center justify-center shadow-xs shrink-0`}
+              >
+                {person.avatar}
+              </div>
+              <div className="flex-1 min-w-0 space-y-0.5">
+                <h3 className="text-sm font-bold text-[#0F172A] truncate">{person.name}</h3>
+                <p className="text-xs font-semibold text-[#334155] truncate">{person.role}</p>
+                <p className="text-[11px] font-medium text-[#64748B] truncate">{person.email}</p>
+                <div className="pt-1.5 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+                  <span className="text-[11px] font-bold text-[#334155]">{person.projectsCount || 1} active projects</span>
+                </div>
               </div>
             </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-[#E2E8F0] p-12 text-center space-y-3 shadow-micro">
+          <div className="w-14 h-14 rounded-2xl bg-[#F1F3F6] flex items-center justify-center text-2xl mx-auto shadow-2xs">
+            👥
           </div>
-        ))}
-      </div>
+          <h3 className="text-base font-bold text-[#0F172A]">No registered employee accounts yet</h3>
+          <p className="text-xs text-[#64748B] max-w-md mx-auto">
+            When employees create an account using Employee Sign Up, their profiles will automatically be stored in Firebase and displayed here.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

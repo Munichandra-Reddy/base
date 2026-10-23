@@ -18,9 +18,6 @@ import { initialPeople, initialTasks, initialProjects, initialChatMessages } fro
 export const seedInitialDataToFirebase = async () => {
   if (typeof window === 'undefined') return;
   try {
-    for (const p of initialPeople) {
-      await setDoc(doc(db, 'employees', p.id), p, { merge: true });
-    }
     for (const t of initialTasks) {
       await setDoc(doc(db, 'tasks', t.id), t, { merge: true });
     }
@@ -97,6 +94,41 @@ export const addFirebaseEmployee = async (person: Person) => {
     await setDoc(docRef, person, { merge: true });
   } catch (error) {
     console.error('Error adding employee to Firebase:', error);
+  }
+};
+
+export interface StoredUserAccount {
+  email: string;
+  password?: string;
+  fullName: string;
+  companyName: string;
+  role: 'admin' | 'employee';
+  designation?: string;
+  createdAt?: string;
+}
+
+export const addFirebaseUserAccount = async (account: StoredUserAccount) => {
+  try {
+    const docRef = doc(db, 'user_accounts', account.email.toLowerCase().replace(/[^a-zA-Z0-9]/g, '_'));
+    await setDoc(docRef, account, { merge: true });
+  } catch (error) {
+    console.error('Error adding user account to Firebase:', error);
+  }
+};
+
+export const subscribeToUserAccounts = (callback: (accounts: StoredUserAccount[]) => void) => {
+  if (typeof window === 'undefined') return () => {};
+  try {
+    return onSnapshot(
+      collection(db, 'user_accounts'),
+      (snapshot) => {
+        const accounts: StoredUserAccount[] = snapshot.docs.map((d) => d.data() as StoredUserAccount);
+        callback(accounts);
+      },
+      (error) => console.error('User accounts snapshot error:', error)
+    );
+  } catch (e) {
+    return () => {};
   }
 };
 

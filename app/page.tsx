@@ -48,7 +48,7 @@ import {
 } from '@/lib/firebaseServices';
 
 export default function Home() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<{
     email: string;
     fullName: string;
@@ -61,7 +61,20 @@ export default function Home() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(initialChatMessages);
   const [checkins, setCheckins] = useState<CheckIn[]>(initialCheckIns);
   const [files, setFiles] = useState<FileItem[]>(initialFiles);
-  const [people, setPeople] = useState<Person[]>(initialPeople);
+  const [people, setPeople] = useState<Person[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('workorbit_people');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            return parsed.filter((p: Person) => p.email && p.email.toLowerCase() !== 'cr7156816@gmail.com');
+          }
+        } catch (e) {}
+      }
+    }
+    return [];
+  });
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -72,15 +85,34 @@ export default function Home() {
   // Load persisted state from localStorage on mount so page refreshes don't lose data!
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const savedLoggedIn = localStorage.getItem('workorbit_logged_in') === 'true';
+      const savedUser = localStorage.getItem('workorbit_current_user');
       const savedRole = localStorage.getItem('workorbit_dashboard_role') as 'admin' | 'employee';
-      if (savedRole && (savedRole === 'admin' || savedRole === 'employee')) {
-        setDashboardRole(savedRole);
+
+      if (savedLoggedIn && savedUser) {
+        try {
+          const parsed = JSON.parse(savedUser);
+          if (parsed && typeof parsed === 'object') {
+            setCurrentUser(parsed);
+            setIsLoggedIn(true);
+            if (savedRole && (savedRole === 'admin' || savedRole === 'employee')) {
+              setDashboardRole(savedRole);
+            }
+          }
+        } catch (e) {
+          setIsLoggedIn(false);
+        }
+      } else {
+        setIsLoggedIn(false);
       }
+
       const savedPeople = localStorage.getItem('workorbit_people');
       if (savedPeople) {
         try {
           const parsed = JSON.parse(savedPeople);
-          if (Array.isArray(parsed) && parsed.length > 0) setPeople(parsed);
+          if (Array.isArray(parsed)) {
+            setPeople(parsed.filter((p: Person) => p.email && p.email.toLowerCase() !== 'cr7156816@gmail.com'));
+          }
         } catch (e) {}
       }
 
@@ -156,7 +188,13 @@ export default function Home() {
           if (msgs && msgs.length > 0) setChatMessages(msgs);
         });
         const unsubEmp = subscribeToEmployees((peopleList) => {
-          if (peopleList && peopleList.length > 0) setPeople(peopleList);
+          if (peopleList) {
+            const realEmployees = peopleList.filter((p) => p.email && p.email.toLowerCase() !== 'cr7156816@gmail.com');
+            setPeople(realEmployees);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('workorbit_people', JSON.stringify(realEmployees));
+            }
+          }
         });
         const unsubTasks = subscribeToTasks((tasksList) => {
           if (tasksList && tasksList.length > 0) setTasks(tasksList);
@@ -261,6 +299,7 @@ export default function Home() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('workorbit_logged_in', 'false');
       localStorage.removeItem('workorbit_current_user');
+      localStorage.removeItem('workorbit_dashboard_role');
     }
   };
 
@@ -326,27 +365,37 @@ export default function Home() {
     return newPerson;
   };
 
-  const handleLogin = (email?: string, fullName?: string, companyName?: string) => {
+  const handleLogin = (
+    email?: string,
+    fullName?: string,
+    companyName?: string,
+    role: 'admin' | 'employee' = 'employee'
+  ) => {
     setIsLoggedIn(true);
+    setDashboardRole(role);
     if (typeof window !== 'undefined') {
       localStorage.setItem('workorbit_logged_in', 'true');
+      localStorage.setItem('workorbit_dashboard_role', role);
     }
 
     if (email) {
       const cleanEmail = email.toLowerCase().trim();
       const userObj = {
         email: cleanEmail,
-        fullName: fullName?.trim() || cleanEmail.split('@')[0],
-        companyName: companyName?.trim() || 'ABC Technologies',
+        fullName: fullName?.trim() || (role === 'admin' ? 'Muni' : cleanEmail.split('@')[0]),
+        companyName: companyName?.trim() || 'GEONIXA',
+        role,
       };
       setCurrentUser(userObj);
       if (typeof window !== 'undefined') {
         localStorage.setItem('workorbit_current_user', JSON.stringify(userObj));
       }
 
-      const existing = people.find((p) => p.email.toLowerCase() === cleanEmail);
-      if (!existing) {
-        handleAddEmployee(userObj.fullName, cleanEmail);
+      if (role === 'employee' && cleanEmail !== 'cr7156816@gmail.com') {
+        const existing = people.find((p) => p.email.toLowerCase() === cleanEmail);
+        if (!existing) {
+          handleAddEmployee(userObj.fullName, cleanEmail);
+        }
       }
     }
 
@@ -354,7 +403,7 @@ export default function Home() {
   };
 
   if (!isLoggedIn) {
-    return <AuthView onLogin={handleLogin} />;
+    return <AuthView onLogin={handleLogin} people={people} />;
   }
 
   const handleToggleTask = async (id: string) => {
@@ -636,12 +685,6 @@ export default function Home() {
         onLogout={handleLogout}
         currentUser={currentUser}
         currentRole={dashboardRole}
-        onToggleRole={(role) => {
-          setDashboardRole(role);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('workorbit_dashboard_role', role);
-          }
-        }}
       />
 
       {/* Popover Notifications */}

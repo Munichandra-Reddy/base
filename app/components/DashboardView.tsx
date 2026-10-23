@@ -43,8 +43,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 }) => {
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
 
-  const totalEmployeesCount = people?.length || (stats as any).employeesTotal || stats.teamOnline || 7;
-  const activeEmployeesCount = people?.filter((p) => p.status === 'active').length || stats.teamOnline || totalEmployeesCount;
+  const totalEmployeesCount = people?.length ?? 0;
+  const activeEmployeesCount = people?.filter((p) => p.status === 'active').length ?? totalEmployeesCount;
 
   const filteredTasks = tasks.filter((t) => {
     if (taskFilter === 'pending') return !t.completed;
@@ -615,85 +615,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  {/* Member 1 */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-[100px]">
-                      <div className="w-6 h-6 rounded-full bg-[#0B192C] text-white font-extrabold text-[10px] flex items-center justify-center">
-                        R
+                  {people && people.length > 0 ? (
+                    people.slice(0, 5).map((member) => (
+                      <div key={member.id} className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-[100px]">
+                          <div className={`w-6 h-6 rounded-full ${member.avatarBg || 'bg-[#0B192C] text-white'} font-extrabold text-[10px] flex items-center justify-center`}>
+                            {member.avatar}
+                          </div>
+                          <div>
+                            <div className="font-bold text-[#0F172A] text-[11px] leading-tight truncate max-w-[95px]">{member.name}</div>
+                            <div className="text-[9px] text-[#64748B] font-medium truncate max-w-[95px]">{member.role}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-1 max-w-[140px]">
+                          <span className="text-[10px] font-medium text-[#64748B] whitespace-nowrap">{member.projectsCount || 1} tasks</span>
+                          <div className="w-full bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden">
+                            <div className="bg-[#0B192C] h-full rounded-full" style={{ width: `${Math.min(100, (member.projectsCount || 1) * 35)}%` }} />
+                          </div>
+                          <span className="text-[10px] font-bold text-[#334155]">{Math.min(100, (member.projectsCount || 1) * 35)}%</span>
+                        </div>
                       </div>
-                      <div>
-                        <div className="font-bold text-[#0F172A] text-[11px] leading-tight">Raju</div>
-                        <div className="text-[9px] text-[#64748B] font-medium">Project Manager</div>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="p-3 text-center text-[11px] text-[#64748B] bg-[#F8FAFC] rounded-xl border border-dashed border-[#E2E8F0]">
+                      No employee accounts registered yet.
                     </div>
-                    <div className="flex items-center gap-2 flex-1 max-w-[140px]">
-                      <span className="text-[10px] font-medium text-[#64748B] whitespace-nowrap">12 tasks</span>
-                      <div className="w-full bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden">
-                        <div className="bg-[#0B192C] h-full rounded-full" style={{ width: '80%' }} />
-                      </div>
-                      <span className="text-[10px] font-bold text-[#334155]">80%</span>
-                    </div>
-                  </div>
-
-                  {/* Member 2 */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-[100px]">
-                      <div className="w-6 h-6 rounded-full bg-[#15293F] text-white font-extrabold text-[10px] flex items-center justify-center">
-                        M
-                      </div>
-                      <div>
-                        <div className="font-bold text-[#0F172A] text-[11px] leading-tight">Muni</div>
-                        <div className="text-[9px] text-[#64748B] font-medium">Developer</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-1 max-w-[140px]">
-                      <span className="text-[10px] font-medium text-[#64748B] whitespace-nowrap">10 tasks</span>
-                      <div className="w-full bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden">
-                        <div className="bg-[#0B192C] h-full rounded-full" style={{ width: '60%' }} />
-                      </div>
-                      <span className="text-[10px] font-bold text-[#334155]">60%</span>
-                    </div>
-                  </div>
-
-                  {/* Member 3 */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-[100px]">
-                      <div className="w-6 h-6 rounded-full bg-[#334155] text-white font-extrabold text-[10px] flex items-center justify-center">
-                        P
-                      </div>
-                      <div>
-                        <div className="font-bold text-[#0F172A] text-[11px] leading-tight">Priya</div>
-                        <div className="text-[9px] text-[#64748B] font-medium">Designer</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-1 max-w-[140px]">
-                      <span className="text-[10px] font-medium text-[#64748B] whitespace-nowrap">8 tasks</span>
-                      <div className="w-full bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden">
-                        <div className="bg-[#0B192C] h-full rounded-full" style={{ width: '45%' }} />
-                      </div>
-                      <span className="text-[10px] font-bold text-[#334155]">45%</span>
-                    </div>
-                  </div>
-
-                  {/* Member 4 */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-[100px]">
-                      <div className="w-6 h-6 rounded-full bg-[#64748B] text-white font-extrabold text-[10px] flex items-center justify-center">
-                        S
-                      </div>
-                      <div>
-                        <div className="font-bold text-[#0F172A] text-[11px] leading-tight">Suresh</div>
-                        <div className="text-[9px] text-[#64748B] font-medium">Tester</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-1 max-w-[140px]">
-                      <span className="text-[10px] font-medium text-[#64748B] whitespace-nowrap">6 tasks</span>
-                      <div className="w-full bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden">
-                        <div className="bg-[#0B192C] h-full rounded-full" style={{ width: '30%' }} />
-                      </div>
-                      <span className="text-[10px] font-bold text-[#334155]">30%</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>

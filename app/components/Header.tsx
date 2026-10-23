@@ -23,7 +23,6 @@ interface HeaderProps {
   onLogout?: () => void;
   currentUser?: { email: string; fullName: string; companyName: string } | null;
   currentRole?: 'admin' | 'employee';
-  onToggleRole?: (role: 'admin' | 'employee') => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -34,7 +33,6 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   currentUser,
   currentRole = 'admin',
-  onToggleRole,
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>(defaultWorkspaces);
@@ -288,36 +286,8 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
       </div>
 
-      {/* Right section: Role Switcher + Create New + Notifications + User Avatar */}
+      {/* Right section: Create New + Notifications + User Avatar */}
       <div className="flex items-center gap-3 relative" ref={profileRef}>
-        {/* Admin / Employee View Switcher */}
-        {onToggleRole && (
-          <div className="hidden sm:flex items-center bg-[#15293F] border border-[#1E2E42] p-1 rounded-xl text-xs font-bold mr-1">
-            <button
-              type="button"
-              onClick={() => onToggleRole('admin')}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                currentRole === 'admin'
-                  ? 'bg-white text-[#0B192C] shadow-xs font-black'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              👑 Admin View
-            </button>
-            <button
-              type="button"
-              onClick={() => onToggleRole('employee')}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                currentRole === 'employee'
-                  ? 'bg-white text-[#0B192C] shadow-xs font-black'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              👤 Employee View
-            </button>
-          </div>
-        )}
-
         <button
           onClick={onOpenCreateModal}
           className="px-4 py-2 text-sm font-bold text-[#0B192C] bg-white hover:bg-slate-100 active:bg-slate-200 rounded-md shadow-sm flex items-center transition-colors"

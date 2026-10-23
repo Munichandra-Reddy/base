@@ -47,7 +47,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   people,
   projects,
 }) => {
-  const employeeList = (people && people.length > 0) ? people : DEFAULT_EMPLOYEES;
+  const employeeList = (people && people.length > 0) ? people : [];
   const projectList = (projects && projects.length > 0) ? projects.map(p => p.name) : [
     'E-Commerce Website',
     'Mobile App v2',
