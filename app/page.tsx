@@ -16,7 +16,6 @@ import { CreateModal } from './components/CreateModal';
 import { SearchModal } from './components/SearchModal';
 import { NotificationPanel } from './components/NotificationPanel';
 import { AuthView } from './components/AuthView';
-import { WhatsAppView } from './components/WhatsAppView';
 
 import {
   initialStats,
@@ -719,10 +718,6 @@ export default function Home() {
 
           {activeTab === 'chat' && (
             <ChatView messages={chatMessages} onSendMessage={handleSendMessage} />
-          )}
-
-          {activeTab === 'whatsapp' && (
-            <WhatsAppView projects={projects} />
           )}
 
           {activeTab === 'files' && (
