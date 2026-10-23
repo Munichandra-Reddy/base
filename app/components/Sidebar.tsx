@@ -11,6 +11,7 @@ import {
   UsersIcon,
   CheckCircleIcon,
   ChartIcon,
+  ShieldCheckIcon,
 } from './Icons';
 
 export type NavTab =
@@ -22,7 +23,8 @@ export type NavTab =
   | 'files'
   | 'people'
   | 'checkins'
-  | 'reports';
+  | 'reports'
+  | 'admin';
 
 interface SidebarProps {
   activeTab: NavTab;
@@ -51,6 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'people' as NavTab, label: 'Employees', icon: UsersIcon },
     { id: 'checkins' as NavTab, label: 'Check-ins', icon: CheckCircleIcon },
     { id: 'reports' as NavTab, label: 'Reports', icon: ChartIcon },
+    { id: 'admin' as NavTab, label: 'Admin Console', icon: ShieldCheckIcon },
   ];
 
   const storagePercentage = Math.min(100, Math.round((storageUsedGB / storageTotalGB) * 100));

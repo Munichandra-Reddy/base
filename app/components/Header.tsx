@@ -21,6 +21,7 @@ interface HeaderProps {
   onToggleNotifications: () => void;
   unreadNotifications: number;
   onLogout?: () => void;
+  onNavigateToAdmin?: () => void;
   currentUser?: { email: string; fullName: string; companyName: string } | null;
 }
 
@@ -30,6 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleNotifications,
   unreadNotifications,
   onLogout,
+  onNavigateToAdmin,
   currentUser,
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -348,14 +350,20 @@ export const Header: React.FC<HeaderProps> = ({
 
             <div className="p-1.5 space-y-0.5 text-xs font-semibold text-[#334155]">
               <button
-                onClick={() => setIsProfileOpen(false)}
-                className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F1F3F6] flex items-center gap-2.5 transition-colors"
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  if (onNavigateToAdmin) onNavigateToAdmin();
+                }}
+                className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F1F3F6] flex items-center gap-2.5 transition-colors font-bold text-[#0F172A]"
               >
-                <span>👤 Profile & Settings</span>
+                <span>🛡️ Admin Console</span>
               </button>
 
               <button
-                onClick={() => setIsProfileOpen(false)}
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  if (onNavigateToAdmin) onNavigateToAdmin();
+                }}
                 className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F1F3F6] flex items-center gap-2.5 transition-colors"
               >
                 <span>⚙️ Workspace Preferences</span>

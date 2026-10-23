@@ -17,6 +17,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
   const quickLinks = [
     { label: 'E-Commerce Homepage Design', type: 'Task', tab: 'tasks' },
     { label: 'Mobile App v2 Architecture', type: 'Project', tab: 'projects' },
+    { label: 'Workspace Admin & Security Console', type: 'Admin', tab: 'admin' },
     { label: 'Login API Endpoint Spec', type: 'File', tab: 'files' },
     { label: 'Priya Sharma (Lead UI/UX)', type: 'People', tab: 'people' },
     { label: 'Daily Standup Campfire', type: 'Chat', tab: 'chat' },
