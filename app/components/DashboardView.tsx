@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Task, Activity, WorkspaceStats } from '@/lib/types';
+import { Task, Activity, WorkspaceStats, Person } from '@/lib/types';
 import {
   FolderIcon,
   CheckSquareIcon,
@@ -14,9 +14,10 @@ import {
 } from './Icons';
 
 interface DashboardViewProps {
-  stats: WorkspaceStats;
+  stats: WorkspaceStats & { employeesTotal?: number };
   tasks: Task[];
   activities: Activity[];
+  people?: Person[];
   onToggleTask: (id: string) => void;
   onOpenAddTask: () => void;
   onViewAllTasks: () => void;
@@ -31,6 +32,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   stats,
   tasks,
   activities,
+  people,
   onToggleTask,
   onOpenAddTask,
   onViewAllTasks,
@@ -43,6 +45,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
   const [sentWhatsApp, setSentWhatsApp] = useState<string | null>(null);
+
+  const totalEmployeesCount = people?.length || (stats as any).employeesTotal || stats.teamOnline || 7;
+  const activeEmployeesCount = people?.filter((p) => p.status === 'active').length || stats.teamOnline || totalEmployeesCount;
 
   const handleTriggerWhatsAppAlert = async (
     e: React.MouseEvent,
@@ -89,8 +94,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-6 font-sans">
 
-      {/* 2. TOP METRICS CARDS BAR (5 Cards Grid - Ultra-Attractive Vibrant Polish) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 max-w-4xl">
+      {/* 2. TOP METRICS CARDS BAR (6 Cards Grid - Ultra-Attractive Vibrant Polish) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 max-w-5xl">
         {/* Card 1: Total Projects */}
         <div
           onClick={onViewProjects}
@@ -220,6 +225,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-[9.5px] font-semibold text-[#EF4444] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444] shrink-0" />
               <span className="whitespace-nowrap">Needs Attention</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 6: Total Employees */}
+        <div
+          onClick={onViewEmployees}
+          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-purple-200 transition-all cursor-pointer group flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-50 via-purple-100/60 to-fuchsia-100/70 text-purple-600 border border-purple-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(168,85,247,0.25)] group-hover:border-purple-300 transition-all duration-300">
+              <UsersIcon className="w-3.5 h-3.5" />
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-purple-600 transition-colors whitespace-nowrap">
+                Total Employees
+              </span>
+              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all">→</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-lg font-black text-[#0F172A] leading-tight">
+              {totalEmployeesCount}
+            </div>
+            <div className="text-[9.5px] font-semibold text-[#8B5CF6] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6] shrink-0" />
+              <span className="whitespace-nowrap">{activeEmployeesCount} Active</span>
             </div>
           </div>
         </div>

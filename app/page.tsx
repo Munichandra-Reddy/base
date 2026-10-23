@@ -682,9 +682,11 @@ export default function Home() {
                 projectsTotal: projects.length,
                 projectsActive: projects.filter((p) => p.status === 'active').length,
                 teamOnline: people.length,
+                employeesTotal: people.length,
               }}
               tasks={tasks}
               activities={activities}
+              people={people}
               onToggleTask={handleToggleTask}
               onOpenAddTask={() => setIsCreateModalOpen(true)}
               onViewAllTasks={() => handleTabChange('tasks')}
