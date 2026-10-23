@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Sidebar, NavTab } from './components/Sidebar';
 import { DashboardView } from './components/DashboardView';
+import { EmployeeDashboardView } from './components/EmployeeDashboardView';
 import { TasksView } from './components/TasksView';
 import { ProjectsView } from './components/ProjectsView';
 import { CalendarView } from './components/CalendarView';
@@ -66,10 +67,15 @@ export default function Home() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
+  const [dashboardRole, setDashboardRole] = useState<'admin' | 'employee'>('admin');
 
   // Load persisted state from localStorage on mount so page refreshes don't lose data!
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const savedRole = localStorage.getItem('workorbit_dashboard_role') as 'admin' | 'employee';
+      if (savedRole && (savedRole === 'admin' || savedRole === 'employee')) {
+        setDashboardRole(savedRole);
+      }
       const savedPeople = localStorage.getItem('workorbit_people');
       if (savedPeople) {
         try {
@@ -629,6 +635,13 @@ export default function Home() {
         unreadNotifications={unreadCount}
         onLogout={handleLogout}
         currentUser={currentUser}
+        currentRole={dashboardRole}
+        onToggleRole={(role) => {
+          setDashboardRole(role);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('workorbit_dashboard_role', role);
+          }
+        }}
       />
 
       {/* Popover Notifications */}
@@ -653,7 +666,7 @@ export default function Home() {
 
         {/* Right Main Content Area - Scrollable */}
         <main className="flex-1 h-full overflow-y-auto p-6 md:p-8 max-w-7xl">
-          {activeTab === 'dashboard' && (
+          {activeTab === 'dashboard' && dashboardRole === 'admin' && (
             <DashboardView
               stats={{
                 ...initialStats,
@@ -673,6 +686,23 @@ export default function Home() {
               onViewCalendar={() => handleTabChange('calendar')}
               onViewActivity={() => handleTabChange('reports')}
               currentUser={currentUser}
+            />
+          )}
+
+          {activeTab === 'dashboard' && dashboardRole === 'employee' && (
+            <EmployeeDashboardView
+              tasks={tasks}
+              projects={projects}
+              activities={activities}
+              people={people}
+              currentUser={currentUser}
+              onToggleTask={handleToggleTask}
+              onAddTask={handleAddTask}
+              onViewProjects={() => handleTabChange('projects')}
+              onViewTasks={() => handleTabChange('tasks')}
+              onViewChat={() => handleTabChange('chat')}
+              onViewCalendar={() => handleTabChange('calendar')}
+              onViewCheckins={() => handleTabChange('checkins')}
             />
           )}
 
