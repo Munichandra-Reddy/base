@@ -13,8 +13,8 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
   if (!isOpen) return null;
 
   const notifications = [
-    { title: 'Priya Sharma assigned a new task', desc: 'Design mobile navigation flow', time: '5m ago' },
-    { title: 'Chandra Reddy commented on Login API', desc: 'API endpoints ready for testing', time: '30m ago' },
+    { title: 'Project workspace updated', desc: 'E-Commerce Website setup complete', time: '5m ago' },
+    { title: 'Sprint task status updated', desc: 'Homepage components deployed', time: '30m ago' },
     { title: 'Weekly Sprint Retrospective', desc: 'Starts in 1 hour in Campfire #general', time: '1h ago' },
   ];
 

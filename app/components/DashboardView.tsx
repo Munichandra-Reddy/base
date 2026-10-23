@@ -156,7 +156,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div>
             <div className="text-lg font-black text-[#0F172A] leading-tight">
-              {stats.teamOnline || 7}
+              {stats.teamOnline !== undefined ? stats.teamOnline : activeEmployeesCount}
             </div>
             <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse shrink-0" />

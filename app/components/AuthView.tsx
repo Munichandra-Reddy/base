@@ -53,7 +53,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) return parsed;
+          if (Array.isArray(parsed)) {
+            return parsed.filter((u: UserAccount) => {
+              const email = (u.email || '').toLowerCase().trim();
+              return email && email !== 'cr7156816@gmail.com' && !email.endsWith('@abctech.com');
+            });
+          }
         } catch (e) {}
       }
     }

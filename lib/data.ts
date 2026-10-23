@@ -6,7 +6,7 @@ export const initialStats: WorkspaceStats = {
   todosTotal: 120,
   todosInProgress: 35,
   dueSoon: 8,
-  teamOnline: 5,
+  teamOnline: 0,
   storageUsedGB: 7.5,
   storageTotalGB: 10,
 };
@@ -238,58 +238,7 @@ export const initialChatMessages: ChatMessage[] = [
   },
 ];
 
-export const initialPeople: Person[] = [
-  {
-    id: 'usr-1',
-    name: 'Rahul Kumar',
-    role: 'Workspace Admin & Lead Dev',
-    email: 'rahul@abctech.com',
-    status: 'active',
-    avatar: 'R',
-    avatarBg: 'bg-slate-800 text-white',
-    projectsCount: 5,
-  },
-  {
-    id: 'usr-2',
-    name: 'Priya Sharma',
-    role: 'Lead UI/UX Designer',
-    email: 'priya@abctech.com',
-    status: 'active',
-    avatar: 'P',
-    avatarBg: 'bg-slate-300 text-slate-900',
-    projectsCount: 4,
-  },
-  {
-    id: 'usr-3',
-    name: 'Chandra Reddy',
-    role: 'Backend Architect',
-    email: 'chandra@abctech.com',
-    status: 'active',
-    avatar: 'C',
-    avatarBg: 'bg-slate-200 text-slate-800',
-    projectsCount: 3,
-  },
-  {
-    id: 'usr-4',
-    name: 'Ananya Verma',
-    role: 'Frontend Engineer',
-    email: 'ananya@abctech.com',
-    status: 'away',
-    avatar: 'A',
-    avatarBg: 'bg-slate-100 text-slate-700',
-    projectsCount: 3,
-  },
-  {
-    id: 'usr-5',
-    name: 'Michael Chen',
-    role: 'DevOps & Infrastructure',
-    email: 'michael@abctech.com',
-    status: 'active',
-    avatar: 'M',
-    avatarBg: 'bg-slate-400 text-white',
-    projectsCount: 2,
-  },
-];
+export const initialPeople: Person[] = [];
 
 export const initialCheckIns: CheckIn[] = [
   {

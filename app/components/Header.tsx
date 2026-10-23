@@ -46,9 +46,9 @@ export const Header: React.FC<HeaderProps> = ({
   const workspaceRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  const userName = currentUser?.fullName || 'rahul';
-  const userEmail = currentUser?.email || 'rahul@abctech.com';
-  const userAvatar = (userName[0] || 'R').toUpperCase();
+  const userName = currentUser?.fullName || (currentRole === 'employee' ? 'Employee' : 'Muni');
+  const userEmail = currentUser?.email || (currentRole === 'employee' ? 'employee@company.com' : 'cr7156816@gmail.com');
+  const userAvatar = (userName[0] || (currentRole === 'employee' ? 'E' : 'M')).toUpperCase();
 
   // Load persisted localStorage state strictly after initial client mount to prevent SSR hydration errors
   useEffect(() => {

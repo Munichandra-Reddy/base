@@ -8,9 +8,20 @@ import {
   query,
   orderBy,
   setDoc,
+  deleteDoc,
 } from 'firebase/firestore';
 import { Task, Project, ChatMessage, Person, CheckIn, FileItem } from './types';
 import { initialTasks, initialProjects, initialChatMessages } from './data';
+
+export const isRealEmployee = (p: Partial<Person> | null | undefined): boolean => {
+  if (!p || !p.email) return false;
+  const email = p.email.toLowerCase().trim();
+  if (email === 'cr7156816@gmail.com') return false;
+  if (email.endsWith('@abctech.com')) return false;
+  const dummyIds = ['usr-1', 'usr-2', 'usr-3', 'usr-4', 'usr-5', 'usr-6', 'usr-7'];
+  if (p.id && dummyIds.includes(p.id)) return false;
+  return true;
+};
 
 // ==========================================
 // AUTO-SEED INITIAL DATA TO FIREBASE FIRESTORE
@@ -26,6 +37,13 @@ export const seedInitialDataToFirebase = async () => {
     }
     for (const c of initialChatMessages) {
       await setDoc(doc(db, 'chat_messages', c.id), c, { merge: true });
+    }
+    // Purge any legacy dummy employee documents from Firestore
+    const dummyIds = ['usr-1', 'usr-2', 'usr-3', 'usr-4', 'usr-5', 'usr-6', 'usr-7'];
+    for (const id of dummyIds) {
+      try {
+        await deleteDoc(doc(db, 'employees', id));
+      } catch (e) {}
     }
   } catch (e) {
     console.error('Firebase seeding error:', e);
@@ -78,7 +96,26 @@ export const subscribeToEmployees = (callback: (people: Person[]) => void) => {
     return onSnapshot(
       collection(db, 'employees'),
       (snapshot) => {
-        const peopleList: Person[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Person));
+        const dummyIds = ['usr-1', 'usr-2', 'usr-3', 'usr-4', 'usr-5', 'usr-6', 'usr-7'];
+        const peopleList: Person[] = [];
+
+        snapshot.docs.forEach((d) => {
+          const data = d.data() as Person;
+          const email = (data.email || '').toLowerCase().trim();
+          const isDummy =
+            dummyIds.includes(d.id) ||
+            email === 'cr7156816@gmail.com' ||
+            email.endsWith('@abctech.com');
+
+          if (isDummy) {
+            try {
+              deleteDoc(doc(db, 'employees', d.id)).catch(() => {});
+            } catch (e) {}
+          } else {
+            peopleList.push({ id: d.id, ...data });
+          }
+        });
+
         callback(peopleList);
       },
       (error) => console.error('Employees snapshot error:', error)

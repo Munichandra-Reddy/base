@@ -44,6 +44,7 @@ import {
   subscribeToFiles,
   addFirebaseFile,
   seedInitialDataToFirebase,
+  isRealEmployee,
 } from '@/lib/firebaseServices';
 
 export default function Home() {
@@ -67,7 +68,7 @@ export default function Home() {
         try {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed)) {
-            return parsed.filter((p: Person) => p.email && p.email.toLowerCase() !== 'cr7156816@gmail.com');
+            return parsed.filter(isRealEmployee);
           }
         } catch (e) {}
       }
@@ -110,7 +111,9 @@ export default function Home() {
         try {
           const parsed = JSON.parse(savedPeople);
           if (Array.isArray(parsed)) {
-            setPeople(parsed.filter((p: Person) => p.email && p.email.toLowerCase() !== 'cr7156816@gmail.com'));
+            const cleanPeople = parsed.filter(isRealEmployee);
+            setPeople(cleanPeople);
+            localStorage.setItem('workorbit_people', JSON.stringify(cleanPeople));
           }
         } catch (e) {}
       }
@@ -180,7 +183,7 @@ export default function Home() {
         });
         const unsubEmp = subscribeToEmployees((peopleList) => {
           if (peopleList) {
-            const realEmployees = peopleList.filter((p) => p.email && p.email.toLowerCase() !== 'cr7156816@gmail.com');
+            const realEmployees = peopleList.filter(isRealEmployee);
             setPeople(realEmployees);
             if (typeof window !== 'undefined') {
               localStorage.setItem('workorbit_people', JSON.stringify(realEmployees));
@@ -312,7 +315,7 @@ export default function Home() {
     const formattedName = name.trim() || cleanEmail.split('@')[0];
 
     const newPerson: Person = {
-      id: `usr-${Date.now()}`,
+      id: `emp-${Date.now()}`,
       name: formattedName,
       role: role?.trim() || 'Team Member',
       email: cleanEmail,
@@ -706,7 +709,7 @@ export default function Home() {
                 ...initialStats,
                 projectsTotal: projects.length,
                 projectsActive: projects.filter((p) => p.status === 'active').length,
-                teamOnline: people.length,
+                teamOnline: people.filter((p) => p.status === 'active').length,
                 employeesTotal: people.length,
               }}
               tasks={tasks}

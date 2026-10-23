@@ -18,7 +18,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
     { label: 'E-Commerce Homepage Design', type: 'Task', tab: 'tasks' },
     { label: 'Mobile App v2 Architecture', type: 'Project', tab: 'projects' },
     { label: 'Login API Endpoint Spec', type: 'File', tab: 'files' },
-    { label: 'Priya Sharma (Lead UI/UX)', type: 'People', tab: 'people' },
+    { label: 'Workspace Employees Directory', type: 'People', tab: 'people' },
     { label: 'Daily Standup Campfire', type: 'Chat', tab: 'chat' },
   ];
 
