@@ -190,6 +190,70 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     return re.test(val.trim());
   };
 
+  // Helper to strictly verify if an email belongs to a registered account
+  const isEmailRegistered = async (cleanEmail: string, role: 'admin' | 'employee') => {
+    if (!cleanEmail || !validateEmail(cleanEmail)) return false;
+
+    if (role === 'admin') {
+      return cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase();
+    }
+
+    // 1. Check local registered employees
+    if (registeredUsers.some((u) => u.email.toLowerCase() === cleanEmail)) {
+      return true;
+    }
+
+    // 2. Check team/people list (excluding mock @abctech.com)
+    if (
+      people.some(
+        (p) =>
+          p.email &&
+          p.email.toLowerCase() === cleanEmail &&
+          !p.email.toLowerCase().endsWith('@abctech.com')
+      )
+    ) {
+      return true;
+    }
+
+    // 3. Check Firestore user_accounts collection
+    try {
+      const empDocRef = doc(db, 'user_accounts', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'));
+      const empSnap = await getDoc(empDocRef);
+      if (empSnap.exists()) {
+        const data = empSnap.data();
+        if (data && data.email && data.email.toLowerCase() === cleanEmail) {
+          return true;
+        }
+      }
+    } catch (e) {}
+
+    return false;
+  };
+
+  // Click Handler for "Forgot password?" link on Login Form
+  const handleForgotPasswordClick = async () => {
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    // 1. Must be a valid email format (rejects random words like "GEONIXA", empty values, etc.)
+    if (!cleanEmail || !validateEmail(cleanEmail)) {
+      setErrorMessage('Please enter registered email address.');
+      return;
+    }
+
+    // 2. Must be an actually registered account
+    const registered = await isEmailRegistered(cleanEmail, loginRole);
+    if (!registered) {
+      setErrorMessage('Please enter registered email address.');
+      return;
+    }
+
+    // 3. Only if registered, allow opening the recovery screen!
+    handleTabSwitch('forgot');
+  };
+
   // Password Reset Handler via SMTP & Firebase (Works for both Admin and Employees)
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,34 +262,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
     const cleanEmail = email.toLowerCase().trim();
     if (!cleanEmail || !validateEmail(cleanEmail)) {
-      setErrorMessage('Please enter a valid email address.');
+      setErrorMessage('Please enter registered email address.');
       return;
     }
 
     // Verify account exists before attempting reset
-    const isAdmin = cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase();
-    const isLocalEmployee =
-      registeredUsers.some((u) => u.email.toLowerCase() === cleanEmail) ||
-      people.some((p) => p.email && p.email.toLowerCase() === cleanEmail);
-
-    let accountExists = isAdmin || isLocalEmployee;
-
+    const accountExists = await isEmailRegistered(cleanEmail, loginRole);
     if (!accountExists) {
-      try {
-        const empDocRef = doc(db, 'user_accounts', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'));
-        const empSnap = await getDoc(empDocRef);
-        if (empSnap.exists()) {
-          accountExists = true;
-        }
-      } catch (e) {}
-    }
-
-    if (!accountExists) {
-      setErrorMessage(
-        loginRole === 'employee'
-          ? 'No employee account found with this email. Please check your email or create an account.'
-          : 'No account found with this email address.'
-      );
+      setErrorMessage('Please enter registered email address.');
       return;
     }
 
@@ -288,7 +332,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
     const cleanEmail = email.toLowerCase().trim();
     if (!cleanEmail || !validateEmail(cleanEmail)) {
-      setErrorMessage('Please enter your registered email address first.');
+      setErrorMessage('Please enter registered email address.');
       return;
     }
 
@@ -341,13 +385,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     }
 
     if (!isAdmin && !employeeAcc) {
-      employeeAcc = {
-        email: cleanEmail,
-        password: newPassword,
-        fullName: cleanEmail.split('@')[0],
-        companyName: 'GEONIXA',
-        role: 'employee',
-      };
+      setErrorMessage('Please enter registered email address.');
+      return;
     }
 
     setIsSubmitting(true);
@@ -762,26 +801,24 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
             <button
               type="button"
               onClick={() => handleRoleSwitch('admin')}
-              className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
                 loginRole === 'admin'
                   ? 'bg-[#0B192C] text-white shadow-xs font-black'
                   : 'text-[#64748B] hover:text-[#0F172A]'
               }`}
             >
-              <span>👑</span>
-              <span>Admin Login</span>
+              Admin Login
             </button>
             <button
               type="button"
               onClick={() => handleRoleSwitch('employee')}
-              className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
                 loginRole === 'employee'
                   ? 'bg-[#0B192C] text-white shadow-xs font-black'
                   : 'text-[#64748B] hover:text-[#0F172A]'
               }`}
             >
-              <span>👤</span>
-              <span>Employee Login</span>
+              Employee Login
             </button>
           </div>
         )}
@@ -1068,9 +1105,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     <label className="text-xs font-bold text-[#334155]">Password</label>
                     <button
                       type="button"
-                      onClick={() => {
-                        handleTabSwitch('forgot');
-                      }}
+                      onClick={handleForgotPasswordClick}
                       className="text-[11px] font-bold text-[#0B192C] hover:underline cursor-pointer"
                     >
                       Forgot password?
