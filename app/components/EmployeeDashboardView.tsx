@@ -50,8 +50,6 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
   const [newQuickTaskTitle, setNewQuickTaskTitle] = useState('');
   const [newQuickTaskProject, setNewQuickTaskProject] = useState('E-Commerce Website');
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('pending');
-  const [hoursLogged, setHoursLogged] = useState(6.5);
-  const [isLoggingHours, setIsLoggingHours] = useState(false);
 
   // Filter tasks belonging to this employee
   const myTasks = tasks.filter((t) => {
@@ -92,12 +90,6 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
       dueDate: new Date().toISOString().split('T')[0],
     });
     setNewQuickTaskTitle('');
-  };
-
-  const handleQuickLogHours = () => {
-    setIsLoggingHours(true);
-    setHoursLogged((prev) => Math.min(8.0, Number((prev + 0.5).toFixed(1))));
-    setTimeout(() => setIsLoggingHours(false), 1200);
   };
 
   return (
@@ -160,16 +152,6 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             className="px-4 py-2 bg-[#0B192C] hover:bg-[#15293F] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <span>Daily Check-in</span>
-          </button>
-
-          {/* Log Hours Button */}
-          <button
-            onClick={handleQuickLogHours}
-            className="px-3.5 py-2 bg-[#F1F3F6] hover:bg-[#E2E8F0] text-[#0F172A] border border-[#CBD5E1] text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
-          >
-            <ClockIcon className="w-3.5 h-3.5 text-[#64748B]" />
-            <span>{hoursLogged}h Logged</span>
-            {isLoggingHours && <span className="text-[10px] text-[#10B981] font-black">+0.5h ✓</span>}
           </button>
         </div>
       </div>
