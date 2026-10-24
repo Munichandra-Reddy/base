@@ -100,11 +100,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const urlEmail = urlParams.get('resetEmail');
+      const urlRole = urlParams.get('role');
       const hash = window.location.hash;
       if (urlEmail || hash === '#reset-password') {
         setMode('forgot');
         if (urlEmail) {
           setEmail(decodeURIComponent(urlEmail));
+        }
+        if (urlRole === 'employee' || urlRole === 'admin') {
+          setLoginRole(urlRole);
         }
       }
     }
@@ -186,7 +190,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     return re.test(val.trim());
   };
 
-  // Password Reset Handler via SMTP & Firebase
+  // Password Reset Handler via SMTP & Firebase (Works for both Admin and Employees)
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -198,17 +202,45 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       return;
     }
 
+    // Verify account exists before attempting reset
+    const isAdmin = cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase();
+    const isLocalEmployee =
+      registeredUsers.some((u) => u.email.toLowerCase() === cleanEmail) ||
+      people.some((p) => p.email && p.email.toLowerCase() === cleanEmail);
+
+    let accountExists = isAdmin || isLocalEmployee;
+
+    if (!accountExists) {
+      try {
+        const empDocRef = doc(db, 'user_accounts', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'));
+        const empSnap = await getDoc(empDocRef);
+        if (empSnap.exists()) {
+          accountExists = true;
+        }
+      } catch (e) {}
+    }
+
+    if (!accountExists) {
+      setErrorMessage(
+        loginRole === 'employee'
+          ? 'No employee account found with this email. Please check your email or create an account.'
+          : 'No account found with this email address.'
+      );
+      return;
+    }
+
     setIsResetSending(true);
     let smtpSent = false;
     let smtpErrorDetails = '';
 
-    // 1. Send real email via Native TLS SMTP API
+    // 1. Send direct email to mail address via Native TLS SMTP API
     try {
       const res = await fetch('/api/auth/send-reset-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: cleanEmail,
+          role: loginRole,
           smtpPass: smtpAppPassword || undefined,
         }),
       });
@@ -216,7 +248,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       const data = await res.json();
       if (data.success) {
         smtpSent = true;
-        setSuccessMessage(`Password reset message sent to your mail (${cleanEmail}) via SMTP! Please check your email inbox for the reset link and 6-digit code.`);
+        setSuccessMessage(`Password reset link and code successfully sent to your mail (${cleanEmail})! Please check your email inbox to change password.`);
       } else if (data.smtpConfigured === false) {
         setShowSmtpConfig(true);
         smtpErrorDetails = data.message || 'SMTP not yet configured.';
@@ -271,10 +303,49 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     }
 
     const isAdmin = cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase();
-    const employeeAcc = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+    let employeeAcc = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+
+    // If not found in local state, check Firestore and People
+    if (!isAdmin && !employeeAcc) {
+      try {
+        const empDocRef = doc(db, 'user_accounts', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'));
+        const empSnap = await getDoc(empDocRef);
+        if (empSnap.exists()) {
+          const data = empSnap.data() as StoredUserAccount;
+          if (data && data.email) {
+            employeeAcc = {
+              email: data.email,
+              password: data.password,
+              fullName: data.fullName,
+              companyName: data.companyName || 'GEONIXA',
+              role: 'employee',
+              designation: data.designation,
+            };
+          }
+        }
+      } catch (e) {}
+
+      if (!employeeAcc) {
+        const foundInPeople = people.find((p) => p.email && p.email.toLowerCase() === cleanEmail);
+        if (foundInPeople) {
+          employeeAcc = {
+            email: foundInPeople.email,
+            password: newPassword,
+            fullName: foundInPeople.name,
+            companyName: 'GEONIXA',
+            role: 'employee',
+            designation: foundInPeople.role,
+          };
+        }
+      }
+    }
 
     if (!isAdmin && !employeeAcc) {
-      setErrorMessage('No account found with this email address. Please check your email or sign up.');
+      setErrorMessage(
+        loginRole === 'employee'
+          ? 'No employee account found with this email address. Please sign up or check the email.'
+          : 'No account found with this email address. Please check your email.'
+      );
       return;
     }
 
@@ -293,9 +364,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
           createdAt: new Date().toISOString(),
         });
       } else if (employeeAcc) {
-        const updatedUsers = registeredUsers.map((u) =>
-          u.email.toLowerCase() === cleanEmail ? { ...u, password: newPassword } : u
-        );
+        const updatedUsers = registeredUsers.some((u) => u.email.toLowerCase() === cleanEmail)
+          ? registeredUsers.map((u) =>
+              u.email.toLowerCase() === cleanEmail ? { ...u, password: newPassword } : u
+            )
+          : [...registeredUsers, { ...employeeAcc, password: newPassword }];
+
         setRegisteredUsers(updatedUsers);
         if (typeof window !== 'undefined') {
           localStorage.setItem('workorbit_registered_users', JSON.stringify(updatedUsers));
@@ -484,6 +558,21 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
           } catch (e) {}
         }
 
+        // Background Check 3: Check people directory if account not yet in user_accounts
+        if (!employeeAccount) {
+          const foundInPeople = people.find((p) => p.email && p.email.toLowerCase() === cleanEmail);
+          if (foundInPeople) {
+            employeeAccount = {
+              email: foundInPeople.email,
+              password: password,
+              fullName: foundInPeople.name,
+              companyName: 'GEONIXA',
+              role: 'employee',
+              designation: foundInPeople.role,
+            };
+          }
+        }
+
         if (!employeeAccount && !isAuthenticated) {
           setIsSubmitting(false);
           setErrorMessage('Employee account not found. Please click "Create Employee Account" below to register.');
@@ -657,7 +746,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
           {mode === 'forgot' && (
             <>
               <h1 className="text-xl font-black text-[#0F172A] tracking-tight">Reset your password</h1>
-              <p className="text-xs font-medium text-[#64748B]">Enter your email to receive a password reset link.</p>
+              <p className="text-xs font-medium text-[#64748B]">
+                {loginRole === 'admin'
+                  ? 'Administrator Password Recovery'
+                  : 'Employee Password Recovery'}
+              </p>
             </>
           )}
         </div>
@@ -713,13 +806,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
             {/* Direct message to mail */}
             <form onSubmit={handleForgotPassword} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-[#334155] mb-1.5">Registered Email Address</label>
+                <label className="block text-xs font-bold text-[#334155] mb-1.5">
+                  {loginRole === 'admin' ? 'Admin Registered Email' : 'Employee Registered Email'}
+                </label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
+                  placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
                   className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
                 />
               </div>
@@ -834,7 +929,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 onClick={() => handleTabSwitch('login')}
                 className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
               >
-                ← Back to Sign in
+                ← Back to {loginRole === 'admin' ? 'Admin' : 'Employee'} Sign in
               </button>
             </div>
           </div>
