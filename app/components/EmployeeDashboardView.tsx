@@ -111,7 +111,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-2xl font-black text-[#0F172A] tracking-tight">
-                Welcome back, {employeeName}! 👋
+                Welcome back, {employeeName}!
               </h1>
               <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20">
                 Product Designer
@@ -142,7 +142,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                 workStatus === 'focus' ? 'bg-[#0B192C] text-white shadow-xs' : 'text-[#64748B] hover:text-[#0F172A]'
               }`}
             >
-              <span>🎯 Focus</span>
+              <span>Focus</span>
             </button>
             <button
               onClick={() => setWorkStatus('meeting')}
@@ -150,7 +150,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                 workStatus === 'meeting' ? 'bg-white text-[#0F172A] shadow-xs' : 'text-[#64748B] hover:text-[#0F172A]'
               }`}
             >
-              <span>📅 Meeting</span>
+              <span>Meeting</span>
             </button>
           </div>
 
@@ -159,7 +159,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             onClick={onViewCheckins}
             className="px-4 py-2 bg-[#0B192C] hover:bg-[#15293F] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
           >
-            <span>✍️ Daily Check-in</span>
+            <span>Daily Check-in</span>
           </button>
 
           {/* Log Hours Button */}
@@ -167,7 +167,8 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             onClick={handleQuickLogHours}
             className="px-3.5 py-2 bg-[#F1F3F6] hover:bg-[#E2E8F0] text-[#0F172A] border border-[#CBD5E1] text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
           >
-            <span>⏱️ {hoursLogged}h Logged</span>
+            <ClockIcon className="w-3.5 h-3.5 text-[#64748B]" />
+            <span>{hoursLogged}h Logged</span>
             {isLoggingHours && <span className="text-[10px] text-[#10B981] font-black">+0.5h ✓</span>}
           </button>
         </div>
