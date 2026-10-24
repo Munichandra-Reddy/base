@@ -753,13 +753,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               {showSmtpConfig && (
                 <div className="space-y-2 pt-1 text-xs">
                   <p className="text-[11px] text-[#64748B] leading-relaxed">
-                    Connected to Gmail SMTP (<code className="bg-slate-200 px-1 py-0.5 rounded text-[10px] font-mono">cr7156816@gmail.com</code>). Reset emails are delivered directly to your inbox.
+                    Connected to Gmail SMTP. Reset emails are delivered directly to your inbox.
                   </p>
                   <input
                     type="password"
                     value={smtpAppPassword}
                     onChange={(e) => setSmtpAppPassword(e.target.value)}
-                    placeholder="sruz wsts getn ydcf"
+                    placeholder="Enter 16-character App Password"
                     className="w-full px-3 py-2 bg-white border border-[#CBD5E1] rounded-xl text-xs font-mono text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0B192C]"
                   />
                 </div>
@@ -962,7 +962,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={loginRole === 'admin' ? 'cr7156816@gmail.com' : 'employee@company.com'}
+                    placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
                     className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
                   />
                 </div>
@@ -974,9 +974,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                       type="button"
                       onClick={() => {
                         handleTabSwitch('forgot');
-                        if (!email) {
-                          setEmail(loginRole === 'admin' ? ADMIN_CREDENTIALS.email : '');
-                        }
                       }}
                       className="text-[11px] font-bold text-[#0B192C] hover:underline cursor-pointer"
                     >
