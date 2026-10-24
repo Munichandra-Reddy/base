@@ -11,6 +11,7 @@ import {
   StoredUserAccount,
 } from '@/lib/firebaseServices';
 import { Person } from '@/lib/types';
+import { EyeIcon, EyeOffIcon } from './Icons';
 
 export interface UserAccount {
   email: string;
@@ -986,9 +987,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
+                        className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
+                        aria-label={showNewPassword ? "Hide password" : "Show password"}
                       >
-                        {showNewPassword ? '🙈' : '👁️'}
+                        {showNewPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
@@ -1007,9 +1009,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                       <button
                         type="button"
                         onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
-                        className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
+                        className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
+                        aria-label={showConfirmNewPassword ? "Hide password" : "Show password"}
                       >
-                        {showConfirmNewPassword ? '🙈' : '👁️'}
+                        {showConfirmNewPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
@@ -1137,9 +1140,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
+                      className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      {showPassword ? '🙈' : '👁️'}
+                      {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
@@ -1158,9 +1162,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
+                      className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
+                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                     >
-                      {showConfirmPassword ? '🙈' : '👁️'}
+                      {showConfirmPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
@@ -1220,9 +1225,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
+                      className="absolute right-3.5 top-3.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      {showPassword ? '🙈' : '👁️'}
+                      {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
