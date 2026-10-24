@@ -15,16 +15,35 @@ export async function POST(request: Request) {
       );
     }
 
-    // Determine base URL for clickable password reset link
-    const origin =
-      request.headers.get('origin') ||
-      request.headers.get('referer') ||
-      'https://base-workorbit.vercel.app';
-    const baseUrl = origin.replace(/\/$/, '');
+    // Determine clean base URL for clickable password reset link
+    let baseUrl = 'https://base-six.vercel.app';
+    try {
+      const headerOrigin = request.headers.get('origin') || request.headers.get('referer');
+      if (headerOrigin) {
+        baseUrl = new URL(headerOrigin).origin;
+      }
+    } catch (e) {}
 
     // Generate random 6-digit verification code
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
     const resetLink = `${baseUrl}/?resetEmail=${encodeURIComponent(email)}&role=${encodeURIComponent(role)}&resetCode=${resetCode}#reset-password`;
+
+    // Plain text alternative for email deliverability & anti-spam
+    const text = `WorkOrbit Password Reset
+
+Hello,
+
+We received a request to change the password for your WorkOrbit ${role === 'admin' ? 'Administrator' : 'Employee'} account (${email}).
+
+Your 6-Digit Password Reset Code: ${resetCode}
+(Valid for 15 minutes)
+
+To reset your password, visit this link:
+${resetLink}
+
+If you did not request this, you can safely ignore this email.
+
+— WorkOrbit Workspace`;
 
     // Read SMTP credentials from Environment Variables, request body, or verified app password
     const smtpUser = process.env.SMTP_USER || 'cr7156816@gmail.com';
@@ -93,6 +112,7 @@ export async function POST(request: Request) {
       to: email,
       subject: `WorkOrbit - Password Reset Code: ${resetCode}`,
       html,
+      text,
     });
 
     return NextResponse.json({

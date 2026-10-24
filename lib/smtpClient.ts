@@ -32,6 +32,9 @@ export function sendSmtpEmail(options: SmtpOptions): Promise<{ success: boolean;
       return reject(new Error('Missing SMTP_USER or SMTP_PASS'));
     }
 
+    const cleanUser = user.trim().toLowerCase();
+    const cleanTo = to.trim().toLowerCase();
+
     // Clean password (remove spaces if user copied "abcd efgh ijkl mnop")
     const cleanPass = pass.replace(/\s+/g, '');
 
@@ -97,7 +100,7 @@ export function sendSmtpEmail(options: SmtpOptions): Promise<{ success: boolean;
         case 2: // 334 response to AUTH LOGIN (Username prompt)
           if (code === 334) {
             step = 3;
-            send(Buffer.from(user).toString('base64'));
+            send(Buffer.from(cleanUser).toString('base64'));
           }
           break;
 
@@ -111,14 +114,14 @@ export function sendSmtpEmail(options: SmtpOptions): Promise<{ success: boolean;
         case 4: // 235 Authentication successful
           if (code === 235) {
             step = 5;
-            send(`MAIL FROM:<${user}>`);
+            send(`MAIL FROM:<${cleanUser}>`);
           }
           break;
 
         case 5: // 250 Sender OK
           if (code === 250) {
             step = 6;
-            send(`RCPT TO:<${to}>`);
+            send(`RCPT TO:<${cleanTo}>`);
           }
           break;
 
@@ -132,17 +135,36 @@ export function sendSmtpEmail(options: SmtpOptions): Promise<{ success: boolean;
         case 7: // 354 Start mail input
           if (code === 354) {
             step = 8;
-            const messageId = `<${Date.now()}.${Math.random().toString(36).substring(2)}@workorbit.app>`;
+            const senderDomain = cleanUser.includes('@') ? cleanUser.split('@')[1] : 'gmail.com';
+            const messageId = `<${Date.now()}.${Math.random().toString(36).substring(2)}@${senderDomain}>`;
+            const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+            const plainText = options.text || 'WorkOrbit Password Reset: Please view this email in an HTML-compatible client.';
+
             const emailContent = [
-              `From: "WorkOrbit" <${user}>`,
-              `To: <${to}>`,
+              `From: "WorkOrbit" <${cleanUser}>`,
+              `To: <${cleanTo}>`,
+              `Reply-To: <${cleanUser}>`,
               `Subject: ${subject}`,
               `Message-ID: ${messageId}`,
               `Date: ${new Date().toUTCString()}`,
               'MIME-Version: 1.0',
+              `Content-Type: multipart/alternative; boundary="${boundary}"`,
+              'X-Mailer: WorkOrbit-Mailer/1.0',
+              'Auto-Submitted: auto-generated',
+              '',
+              `--${boundary}`,
+              'Content-Type: text/plain; charset=UTF-8',
+              'Content-Transfer-Encoding: 7bit',
+              '',
+              plainText,
+              '',
+              `--${boundary}`,
               'Content-Type: text/html; charset=UTF-8',
+              'Content-Transfer-Encoding: 7bit',
               '',
               html,
+              '',
+              `--${boundary}--`,
               '.',
             ].join('\r\n');
 

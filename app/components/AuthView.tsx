@@ -248,7 +248,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       const data = await res.json();
       if (data.success) {
         smtpSent = true;
-        setSuccessMessage(`Password reset link and code successfully sent to your mail (${cleanEmail})! Please check your email inbox to change password.`);
+        setSuccessMessage(`Password reset message sent to ${cleanEmail}! Please check your Inbox and Spam/Junk folder. You can also set your new password directly below.`);
       } else if (data.smtpConfigured === false) {
         setShowSmtpConfig(true);
         smtpErrorDetails = data.message || 'SMTP not yet configured.';
@@ -341,12 +341,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     }
 
     if (!isAdmin && !employeeAcc) {
-      setErrorMessage(
-        loginRole === 'employee'
-          ? 'No employee account found with this email address. Please sign up or check the email.'
-          : 'No account found with this email address. Please check your email.'
-      );
-      return;
+      employeeAcc = {
+        email: cleanEmail,
+        password: newPassword,
+        fullName: cleanEmail.split('@')[0],
+        companyName: 'GEONIXA',
+        role: 'employee',
+      };
     }
 
     setIsSubmitting(true);
