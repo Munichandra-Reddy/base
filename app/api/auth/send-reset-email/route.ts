@@ -83,20 +83,6 @@ export async function POST(request: Request) {
   </div>
 </body>
 </html>`;
-      <div style="font-size: 28px; font-weight: 900; letter-spacing: 6px; color: #0F172A; font-family: monospace;">${resetCode}</div>
-      <div style="font-size: 11px; color: #64748B; margin-top: 6px;">Valid for 15 minutes</div>
-    </div>
-
-    <p style="font-size: 12px; color: #64748B; line-height: 1.5; margin: 20px 0 0 0;">
-      If you did not request a password change, you can safely ignore this email. Your account remains protected.
-    </p>
-
-    <div style="border-top: 1px solid #E2E8F0; margin-top: 24px; padding-top: 16px; font-size: 11px; color: #94A3B8; text-align: center;">
-      &copy; 2026 WorkOrbit Workspace. All rights reserved.
-    </div>
-  </div>
-</body>
-</html>`;
 
     // Dispatch email via TLS SMTP
     await sendSmtpEmail({
