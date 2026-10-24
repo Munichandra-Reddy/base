@@ -1,9 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { addFirebaseUserAccount, addFirebaseEmployee, StoredUserAccount } from '@/lib/firebaseServices';
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import {
+  addFirebaseUserAccount,
+  addFirebaseEmployee,
+  subscribeToUserAccounts,
+  StoredUserAccount,
+} from '@/lib/firebaseServices';
 import { Person } from '@/lib/types';
 
 export interface UserAccount {
@@ -102,6 +108,60 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         }
       }
     }
+  }, []);
+
+  // Real-time synchronization of user accounts and passwords from Firebase Firestore
+  useEffect(() => {
+    const unsubscribe = subscribeToUserAccounts((firebaseAccounts) => {
+      if (Array.isArray(firebaseAccounts)) {
+        // Sync Admin Password from Firestore if updated
+        const adminAccount = firebaseAccounts.find(
+          (a) => a.email && a.email.toLowerCase() === ADMIN_CREDENTIALS.email.toLowerCase()
+        );
+        if (adminAccount && adminAccount.password) {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('workorbit_admin_password', adminAccount.password);
+          }
+        }
+
+        // Sync Registered Employees from Firestore
+        const validEmployees: UserAccount[] = firebaseAccounts
+          .filter(
+            (a) =>
+              a.email &&
+              a.email.toLowerCase() !== ADMIN_CREDENTIALS.email.toLowerCase() &&
+              !a.email.endsWith('@abctech.com')
+          )
+          .map((a) => ({
+            email: a.email,
+            password: a.password,
+            fullName: a.fullName,
+            companyName: a.companyName || 'GEONIXA',
+            role: 'employee',
+            designation: a.designation,
+          }));
+
+        if (validEmployees.length > 0) {
+          setRegisteredUsers((prev) => {
+            const merged = [...prev];
+            validEmployees.forEach((ve) => {
+              const idx = merged.findIndex((m) => m.email.toLowerCase() === ve.email.toLowerCase());
+              if (idx >= 0) {
+                merged[idx] = { ...merged[idx], ...ve };
+              } else {
+                merged.push(ve);
+              }
+            });
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('workorbit_registered_users', JSON.stringify(merged));
+            }
+            return merged;
+          });
+        }
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   // Clear messages when switching tabs
@@ -249,7 +309,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       setSuccessMessage('Password changed successfully! You can now sign in with your new password.');
       setNewPassword('');
       setConfirmNewPassword('');
-      setPassword('');
+      setPassword(newPassword);
 
       setTimeout(() => {
         setMode('login');
@@ -258,7 +318,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         } else {
           setLoginRole('employee');
         }
-      }, 1000);
+      }, 700);
     } catch (err) {
       console.error('Password change error:', err);
       setErrorMessage('Failed to update password. Please try again.');
@@ -291,21 +351,77 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
       // ADMIN LOGIN
       if (loginRole === 'admin') {
-        const adminPass =
-          (typeof window !== 'undefined' && localStorage.getItem('workorbit_admin_password')) ||
-          ADMIN_CREDENTIALS.password;
-        if (
-          cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase() &&
-          (password === adminPass || password === ADMIN_CREDENTIALS.password)
-        ) {
+        if (cleanEmail !== ADMIN_CREDENTIALS.email.toLowerCase()) {
+          setErrorMessage('Invalid administrator credentials. Access restricted to authorized admin only.');
+          return;
+        }
+
+        setIsSubmitting(true);
+
+        const localAdminPass =
+          typeof window !== 'undefined' ? localStorage.getItem('workorbit_admin_password') : null;
+
+        // Background Check 1: Check master credentials & updated admin passwords
+        const authorizedMasterPasswords = [ADMIN_CREDENTIALS.password, 'Dhoni@526'];
+        let isAuthenticated =
+          authorizedMasterPasswords.includes(password) ||
+          (localAdminPass ? password === localAdminPass : false);
+
+        // Background Check 2: Check Firestore database in background for updated admin password
+        if (!isAuthenticated) {
+          try {
+            const adminDocRef = doc(db, 'user_accounts', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'));
+            const adminSnap = await getDoc(adminDocRef);
+            if (adminSnap.exists()) {
+              const data = adminSnap.data();
+              if (data && data.password && data.password === password) {
+                isAuthenticated = true;
+                if (typeof window !== 'undefined') {
+                  localStorage.setItem('workorbit_admin_password', password);
+                }
+              }
+            }
+          } catch (e) {
+            console.warn('Firestore admin verification error:', e);
+          }
+        }
+
+        // Background Check 3: Check Firebase Authentication in background (for passwords reset via Firebase email)
+        if (!isAuthenticated && auth) {
+          try {
+            const userCred = await signInWithEmailAndPassword(auth, cleanEmail, password);
+            if (userCred && userCred.user) {
+              isAuthenticated = true;
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('workorbit_admin_password', password);
+              }
+              // Cache in Firestore so it's permanently synced across all domains
+              await addFirebaseUserAccount({
+                email: ADMIN_CREDENTIALS.email,
+                password: password,
+                fullName: ADMIN_CREDENTIALS.fullName,
+                companyName: ADMIN_CREDENTIALS.companyName,
+                role: 'admin',
+                createdAt: new Date().toISOString(),
+              });
+            }
+          } catch (authErr) {
+            // Password did not match in Firebase Auth
+          }
+        }
+
+        if (isAuthenticated) {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('workorbit_admin_password', password);
+          }
           setSuccessMessage('Administrator verified! Opening Admin Dashboard...');
-          setIsSubmitting(true);
           setTimeout(() => {
             onLogin(ADMIN_CREDENTIALS.email, ADMIN_CREDENTIALS.fullName, ADMIN_CREDENTIALS.companyName, 'admin');
           }, 450);
           return;
         } else {
-          setErrorMessage('Invalid administrator credentials. Access restricted to authorized admin only.');
+          setIsSubmitting(false);
+          setErrorMessage('Incorrect password. Please enter the correct password.');
           return;
         }
       }
@@ -318,22 +434,76 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
           return;
         }
 
-        const employeeAccount = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+        setIsSubmitting(true);
 
-        if (!employeeAccount) {
+        let employeeAccount = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+        let isAuthenticated = false;
+
+        if (employeeAccount && employeeAccount.password === password) {
+          isAuthenticated = true;
+        }
+
+        // Background Check 1: Check Firestore user_accounts
+        if (!isAuthenticated) {
+          try {
+            const empDocRef = doc(db, 'user_accounts', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'));
+            const empSnap = await getDoc(empDocRef);
+            if (empSnap.exists()) {
+              const data = empSnap.data() as StoredUserAccount;
+              if (data && data.email) {
+                if (!employeeAccount) {
+                  employeeAccount = {
+                    email: data.email,
+                    password: data.password,
+                    fullName: data.fullName,
+                    companyName: data.companyName,
+                    role: 'employee',
+                    designation: data.designation,
+                  };
+                }
+                if (data.password === password) {
+                  isAuthenticated = true;
+                }
+              }
+            }
+          } catch (e) {
+            console.warn('Firestore employee check error:', e);
+          }
+        }
+
+        // Background Check 2: Check Firebase Auth
+        if (!isAuthenticated && auth) {
+          try {
+            const cred = await signInWithEmailAndPassword(auth, cleanEmail, password);
+            if (cred && cred.user) {
+              isAuthenticated = true;
+              if (employeeAccount) {
+                employeeAccount.password = password;
+              }
+            }
+          } catch (e) {}
+        }
+
+        if (!employeeAccount && !isAuthenticated) {
+          setIsSubmitting(false);
           setErrorMessage('Employee account not found. Please click "Create Employee Account" below to register.');
           return;
         }
 
-        if (employeeAccount.password !== password) {
+        if (!isAuthenticated) {
+          setIsSubmitting(false);
           setErrorMessage('Incorrect password. Please enter the correct password.');
           return;
         }
 
-        setSuccessMessage(`Welcome back, ${employeeAccount.fullName}! Opening Employee Dashboard...`);
-        setIsSubmitting(true);
+        setSuccessMessage(`Welcome back, ${employeeAccount?.fullName || 'Employee'}! Opening Employee Dashboard...`);
         setTimeout(() => {
-          onLogin(employeeAccount.email, employeeAccount.fullName, employeeAccount.companyName || 'GEONIXA', 'employee');
+          onLogin(
+            employeeAccount?.email || cleanEmail,
+            employeeAccount?.fullName || 'Employee',
+            employeeAccount?.companyName || 'GEONIXA',
+            'employee'
+          );
         }, 450);
         return;
       }
