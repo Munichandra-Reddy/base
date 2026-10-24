@@ -90,6 +90,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [smtpAppPassword, setSmtpAppPassword] = useState('sruz wsts getn ydcf');
   const [showSmtpConfig, setShowSmtpConfig] = useState(false);
+  const [isResetLinkFromEmail, setIsResetLinkFromEmail] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isResetSending, setIsResetSending] = useState(false);
@@ -101,12 +102,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       const urlParams = new URLSearchParams(window.location.search);
       const urlEmail = urlParams.get('resetEmail');
       const urlRole = urlParams.get('role');
+      const urlCode = urlParams.get('resetCode');
       const hash = window.location.hash;
-      if (urlEmail || hash === '#reset-password') {
+      if (urlEmail && (urlCode || hash === '#reset-password')) {
+        setIsResetLinkFromEmail(true);
         setMode('forgot');
-        if (urlEmail) {
-          setEmail(decodeURIComponent(urlEmail));
-        }
+        setEmail(decodeURIComponent(urlEmail));
         if (urlRole === 'employee' || urlRole === 'admin') {
           setLoginRole(urlRole);
         }
@@ -175,6 +176,9 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     setSuccessMessage(null);
     setNewPassword('');
     setConfirmNewPassword('');
+    if (newMode !== 'forgot') {
+      setIsResetLinkFromEmail(false);
+    }
   };
 
   const handleRoleSwitch = (newRole: 'admin' | 'employee') => {
@@ -292,7 +296,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       const data = await res.json();
       if (data.success) {
         smtpSent = true;
-        setSuccessMessage(`Password reset message sent to ${cleanEmail}! Please check your Inbox and Spam/Junk folder. You can also set your new password directly below.`);
+        setSuccessMessage('Password reset message sent to mail');
       } else if (data.smtpConfigured === false) {
         setShowSmtpConfig(true);
         smtpErrorDetails = data.message || 'SMTP not yet configured.';
@@ -308,7 +312,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       if (auth) {
         await sendPasswordResetEmail(auth, cleanEmail);
         if (!smtpSent) {
-          setSuccessMessage(`Password reset link sent to your mail (${cleanEmail})! Please check your email inbox.`);
+          setSuccessMessage('Password reset message sent to mail');
         }
       }
     } catch (err: any) {}
@@ -317,7 +321,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       if (smtpErrorDetails) {
         setErrorMessage(smtpErrorDetails);
       } else {
-        setSuccessMessage(`Password reset request processed for ${cleanEmail}! If email delivery is delayed, you can set your new password directly below.`);
+        setSuccessMessage('Password reset message sent to mail');
       }
     }
 
@@ -424,6 +428,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       setNewPassword('');
       setConfirmNewPassword('');
       setPassword(newPassword);
+      setIsResetLinkFromEmail(false);
 
       setTimeout(() => {
         setMode('login');
@@ -785,9 +790,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
           {mode === 'forgot' && (
             <>
-              <h1 className="text-xl font-black text-[#0F172A] tracking-tight">Reset your password</h1>
+              <h1 className="text-xl font-black text-[#0F172A] tracking-tight">
+                {isResetLinkFromEmail ? 'Create New Password' : 'Reset your password'}
+              </h1>
               <p className="text-xs font-medium text-[#64748B]">
-                {loginRole === 'admin'
+                {isResetLinkFromEmail
+                  ? 'Enter your new password below to finish resetting.'
+                  : loginRole === 'admin'
                   ? 'Administrator Password Recovery'
                   : 'Employee Password Recovery'}
               </p>
@@ -841,130 +850,101 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         {/* FORGOT PASSWORD & CHANGE PASSWORD FORM */}
         {mode === 'forgot' ? (
           <div className="space-y-4">
-            {/* Direct message to mail */}
-            <form onSubmit={handleForgotPassword} className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-[#334155] mb-1.5">
-                  {loginRole === 'admin' ? 'Admin Registered Email' : 'Employee Registered Email'}
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
-                  className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isResetSending}
-                className="w-full py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <span>✉️</span>
-                <span>{isResetSending ? 'Sending direct message to mail...' : 'Send Password Reset Email'}</span>
-              </button>
-            </form>
-
-            {/* SMTP App Password Helper & Quick Input */}
-            <div className="bg-[#F8FAFC] p-3 rounded-2xl border border-[#CBD5E1] space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-[#10B981] flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#10B981] inline-block animate-pulse"></span>
-                  <span>SMTP Direct Gmail Delivery Configured</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setShowSmtpConfig(!showSmtpConfig)}
-                  className="text-[10px] font-bold text-[#0B192C] hover:underline cursor-pointer"
-                >
-                  {showSmtpConfig ? 'Hide Settings' : 'View Settings'}
-                </button>
-              </div>
-
-              {showSmtpConfig && (
-                <div className="space-y-2 pt-1 text-xs">
-                  <p className="text-[11px] text-[#64748B] leading-relaxed">
-                    Connected to Gmail SMTP. Reset emails are delivered directly to your inbox.
+            {isResetLinkFromEmail ? (
+              /* Set New Password Form (ONLY accessible via the email link!) */
+              <form onSubmit={handleDirectChangePassword} className="space-y-3.5">
+                <div className="text-center pb-1">
+                  <h2 className="text-sm font-bold text-[#0F172A]">Set New Password</h2>
+                  <p className="text-xs text-[#64748B]">
+                    Create a new password for <span className="font-semibold text-[#0F172A]">{email}</span>
                   </p>
-                  <input
-                    type="password"
-                    value={smtpAppPassword}
-                    onChange={(e) => setSmtpAppPassword(e.target.value)}
-                    placeholder="Enter 16-character App Password"
-                    className="w-full px-3 py-2 bg-white border border-[#CBD5E1] rounded-xl text-xs font-mono text-[#0F172A] focus:outline-none focus:ring-1 focus:ring-[#0B192C]"
-                  />
                 </div>
-              )}
-            </div>
 
-            {/* Divider */}
-            <div className="relative flex py-1 items-center">
-              <div className="flex-grow border-t border-[#E2E8F0]"></div>
-              <span className="flex-shrink mx-3 text-[10px] font-extrabold text-[#64748B] uppercase tracking-wider">
-                Or Change Password Directly
-              </span>
-              <div className="flex-grow border-t border-[#E2E8F0]"></div>
-            </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#334155] mb-1">New Password (min 6 characters) *</label>
+                  <div className="relative">
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password"
+                      className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
+                    >
+                      {showNewPassword ? '🙈' : '👁️'}
+                    </button>
+                  </div>
+                </div>
 
-            {/* Direct Change Password Option */}
-            <form onSubmit={handleDirectChangePassword} className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-[#334155] mb-1">New Password (min 6 characters)</label>
-                <div className="relative">
+                <div>
+                  <label className="block text-xs font-bold text-[#334155] mb-1">Confirm New Password *</label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmNewPassword ? 'text' : 'password'}
+                      required
+                      value={confirmNewPassword}
+                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                      className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                      className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
+                    >
+                      {showConfirmNewPassword ? '🙈' : '👁️'}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-1"
+                >
+                  {isSubmitting ? 'Updating Password...' : 'Save & Update Password →'}
+                </button>
+              </form>
+            ) : (
+              /* Request Password Reset Email form (Website view - only option) */
+              <form onSubmit={handleForgotPassword} className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-bold text-[#334155] mb-1.5">
+                    {loginRole === 'admin' ? 'Admin Registered Email' : 'Employee Registered Email'}
+                  </label>
                   <input
-                    type={showNewPassword ? 'text' : 'password'}
+                    type="email"
                     required
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter new password"
-                    className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
+                    className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
-                  >
-                    {showNewPassword ? '🙈' : '👁️'}
-                  </button>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-bold text-[#334155] mb-1">Confirm New Password</label>
-                <div className="relative">
-                  <input
-                    type={showConfirmNewPassword ? 'text' : 'password'}
-                    required
-                    value={confirmNewPassword}
-                    onChange={(e) => setConfirmNewPassword(e.target.value)}
-                    placeholder="Confirm new password"
-                    className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
-                    className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
-                  >
-                    {showConfirmNewPassword ? '🙈' : '👁️'}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-2.5 bg-[#10B981] hover:bg-[#059669] active:bg-[#047857] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-1"
-              >
-                {isSubmitting ? 'Updating Password...' : 'Save & Update Password →'}
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  disabled={isResetSending}
+                  className="w-full py-3 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <span>✉️</span>
+                  <span>{isResetSending ? 'Sending direct message to mail...' : 'Send Password Reset Email'}</span>
+                </button>
+              </form>
+            )}
 
             <div className="text-center pt-1 border-t border-[#E2E8F0]">
               <button
                 type="button"
-                onClick={() => handleTabSwitch('login')}
+                onClick={() => {
+                  handleTabSwitch('login');
+                  setIsResetLinkFromEmail(false);
+                }}
                 className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
               >
                 ← Back to {loginRole === 'admin' ? 'Admin' : 'Employee'} Sign in
