@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sendSmtpEmail } from '@/lib/smtpClient';
+import { db } from '@/lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 export async function POST(request: Request) {
   try {
@@ -24,9 +26,25 @@ export async function POST(request: Request) {
       }
     } catch (e) {}
 
-    // Generate random 6-digit verification code
+    // Generate random 6-digit verification code and exact 15-minute expiration timestamp
+    const now = Date.now();
+    const expiresAt = now + 15 * 60 * 1000; // 15 minutes validity
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const resetLink = `${baseUrl}/?resetEmail=${encodeURIComponent(email)}&role=${encodeURIComponent(role)}&resetCode=${resetCode}#reset-password`;
+    const resetLink = `${baseUrl}/?resetEmail=${encodeURIComponent(email)}&role=${encodeURIComponent(role)}&resetCode=${resetCode}&exp=${expiresAt}#reset-password`;
+
+    // Record reset request in Firestore with 15-minute expiration
+    try {
+      const resetDoc = doc(db, 'password_resets', email.replace(/[^a-zA-Z0-9]/g, '_'));
+      await setDoc(resetDoc, {
+        email,
+        code: resetCode,
+        createdAt: now,
+        expiresAt,
+        used: false,
+      });
+    } catch (dbErr) {
+      console.warn('Firestore password_resets write warning:', dbErr);
+    }
 
     // Plain text alternative for email deliverability & anti-spam
     const text = `WorkOrbit Password Reset
@@ -36,7 +54,7 @@ Hello,
 We received a request to change the password for your WorkOrbit ${role === 'admin' ? 'Administrator' : 'Employee'} account (${email}).
 
 Your 6-Digit Password Reset Code: ${resetCode}
-(Valid for 15 minutes)
+(Valid for 15 minutes only - link will time out afterwards)
 
 To reset your password, visit this link:
 ${resetLink}
@@ -89,7 +107,7 @@ If you did not request this, you can safely ignore this email.
     <div style="background-color: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 16px; text-align: center; margin: 24px 0;">
       <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748B; margin-bottom: 6px;">Your 6-Digit Password Reset Code</div>
       <div style="font-size: 28px; font-weight: 900; letter-spacing: 6px; color: #0F172A; font-family: monospace;">${resetCode}</div>
-      <div style="font-size: 11px; color: #64748B; margin-top: 6px;">Valid for 15 minutes</div>
+      <div style="font-size: 11px; color: #64748B; margin-top: 6px;">Valid for 15 minutes only (times out afterwards)</div>
     </div>
 
     <p style="font-size: 12px; color: #64748B; line-height: 1.5; margin: 20px 0 0 0;">

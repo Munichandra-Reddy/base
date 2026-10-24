@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {
   addFirebaseUserAccount,
   addFirebaseEmployee,
@@ -91,25 +91,56 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
   const [smtpAppPassword, setSmtpAppPassword] = useState('sruz wsts getn ydcf');
   const [showSmtpConfig, setShowSmtpConfig] = useState(false);
   const [isResetLinkFromEmail, setIsResetLinkFromEmail] = useState(false);
+  const [isResetExpired, setIsResetExpired] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isResetSending, setIsResetSending] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Auto-detect password reset URL link params from email
+  // Auto-detect password reset URL link params from email and enforce 15-minute timeout
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const urlEmail = urlParams.get('resetEmail');
       const urlRole = urlParams.get('role');
       const urlCode = urlParams.get('resetCode');
+      const urlExp = urlParams.get('exp');
       const hash = window.location.hash;
+
       if (urlEmail && (urlCode || hash === '#reset-password')) {
-        setIsResetLinkFromEmail(true);
+        const decodedEmail = decodeURIComponent(urlEmail);
         setMode('forgot');
-        setEmail(decodeURIComponent(urlEmail));
+        setEmail(decodedEmail);
         if (urlRole === 'employee' || urlRole === 'admin') {
           setLoginRole(urlRole);
+        }
+        setIsResetLinkFromEmail(true);
+
+        // 15-minute expiration check
+        const now = Date.now();
+        const expirationTime = urlExp ? parseInt(urlExp, 10) : 0;
+
+        if (expirationTime > 0 && now > expirationTime) {
+          setIsResetExpired(true);
+        } else {
+          setIsResetExpired(false);
+          // Verify with Firestore database record
+          if (db) {
+            getDoc(doc(db, 'password_resets', decodedEmail.replace(/[^a-zA-Z0-9]/g, '_')))
+              .then((snap) => {
+                if (snap.exists()) {
+                  const data = snap.data();
+                  if (data) {
+                    if (data.used) {
+                      setIsResetExpired(true);
+                    } else if (data.expiresAt && now > data.expiresAt) {
+                      setIsResetExpired(true);
+                    }
+                  }
+                }
+              })
+              .catch(() => {});
+          }
         }
       }
     }
@@ -334,10 +365,46 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     setErrorMessage(null);
     setSuccessMessage(null);
 
+    // Enforce 15-minute expiration verification before changing password
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlExp = urlParams.get('exp');
+      if (urlExp) {
+        const expirationTime = parseInt(urlExp, 10);
+        if (Date.now() > expirationTime) {
+          setIsResetExpired(true);
+          setErrorMessage('Password reset link has timed out. The 15-minute limit expired.');
+          return;
+        }
+      }
+    }
+
     const cleanEmail = email.toLowerCase().trim();
     if (!cleanEmail || !validateEmail(cleanEmail)) {
       setErrorMessage('Please enter registered email address.');
       return;
+    }
+
+    // Verify Firestore reset record hasn't expired or been used
+    if (db) {
+      try {
+        const resetSnap = await getDoc(doc(db, 'password_resets', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')));
+        if (resetSnap.exists()) {
+          const resetData = resetSnap.data();
+          if (resetData) {
+            if (resetData.used) {
+              setIsResetExpired(true);
+              setErrorMessage('This password reset link has already been used.');
+              return;
+            }
+            if (resetData.expiresAt && Date.now() > resetData.expiresAt) {
+              setIsResetExpired(true);
+              setErrorMessage('Password reset link has timed out. The 15-minute limit expired.');
+              return;
+            }
+          }
+        }
+      } catch (e) {}
     }
 
     if (!newPassword || newPassword.length < 6) {
@@ -423,6 +490,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
           password: newPassword,
         });
       }
+
+      // Mark reset code as used in Firestore so it cannot be reused
+      try {
+        const resetDoc = doc(db, 'password_resets', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'));
+        await setDoc(resetDoc, { used: true, updatedAt: Date.now() }, { merge: true });
+      } catch (e) {}
 
       setSuccessMessage('Password changed successfully! You can now sign in with your new password.');
       setNewPassword('');
@@ -791,11 +864,17 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
           {mode === 'forgot' && (
             <>
               <h1 className="text-xl font-black text-[#0F172A] tracking-tight">
-                {isResetLinkFromEmail ? 'Create New Password' : 'Reset your password'}
+                {isResetLinkFromEmail
+                  ? isResetExpired
+                    ? 'Link Timed Out'
+                    : 'Create New Password'
+                  : 'Reset your password'}
               </h1>
               <p className="text-xs font-medium text-[#64748B]">
                 {isResetLinkFromEmail
-                  ? 'Enter your new password below to finish resetting.'
+                  ? isResetExpired
+                    ? '15-minute validity has expired.'
+                    : 'Enter your new password below to finish resetting.'
                   : loginRole === 'admin'
                   ? 'Administrator Password Recovery'
                   : 'Employee Password Recovery'}
@@ -851,65 +930,99 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         {mode === 'forgot' ? (
           <div className="space-y-4">
             {isResetLinkFromEmail ? (
-              /* Set New Password Form (ONLY accessible via the email link!) */
-              <form onSubmit={handleDirectChangePassword} className="space-y-3.5">
-                <div className="text-center pb-1">
-                  <h2 className="text-sm font-bold text-[#0F172A]">Set New Password</h2>
-                  <p className="text-xs text-[#64748B]">
-                    Create a new password for <span className="font-semibold text-[#0F172A]">{email}</span>
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1">New Password (min 6 characters) *</label>
-                  <div className="relative">
-                    <input
-                      type={showNewPassword ? 'text' : 'password'}
-                      required
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter new password"
-                      className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
-                    >
-                      {showNewPassword ? '🙈' : '👁️'}
-                    </button>
+              isResetExpired ? (
+                /* Password Reset Link Timed Out View */
+                <div className="p-6 bg-[#FEF2F2] border border-[#EF4444]/30 rounded-3xl text-center space-y-3.5 animate-in fade-in duration-150">
+                  <div className="w-12 h-12 mx-auto bg-[#FEE2E2] rounded-full flex items-center justify-center text-2xl shadow-inner">
+                    ⏱️
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1">Confirm New Password *</label>
-                  <div className="relative">
-                    <input
-                      type={showConfirmNewPassword ? 'text' : 'password'}
-                      required
-                      value={confirmNewPassword}
-                      onChange={(e) => setConfirmNewPassword(e.target.value)}
-                      placeholder="Confirm new password"
-                      className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
-                      className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
-                    >
-                      {showConfirmNewPassword ? '🙈' : '👁️'}
-                    </button>
+                  <div>
+                    <h2 className="text-sm font-black text-[#991B1B]">Password Reset Link Timed Out</h2>
+                    <p className="text-xs text-[#7F1D1D] mt-1.5 leading-relaxed font-medium">
+                      This password reset link was valid for 15 minutes and has timed out. For security, please request a new password reset email.
+                    </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsResetExpired(false);
+                      setIsResetLinkFromEmail(false);
+                      setErrorMessage(null);
+                      setSuccessMessage(null);
+                      if (typeof window !== 'undefined') {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                      }
+                    }}
+                    className="w-full py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-1"
+                  >
+                    Request New Reset Link →
+                  </button>
                 </div>
+              ) : (
+                /* Set New Password Form (ONLY accessible via valid email link within 15 minutes) */
+                <form onSubmit={handleDirectChangePassword} className="space-y-3.5">
+                  <div className="text-center pb-1">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 mb-2 bg-[#FEF3C7] border border-[#F59E0B]/30 rounded-full text-[11px] font-bold text-[#B45309]">
+                      <span>⏱️</span>
+                      <span>Valid for 15 minutes</span>
+                    </div>
+                    <h2 className="text-sm font-bold text-[#0F172A]">Set New Password</h2>
+                    <p className="text-xs text-[#64748B]">
+                      Create a new password for <span className="font-semibold text-[#0F172A]">{email}</span>
+                    </p>
+                  </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-1"
-                >
-                  {isSubmitting ? 'Updating Password...' : 'Save & Update Password →'}
-                </button>
-              </form>
+                  <div>
+                    <label className="block text-xs font-bold text-[#334155] mb-1">New Password (min 6 characters) *</label>
+                    <div className="relative">
+                      <input
+                        type={showNewPassword ? 'text' : 'password'}
+                        required
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Enter new password"
+                        className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
+                      >
+                        {showNewPassword ? '🙈' : '👁️'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#334155] mb-1">Confirm New Password *</label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmNewPassword ? 'text' : 'password'}
+                        required
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        placeholder="Confirm new password"
+                        className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                        className="absolute right-3.5 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer text-xs"
+                      >
+                        {showConfirmNewPassword ? '🙈' : '👁️'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-1"
+                  >
+                    {isSubmitting ? 'Updating Password...' : 'Save & Update Password →'}
+                  </button>
+                </form>
+              )
             ) : (
               /* Request Password Reset Email form (Website view - only option) */
               <form onSubmit={handleForgotPassword} className="space-y-3.5">
@@ -944,6 +1057,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 onClick={() => {
                   handleTabSwitch('login');
                   setIsResetLinkFromEmail(false);
+                  setIsResetExpired(false);
+                  if (typeof window !== 'undefined') {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                  }
                 }}
                 className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
               >
