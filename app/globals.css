@@ -3,49 +3,131 @@
 @tailwind utilities;
 
 :root {
-  /* 2. Color Palette & Tokens (Core Brand & Layout Colors) */
-  --primary: #0B192C;
-  --sidebar-surface-dark: #15293F;
-  --sidebar-border-line: #1E2E42;
-  --background: #F1F3F6;
+  /* Cisco Brand Color Palette */
+  --cisco-dark: #011826;
+  --cisco-blue: #049FD9;
+  --cisco-blue-dark: #004BAF;
+  --cisco-green: #238823;
+  --cisco-accent-green: #04D98B;
+  --cta-green: #6CC04A;
+  --text-main: #222222;
+  --text-muted: #595959;
+  --bg-white: #FFFFFF;
+  --border-color: #E5E5E5;
+
+  /* Mapped Core Tokens */
+  --primary: #011826;
+  --sidebar-surface-dark: #082236;
+  --sidebar-border-line: #0d314d;
+  --background: #FFFFFF;
   --card: #FFFFFF;
-  --muted: #EBF0F5;
-  --border: #E2E8F0;
+  --muted: #F4F6F8;
+  --border: #E5E5E5;
 
   /* Typography Colors (Hierarchy) */
-  --text-high: #0F172A;
-  --text-medium: #334155;
-  --text-low: #64748B;
-  --border-muted: #CBD5E1;
+  --text-high: #222222;
+  --text-medium: #595959;
+  --text-low: #595959;
+  --border-muted: #CCCCCC;
 
   /* Semantic Status Colors */
-  --color-success: #10B981;
-  --bg-success: #ECFDF5;
+  --color-success: #6CC04A;
+  --bg-success: #F0FDF4;
   --color-warning: #F59E0B;
   --bg-warning: #FFFBEB;
   --color-destructive: #EF4444;
   --bg-destructive: #FEF2F2;
-  --color-info: #2563EB;
-  --bg-info: #EFF6FF;
-  --color-teal: #0D9488;
-  --bg-teal: #F0FDFA;
+  --color-info: #049FD9;
+  --bg-info: #F0F9FF;
+  --color-teal: #04D98B;
+  --bg-teal: #ECFDF5;
 }
 
 html {
   font-size: 15px;
-  font-family: var(--font-sans), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Arial", "Helvetica", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  color: var(--text-high);
-  background: var(--background);
-  font-family: var(--font-sans), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 1rem;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: "Arial", "Helvetica", sans-serif;
+  color: var(--text-main);
+  background-color: var(--bg-white);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* Header Navbar */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Headings */
+h1 {
+  font-size: 44px;
+  font-weight: 300;
+  color: var(--text-main);
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+
+h2, h3, h4, h5, h6 {
+  color: var(--text-main);
+}
+
+/* Body Paragraphs */
+p {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Highlight Links */
+a.highlight-link, .highlight-link {
+  color: var(--cisco-green);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+a.highlight-link:hover, .highlight-link:hover {
+  text-decoration: underline;
+  color: var(--cisco-accent-green);
+}
+
+/* Buttons */
+.btn-login {
+  background-color: var(--bg-white);
+  color: var(--text-main);
+  border: 1px solid #CCCCCC;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-login:hover {
+  background-color: #F8FAFC;
+  border-color: #222222;
+}
+
+.btn-signup {
+  background-color: var(--cta-green);
+  color: var(--bg-white);
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-signup:hover {
+  background-color: #5bb33b;
 }
 
 /* Monospace font stack for Data, Code & Currency */
@@ -56,16 +138,16 @@ code, pre, .font-mono {
 /* Component Patterns: .paper-card */
 .paper-card {
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #E5E5E5;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border-radius: 0.5rem;
 }
 
 /* Semantic Status Indicator Badges */
 .status-badge-success {
-  background-color: #ECFDF5;
-  color: #10B981;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background-color: #F0FDF4;
+  color: #6CC04A;
+  border: 1px solid rgba(108, 192, 74, 0.25);
 }
 
 .status-badge-warning {
@@ -81,53 +163,15 @@ code, pre, .font-mono {
 }
 
 .status-badge-info {
-  background-color: #EFF6FF;
-  color: #2563EB;
-  border: 1px solid rgba(37, 99, 235, 0.25);
+  background-color: #F0F9FF;
+  color: #049FD9;
+  border: 1px solid rgba(4, 159, 217, 0.25);
 }
 
 .status-badge-teal {
-  background-color: #F0FDFA;
-  color: #0D9488;
-  border: 1px solid rgba(13, 148, 136, 0.25);
-}
-
-/* Background Grid Effect: .bg-dotgrid */
-.bg-dotgrid {
-  background-image: radial-gradient(circle, rgba(15, 23, 42, 0.06) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-
-/* Micro-Animations */
-@keyframes marquee-scrolling {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-marquee-scrolling {
-  display: flex;
-  width: max-content;
-  animation: marquee-scrolling 25s linear infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.shimmer-loader {
-  background: linear-gradient(90deg, #EBF0F5 25%, #F1F3F6 50%, #EBF0F5 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes caretBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-.caret-blink {
-  animation: caretBlink 1s infinite;
+  background-color: #ECFDF5;
+  color: #04D98B;
+  border: 1px solid rgba(4, 217, 139, 0.25);
 }
 
 /* Custom smooth scrollbars */
@@ -141,10 +185,55 @@ code, pre, .font-mono {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #CCCCCC;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #999999;
+}
+
+/* Universal mapping for hardcoded legacy hex codes across all components */
+[class*="bg-[#0B192C]"] {
+  background-color: #011826 !important;
+}
+[class*="text-[#0B192C]"] {
+  color: #011826 !important;
+}
+[class*="border-[#0B192C]"] {
+  border-color: #011826 !important;
+}
+
+[class*="bg-[#15293F]"] {
+  background-color: #082236 !important;
+}
+[class*="border-[#1E2E42]"] {
+  border-color: #0d314d !important;
+}
+
+[class*="bg-[#F1F3F6]"] {
+  background-color: #FFFFFF !important;
+}
+[class*="bg-[#EBF0F5]"] {
+  background-color: #F4F6F8 !important;
+}
+
+[class*="border-[#E2E8F0]"] {
+  border-color: #E5E5E5 !important;
+}
+[class*="border-[#CBD5E1]"] {
+  border-color: #CCCCCC !important;
+}
+
+[class*="text-[#0F172A]"] {
+  color: #222222 !important;
+}
+[class*="text-[#334155]"] {
+  color: #595959 !important;
+}
+[class*="text-[#64748B]"] {
+  color: #595959 !important;
+}
+[class*="focus:ring-[#0B192C]"]:focus {
+  --tw-ring-color: #049FD9 !important;
 }

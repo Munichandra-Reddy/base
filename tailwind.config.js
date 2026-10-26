@@ -8,43 +8,52 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', 'Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        sans: ['"Arial"', '"Helvetica"', 'sans-serif', 'var(--font-sans)', 'Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto'],
         mono: ['var(--font-mono)', 'JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       colors: {
-        /* Core Brand & Layout Colors */
+        /* Cisco Brand & Layout Colors */
+        cisco: {
+          dark: '#011826',
+          blue: '#049FD9',
+          'blue-dark': '#004BAF',
+          green: '#238823',
+          cta: '#6CC04A',
+          hover: '#04D98B',
+        },
         brand: {
-          dark: '#0B192C',
-          surface: '#15293F',
-          border: '#1E2E42',
+          dark: '#011826',
+          surface: '#082236',
+          border: '#0d314d',
         },
         primary: {
-          DEFAULT: '#0B192C',
-          dark: '#0B192C',
+          DEFAULT: '#011826',
+          dark: '#011826',
+          blue: '#049FD9',
         },
-        canvas: '#F1F3F6',
+        canvas: '#FFFFFF',
         paper: '#FFFFFF',
-        subtle: '#EBF0F5',
-        borderline: '#E2E8F0',
+        subtle: '#F4F6F8',
+        borderline: '#E5E5E5',
         card: '#FFFFFF',
-        background: '#F1F3F6',
+        background: '#FFFFFF',
         muted: {
-          DEFAULT: '#EBF0F5',
-          foreground: '#64748B',
+          DEFAULT: '#F4F6F8',
+          foreground: '#595959',
         },
-        border: '#E2E8F0',
+        border: '#E5E5E5',
 
         /* Typography Colors (Hierarchy) */
-        heading: '#0F172A',
-        body: '#334155',
-        subtext: '#64748B',
-        'muted-border': '#CBD5E1',
+        heading: '#222222',
+        body: '#595959',
+        subtext: '#595959',
+        'muted-border': '#CCCCCC',
 
         /* Semantic Status Colors */
         status: {
           success: {
-            DEFAULT: '#10B981',
-            tint: '#ECFDF5',
+            DEFAULT: '#6CC04A',
+            tint: '#F0FDF4',
           },
           warning: {
             DEFAULT: '#F59E0B',
@@ -55,12 +64,12 @@ module.exports = {
             tint: '#FEF2F2',
           },
           info: {
-            DEFAULT: '#2563EB',
-            tint: '#EFF6FF',
+            DEFAULT: '#049FD9',
+            tint: '#F0F9FF',
           },
           teal: {
-            DEFAULT: '#0D9488',
-            tint: '#F0FDFA',
+            DEFAULT: '#04D98B',
+            tint: '#ECFDF5',
           },
         },
       },

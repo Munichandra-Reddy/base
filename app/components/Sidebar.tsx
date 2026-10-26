@@ -56,10 +56,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const storagePercentage = Math.min(100, Math.round((storageUsedGB / storageTotalGB) * 100));
 
   return (
-    <aside className="w-68 bg-white border-r border-[#E2E8F0] p-4 flex flex-col justify-between h-full shrink-0 select-none overflow-y-auto">
+    <aside className="w-68 bg-white border-r border-[#E5E5E5] p-4 flex flex-col justify-between h-full shrink-0 select-none overflow-y-auto">
       <div className="space-y-5">
         <div>
-          <h3 className="px-3 text-[11px] font-bold tracking-wider text-[#64748B] uppercase mb-2">
+          <h3 className="px-3 text-[11px] font-bold tracking-wider text-[#595959] uppercase mb-2">
             WORKSPACE
           </h3>
           <nav className="space-y-1">
@@ -72,18 +72,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full group flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all ${
                     isActive
-                      ? 'bg-[#0B192C] text-white font-bold shadow-xs'
-                      : 'text-[#334155] hover:bg-[#EBF0F5] hover:text-[#0F172A] font-semibold'
+                      ? 'bg-[#011826] text-white font-bold shadow-xs'
+                      : 'text-[#222222] hover:bg-[#F4F6F8] hover:text-[#011826] font-medium'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-[#64748B] group-hover:text-[#0F172A]'}`} />
+                    <Icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-[#595959] group-hover:text-[#011826]'}`} />
                     <span className="whitespace-nowrap truncate text-sm font-semibold">{item.label}</span>
                   </div>
                   {item.badge !== undefined && item.badge > 0 && (
                     <span
                       className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ml-2 ${
-                        isActive ? 'bg-[#15293F] text-white' : 'bg-[#EBF0F5] text-[#64748B]'
+                        isActive ? 'bg-[#049FD9] text-white' : 'bg-[#F4F6F8] text-[#595959]'
                       }`}
                     >
                       {item.badge}
@@ -97,19 +97,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom Storage & Workspace Plan Card */}
-      <div className="pt-4 border-t border-[#E2E8F0]">
+      <div className="pt-4 border-t border-[#E5E5E5]">
         <div>
-          <div className="flex items-center justify-between text-xs font-bold text-[#334155] mb-2">
+          <div className="flex items-center justify-between text-xs font-bold text-[#222222] mb-2">
             <span>Workspace Plan</span>
-            <span className="text-[#0F172A] font-bold">Pro Plan</span>
+            <span className="text-[#049FD9] font-bold">Pro Plan</span>
           </div>
-          <div className="w-full bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden mb-2">
+          <div className="w-full bg-[#F4F6F8] rounded-full h-1.5 overflow-hidden mb-2">
             <div
-              className="bg-[#0B192C] h-full rounded-full transition-all duration-500"
+              className="bg-[#049FD9] h-full rounded-full transition-all duration-500"
               style={{ width: `${storagePercentage}%` }}
             />
           </div>
-          <div className="text-[11px] font-medium text-[#64748B]">
+          <div className="text-[11px] font-medium text-[#595959]">
             {storageUsedGB} GB of {storageTotalGB} GB storage used
           </div>
         </div>

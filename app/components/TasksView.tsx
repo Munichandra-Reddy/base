@@ -29,16 +29,16 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
   return (
     <div className="space-y-7 font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white p-7 rounded-2xl border border-[#E5E5E5] shadow-micro">
         <div>
-          <h1 className="text-3xl font-extrabold text-[#0F172A]">My Tasks & To-Dos</h1>
-          <p className="text-[#64748B] text-base font-medium mt-1">
+          <h1 className="text-3xl font-light text-[#222222]">My Tasks & To-Dos</h1>
+          <p className="text-[#595959] text-base font-medium mt-1">
             Track, filter, and complete assigned tasks across all active Basecamp projects.
           </p>
         </div>
         <button
           onClick={onOpenAddTask}
-          className="px-5 py-3 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-base rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
+          className="px-5 py-3 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-semibold text-base rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
         >
           <PlusIcon className="w-5 h-5" />
           <span>New Task</span>
@@ -46,16 +46,16 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
       </div>
 
       {/* Filter Tabs & Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-white p-4.5 rounded-2xl border border-[#E2E8F0] shadow-micro">
-        <div className="flex items-center gap-1.5 bg-white border border-[#E2E8F0] p-1.5 rounded-xl shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-white p-4.5 rounded-2xl border border-[#E5E5E5] shadow-micro">
+        <div className="flex items-center gap-1.5 bg-white border border-[#E5E5E5] p-1.5 rounded-xl shadow-2xs">
           {(['all', 'pending', 'completed'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
               className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all cursor-pointer ${
                 filter === tab
-                  ? 'bg-[#0B192C] text-white shadow-xs font-extrabold'
-                  : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
+                  ? 'bg-[#011826] text-white shadow-xs font-extrabold'
+                  : 'bg-white text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8]'
               }`}
             >
               {tab}
@@ -91,8 +91,8 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
                   <div
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 mt-0.5 ${
                       task.completed
-                        ? 'bg-[#10B981] border-[#10B981] text-white'
-                        : 'border-[#CBD5E1] hover:border-[#0B192C] bg-white'
+                        ? 'bg-[#6CC04A] border-[#6CC04A] text-white'
+                        : 'border-[#CCCCCC] hover:border-[#011826] bg-white'
                     }`}
                   >
                     {task.completed && (

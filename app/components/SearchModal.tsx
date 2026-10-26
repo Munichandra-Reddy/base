@@ -27,19 +27,19 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-[#0B192C]/50 backdrop-blur-xs p-4 font-sans">
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-2xl w-full max-w-lg overflow-hidden">
-        <div className="p-4 border-b border-[#E2E8F0] flex items-center gap-3">
-          <SearchIcon className="w-5 h-5 text-[#64748B]" />
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-[#011826]/60 backdrop-blur-xs p-4 font-sans">
+      <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-2xl w-full max-w-lg overflow-hidden">
+        <div className="p-4 border-b border-[#E5E5E5] flex items-center gap-3">
+          <SearchIcon className="w-5 h-5 text-[#595959]" />
           <input
             type="text"
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search projects, tasks, people, files..."
-            className="flex-1 bg-transparent text-sm text-[#0F172A] focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-[#222222] focus:outline-none"
           />
-          <button onClick={onClose} className="text-xs font-bold text-[#64748B] hover:text-[#0F172A]">
+          <button onClick={onClose} className="text-xs font-bold text-[#595959] hover:text-[#222222]">
             ESC
           </button>
         </div>

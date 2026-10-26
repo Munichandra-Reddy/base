@@ -97,20 +97,20 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
       {/* 1. PERSONAL HERO BANNER & STATUS CONTROLS */}
       <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#0B192C] text-white font-black text-2xl flex items-center justify-center shadow-xs shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-[#011826] text-white font-black text-2xl flex items-center justify-center shadow-xs shrink-0">
             {employeeName[0]?.toUpperCase() || 'P'}
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl font-black text-[#0F172A] tracking-tight">
+              <h1 className="text-2xl font-light text-[#222222] tracking-tight">
                 Welcome back, {employeeName}!
               </h1>
-              <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20">
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#F0FDF4] text-[#238823] border border-[#238823]/20">
                 Product Designer
               </span>
             </div>
-            <p className="text-xs font-semibold text-[#64748B] mt-1">
-              You have <strong className="text-[#0F172A]">{myPendingTasks.length} pending tasks</strong> across <strong className="text-[#0F172A]">{displayedProjects.length} active projects</strong> today.
+            <p className="text-xs font-semibold text-[#595959] mt-1">
+              You have <strong className="text-[#222222]">{myPendingTasks.length} pending tasks</strong> across <strong className="text-[#222222]">{displayedProjects.length} active projects</strong> today.
             </p>
           </div>
         </div>
@@ -118,20 +118,20 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Status Toggle & Quick Actions */}
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Work Status Selector */}
-          <div className="flex items-center bg-[#F1F3F6] p-1 rounded-xl border border-[#E2E8F0] text-xs font-bold">
+          <div className="flex items-center bg-[#F4F6F8] p-1 rounded-xl border border-[#E5E5E5] text-xs font-bold">
             <button
               onClick={() => setWorkStatus('available')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                workStatus === 'available' ? 'bg-white text-[#0F172A] shadow-xs' : 'text-[#64748B] hover:text-[#0F172A]'
+                workStatus === 'available' ? 'bg-white text-[#222222] shadow-xs' : 'text-[#595959] hover:text-[#222222]'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[#6CC04A] animate-pulse" />
               <span>Available</span>
             </button>
             <button
               onClick={() => setWorkStatus('focus')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                workStatus === 'focus' ? 'bg-[#0B192C] text-white shadow-xs' : 'text-[#64748B] hover:text-[#0F172A]'
+                workStatus === 'focus' ? 'bg-[#011826] text-white shadow-xs' : 'text-[#595959] hover:text-[#222222]'
               }`}
             >
               <span>Focus</span>
@@ -139,7 +139,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             <button
               onClick={() => setWorkStatus('meeting')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                workStatus === 'meeting' ? 'bg-white text-[#0F172A] shadow-xs' : 'text-[#64748B] hover:text-[#0F172A]'
+                workStatus === 'meeting' ? 'bg-white text-[#222222] shadow-xs' : 'text-[#595959] hover:text-[#222222]'
               }`}
             >
               <span>Meeting</span>
@@ -149,7 +149,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           {/* Quick Check-in Button */}
           <button
             onClick={onViewCheckins}
-            className="px-4 py-2 bg-[#0B192C] hover:bg-[#15293F] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2 bg-[#049FD9] hover:bg-[#004BAF] text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
           >
             <span>Daily Check-in</span>
           </button>
@@ -360,9 +360,9 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
               </select>
               <button
                 type="submit"
-                className="px-4 py-2.5 bg-[#0B192C] hover:bg-[#15293F] text-white text-xs font-bold rounded-xl shrink-0 cursor-pointer transition-colors"
+                className="px-4 py-2.5 bg-[#6CC04A] hover:bg-[#5bb33b] text-white text-xs font-semibold rounded-lg shrink-0 cursor-pointer transition-colors"
               >
-                Add
+                Add Task
               </button>
             </form>
 
@@ -393,8 +393,8 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                         <div
                           className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${
                             task.completed
-                              ? 'bg-[#10B981] border-[#10B981] text-white'
-                              : 'border-[#CBD5E1] group-hover:border-[#0B192C] bg-white'
+                              ? 'bg-[#6CC04A] border-[#6CC04A] text-white'
+                              : 'border-[#CCCCCC] group-hover:border-[#011826] bg-white'
                           }`}
                         >
                           {task.completed && (
@@ -452,29 +452,29 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                 <div
                   key={project.id}
                   onClick={onViewProjects}
-                  className="p-4 rounded-xl border border-[#E2E8F0] bg-white hover:border-[#0B192C] hover:shadow-xs transition-all cursor-pointer space-y-3 group"
+                  className="p-4 rounded-xl border border-[#E5E5E5] bg-white hover:border-[#049FD9] hover:shadow-xs transition-all cursor-pointer space-y-3 group"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <h4 className="font-extrabold text-xs text-[#0F172A] group-hover:underline">
+                    <h4 className="font-extrabold text-xs text-[#222222] group-hover:underline">
                       {project.name}
                     </h4>
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 uppercase">
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#F0FDF4] text-[#238823] border border-[#238823]/20 uppercase">
                       {project.status}
                     </span>
                   </div>
 
-                  <p className="text-[11px] text-[#64748B] font-medium line-clamp-2">
+                  <p className="text-[11px] text-[#595959] font-medium line-clamp-2">
                     {project.description || 'Sprint deliverables and active milestone tracking.'}
                   </p>
 
                   <div>
-                    <div className="flex items-center justify-between text-[10px] font-bold text-[#64748B] mb-1">
+                    <div className="flex items-center justify-between text-[10px] font-bold text-[#595959] mb-1">
                       <span>Sprint Progress</span>
-                      <span className="text-[#0F172A]">{project.progress}%</span>
+                      <span className="text-[#222222]">{project.progress}%</span>
                     </div>
-                    <div className="w-full bg-[#F1F3F6] rounded-full h-1.5 overflow-hidden">
+                    <div className="w-full bg-[#F4F6F8] rounded-full h-1.5 overflow-hidden">
                       <div
-                        className="bg-[#0B192C] h-full rounded-full transition-all duration-500"
+                        className="bg-[#049FD9] h-full rounded-full transition-all duration-500"
                         style={{ width: `${project.progress}%` }}
                       />
                     </div>

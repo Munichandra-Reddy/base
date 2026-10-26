@@ -462,7 +462,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
           <button
             type="submit"
             form={activeType === 'task' ? 'create-task-form' : 'create-project-form'}
-            className="px-5 py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
+            className="px-5 py-2.5 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-bold text-xs rounded-lg shadow-sm transition-all cursor-pointer"
           >
             Create {activeType === 'task' ? 'Task' : 'Project'}
           </button>

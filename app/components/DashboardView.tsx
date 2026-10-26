@@ -227,10 +227,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Card 1: Project Progress */}
             <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-micro flex flex-col justify-between">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-extrabold text-[#0F172A] text-base">Project Progress</h3>
+                <h3 className="font-extrabold text-[#222222] text-base">Project Progress</h3>
                 <button
                   onClick={onViewProjects}
-                  className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
                 >
                   View All
                 </button>
@@ -241,14 +241,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                     <path
-                      className="text-[#EBF0F5]"
+                      className="text-[#F4F6F8]"
                       strokeWidth="4"
                       stroke="currentColor"
                       fill="none"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                     <path
-                      className="text-[#10B981]"
+                      className="text-[#6CC04A]"
                       strokeDasharray="68, 100"
                       strokeWidth="4.5"
                       strokeLinecap="round"
@@ -257,7 +257,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                     <path
-                      className="text-[#2563EB]"
+                      className="text-[#049FD9]"
                       strokeDasharray="25, 100"
                       strokeDashoffset="-68"
                       strokeWidth="4.5"
@@ -268,26 +268,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     />
                   </svg>
                   <div className="absolute text-center leading-tight">
-                    <div className="text-xl font-black text-[#0F172A]">68%</div>
-                    <div className="text-[10px] font-bold text-[#64748B]">Overall Progress</div>
+                    <div className="text-xl font-black text-[#222222]">68%</div>
+                    <div className="text-[10px] font-bold text-[#595959]">Overall Progress</div>
                   </div>
                 </div>
 
                 {/* Legend List */}
-                <div className="space-y-2 text-xs font-semibold text-[#334155] flex-1">
+                <div className="space-y-2 text-xs font-semibold text-[#595959] flex-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#6CC04A]" />
                       <span>Completed</span>
                     </div>
-                    <span className="font-bold text-[#0F172A]">4</span>
+                    <span className="font-bold text-[#222222]">4</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#049FD9]" />
                       <span>In Progress</span>
                     </div>
-                    <span className="font-bold text-[#0F172A]">2</span>
+                    <span className="font-bold text-[#222222]">2</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -314,7 +314,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   type="button"
                   onClick={onViewCalendar}
-                  className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
                 >
                   View Calendar
                 </button>
@@ -397,10 +397,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {/* Card 3: Top Projects Table */}
             <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-micro">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-extrabold text-[#0F172A] text-base">Top Projects</h3>
+                <h3 className="font-extrabold text-[#222222] text-base">Top Projects</h3>
                 <button
                   onClick={onViewProjects}
-                  className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
                 >
                   View All
                 </button>
@@ -652,23 +652,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Card 5: My Tasks Widget */}
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-micro space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-extrabold text-[#0F172A] text-base">My Tasks</h3>
+              <h3 className="font-extrabold text-[#222222] text-base">My Tasks</h3>
               <button
                 onClick={onViewAllTasks}
-                className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
+                className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
               >
                 View All
               </button>
             </div>
 
             {/* Filter Pills */}
-            <div className="flex items-center gap-1 bg-white border border-[#E2E8F0] p-1 rounded-xl text-xs font-bold shadow-2xs">
+            <div className="flex items-center gap-1 bg-white border border-[#E5E5E5] p-1 rounded-xl text-xs font-bold shadow-2xs">
               <button
                 onClick={() => setTaskFilter('all')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
                   taskFilter === 'all'
-                    ? 'bg-[#0B192C] text-white shadow-2xs font-extrabold'
-                    : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
+                    ? 'bg-[#011826] text-white shadow-2xs font-extrabold'
+                    : 'bg-white text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8]'
                 }`}
               >
                 All
@@ -677,8 +677,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={() => setTaskFilter('pending')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
                   taskFilter === 'pending'
-                    ? 'bg-[#0B192C] text-white shadow-2xs font-extrabold'
-                    : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
+                    ? 'bg-[#011826] text-white shadow-2xs font-extrabold'
+                    : 'bg-white text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8]'
                 }`}
               >
                 Pending
@@ -687,8 +687,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={() => setTaskFilter('completed')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
                   taskFilter === 'completed'
-                    ? 'bg-[#0B192C] text-white shadow-2xs font-extrabold'
-                    : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
+                    ? 'bg-[#011826] text-white shadow-2xs font-extrabold'
+                    : 'bg-white text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8]'
                 }`}
               >
                 Completed
@@ -713,14 +713,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div
                     key={task.id}
                     onClick={() => onToggleTask(task.id)}
-                    className="p-3 rounded-xl border border-[#E2E8F0] bg-white hover:bg-[#EBF0F5] transition-all cursor-pointer flex items-center justify-between gap-3 group"
+                    className="p-3 rounded-xl border border-[#E5E5E5] bg-white hover:bg-[#F4F6F8] transition-all cursor-pointer flex items-center justify-between gap-3 group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                           task.completed
-                            ? 'bg-[#10B981] border-[#10B981] text-white'
-                            : 'border-[#CBD5E1] group-hover:border-[#0B192C] bg-white'
+                            ? 'bg-[#6CC04A] border-[#6CC04A] text-white'
+                            : 'border-[#CCCCCC] group-hover:border-[#011826] bg-white'
                         }`}
                       >
                         {task.completed && (

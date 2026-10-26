@@ -36,7 +36,7 @@ export const ADMIN_CREDENTIALS = {
 };
 
 const OrbitLogoIcon = () => (
-  <div className="w-14 h-14 rounded-2xl bg-[#0B192C] flex items-center justify-center text-white shadow-md mx-auto mb-3">
+  <div className="w-14 h-14 rounded-2xl bg-[#011826] flex items-center justify-center text-white shadow-md mx-auto mb-3">
     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <circle cx="12" cy="12" r="7" strokeWidth="2.5" />
       <circle cx="12" cy="5" r="2" fill="currentColor" />
@@ -837,8 +837,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F1F3F6] flex flex-col justify-center items-center p-4 sm:p-6 font-sans">
-      <div className="w-full max-w-md bg-white rounded-3xl border border-[#E2E8F0] shadow-xl p-8 sm:p-9 space-y-5">
+    <div className="min-h-screen bg-[#FFFFFF] flex flex-col justify-center items-center p-4 sm:p-6 font-sans">
+      <div className="w-full max-w-md bg-white rounded-3xl border border-[#E5E5E5] shadow-xl p-8 sm:p-9 space-y-5">
         
         {/* Logo Header */}
         <div className="text-center space-y-1">
@@ -846,8 +846,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
           {mode === 'login' && (
             <>
-              <h1 className="text-2xl font-black text-[#0F172A] tracking-tight">WorkOrbit</h1>
-              <p className="text-xs font-semibold text-[#64748B]">
+              <h1 className="text-3xl font-light text-[#222222] tracking-tight">WorkOrbit</h1>
+              <p className="text-xs font-semibold text-[#595959]">
                 {loginRole === 'admin'
                   ? 'Administrator Access Portal'
                   : 'Employee Workspace Portal'}
@@ -857,21 +857,21 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
           {mode === 'signup' && (
             <>
-              <h1 className="text-xl font-black text-[#0F172A] tracking-tight">Create Employee Account</h1>
-              <p className="text-xs font-medium text-[#64748B]">Join your team on WorkOrbit.</p>
+              <h1 className="text-2xl font-light text-[#222222] tracking-tight">Create Employee Account</h1>
+              <p className="text-xs font-medium text-[#595959]">Join your team on WorkOrbit.</p>
             </>
           )}
 
           {mode === 'forgot' && (
             <>
-              <h1 className="text-xl font-black text-[#0F172A] tracking-tight">
+              <h1 className="text-2xl font-light text-[#222222] tracking-tight">
                 {isResetLinkFromEmail
                   ? isResetExpired
                     ? 'Link Timed Out'
                     : 'Create New Password'
                   : 'Reset your password'}
               </h1>
-              <p className="text-xs font-medium text-[#64748B]">
+              <p className="text-xs font-medium text-[#595959]">
                 {isResetLinkFromEmail
                   ? isResetExpired
                     ? '15-minute validity has expired.'
@@ -886,14 +886,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
         {/* ADMIN vs EMPLOYEE LOGIN SWITCHER (ONLY IN LOGIN MODE) */}
         {mode === 'login' && (
-          <div className="grid grid-cols-2 p-1 bg-[#F1F3F6] rounded-2xl border border-[#E2E8F0]">
+          <div className="grid grid-cols-2 p-1 bg-[#F4F6F8] rounded-2xl border border-[#E5E5E5]">
             <button
               type="button"
               onClick={() => handleRoleSwitch('admin')}
               className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
                 loginRole === 'admin'
-                  ? 'bg-[#0B192C] text-white shadow-xs font-black'
-                  : 'text-[#64748B] hover:text-[#0F172A]'
+                  ? 'bg-[#011826] text-white shadow-xs font-bold'
+                  : 'text-[#595959] hover:text-[#011826]'
               }`}
             >
               Admin Login
@@ -903,8 +903,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               onClick={() => handleRoleSwitch('employee')}
               className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
                 loginRole === 'employee'
-                  ? 'bg-[#0B192C] text-white shadow-xs font-black'
-                  : 'text-[#64748B] hover:text-[#0F172A]'
+                  ? 'bg-[#011826] text-white shadow-xs font-bold'
+                  : 'text-[#595959] hover:text-[#011826]'
               }`}
             >
               Employee Login
@@ -1239,9 +1239,9 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     id="rememberMe"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-[#CBD5E1] text-[#0B192C] focus:ring-[#0B192C] accent-[#0B192C] cursor-pointer"
+                    className="w-4 h-4 rounded border-[#CCCCCC] text-[#049FD9] focus:ring-[#049FD9] accent-[#049FD9] cursor-pointer"
                   />
-                  <label htmlFor="rememberMe" className="text-xs font-semibold text-[#334155] cursor-pointer select-none">
+                  <label htmlFor="rememberMe" className="text-xs font-semibold text-[#595959] cursor-pointer select-none">
                     Remember my session
                   </label>
                 </div>
@@ -1251,7 +1251,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-2"
+              className={`w-full py-3 font-semibold text-sm rounded-lg shadow-sm transition-all cursor-pointer mt-2 ${
+                mode === 'signup'
+                  ? 'bg-[#6CC04A] hover:bg-[#5bb33b] text-white'
+                  : 'bg-[#011826] hover:bg-[#082236] text-white'
+              }`}
             >
               {isSubmitting
                 ? 'Verifying...'
@@ -1266,8 +1270,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
         {/* Footer Navigation */}
         {mode === 'signup' && (
-          <div className="text-center space-y-1.5 pt-2 border-t border-[#E2E8F0]">
-            <p className="text-xs text-[#334155] font-medium">
+          <div className="text-center space-y-1.5 pt-2 border-t border-[#E5E5E5]">
+            <p className="text-xs text-[#595959] font-medium">
               Already have an employee account?{' '}
               <button
                 type="button"
@@ -1275,7 +1279,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   handleTabSwitch('login');
                   setLoginRole('employee');
                 }}
-                className="font-bold text-[#0B192C] hover:underline cursor-pointer"
+                className="font-bold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
               >
                 Sign in
               </button>
@@ -1284,24 +1288,24 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         )}
 
         {mode === 'login' && loginRole === 'employee' && (
-          <div className="text-center space-y-2 pt-2 border-t border-[#E2E8F0]">
-            <p className="text-xs text-[#334155] font-medium">
+          <div className="text-center space-y-2 pt-2 border-t border-[#E5E5E5]">
+            <p className="text-xs text-[#595959] font-medium">
               Need an employee account?{' '}
               <button
                 type="button"
                 onClick={() => handleTabSwitch('signup')}
-                className="font-bold text-[#0B192C] hover:underline cursor-pointer"
+                className="font-bold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
               >
                 Create Account
               </button>
             </p>
-            <p className="text-[11px] text-[#64748B]">Employee registrations are automatically verified.</p>
+            <p className="text-[11px] text-[#595959]">Employee registrations are automatically verified.</p>
           </div>
         )}
 
         {mode === 'login' && loginRole === 'admin' && (
-          <div className="text-center pt-2 border-t border-[#E2E8F0]">
-            <p className="text-[11px] text-[#64748B]">
+          <div className="text-center pt-2 border-t border-[#E5E5E5]">
+            <p className="text-[11px] text-[#595959]">
               🔒 Protected administrative console. Single master administrator credentials only.
             </p>
           </div>

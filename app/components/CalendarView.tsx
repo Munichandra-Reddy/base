@@ -95,8 +95,8 @@ export const CalendarView: React.FC = () => {
       {/* Header */}
       <div className="bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-[#0F172A]">Workspace Schedule</h1>
-          <p className="text-[#64748B] text-base font-medium mt-1">
+          <h1 className="text-3xl font-light text-[#222222]">Workspace Schedule</h1>
+          <p className="text-[#595959] text-base font-medium mt-1">
             {viewMode === 'month'
               ? 'October 2026 Milestone & Deliverables Calendar (Click any date for details)'
               : 'Current Week (Oct 1 - Oct 7, 2026) Schedule'}
@@ -112,20 +112,20 @@ export const CalendarView: React.FC = () => {
               setNewEventTitle('');
               setIsAddModalOpen(true);
             }}
-            className="px-4 py-2 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-sm rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+            className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-semibold text-sm rounded-lg shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <span className="text-base leading-none">+</span>
             <span>Add Event</span>
           </button>
 
-          <div className="flex items-center gap-1.5 bg-white border border-[#E2E8F0] p-1.5 rounded-xl shadow-2xs">
+          <div className="flex items-center gap-1.5 bg-white border border-[#E5E5E5] p-1.5 rounded-xl shadow-2xs">
             <button
               type="button"
               onClick={() => setViewMode('month')}
               className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
                 viewMode === 'month'
-                  ? 'bg-[#0B192C] shadow-xs text-white font-extrabold'
-                  : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
+                  ? 'bg-[#011826] shadow-xs text-white font-extrabold'
+                  : 'bg-white text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8]'
               }`}
             >
               Month
@@ -135,8 +135,8 @@ export const CalendarView: React.FC = () => {
               onClick={() => setViewMode('week')}
               className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
                 viewMode === 'week'
-                  ? 'bg-[#0B192C] shadow-xs text-white font-extrabold'
-                  : 'bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC]'
+                  ? 'bg-[#011826] shadow-xs text-white font-extrabold'
+                  : 'bg-white text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8]'
               }`}
             >
               Week

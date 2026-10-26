@@ -11,15 +11,15 @@ interface PeopleViewProps {
 export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmployee }) => {
   return (
     <div className="space-y-7 font-sans">
-      <div className="bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white p-7 rounded-2xl border border-[#E5E5E5] shadow-micro flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-[#0F172A]">Workspace Employees Directory</h1>
-          <p className="text-[#64748B] text-base font-medium mt-1">Employees, administrators, and team members in your ABC Technologies workspace.</p>
+          <h1 className="text-3xl font-light text-[#222222]">Workspace Employees Directory</h1>
+          <p className="text-[#595959] text-base font-medium mt-1">Employees, administrators, and team members in your workspace.</p>
         </div>
         {onOpenAddEmployee && (
           <button
             onClick={onOpenAddEmployee}
-            className="px-5 py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-sm rounded-xl shadow-xs transition-all shrink-0 self-start md:self-auto cursor-pointer"
+            className="px-5 py-2.5 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-semibold text-sm rounded-lg shadow-xs transition-all shrink-0 self-start md:self-auto cursor-pointer"
           >
             + Add Employee
           </button>

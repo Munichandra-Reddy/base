@@ -23,14 +23,14 @@ export const CheckinsView: React.FC<CheckinsViewProps> = ({ checkins, onAddCheck
 
   return (
     <div className="space-y-7 font-sans">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white p-7 rounded-2xl border border-[#E5E5E5] shadow-micro">
         <div>
-          <h1 className="text-3xl font-extrabold text-[#0F172A]">Automatic Check-ins</h1>
-          <p className="text-[#64748B] text-base font-medium mt-1">Recurring questions that gather team status asynchronously.</p>
+          <h1 className="text-3xl font-light text-[#222222]">Automatic Check-ins</h1>
+          <p className="text-[#595959] text-base font-medium mt-1">Recurring questions that gather team status asynchronously.</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-5 py-3 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-base rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
+          className="px-5 py-3 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-semibold text-base rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
         >
           <PlusIcon className="w-5 h-5" />
           <span>Post Check-in</span>

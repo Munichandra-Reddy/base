@@ -18,13 +18,13 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
   return (
     <div className="space-y-7 font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white p-7 rounded-2xl border border-[#E5E5E5] shadow-micro">
         <div>
-          <h1 className="text-3xl font-extrabold text-[#0F172A]">Project Docs & Files</h1>
+          <h1 className="text-3xl font-light text-[#222222]">Project Docs & Files</h1>
         </div>
         <button
           onClick={() => setIsUploadModalOpen(true)}
-          className="px-5 py-3 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-base rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
+          className="px-5 py-3 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-semibold text-base rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
         >
           <PlusIcon className="w-5 h-5" />
           <span>Upload File</span>
