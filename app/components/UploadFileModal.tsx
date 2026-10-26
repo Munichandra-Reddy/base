@@ -170,13 +170,13 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#0F172A] mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[#222222] mb-1.5">
                 File Type
               </label>
               <select
                 value={fileType}
                 onChange={(e) => setFileType(e.target.value as any)}
-                className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-base text-[#0F172A] font-semibold focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+                className="w-full px-4 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm text-[#222222] font-semibold focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
               >
                 <option value="pdf">PDF</option>
                 <option value="image">Image</option>
@@ -187,13 +187,13 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#0F172A] mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[#222222] mb-1.5">
                 Project Space
               </label>
               <select
                 value={project}
                 onChange={(e) => setProject(e.target.value)}
-                className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-base text-[#0F172A] font-semibold focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+                className="w-full px-4 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm text-[#222222] font-semibold focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
               >
                 <option value="E-Commerce Website">E-Commerce Website</option>
                 <option value="Mobile App v2">Mobile App v2</option>
@@ -205,7 +205,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#0F172A] mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[#222222] mb-1.5">
               File Size
             </label>
             <input
@@ -213,7 +213,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
               placeholder="e.g. 2.4 MB"
               value={fileSize}
               onChange={(e) => setFileSize(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-base text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+              className="w-full px-4 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
             />
           </div>
 
@@ -221,13 +221,13 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-sm font-bold text-[#64748B] hover:bg-[#EBF0F5] rounded-xl"
+              className="btn-login text-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-base rounded-xl shadow-xs transition-colors"
+              className="btn-signup text-sm"
             >
               Upload File to Workspace
             </button>

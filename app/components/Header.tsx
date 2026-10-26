@@ -210,13 +210,13 @@ export const Header: React.FC<HeaderProps> = ({
                     <button
                       type="button"
                       onClick={() => setIsCreatingWorkspace(false)}
-                      className="px-2.5 py-1 text-xs font-semibold text-[#595959] hover:bg-[#E5E5E5] rounded-md"
+                      className="btn-login text-xs py-1 px-2.5"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-3 py-1 text-xs font-bold text-white bg-[#011826] hover:bg-[#082236] rounded-md shadow-2xs"
+                      className="btn-signup text-xs py-1 px-3"
                     >
                       Add Workspace
                     </button>
@@ -290,7 +290,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-3 relative" ref={profileRef}>
         <button
           onClick={onOpenCreateModal}
-          className="px-4 py-2 text-sm font-bold text-white bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] rounded-md shadow-sm flex items-center transition-colors"
+          className="btn-signup flex items-center text-sm py-2 px-4 shadow-sm"
         >
           <span>Create New</span>
         </button>

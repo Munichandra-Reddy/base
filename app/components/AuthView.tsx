@@ -838,40 +838,46 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
   return (
     <div className="min-h-screen bg-[#FFFFFF] flex flex-col justify-center items-center p-4 sm:p-6 font-sans">
-      <div className="w-full max-w-md bg-white rounded-3xl border border-[#E5E5E5] shadow-xl p-8 sm:p-9 space-y-5">
+      <div className="w-full max-w-md bg-white rounded-2xl border border-[#E5E5E5] shadow-lg p-8 sm:p-10 space-y-6">
         
         {/* Logo Header */}
-        <div className="text-center space-y-1">
+        <div className="text-center space-y-2">
           <OrbitLogoIcon />
 
           {mode === 'login' && (
-            <>
-              <h1 className="text-3xl font-light text-[#222222] tracking-tight">WorkOrbit</h1>
-              <p className="text-xs font-semibold text-[#595959]">
+            <div>
+              <h1 className="text-[40px] md:text-[44px] font-light text-[#222222] leading-[1.1] mb-2 tracking-tight">
+                WorkOrbit
+              </h1>
+              <p className="text-[16px] font-normal text-[#595959] leading-[1.6]">
                 {loginRole === 'admin'
                   ? 'Administrator Access Portal'
                   : 'Employee Workspace Portal'}
               </p>
-            </>
+            </div>
           )}
 
           {mode === 'signup' && (
-            <>
-              <h1 className="text-2xl font-light text-[#222222] tracking-tight">Create Employee Account</h1>
-              <p className="text-xs font-medium text-[#595959]">Join your team on WorkOrbit.</p>
-            </>
+            <div>
+              <h1 className="text-[32px] md:text-[38px] font-light text-[#222222] leading-[1.1] mb-2 tracking-tight">
+                Create Employee Account
+              </h1>
+              <p className="text-[16px] font-normal text-[#595959] leading-[1.6]">
+                Join your team on WorkOrbit.
+              </p>
+            </div>
           )}
 
           {mode === 'forgot' && (
-            <>
-              <h1 className="text-2xl font-light text-[#222222] tracking-tight">
+            <div>
+              <h1 className="text-[32px] md:text-[38px] font-light text-[#222222] leading-[1.1] mb-2 tracking-tight">
                 {isResetLinkFromEmail
                   ? isResetExpired
                     ? 'Link Timed Out'
                     : 'Create New Password'
                   : 'Reset your password'}
               </h1>
-              <p className="text-xs font-medium text-[#595959]">
+              <p className="text-[16px] font-normal text-[#595959] leading-[1.6]">
                 {isResetLinkFromEmail
                   ? isResetExpired
                     ? '15-minute validity has expired.'
@@ -880,20 +886,20 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   ? 'Administrator Password Recovery'
                   : 'Employee Password Recovery'}
               </p>
-            </>
+            </div>
           )}
         </div>
 
         {/* ADMIN vs EMPLOYEE LOGIN SWITCHER (ONLY IN LOGIN MODE) */}
         {mode === 'login' && (
-          <div className="grid grid-cols-2 p-1 bg-[#F4F6F8] rounded-2xl border border-[#E5E5E5]">
+          <div className="grid grid-cols-2 p-1 bg-[#F4F6F8] rounded-lg border border-[#E5E5E5] gap-1">
             <button
               type="button"
               onClick={() => handleRoleSwitch('admin')}
-              className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
+              className={`py-2 px-3 rounded-md font-semibold text-sm transition-all flex items-center justify-center cursor-pointer ${
                 loginRole === 'admin'
-                  ? 'bg-[#011826] text-white shadow-xs font-bold'
-                  : 'text-[#595959] hover:text-[#011826]'
+                  ? 'bg-[#011826] text-white shadow-xs'
+                  : 'bg-transparent text-[#595959] hover:text-[#222222]'
               }`}
             >
               Admin Login
@@ -901,10 +907,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
             <button
               type="button"
               onClick={() => handleRoleSwitch('employee')}
-              className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
+              className={`py-2 px-3 rounded-md font-semibold text-sm transition-all flex items-center justify-center cursor-pointer ${
                 loginRole === 'employee'
-                  ? 'bg-[#011826] text-white shadow-xs font-bold'
-                  : 'text-[#595959] hover:text-[#011826]'
+                  ? 'bg-[#011826] text-white shadow-xs'
+                  : 'bg-transparent text-[#595959] hover:text-[#222222]'
               }`}
             >
               Employee Login
@@ -914,14 +920,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
         {/* Validation / Success Messages */}
         {errorMessage && (
-          <div className="p-3 bg-[#FEF2F2] border border-[#EF4444]/30 rounded-2xl text-xs font-semibold text-[#EF4444] flex items-center gap-2 animate-in fade-in duration-150">
+          <div className="p-3 bg-[#FEF2F2] border border-[#EF4444]/30 rounded-xl text-xs font-semibold text-[#EF4444] flex items-center gap-2 animate-in fade-in duration-150">
             <span className="text-sm">⚠️</span>
             <span>{errorMessage}</span>
           </div>
         )}
 
         {successMessage && (
-          <div className="p-3 bg-[#ECFDF5] border border-[#10B981]/30 rounded-2xl text-xs font-bold text-[#10B981] flex items-center gap-2 animate-in fade-in duration-150">
+          <div className="p-3 bg-[#F0FDF4] border border-[#238823]/30 rounded-xl text-xs font-bold text-[#238823] flex items-center gap-2 animate-in fade-in duration-150">
             <span className="text-sm">✅</span>
             <span>{successMessage}</span>
           </div>
@@ -933,13 +939,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
             {isResetLinkFromEmail ? (
               isResetExpired ? (
                 /* Password Reset Link Timed Out View */
-                <div className="p-6 bg-[#FEF2F2] border border-[#EF4444]/30 rounded-3xl text-center space-y-3.5 animate-in fade-in duration-150">
+                <div className="p-6 bg-[#FEF2F2] border border-[#EF4444]/30 rounded-2xl text-center space-y-3.5 animate-in fade-in duration-150">
                   <div className="w-12 h-12 mx-auto bg-[#FEE2E2] rounded-full flex items-center justify-center text-2xl shadow-inner">
                     ⏱️
                   </div>
                   <div>
-                    <h2 className="text-sm font-black text-[#991B1B]">Password Reset Link Timed Out</h2>
-                    <p className="text-xs text-[#7F1D1D] mt-1.5 leading-relaxed font-medium">
+                    <h2 className="text-base font-bold text-[#991B1B]">Password Reset Link Timed Out</h2>
+                    <p className="text-sm text-[#7F1D1D] mt-1.5 leading-relaxed font-normal">
                       This password reset link was valid for 15 minutes and has timed out. For security, please request a new password reset email.
                     </p>
                   </div>
@@ -954,7 +960,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                         window.history.replaceState({}, document.title, window.location.pathname);
                       }
                     }}
-                    className="w-full py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-1"
+                    className="btn-signup w-full py-2.5 rounded-md shadow-xs text-sm mt-1"
                   >
                     Request New Reset Link →
                   </button>
@@ -967,14 +973,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                       <span>⏱️</span>
                       <span>Valid for 15 minutes</span>
                     </div>
-                    <h2 className="text-sm font-bold text-[#0F172A]">Set New Password</h2>
-                    <p className="text-xs text-[#64748B]">
-                      Create a new password for <span className="font-semibold text-[#0F172A]">{email}</span>
+                    <h2 className="text-base font-bold text-[#222222]">Set New Password</h2>
+                    <p className="text-sm text-[#595959]">
+                      Create a new password for <span className="font-semibold text-[#222222]">{email}</span>
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#334155] mb-1">New Password (min 6 characters) *</label>
+                    <label className="block text-sm font-semibold text-[#222222] mb-1">New Password (min 6 characters) *</label>
                     <div className="relative">
                       <input
                         type={showNewPassword ? 'text' : 'password'}
@@ -982,12 +988,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="Enter new password"
-                        className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                        className="w-full px-4 py-2.5 pr-10 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                       />
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
+                        className="absolute right-3 top-2.5 text-[#595959] hover:text-[#222222] cursor-pointer p-0.5 transition-colors"
                         aria-label={showNewPassword ? "Hide password" : "Show password"}
                       >
                         {showNewPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
@@ -996,7 +1002,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#334155] mb-1">Confirm New Password *</label>
+                    <label className="block text-sm font-semibold text-[#222222] mb-1">Confirm New Password *</label>
                     <div className="relative">
                       <input
                         type={showConfirmNewPassword ? 'text' : 'password'}
@@ -1004,12 +1010,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                         value={confirmNewPassword}
                         onChange={(e) => setConfirmNewPassword(e.target.value)}
                         placeholder="Confirm new password"
-                        className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                        className="w-full px-4 py-2.5 pr-10 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
-                        className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
+                        className="absolute right-3 top-2.5 text-[#595959] hover:text-[#222222] cursor-pointer p-0.5 transition-colors"
                         aria-label={showConfirmNewPassword ? "Hide password" : "Show password"}
                       >
                         {showConfirmNewPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
@@ -1020,7 +1026,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-1"
+                    className="btn-signup w-full py-2.5 rounded-md shadow-xs text-sm mt-1"
                   >
                     {isSubmitting ? 'Updating Password...' : 'Save & Update Password →'}
                   </button>
@@ -1028,9 +1034,9 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               )
             ) : (
               /* Request Password Reset Email form (Website view - only option) */
-              <form onSubmit={handleForgotPassword} className="space-y-3.5">
+              <form onSubmit={handleForgotPassword} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1.5">
+                  <label className="block text-sm font-semibold text-[#222222] mb-1.5">
                     {loginRole === 'admin' ? 'Admin Registered Email' : 'Employee Registered Email'}
                   </label>
                   <input
@@ -1039,14 +1045,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
-                    className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                    className="w-full px-4 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isResetSending}
-                  className="w-full py-3 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  className="btn-signup w-full py-2.5 rounded-md shadow-xs text-sm flex items-center justify-center gap-2"
                 >
                   <span>✉️</span>
                   <span>{isResetSending ? 'Sending direct message to mail...' : 'Send Password Reset Email'}</span>
@@ -1054,7 +1060,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               </form>
             )}
 
-            <div className="text-center pt-1 border-t border-[#E2E8F0]">
+            <div className="text-center pt-2 border-t border-[#E5E5E5]">
               <button
                 type="button"
                 onClick={() => {
@@ -1065,7 +1071,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     window.history.replaceState({}, document.title, window.location.pathname);
                   }
                 }}
-                className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
+                className="highlight-link text-sm font-semibold cursor-pointer"
               >
                 ← Back to {loginRole === 'admin' ? 'Admin' : 'Employee'} Sign in
               </button>
@@ -1073,61 +1079,61 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
           </div>
         ) : (
           /* SIGN IN & SIGN UP FORM */
-          <form onSubmit={handleSubmit} className="space-y-3.5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* SIGN UP FIELDS (ONLY EMPLOYEE REGISTRATION) */}
             {mode === 'signup' && (
               <>
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1">Full name *</label>
+                  <label className="block text-sm font-semibold text-[#222222] mb-1">Full name *</label>
                   <input
                     type="text"
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="e.g. Priya Sharma"
-                    className="w-full px-4 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                    className="w-full px-4 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1">Employee Work Email *</label>
+                  <label className="block text-sm font-semibold text-[#222222] mb-1">Employee Work Email *</label>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="priya@company.com"
-                    className="w-full px-4 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                    className="w-full px-4 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block text-xs font-bold text-[#334155] mb-1">Role / Title *</label>
+                    <label className="block text-sm font-semibold text-[#222222] mb-1">Role / Title *</label>
                     <input
                       type="text"
                       required
                       value={designation}
                       onChange={(e) => setDesignation(e.target.value)}
                       placeholder="e.g. Developer"
-                      className="w-full px-3 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                      className="w-full px-3 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-[#334155] mb-1">Company *</label>
+                    <label className="block text-sm font-semibold text-[#222222] mb-1">Company *</label>
                     <input
                       type="text"
                       required
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       placeholder="GEONIXA"
-                      className="w-full px-3 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                      className="w-full px-3 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1">Password (min 6 characters) *</label>
+                  <label className="block text-sm font-semibold text-[#222222] mb-1">Password (min 6 characters) *</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -1135,12 +1141,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Create password"
-                      className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                      className="w-full px-4 py-2.5 pr-10 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
+                      className="absolute right-3 top-2.5 text-[#595959] hover:text-[#222222] cursor-pointer p-0.5 transition-colors"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
@@ -1149,7 +1155,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1">Confirm password *</label>
+                  <label className="block text-sm font-semibold text-[#222222] mb-1">Confirm password *</label>
                   <div className="relative">
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
@@ -1157,12 +1163,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Re-enter password"
-                      className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                      className="w-full px-4 py-2.5 pr-10 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
+                      className="absolute right-3 top-2.5 text-[#595959] hover:text-[#222222] cursor-pointer p-0.5 transition-colors"
                       aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                     >
                       {showConfirmPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
@@ -1176,10 +1182,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     id="agreeTerms"
                     checked={agreeTerms}
                     onChange={(e) => setAgreeTerms(e.target.checked)}
-                    className="w-4 h-4 rounded border-[#CBD5E1] text-[#0B192C] focus:ring-[#0B192C] accent-[#0B192C] cursor-pointer"
+                    className="w-4 h-4 rounded border-[#CCCCCC] text-[#049FD9] focus:ring-[#049FD9] accent-[#049FD9] cursor-pointer"
                   />
-                  <label htmlFor="agreeTerms" className="text-[11px] font-medium text-[#334155] cursor-pointer select-none">
-                    I agree to company Terms of Service & Privacy Policy.
+                  <label htmlFor="agreeTerms" className="text-xs font-normal text-[#595959] cursor-pointer select-none">
+                    I agree to company <span className="highlight-link">Terms of Service & Privacy Policy</span>.
                   </label>
                 </div>
               </>
@@ -1189,7 +1195,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
             {mode === 'login' && (
               <>
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1.5">
+                  <label className="block text-sm font-semibold text-[#222222] mb-1.5">
                     {loginRole === 'admin' ? 'Admin Email Address' : 'Employee Work Email'}
                   </label>
                   <input
@@ -1198,17 +1204,17 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
-                    className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                    className="w-full px-4 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-[#334155]">Password</label>
+                    <label className="text-sm font-semibold text-[#222222]">Password</label>
                     <button
                       type="button"
                       onClick={handleForgotPasswordClick}
-                      className="text-[11px] font-bold text-[#0B192C] hover:underline cursor-pointer"
+                      className="highlight-link text-xs font-semibold cursor-pointer"
                     >
                       Forgot password?
                     </button>
@@ -1220,12 +1226,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder={loginRole === 'admin' ? 'Enter admin password' : 'Enter your password'}
-                      className="w-full px-4 py-3 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
+                      className="w-full px-4 py-2.5 pr-10 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
+                      className="absolute right-3.5 top-2.5 text-[#595959] hover:text-[#222222] cursor-pointer p-0.5 transition-colors"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
@@ -1241,7 +1247,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 rounded border-[#CCCCCC] text-[#049FD9] focus:ring-[#049FD9] accent-[#049FD9] cursor-pointer"
                   />
-                  <label htmlFor="rememberMe" className="text-xs font-semibold text-[#595959] cursor-pointer select-none">
+                  <label htmlFor="rememberMe" className="text-sm font-normal text-[#595959] cursor-pointer select-none">
                     Remember my session
                   </label>
                 </div>
@@ -1251,10 +1257,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full py-3 font-semibold text-sm rounded-lg shadow-sm transition-all cursor-pointer mt-2 ${
+              className={`w-full py-2.5 px-5 font-semibold text-sm rounded-md transition-all cursor-pointer mt-3 shadow-xs ${
                 mode === 'signup'
-                  ? 'bg-[#6CC04A] hover:bg-[#5bb33b] text-white'
-                  : 'bg-[#011826] hover:bg-[#082236] text-white'
+                  ? 'btn-signup text-white'
+                  : 'btn-login hover:bg-[#011826] hover:text-white hover:border-[#011826]'
               }`}
             >
               {isSubmitting
@@ -1270,8 +1276,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
         {/* Footer Navigation */}
         {mode === 'signup' && (
-          <div className="text-center space-y-1.5 pt-2 border-t border-[#E5E5E5]">
-            <p className="text-xs text-[#595959] font-medium">
+          <div className="text-center space-y-1.5 pt-4 border-t border-[#E5E5E5]">
+            <p className="text-sm text-[#595959]">
               Already have an employee account?{' '}
               <button
                 type="button"
@@ -1279,7 +1285,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   handleTabSwitch('login');
                   setLoginRole('employee');
                 }}
-                className="font-bold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
+                className="btn-login py-1 px-3 text-xs ml-1 font-semibold"
               >
                 Sign in
               </button>
@@ -1288,24 +1294,24 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         )}
 
         {mode === 'login' && loginRole === 'employee' && (
-          <div className="text-center space-y-2 pt-2 border-t border-[#E5E5E5]">
-            <p className="text-xs text-[#595959] font-medium">
+          <div className="text-center space-y-2 pt-4 border-t border-[#E5E5E5]">
+            <p className="text-sm text-[#595959]">
               Need an employee account?{' '}
               <button
                 type="button"
                 onClick={() => handleTabSwitch('signup')}
-                className="font-bold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
+                className="btn-signup py-1 px-3 text-xs ml-1 font-semibold"
               >
                 Create Account
               </button>
             </p>
-            <p className="text-[11px] text-[#595959]">Employee registrations are automatically verified.</p>
+            <p className="text-xs text-[#595959]">Employee registrations are automatically verified.</p>
           </div>
         )}
 
         {mode === 'login' && loginRole === 'admin' && (
-          <div className="text-center pt-2 border-t border-[#E5E5E5]">
-            <p className="text-[11px] text-[#595959]">
+          <div className="text-center pt-4 border-t border-[#E5E5E5]">
+            <p className="text-xs text-[#595959]">
               🔒 Protected administrative console. Single master administrator credentials only.
             </p>
           </div>
