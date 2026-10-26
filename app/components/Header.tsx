@@ -350,23 +350,7 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            <div className="p-1.5 space-y-0.5 text-xs font-semibold text-[#334155]">
-              <button
-                onClick={() => setIsProfileOpen(false)}
-                className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F1F3F6] flex items-center gap-2.5 transition-colors"
-              >
-                <span>👤 Profile & Settings</span>
-              </button>
-
-              <button
-                onClick={() => setIsProfileOpen(false)}
-                className="w-full text-left px-3 py-2 rounded-xl hover:bg-[#F1F3F6] flex items-center gap-2.5 transition-colors"
-              >
-                <span>⚙️ Workspace Preferences</span>
-              </button>
-
-              <div className="my-1 border-t border-[#E2E8F0]" />
-
+            <div className="p-1.5 text-xs font-semibold text-[#334155]">
               <button
                 onClick={handleLogoutClick}
                 className="w-full text-left px-3 py-2 rounded-xl text-[#EF4444] hover:bg-[#FEF2F2] flex items-center gap-2.5 transition-colors font-bold"
