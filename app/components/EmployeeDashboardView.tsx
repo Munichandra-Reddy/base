@@ -307,12 +307,12 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
               </div>
 
               {/* Filter Tabs */}
-              <div className="flex items-center gap-1 bg-[#F1F3F6] p-1 rounded-xl border border-[#E2E8F0] text-xs font-bold">
+              <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-xl border border-[#E5E5E5] text-xs font-bold">
                 <button
                   type="button"
                   onClick={() => setTaskFilter('pending')}
                   className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                    taskFilter === 'pending' ? 'bg-white text-[#0F172A] shadow-xs' : 'text-[#64748B] hover:text-[#0F172A]'
+                    taskFilter === 'pending' ? 'bg-[#6CC04A] text-white shadow-xs font-bold' : 'text-[#595959] hover:text-[#222222]'
                   }`}
                 >
                   Pending ({myPendingTasks.length})
@@ -321,7 +321,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   type="button"
                   onClick={() => setTaskFilter('all')}
                   className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                    taskFilter === 'all' ? 'bg-white text-[#0F172A] shadow-xs' : 'text-[#64748B] hover:text-[#0F172A]'
+                    taskFilter === 'all' ? 'bg-[#6CC04A] text-white shadow-xs font-bold' : 'text-[#595959] hover:text-[#222222]'
                   }`}
                 >
                   All ({displayedTasks.length})
@@ -330,7 +330,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   type="button"
                   onClick={() => setTaskFilter('completed')}
                   className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                    taskFilter === 'completed' ? 'bg-white text-[#0F172A] shadow-xs' : 'text-[#64748B] hover:text-[#0F172A]'
+                    taskFilter === 'completed' ? 'bg-[#6CC04A] text-white shadow-xs font-bold' : 'text-[#595959] hover:text-[#222222]'
                   }`}
                 >
                   Completed ({myCompletedTasks.length})

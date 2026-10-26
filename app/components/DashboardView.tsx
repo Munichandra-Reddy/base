@@ -667,8 +667,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={() => setTaskFilter('all')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
                   taskFilter === 'all'
-                    ? 'bg-[#011826] text-white shadow-2xs font-extrabold'
-                    : 'bg-white text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8]'
+                    ? 'bg-[#6CC04A] text-white shadow-2xs font-extrabold'
+                    : 'bg-white text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8]'
                 }`}
               >
                 All
@@ -677,8 +677,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={() => setTaskFilter('pending')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
                   taskFilter === 'pending'
-                    ? 'bg-[#011826] text-white shadow-2xs font-extrabold'
-                    : 'bg-white text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8]'
+                    ? 'bg-[#6CC04A] text-white shadow-2xs font-extrabold'
+                    : 'bg-white text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8]'
                 }`}
               >
                 Pending
@@ -687,8 +687,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={() => setTaskFilter('completed')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
                   taskFilter === 'completed'
-                    ? 'bg-[#011826] text-white shadow-2xs font-extrabold'
-                    : 'bg-white text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8]'
+                    ? 'bg-[#6CC04A] text-white shadow-2xs font-extrabold'
+                    : 'bg-white text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8]'
                 }`}
               >
                 Completed
