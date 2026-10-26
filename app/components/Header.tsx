@@ -127,11 +127,11 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="h-[72px] bg-[#011826] border-b border-[#0d314d] px-6 flex items-center justify-between shrink-0 z-30 shadow-sm text-white">
+    <header className="h-[72px] bg-white border-b border-[#E5E5E5] px-6 flex items-center justify-between shrink-0 z-30 shadow-xs text-[#222222]">
       {/* Left section: Clean Title + Workspace Dropdown */}
       <div className="flex items-center gap-4">
-        <div className="flex items-center font-black text-2xl text-white tracking-tight cursor-pointer">
-          <span className="text-white">WorkOrbit</span>
+        <div className="flex items-center font-black text-2xl text-[#011826] tracking-tight cursor-pointer">
+          <span className="text-[#011826]">WorkOrbit</span>
         </div>
 
         {/* Organization / Workspace selector */}
@@ -142,17 +142,17 @@ export const Header: React.FC<HeaderProps> = ({
               setIsWorkspaceOpen(!isWorkspaceOpen);
               setIsProfileOpen(false);
             }}
-            className="flex items-center gap-2.5 px-3 py-1.5 bg-[#082236] border border-[#0d314d] rounded-xl text-sm text-white font-semibold hover:bg-[#0c2f4a] transition-colors cursor-pointer ml-2 focus:outline-none"
+            className="flex items-center gap-2.5 px-3 py-1.5 bg-[#F4F6F8] border border-[#E5E5E5] rounded-xl text-sm text-[#222222] font-semibold hover:bg-[#EBF0F5] transition-colors cursor-pointer ml-2 focus:outline-none"
           >
             <span suppressHydrationWarning>{displayWorkspaceName}</span>
             <span
               suppressHydrationWarning
-              className="text-[10px] font-extrabold tracking-wider px-1.5 py-0.5 rounded bg-[#011826] text-slate-200 uppercase border border-[#0d314d]"
+              className="text-[10px] font-extrabold tracking-wider px-1.5 py-0.5 rounded bg-white text-[#595959] uppercase border border-[#E5E5E5]"
             >
               {activeWorkspace.plan}
             </span>
             <svg
-              className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+              className={`w-4 h-4 text-[#595959] transition-transform duration-200 ${
                 isWorkspaceOpen ? 'rotate-180' : ''
               }`}
               fill="none"
@@ -274,13 +274,13 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex-1 max-w-lg mx-6">
         <button
           onClick={onOpenSearchModal}
-          className="w-full bg-[#082236] hover:bg-[#0c2f4a] border border-[#0d314d] rounded-full px-4 py-2 flex items-center justify-between text-slate-300 text-sm transition-all group"
+          className="w-full bg-[#F4F6F8] hover:bg-[#EBF0F5] border border-[#E5E5E5] rounded-full px-4 py-2 flex items-center justify-between text-[#595959] text-sm transition-all group"
         >
           <div className="flex items-center gap-2.5">
-            <SearchIcon className="w-4 h-4 text-slate-400 group-hover:text-slate-200" />
-            <span className="text-slate-300 font-medium">Search projects, tasks, employees, files...</span>
+            <SearchIcon className="w-4 h-4 text-[#595959] group-hover:text-[#222222]" />
+            <span className="text-[#595959] font-medium">Search projects, tasks, employees, files...</span>
           </div>
-          <kbd className="hidden sm:inline-flex items-center gap-1 bg-[#011826] border border-[#0d314d] text-slate-300 text-xs font-mono font-semibold px-2 py-0.5 rounded shadow-2xs">
+          <kbd className="hidden sm:inline-flex items-center gap-1 bg-white border border-[#E5E5E5] text-[#595959] text-xs font-mono font-semibold px-2 py-0.5 rounded shadow-2xs">
             ⌘F / Ctrl+K
           </kbd>
         </button>
@@ -298,7 +298,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Bell Notifications */}
         <button
           onClick={onToggleNotifications}
-          className="relative p-2 text-slate-300 hover:text-white hover:bg-[#082236] rounded-full transition-colors"
+          className="relative p-2 text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8] rounded-full transition-colors"
         >
           <BellIcon className="w-5 h-5" />
           {unreadNotifications > 0 && (
@@ -314,18 +314,18 @@ export const Header: React.FC<HeaderProps> = ({
             setIsProfileOpen(!isProfileOpen);
             setIsWorkspaceOpen(false);
           }}
-          className="flex items-center gap-2 pl-2 border-l border-[#0d314d] cursor-pointer hover:opacity-90 select-none py-1"
+          className="flex items-center gap-2 pl-2 border-l border-[#E5E5E5] cursor-pointer hover:opacity-90 select-none py-1"
         >
-          <div className="w-8 h-8 rounded-full bg-[#049FD9] text-white font-extrabold flex items-center justify-center text-sm shadow-xs border border-[#0d314d]">
+          <div className="w-8 h-8 rounded-full bg-[#049FD9] text-white font-extrabold flex items-center justify-center text-sm shadow-xs border border-[#E5E5E5]">
             {userAvatar}
           </div>
           <div className="hidden md:block text-left leading-tight">
-            <div className="font-bold text-xs text-white">{userName}</div>
-            <div className="text-[11px] text-slate-400 font-medium">
+            <div className="font-bold text-xs text-[#222222]">{userName}</div>
+            <div className="text-[11px] text-[#595959] font-medium">
               {currentRole === 'employee' ? 'Product Designer' : 'Workspace Admin'}
             </div>
           </div>
-          <svg className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className={`w-3.5 h-3.5 text-[#595959] transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
           </svg>
         </div>

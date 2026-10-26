@@ -65,6 +65,7 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 15px 40px;
+  background-color: var(--bg-white);
   border-bottom: 1px solid var(--border-color);
 }
 
