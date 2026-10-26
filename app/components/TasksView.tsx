@@ -68,15 +68,15 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
           placeholder="Filter tasks by name or project..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="px-4 py-2.5 bg-white border border-[#E2E8F0] rounded-xl text-base text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B192C] w-full sm:w-72"
+          className="px-4 py-2.5 bg-white border border-[#CCCCCC] rounded-lg text-sm text-[#222222] font-medium focus:outline-none focus:ring-2 focus:ring-[#049FD9] w-full sm:w-72"
         />
       </div>
 
       {/* Tasks List Table */}
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden shadow-micro">
-        <div className="divide-y divide-[#E2E8F0]">
+      <div className="bg-white rounded-2xl border border-[#E5E5E5] overflow-hidden shadow-micro">
+        <div className="divide-y divide-[#E5E5E5]">
           {filteredTasks.length === 0 ? (
-            <div className="p-14 text-center text-[#64748B]">
+            <div className="p-14 text-center text-[#595959]">
               <CheckSquareIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p className="text-base font-semibold">No tasks found matching your filter criteria.</p>
             </div>
@@ -85,7 +85,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
               <div
                 key={task.id}
                 onClick={() => onToggleTask(task.id)}
-                className="flex items-center justify-between p-5 hover:bg-[#EBF0F5] transition-colors cursor-pointer gap-4"
+                className="flex items-center justify-between p-5 hover:bg-[#F4F6F8] transition-colors cursor-pointer gap-4"
               >
                 <div className="flex items-start gap-4 min-w-0">
                   <div
@@ -104,12 +104,12 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
                   <div className="min-w-0">
                     <h4
                       className={`text-lg font-bold transition-colors truncate ${
-                        task.completed ? 'line-through text-[#64748B]' : 'text-[#0F172A]'
+                        task.completed ? 'line-through text-[#595959]' : 'text-[#222222]'
                       }`}
                     >
                       {task.title}
                     </h4>
-                    <div className="flex items-center gap-3 text-xs font-semibold text-[#64748B] mt-1">
+                    <div className="flex items-center gap-3 text-xs font-semibold text-[#595959] mt-1">
                       <span>Due {task.dueDate || 'Soon'}</span>
                       <span>•</span>
                       <span>Assigned to {task.assignedTo}</span>
@@ -126,7 +126,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
                         ? 'bg-[#FFFBEB] text-[#F59E0B] border-[#F59E0B]/25'
                         : task.priority === 'low'
                         ? 'bg-[#F0FDFA] text-[#0D9488] border-[#0D9488]/25'
-                        : 'bg-[#EBF0F5] text-[#334155] border-[#E2E8F0]'
+                        : 'bg-[#F4F6F8] text-[#595959] border-[#E5E5E5]'
                     }`}
                   >
                     {task.project}

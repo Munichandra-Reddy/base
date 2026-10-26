@@ -19,10 +19,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ activities }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-7 rounded-2xl border border-[#E5E5E5] shadow-micro space-y-5">
+        <div className="bg-white p-7 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-micro space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-extrabold text-[#222222]">Task Completion Velocity</h3>
-            <span className="text-xs font-extrabold text-[#238823] bg-[#F0FDF4] px-3 py-1 rounded-lg border border-[#238823]/25">
+            <h3 className="text-xl font-bold text-[#222222]">Task Completion Velocity</h3>
+            <span className="text-xs font-bold text-[#238823] bg-[#F0FDF4] px-3 py-1 rounded-lg border border-[#238823]/25">
               +18% vs last week
             </span>
           </div>
@@ -36,21 +36,21 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ activities }) => {
           </div>
         </div>
 
-        <div className="bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro space-y-5">
-          <h3 className="text-xl font-extrabold text-[#0F172A]">Project Allocation</h3>
+        <div className="bg-white p-7 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-micro space-y-5">
+          <h3 className="text-xl font-bold text-[#222222]">Project Allocation</h3>
           <div className="space-y-4">
             {[
-              { name: 'E-Commerce Website', pct: 40, color: 'bg-[#0B192C]' },
-              { name: 'Mobile App v2', pct: 25, color: 'bg-[#2563EB]' },
-              { name: 'Marketing Campaign', pct: 20, color: 'bg-[#0D9488]' },
+              { name: 'E-Commerce Website', pct: 40, color: 'bg-[#011826]' },
+              { name: 'Mobile App v2', pct: 25, color: 'bg-[#049FD9]' },
+              { name: 'Marketing Campaign', pct: 20, color: 'bg-[#6CC04A]' },
               { name: 'Internal Ops', pct: 15, color: 'bg-[#F59E0B]' },
             ].map((p, i) => (
               <div key={i} className="space-y-1.5">
-                <div className="flex justify-between text-base font-bold text-[#334155]">
+                <div className="flex justify-between text-base font-bold text-[#595959]">
                   <span>{p.name}</span>
-                  <span className="font-extrabold text-[#0F172A]">{p.pct}%</span>
+                  <span className="font-bold text-[#222222]">{p.pct}%</span>
                 </div>
-                <div className="w-full bg-[#EBF0F5] rounded-full h-2.5 overflow-hidden">
+                <div className="w-full bg-[#F4F6F8] rounded-full h-2.5 overflow-hidden">
                   <div className={`${p.color} h-full rounded-full`} style={{ width: `${p.pct}%` }} />
                 </div>
               </div>
@@ -60,34 +60,34 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ activities }) => {
       </div>
 
       {/* All Workspace Activities Stream */}
-      <div className="bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro space-y-5">
-        <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+      <div className="bg-white p-7 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-micro space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
           <div>
-            <h3 className="text-xl font-extrabold text-[#0F172A]">All Workspace Activity</h3>
-            <p className="text-xs text-[#64748B] font-medium mt-0.5">
+            <h3 className="text-xl font-bold text-[#222222]">All Workspace Activity</h3>
+            <p className="text-xs text-[#595959] font-medium mt-0.5">
               Complete timeline of tasks, projects, employees, and team actions
             </p>
           </div>
-          <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-[#EBF0F5] text-[#334155] border border-[#E2E8F0]">
+          <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#F4F6F8] text-[#595959] border border-[#E5E5E5]">
             {activityList.length} Total Activities
           </span>
         </div>
 
-        <div className="divide-y divide-[#E2E8F0]">
+        <div className="divide-y divide-[#E5E5E5]">
           {activityList.map((act) => (
             <div key={act.id} className="py-3.5 flex items-start gap-3.5 text-xs">
               <div
-                className={`w-9 h-9 rounded-full ${act.avatarBg} font-extrabold flex items-center justify-center shrink-0 shadow-2xs text-xs mt-0.5`}
+                className={`w-9 h-9 rounded-full ${act.avatarBg || 'bg-[#011826] text-white'} font-bold flex items-center justify-center shrink-0 shadow-2xs text-xs mt-0.5`}
               >
                 {act.userAvatar}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-[#334155] leading-snug break-words">
-                  <span className="font-bold text-[#0F172A] text-sm">{act.userName}</span>{' '}
-                  <span className="text-[#64748B]">{act.action}</span>{' '}
-                  <span className="font-semibold text-[#0F172A]">"{act.target}"</span>
+                <div className="text-[#595959] leading-snug break-words">
+                  <span className="font-bold text-[#222222] text-sm">{act.userName}</span>{' '}
+                  <span className="text-[#595959]">{act.action}</span>{' '}
+                  <span className="font-semibold text-[#222222]">"{act.target}"</span>
                 </div>
-                <div className="text-[11px] font-medium text-[#64748B] mt-1 flex items-center gap-2">
+                <div className="text-[11px] font-medium text-[#595959] mt-1 flex items-center gap-2">
                   <span>{act.timeAgo}</span>
                   {act.timestamp && (
                     <>

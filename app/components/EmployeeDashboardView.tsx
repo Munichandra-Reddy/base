@@ -161,25 +161,25 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Card 1: My Open Tasks */}
         <div
           onClick={onViewTasks}
-          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-emerald-200 transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-2.5 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-2xs hover:shadow-micro hover:border-[#6CC04A] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-50 via-emerald-100/60 to-teal-100/70 text-emerald-600 border border-emerald-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(16,185,129,0.25)] transition-all duration-300">
+            <div className="w-7 h-7 rounded-lg bg-[#6CC04A]/10 text-[#6CC04A] border border-[#6CC04A]/30 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(108,192,74,0.25)] transition-all duration-300">
               <CheckSquareIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-emerald-600 transition-colors whitespace-nowrap">
+              <span className="text-[10px] font-bold text-[#595959] group-hover:text-[#6CC04A] transition-colors whitespace-nowrap">
                 My Tasks
               </span>
-              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-emerald-600 transition-all">→</span>
+              <span className="text-[10px] font-bold text-[#595959] group-hover:text-[#6CC04A] transition-all">→</span>
             </div>
           </div>
           <div>
-            <div className="text-lg font-black text-[#0F172A] leading-tight">
+            <div className="text-lg font-bold text-[#222222] leading-tight">
               {displayedTasks.length}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] shrink-0" />
+            <div className="text-[9.5px] font-semibold text-[#595959] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#6CC04A] shrink-0" />
               <span>{myPendingTasks.length} In Progress</span>
             </div>
           </div>
@@ -188,21 +188,21 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Card 2: Due Soon / Today */}
         <div
           onClick={onViewCalendar}
-          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-amber-200 transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-2.5 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-2xs hover:shadow-micro hover:border-[#F59E0B] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-50 via-amber-100/60 to-orange-100/70 text-amber-600 border border-amber-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(245,158,11,0.25)] transition-all duration-300">
+            <div className="w-7 h-7 rounded-lg bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/30 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(245,158,11,0.25)] transition-all duration-300">
               <ClockIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-amber-600 transition-colors whitespace-nowrap">
+              <span className="text-[10px] font-bold text-[#595959] group-hover:text-[#F59E0B] transition-colors whitespace-nowrap">
                 Due Soon
               </span>
-              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-amber-600 transition-all">→</span>
+              <span className="text-[10px] font-bold text-[#595959] group-hover:text-[#F59E0B] transition-all">→</span>
             </div>
           </div>
           <div>
-            <div className="text-lg font-black text-[#0F172A] leading-tight">
+            <div className="text-lg font-bold text-[#222222] leading-tight">
               {myPendingTasks.slice(0, 2).length}
             </div>
             <div className="text-[9.5px] font-semibold text-[#F59E0B] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
@@ -215,25 +215,25 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Card 3: Finished This Week */}
         <div
           onClick={onViewTasks}
-          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-indigo-200 transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-2.5 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-2xs hover:shadow-micro hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-50 via-indigo-100/60 to-violet-100/70 text-indigo-600 border border-indigo-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(99,102,241,0.25)] transition-all duration-300">
+            <div className="w-7 h-7 rounded-lg bg-[#049FD9]/10 text-[#049FD9] border border-[#049FD9]/30 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(4,159,217,0.25)] transition-all duration-300">
               <CheckCircleIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-indigo-600 transition-colors whitespace-nowrap">
+              <span className="text-[10px] font-bold text-[#595959] group-hover:text-[#049FD9] transition-colors whitespace-nowrap">
                 Finished
               </span>
-              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-indigo-600 transition-all">→</span>
+              <span className="text-[10px] font-bold text-[#595959] group-hover:text-[#049FD9] transition-all">→</span>
             </div>
           </div>
           <div>
-            <div className="text-lg font-black text-[#0F172A] leading-tight">
+            <div className="text-lg font-bold text-[#222222] leading-tight">
               {myCompletedTasks.length + 8}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#10B981] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] shrink-0" />
+            <div className="text-[9.5px] font-semibold text-[#238823] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#238823] shrink-0" />
               <span>Great Velocity</span>
             </div>
           </div>
@@ -242,25 +242,25 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Card 4: My Active Projects */}
         <div
           onClick={onViewProjects}
-          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-purple-200 transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-2.5 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-2xs hover:shadow-micro hover:border-[#011826] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-50 via-purple-100/60 to-fuchsia-100/70 text-purple-600 border border-purple-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(168,85,247,0.25)] transition-all duration-300">
+            <div className="w-7 h-7 rounded-lg bg-[#011826]/10 text-[#011826] border border-[#011826]/30 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(1,24,38,0.25)] transition-all duration-300">
               <FolderIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-purple-600 transition-colors whitespace-nowrap">
+              <span className="text-[10px] font-bold text-[#595959] group-hover:text-[#011826] transition-colors whitespace-nowrap">
                 My Projects
               </span>
-              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-purple-600 transition-all">→</span>
+              <span className="text-[10px] font-bold text-[#595959] group-hover:text-[#011826] transition-all">→</span>
             </div>
           </div>
           <div>
-            <div className="text-lg font-black text-[#0F172A] leading-tight">
+            <div className="text-lg font-bold text-[#222222] leading-tight">
               {displayedProjects.length}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6] shrink-0" />
+            <div className="text-[9.5px] font-semibold text-[#595959] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#049FD9] shrink-0" />
               <span>Active Contributor</span>
             </div>
           </div>
@@ -269,25 +269,25 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Card 5: Campfire Mentions */}
         <div
           onClick={onViewChat}
-          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-sky-200 transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-2.5 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-2xs hover:shadow-micro hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-50 via-blue-100/60 to-cyan-100/70 text-sky-600 border border-sky-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(14,165,233,0.25)] transition-all duration-300">
+            <div className="w-7 h-7 rounded-lg bg-[#049FD9]/10 text-[#049FD9] border border-[#049FD9]/30 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(4,159,217,0.25)] transition-all duration-300">
               <ChatIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-sky-600 transition-colors whitespace-nowrap">
+              <span className="text-[10px] font-bold text-[#595959] group-hover:text-[#049FD9] transition-colors whitespace-nowrap">
                 Campfire
               </span>
-              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-sky-600 transition-all">→</span>
+              <span className="text-[10px] font-bold text-[#595959] group-hover:text-[#049FD9] transition-all">→</span>
             </div>
           </div>
           <div>
-            <div className="text-lg font-black text-[#0F172A] leading-tight">
+            <div className="text-lg font-bold text-[#222222] leading-tight">
               3
             </div>
-            <div className="text-[9.5px] font-semibold text-[#0284C7] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0284C7] shrink-0" />
+            <div className="text-[9.5px] font-semibold text-[#049FD9] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#049FD9] shrink-0" />
               <span>New Mentions</span>
             </div>
           </div>
@@ -299,20 +299,20 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* LEFT 2 COLUMNS */}
         <div className="lg:col-span-2 space-y-6">
           {/* Card 1: Today's Focus & Interactive To-Do Checklist */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
+          <div className="bg-white rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] p-6 shadow-micro space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E5E5]">
               <div>
-                <h3 className="text-lg font-extrabold text-[#0F172A]">My Focus Today & Tasks</h3>
-                <p className="text-xs text-[#64748B] font-medium">Click any checkbox to complete or update status instantly.</p>
+                <h3 className="text-lg font-bold text-[#222222]">My Focus Today & Tasks</h3>
+                <p className="text-xs text-[#595959] font-medium">Click any checkbox to complete or update status instantly.</p>
               </div>
 
               {/* Filter Tabs */}
-              <div className="flex items-center gap-1 bg-[#F1F3F6] p-1 rounded-xl border border-[#E2E8F0] text-xs font-bold">
+              <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-xl border border-[#E5E5E5] text-xs font-bold">
                 <button
                   type="button"
                   onClick={() => setTaskFilter('pending')}
                   className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                    taskFilter === 'pending' ? 'bg-white text-[#0F172A] shadow-xs' : 'text-[#64748B] hover:text-[#0F172A]'
+                    taskFilter === 'pending' ? 'bg-[#011826] text-white shadow-xs font-bold' : 'text-[#595959] hover:text-[#222222]'
                   }`}
                 >
                   Pending ({myPendingTasks.length})
@@ -321,7 +321,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   type="button"
                   onClick={() => setTaskFilter('all')}
                   className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                    taskFilter === 'all' ? 'bg-white text-[#0F172A] shadow-xs' : 'text-[#64748B] hover:text-[#0F172A]'
+                    taskFilter === 'all' ? 'bg-[#011826] text-white shadow-xs font-bold' : 'text-[#595959] hover:text-[#222222]'
                   }`}
                 >
                   All ({displayedTasks.length})
@@ -330,7 +330,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   type="button"
                   onClick={() => setTaskFilter('completed')}
                   className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                    taskFilter === 'completed' ? 'bg-white text-[#0F172A] shadow-xs' : 'text-[#64748B] hover:text-[#0F172A]'
+                    taskFilter === 'completed' ? 'bg-[#011826] text-white shadow-xs font-bold' : 'text-[#595959] hover:text-[#222222]'
                   }`}
                 >
                   Completed ({myCompletedTasks.length})
@@ -433,15 +433,15 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           </div>
 
           {/* Card 2: My Projects & Active Sprint Deliverables */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
+          <div className="bg-white rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] p-6 shadow-micro space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <div>
-                <h3 className="text-lg font-extrabold text-[#0F172A]">My Active Projects</h3>
-                <p className="text-xs text-[#64748B] font-medium">Projects you are actively contributing to in this workspace.</p>
+                <h3 className="text-lg font-bold text-[#222222]">My Active Projects</h3>
+                <p className="text-xs text-[#595959] font-medium">Projects you are actively contributing to in this workspace.</p>
               </div>
               <button
                 onClick={onViewProjects}
-                className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
+                className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
               >
                 View All
               </button>
@@ -488,55 +488,55 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* RIGHT 1 COLUMN */}
         <div className="space-y-6">
           {/* Card 3: Today's Schedule & Meetings */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
-              <h3 className="font-extrabold text-[#0F172A] text-base">Today's Schedule</h3>
-              <button onClick={onViewCalendar} className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer">
+          <div className="bg-white rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] p-6 shadow-micro space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
+              <h3 className="font-bold text-[#222222] text-base">Today's Schedule</h3>
+              <button onClick={onViewCalendar} className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer">
                 Calendar
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#0B192C] text-white flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
+              <div className="p-3 rounded-xl bg-[#F4F6F8] border border-[#E5E5E5] flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[#011826] text-white flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
                   <span>10:00</span>
                   <span className="text-[8px] uppercase">AM</span>
                 </div>
                 <div>
-                  <h5 className="font-extrabold text-[#0F172A]">Sprint Daily Standup</h5>
-                  <p className="text-[10px] text-[#64748B] font-medium mt-0.5">Campfire Audio & Video Room</p>
+                  <h5 className="font-bold text-[#222222]">Sprint Daily Standup</h5>
+                  <p className="text-[10px] text-[#595959] font-medium mt-0.5">Campfire Audio & Video Room</p>
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#E2E8F0] text-[#0F172A] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
+              <div className="p-3 rounded-xl bg-[#F4F6F8] border border-[#E5E5E5] flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[#E5E5E5] text-[#222222] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
                   <span>02:30</span>
                   <span className="text-[8px] uppercase">PM</span>
                 </div>
                 <div>
-                  <h5 className="font-extrabold text-[#0F172A]">UI / UX Design Review</h5>
-                  <p className="text-[10px] text-[#64748B] font-medium mt-0.5">E-Commerce Website wireframes</p>
+                  <h5 className="font-bold text-[#222222]">UI / UX Design Review</h5>
+                  <p className="text-[10px] text-[#595959] font-medium mt-0.5">E-Commerce Website wireframes</p>
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#E2E8F0] text-[#0F172A] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
+              <div className="p-3 rounded-xl bg-[#F4F6F8] border border-[#E5E5E5] flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[#E5E5E5] text-[#222222] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
                   <span>05:00</span>
                   <span className="text-[8px] uppercase">PM</span>
                 </div>
                 <div>
-                  <h5 className="font-extrabold text-[#0F172A]">Daily Check-in Due</h5>
-                  <p className="text-[10px] text-[#64748B] font-medium mt-0.5">Automated prompt in #checkins</p>
+                  <h5 className="font-bold text-[#222222]">Daily Check-in Due</h5>
+                  <p className="text-[10px] text-[#595959] font-medium mt-0.5">Automated prompt in #checkins</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Card 4: My Project Collaborators (Online) */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
-              <h3 className="font-extrabold text-[#0F172A] text-base">Project Squad</h3>
-              <button onClick={onViewChat} className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer">
+          <div className="bg-white rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] p-6 shadow-micro space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
+              <h3 className="font-bold text-[#222222] text-base">Project Squad</h3>
+              <button onClick={onViewChat} className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer">
                 Campfire
               </button>
             </div>

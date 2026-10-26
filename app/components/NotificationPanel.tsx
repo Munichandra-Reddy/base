@@ -21,7 +21,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
   const isRead = unreadCount === 0;
 
   return (
-    <div className="absolute right-6 top-16 z-40 w-80 bg-white rounded-2xl border border-[#E2E8F0] shadow-xl overflow-hidden font-sans">
+    <div className="absolute right-6 top-16 z-40 w-80 bg-white rounded-2xl border border-[#E5E5E5] shadow-xl overflow-hidden font-sans">
       <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between bg-[#F4F6F8]">
         <h4 className="text-sm font-bold text-[#222222]">Notifications</h4>
         {!isRead ? (
@@ -35,14 +35,14 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
         )}
       </div>
 
-      <div className="divide-y divide-[#E2E8F0] max-h-72 overflow-y-auto">
+      <div className="divide-y divide-[#E5E5E5] max-h-72 overflow-y-auto">
         {notifications.map((n, i) => (
-          <div key={i} className={`p-3.5 transition-colors ${isRead ? 'bg-[#F1F3F6]/50 opacity-70' : 'hover:bg-[#EBF0F5]'}`}>
+          <div key={i} className={`p-3.5 transition-colors ${isRead ? 'bg-[#F4F6F8]/50 opacity-70' : 'hover:bg-[#F4F6F8]'}`}>
             <div className="flex justify-between items-start mb-0.5 gap-2">
-              <h5 className="text-xs font-bold text-[#0F172A] break-words min-w-0">{n.title}</h5>
-              <span className="text-[10px] text-[#64748B] shrink-0">{n.time}</span>
+              <h5 className="text-xs font-bold text-[#222222] break-words min-w-0">{n.title}</h5>
+              <span className="text-[10px] text-[#595959] shrink-0">{n.time}</span>
             </div>
-            <p className="text-xs text-[#334155] break-words">{n.desc}</p>
+            <p className="text-xs text-[#595959] break-words">{n.desc}</p>
           </div>
         ))}
       </div>

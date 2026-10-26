@@ -837,480 +837,675 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] flex flex-col justify-center items-center p-4 sm:p-6 font-sans">
-      <div className="w-full max-w-md bg-white rounded-3xl border border-[#E5E5E5] shadow-xl p-8 sm:p-9 space-y-5">
-        
-        {/* Logo Header */}
-        <div className="text-center space-y-1">
-          <OrbitLogoIcon />
+    <div className="min-h-screen bg-[#FFFFFF] flex flex-col font-sans">
+      {/* 1. CISCO HEADER / NAVBAR */}
+      <header className="h-[74px] bg-[#FFFFFF] border-b border-[#E5E5E5] px-6 lg:px-12 flex items-center justify-between shrink-0 z-20">
+        <div className="flex items-center gap-6">
+          <div
+            onClick={() => {
+              handleTabSwitch('login');
+              setLoginRole('admin');
+            }}
+            className="flex items-center gap-2.5 cursor-pointer select-none"
+          >
+            <div className="w-8 h-8 rounded-lg bg-[#011826] flex items-center justify-center text-white shadow-xs">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle cx="12" cy="12" r="7" strokeWidth="2.5" />
+                <circle cx="12" cy="5" r="2" fill="currentColor" />
+                <circle cx="17" cy="16" r="1.5" fill="currentColor" />
+                <circle cx="7" cy="15" r="1.5" fill="currentColor" />
+              </svg>
+            </div>
+            <span className="text-xl font-bold text-[#011826] tracking-tight">WorkOrbit</span>
+          </div>
 
-          {mode === 'login' && (
-            <>
-              <h1 className="text-3xl font-light text-[#222222] tracking-tight">WorkOrbit</h1>
-              <p className="text-xs font-semibold text-[#595959]">
-                {loginRole === 'admin'
-                  ? 'Administrator Access Portal'
-                  : 'Employee Workspace Portal'}
-              </p>
-            </>
-          )}
-
-          {mode === 'signup' && (
-            <>
-              <h1 className="text-2xl font-light text-[#222222] tracking-tight">Create Employee Account</h1>
-              <p className="text-xs font-medium text-[#595959]">Join your team on WorkOrbit.</p>
-            </>
-          )}
-
-          {mode === 'forgot' && (
-            <>
-              <h1 className="text-2xl font-light text-[#222222] tracking-tight">
-                {isResetLinkFromEmail
-                  ? isResetExpired
-                    ? 'Link Timed Out'
-                    : 'Create New Password'
-                  : 'Reset your password'}
-              </h1>
-              <p className="text-xs font-medium text-[#595959]">
-                {isResetLinkFromEmail
-                  ? isResetExpired
-                    ? '15-minute validity has expired.'
-                    : 'Enter your new password below to finish resetting.'
-                  : loginRole === 'admin'
-                  ? 'Administrator Password Recovery'
-                  : 'Employee Password Recovery'}
-              </p>
-            </>
-          )}
+          <nav className="hidden md:flex items-center gap-6 pl-5 border-l border-[#E5E5E5]">
+            <span
+              onClick={() => handleTabSwitch('login')}
+              className="text-[15px] font-medium text-[#222222] hover:text-[#049FD9] transition-colors cursor-pointer"
+            >
+              Overview
+            </span>
+            <span
+              onClick={() => handleTabSwitch('login')}
+              className="text-[15px] font-medium text-[#222222] hover:text-[#049FD9] transition-colors cursor-pointer"
+            >
+              Projects & Tasks
+            </span>
+            <span
+              onClick={() => handleTabSwitch('login')}
+              className="text-[15px] font-medium text-[#222222] hover:text-[#049FD9] transition-colors cursor-pointer"
+            >
+              Campfire Chat
+            </span>
+            <span
+              onClick={() => handleTabSwitch('login')}
+              className="text-[15px] font-medium text-[#222222] hover:text-[#049FD9] transition-colors cursor-pointer"
+            >
+              Cisco Packet Tracer
+            </span>
+          </nav>
         </div>
 
-        {/* ADMIN vs EMPLOYEE LOGIN SWITCHER (ONLY IN LOGIN MODE) */}
-        {mode === 'login' && (
-          <div className="grid grid-cols-2 p-1 bg-[#F4F6F8] rounded-2xl border border-[#E5E5E5]">
-            <button
-              type="button"
-              onClick={() => handleRoleSwitch('admin')}
-              className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
-                loginRole === 'admin'
-                  ? 'bg-[#011826] text-white shadow-xs font-bold'
-                  : 'text-[#595959] hover:text-[#011826]'
-              }`}
-            >
-              Admin Login
-            </button>
-            <button
-              type="button"
-              onClick={() => handleRoleSwitch('employee')}
-              className={`py-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center cursor-pointer ${
-                loginRole === 'employee'
-                  ? 'bg-[#011826] text-white shadow-xs font-bold'
-                  : 'text-[#595959] hover:text-[#011826]'
-              }`}
-            >
-              Employee Login
-            </button>
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              handleTabSwitch('login');
+              setLoginRole('employee');
+            }}
+            className="btn-login"
+          >
+            Sign in
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTabSwitch('signup')}
+            className="btn-signup"
+          >
+            Sign up
+          </button>
+        </div>
+      </header>
 
-        {/* Validation / Success Messages */}
-        {errorMessage && (
-          <div className="p-3 bg-[#FEF2F2] border border-[#EF4444]/30 rounded-2xl text-xs font-semibold text-[#EF4444] flex items-center gap-2 animate-in fade-in duration-150">
-            <span className="text-sm">⚠️</span>
-            <span>{errorMessage}</span>
-          </div>
-        )}
+      {/* 2. MAIN SPLIT LAYOUT (FORM + ASYMMETRIC GRAPHIC CARDS) */}
+      <main className="flex-1 flex items-center justify-center py-8 lg:py-12 px-6 lg:px-12">
+        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          
+          {/* LEFT COLUMN: HERO HEADING + LOGIN/SIGNUP FORM */}
+          <div className="lg:col-span-6 space-y-5">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#F0F9FF] border border-[#049FD9]/30 text-[#049FD9] text-xs font-semibold">
+                <span>Enterprise Workspace Platform</span>
+              </div>
+              <h1 className="text-4xl lg:text-[44px] font-light text-[#222222] leading-[1.1] tracking-tight">
+                {mode === 'login'
+                  ? 'WorkOrbit Workspace'
+                  : mode === 'signup'
+                  ? 'Create Employee Account'
+                  : 'Recover Password'}
+              </h1>
+              <p className="text-base font-normal text-[#595959] leading-[1.6]">
+                {mode === 'login'
+                  ? 'High-performance team management, campfire discussions, tasks, and file sharing in one unified workspace.'
+                  : mode === 'signup'
+                  ? 'Register your company email to join your workspace team, claim sprint tasks, and collaborate in real-time.'
+                  : 'Enter your registered work email address below to receive secure password recovery instructions.'}
+              </p>
+              <div className="pt-1">
+                <a
+                  href="#learn-more"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleRoleSwitch(loginRole === 'admin' ? 'employee' : 'admin');
+                  }}
+                  className="highlight-link inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>Switch to {loginRole === 'admin' ? 'Employee Portal' : 'Admin Console'}</span>
+                  <span>→</span>
+                </a>
+              </div>
+            </div>
 
-        {successMessage && (
-          <div className="p-3 bg-[#ECFDF5] border border-[#10B981]/30 rounded-2xl text-xs font-bold text-[#10B981] flex items-center gap-2 animate-in fade-in duration-150">
-            <span className="text-sm">✅</span>
-            <span>{successMessage}</span>
-          </div>
-        )}
-
-        {/* FORGOT PASSWORD & CHANGE PASSWORD FORM */}
-        {mode === 'forgot' ? (
-          <div className="space-y-4">
-            {isResetLinkFromEmail ? (
-              isResetExpired ? (
-                /* Password Reset Link Timed Out View */
-                <div className="p-6 bg-[#FEF2F2] border border-[#EF4444]/30 rounded-3xl text-center space-y-3.5 animate-in fade-in duration-150">
-                  <div className="w-12 h-12 mx-auto bg-[#FEE2E2] rounded-full flex items-center justify-center text-2xl shadow-inner">
-                    ⏱️
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-black text-[#991B1B]">Password Reset Link Timed Out</h2>
-                    <p className="text-xs text-[#7F1D1D] mt-1.5 leading-relaxed font-medium">
-                      This password reset link was valid for 15 minutes and has timed out. For security, please request a new password reset email.
-                    </p>
-                  </div>
+            {/* FORM CONTAINER */}
+            <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-micro p-6 sm:p-7 space-y-4">
+              
+              {/* ADMIN vs EMPLOYEE LOGIN SWITCHER (ONLY IN LOGIN MODE) */}
+              {mode === 'login' && (
+                <div className="grid grid-cols-2 p-1 bg-[#F4F6F8] rounded-lg border border-[#E5E5E5]">
                   <button
                     type="button"
-                    onClick={() => {
-                      setIsResetExpired(false);
-                      setIsResetLinkFromEmail(false);
-                      setErrorMessage(null);
-                      setSuccessMessage(null);
-                      if (typeof window !== 'undefined') {
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                      }
-                    }}
-                    className="w-full py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-1"
+                    onClick={() => handleRoleSwitch('admin')}
+                    className={`py-2 rounded-md font-semibold text-xs transition-all flex items-center justify-center cursor-pointer ${
+                      loginRole === 'admin'
+                        ? 'bg-[#011826] text-white shadow-xs font-bold'
+                        : 'text-[#595959] hover:text-[#011826]'
+                    }`}
                   >
-                    Request New Reset Link →
+                    Admin Login
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRoleSwitch('employee')}
+                    className={`py-2 rounded-md font-semibold text-xs transition-all flex items-center justify-center cursor-pointer ${
+                      loginRole === 'employee'
+                        ? 'bg-[#011826] text-white shadow-xs font-bold'
+                        : 'text-[#595959] hover:text-[#011826]'
+                    }`}
+                  >
+                    Employee Login
                   </button>
                 </div>
+              )}
+
+              {/* Validation / Success Messages */}
+              {errorMessage && (
+                <div className="p-3 bg-[#FEF2F2] border border-[#EF4444]/30 rounded-lg text-xs font-semibold text-[#EF4444] flex items-center gap-2 animate-in fade-in duration-150">
+                  <span className="text-sm">⚠️</span>
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              {successMessage && (
+                <div className="p-3 bg-[#F0FDF4] border border-[#6CC04A]/30 rounded-lg text-xs font-bold text-[#238823] flex items-center gap-2 animate-in fade-in duration-150">
+                  <span className="text-sm">✅</span>
+                  <span>{successMessage}</span>
+                </div>
+              )}
+
+              {/* FORGOT PASSWORD FORM */}
+              {mode === 'forgot' ? (
+                <div className="space-y-4">
+                  {isResetLinkFromEmail ? (
+                    isResetExpired ? (
+                      /* Link Timed Out View */
+                      <div className="p-6 bg-[#FEF2F2] border border-[#EF4444]/30 rounded-2xl text-center space-y-3 animate-in fade-in duration-150">
+                        <div className="w-12 h-12 mx-auto bg-[#FEE2E2] rounded-full flex items-center justify-center text-2xl shadow-inner">
+                          ⏱️
+                        </div>
+                        <div>
+                          <h2 className="text-sm font-bold text-[#991B1B]">Password Reset Link Timed Out</h2>
+                          <p className="text-xs text-[#7F1D1D] mt-1 leading-relaxed font-medium">
+                            This password reset link was valid for 15 minutes and has timed out. For security, please request a new password reset email.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsResetExpired(false);
+                            setIsResetLinkFromEmail(false);
+                            setErrorMessage(null);
+                            setSuccessMessage(null);
+                            if (typeof window !== 'undefined') {
+                              window.history.replaceState({}, document.title, window.location.pathname);
+                            }
+                          }}
+                          className="w-full py-2.5 bg-[#011826] hover:bg-[#082236] text-white font-semibold text-xs rounded-md shadow-xs transition-all cursor-pointer"
+                        >
+                          Request New Reset Link →
+                        </button>
+                      </div>
+                    ) : (
+                      /* Set New Password Form */
+                      <form onSubmit={handleDirectChangePassword} className="space-y-3.5">
+                        <div className="text-center pb-1">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 mb-2 bg-[#FEF3C7] border border-[#F59E0B]/30 rounded-full text-[11px] font-bold text-[#B45309]">
+                            <span>⏱️</span>
+                            <span>Valid for 15 minutes</span>
+                          </div>
+                          <h2 className="text-sm font-bold text-[#222222]">Set New Password</h2>
+                          <p className="text-xs text-[#595959]">
+                            Create a new password for <span className="font-semibold text-[#222222]">{email}</span>
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-[#222222] mb-1">New Password (min 6 characters) *</label>
+                          <div className="relative">
+                            <input
+                              type={showNewPassword ? 'text' : 'password'}
+                              required
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              placeholder="Enter new password"
+                              className="w-full px-3.5 py-2.5 pr-10 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all placeholder:text-[#999999]"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowNewPassword(!showNewPassword)}
+                              className="absolute right-3 top-2.5 text-[#595959] hover:text-[#222222] cursor-pointer p-0.5 transition-colors"
+                              aria-label={showNewPassword ? "Hide password" : "Show password"}
+                            >
+                              {showNewPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-[#222222] mb-1">Confirm New Password *</label>
+                          <div className="relative">
+                            <input
+                              type={showConfirmNewPassword ? 'text' : 'password'}
+                              required
+                              value={confirmNewPassword}
+                              onChange={(e) => setConfirmNewPassword(e.target.value)}
+                              placeholder="Confirm new password"
+                              className="w-full px-3.5 py-2.5 pr-10 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all placeholder:text-[#999999]"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                              className="absolute right-3 top-2.5 text-[#595959] hover:text-[#222222] cursor-pointer p-0.5 transition-colors"
+                              aria-label={showConfirmNewPassword ? "Hide password" : "Show password"}
+                            >
+                              {showConfirmNewPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="w-full py-2.5 bg-[#011826] hover:bg-[#082236] text-white font-semibold text-sm rounded-md shadow-xs transition-all cursor-pointer mt-1"
+                        >
+                          {isSubmitting ? 'Updating Password...' : 'Save & Update Password →'}
+                        </button>
+                      </form>
+                    )
+                  ) : (
+                    /* Request Reset Email Form */
+                    <form onSubmit={handleForgotPassword} className="space-y-3.5">
+                      <div>
+                        <label className="block text-xs font-semibold text-[#222222] mb-1.5">
+                          {loginRole === 'admin' ? 'Admin Registered Email' : 'Employee Registered Email'}
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
+                          className="w-full px-3.5 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all placeholder:text-[#999999]"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isResetSending}
+                        className="w-full py-2.5 bg-[#011826] hover:bg-[#082236] text-white font-semibold text-sm rounded-md shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <span>✉️</span>
+                        <span>{isResetSending ? 'Sending direct message to mail...' : 'Send Password Reset Email'}</span>
+                      </button>
+                    </form>
+                  )}
+
+                  <div className="text-center pt-2 border-t border-[#E5E5E5]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleTabSwitch('login');
+                        setIsResetLinkFromEmail(false);
+                        setIsResetExpired(false);
+                        if (typeof window !== 'undefined') {
+                          window.history.replaceState({}, document.title, window.location.pathname);
+                        }
+                      }}
+                      className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
+                    >
+                      ← Back to {loginRole === 'admin' ? 'Admin' : 'Employee'} Sign in
+                    </button>
+                  </div>
+                </div>
               ) : (
-                /* Set New Password Form (ONLY accessible via valid email link within 15 minutes) */
-                <form onSubmit={handleDirectChangePassword} className="space-y-3.5">
-                  <div className="text-center pb-1">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 mb-2 bg-[#FEF3C7] border border-[#F59E0B]/30 rounded-full text-[11px] font-bold text-[#B45309]">
-                      <span>⏱️</span>
-                      <span>Valid for 15 minutes</span>
-                    </div>
-                    <h2 className="text-sm font-bold text-[#0F172A]">Set New Password</h2>
-                    <p className="text-xs text-[#64748B]">
-                      Create a new password for <span className="font-semibold text-[#0F172A]">{email}</span>
-                    </p>
-                  </div>
+                /* LOGIN & SIGNUP FORM */
+                <form onSubmit={handleSubmit} className="space-y-3.5">
+                  {/* SIGN UP FIELDS */}
+                  {mode === 'signup' && (
+                    <>
+                      <div>
+                        <label className="block text-xs font-semibold text-[#222222] mb-1">Full name *</label>
+                        <input
+                          type="text"
+                          required
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          placeholder="e.g. Priya Sharma"
+                          className="w-full px-3.5 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all placeholder:text-[#999999]"
+                        />
+                      </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-[#334155] mb-1">New Password (min 6 characters) *</label>
-                    <div className="relative">
-                      <input
-                        type={showNewPassword ? 'text' : 'password'}
-                        required
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Enter new password"
-                        className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
-                        aria-label={showNewPassword ? "Hide password" : "Show password"}
-                      >
-                        {showNewPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-[#222222] mb-1">Employee Work Email *</label>
+                        <input
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="priya@company.com"
+                          className="w-full px-3.5 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all placeholder:text-[#999999]"
+                        />
+                      </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-[#334155] mb-1">Confirm New Password *</label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmNewPassword ? 'text' : 'password'}
-                        required
-                        value={confirmNewPassword}
-                        onChange={(e) => setConfirmNewPassword(e.target.value)}
-                        placeholder="Confirm new password"
-                        className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
-                        className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
-                        aria-label={showConfirmNewPassword ? "Hide password" : "Show password"}
-                      >
-                        {showConfirmNewPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <div>
+                          <label className="block text-xs font-semibold text-[#222222] mb-1">Role / Title *</label>
+                          <input
+                            type="text"
+                            required
+                            value={designation}
+                            onChange={(e) => setDesignation(e.target.value)}
+                            placeholder="e.g. Developer"
+                            className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all placeholder:text-[#999999]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-[#222222] mb-1">Company *</label>
+                          <input
+                            type="text"
+                            required
+                            value={companyName}
+                            onChange={(e) => setCompanyName(e.target.value)}
+                            placeholder="GEONIXA"
+                            className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all placeholder:text-[#999999]"
+                          />
+                        </div>
+                      </div>
 
+                      <div>
+                        <label className="block text-xs font-semibold text-[#222222] mb-1">Password (min 6 characters) *</label>
+                        <div className="relative">
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Create password"
+                            className="w-full px-3.5 py-2.5 pr-10 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all placeholder:text-[#999999]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-2.5 text-[#595959] hover:text-[#222222] cursor-pointer p-0.5 transition-colors"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                          >
+                            {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-[#222222] mb-1">Confirm password *</label>
+                        <div className="relative">
+                          <input
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            required
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Re-enter password"
+                            className="w-full px-3.5 py-2.5 pr-10 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all placeholder:text-[#999999]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-2.5 text-[#595959] hover:text-[#222222] cursor-pointer p-0.5 transition-colors"
+                            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                          >
+                            {showConfirmPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-1">
+                        <input
+                          type="checkbox"
+                          id="agreeTerms"
+                          checked={agreeTerms}
+                          onChange={(e) => setAgreeTerms(e.target.checked)}
+                          className="w-4 h-4 rounded border-[#CCCCCC] text-[#049FD9] focus:ring-[#049FD9] accent-[#049FD9] cursor-pointer"
+                        />
+                        <label htmlFor="agreeTerms" className="text-xs font-medium text-[#595959] cursor-pointer select-none">
+                          I agree to company Terms of Service & Privacy Policy.
+                        </label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* LOGIN FIELDS */}
+                  {mode === 'login' && (
+                    <>
+                      <div>
+                        <label className="block text-xs font-semibold text-[#222222] mb-1.5">
+                          {loginRole === 'admin' ? 'Admin Email Address' : 'Employee Work Email'}
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
+                          className="w-full px-3.5 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all placeholder:text-[#999999]"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-xs font-semibold text-[#222222]">Password</label>
+                          <button
+                            type="button"
+                            onClick={handleForgotPasswordClick}
+                            className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
+                          >
+                            Forgot password?
+                          </button>
+                        </div>
+                        <div className="relative">
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder={loginRole === 'admin' ? 'Enter admin password' : 'Enter your password'}
+                            className="w-full px-3.5 py-2.5 pr-10 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all placeholder:text-[#999999]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3.5 top-2.5 text-[#595959] hover:text-[#222222] cursor-pointer p-0.5 transition-colors"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                          >
+                            {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-1">
+                        <input
+                          type="checkbox"
+                          id="rememberMe"
+                          checked={rememberMe}
+                          onChange={(e) => setRememberMe(e.target.checked)}
+                          className="w-4 h-4 rounded border-[#CCCCCC] text-[#049FD9] focus:ring-[#049FD9] accent-[#049FD9] cursor-pointer"
+                        />
+                        <label htmlFor="rememberMe" className="text-xs font-medium text-[#595959] cursor-pointer select-none">
+                          Remember my session
+                        </label>
+                      </div>
+                    </>
+                  )}
+
+                  {/* FORM ACTION BUTTON */}
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-2.5 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer mt-1"
+                    className={`w-full py-2.5 px-5 font-semibold text-sm rounded-md shadow-xs transition-all cursor-pointer mt-2 ${
+                      mode === 'signup'
+                        ? 'btn-signup w-full'
+                        : 'bg-[#011826] hover:bg-[#082236] text-white'
+                    }`}
                   >
-                    {isSubmitting ? 'Updating Password...' : 'Save & Update Password →'}
+                    {isSubmitting
+                      ? 'Verifying...'
+                      : mode === 'signup'
+                      ? 'Create Employee Account'
+                      : loginRole === 'admin'
+                      ? 'Sign in as Administrator →'
+                      : 'Sign in as Employee →'}
                   </button>
                 </form>
-              )
-            ) : (
-              /* Request Password Reset Email form (Website view - only option) */
-              <form onSubmit={handleForgotPassword} className="space-y-3.5">
-                <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1.5">
-                    {loginRole === 'admin' ? 'Admin Registered Email' : 'Employee Registered Email'}
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
-                    className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                  />
+              )}
+
+              {/* FOOTER SWITCHER */}
+              {mode === 'signup' && (
+                <div className="text-center pt-2 border-t border-[#E5E5E5]">
+                  <p className="text-xs text-[#595959] font-medium">
+                    Already have an employee account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleTabSwitch('login');
+                        setLoginRole('employee');
+                      }}
+                      className="font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
+                    >
+                      Sign in
+                    </button>
+                  </p>
                 </div>
+              )}
 
-                <button
-                  type="submit"
-                  disabled={isResetSending}
-                  className="w-full py-3 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-full shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <span>✉️</span>
-                  <span>{isResetSending ? 'Sending direct message to mail...' : 'Send Password Reset Email'}</span>
-                </button>
-              </form>
-            )}
+              {mode === 'login' && (
+                <div className="text-center pt-2 border-t border-[#E5E5E5] space-y-1">
+                  <p className="text-xs text-[#595959] font-medium">
+                    {loginRole === 'employee' ? (
+                      <>
+                        Need an employee account?{' '}
+                        <button
+                          type="button"
+                          onClick={() => handleTabSwitch('signup')}
+                          className="font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
+                        >
+                          Create Account
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-[11px] text-[#595959]">
+                        🔒 Single Master Administrator access with encrypted Firebase auth.
+                      </span>
+                    )}
+                  </p>
+                </div>
+              )}
 
-            <div className="text-center pt-1 border-t border-[#E2E8F0]">
-              <button
-                type="button"
-                onClick={() => {
-                  handleTabSwitch('login');
-                  setIsResetLinkFromEmail(false);
-                  setIsResetExpired(false);
-                  if (typeof window !== 'undefined') {
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                  }
-                }}
-                className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
-              >
-                ← Back to {loginRole === 'admin' ? 'Admin' : 'Employee'} Sign in
-              </button>
             </div>
           </div>
-        ) : (
-          /* SIGN IN & SIGN UP FORM */
-          <form onSubmit={handleSubmit} className="space-y-3.5">
-            {/* SIGN UP FIELDS (ONLY EMPLOYEE REGISTRATION) */}
-            {mode === 'signup' && (
-              <>
-                <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1">Full name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="e.g. Priya Sharma"
-                    className="w-full px-4 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                  />
-                </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1">Employee Work Email *</label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="priya@company.com"
-                    className="w-full px-4 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                  />
-                </div>
+          {/* RIGHT COLUMN: IMAGE CONTAINERS (RIGHT-SIDE GRAPHIC CARDS) */}
+          <div className="lg:col-span-6 flex flex-col sm:flex-row gap-4 items-stretch justify-center">
+            
+            {/* 1. Main Large Portrait Graphic Card with Asymmetric 28px Curves */}
+            <div className="flex-1 bg-gradient-to-br from-[#011826] via-[#082236] to-[#011826] text-white p-7 shadow-xl border border-[#0d314d] rounded-tl-[32px] rounded-br-[32px] rounded-tr-lg rounded-bl-lg flex flex-col justify-between min-h-[440px] relative overflow-hidden group">
+              {/* Background ambient network lines */}
+              <div className="absolute inset-0 bg-dotgrid opacity-20 pointer-events-none" />
+              <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-[#049FD9]/15 blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-[#6CC04A]/15 blur-2xl pointer-events-none" />
 
-                <div className="grid grid-cols-2 gap-2.5">
-                  <div>
-                    <label className="block text-xs font-bold text-[#334155] mb-1">Role / Title *</label>
-                    <input
-                      type="text"
-                      required
-                      value={designation}
-                      onChange={(e) => setDesignation(e.target.value)}
-                      placeholder="e.g. Developer"
-                      className="w-full px-3 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                    />
+              {/* Top Tag & Header */}
+              <div className="relative z-10 flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#049FD9]/20 text-[#049FD9] border border-[#049FD9]/30 text-xs font-semibold">
+                  <span>⚡ Cisco Packet Tracer Ready</span>
+                </span>
+                <span className="text-[11px] font-mono text-slate-400">v2.4.0</span>
+              </div>
+
+              {/* Graphic Illustration: Interconnected Workspace Topology */}
+              <div className="relative z-10 my-6 py-4 flex flex-col items-center justify-center">
+                <div className="relative w-44 h-36 flex items-center justify-center">
+                  {/* Central Node */}
+                  <div className="w-16 h-16 rounded-2xl bg-[#049FD9] text-white flex items-center justify-center font-bold text-xs shadow-lg shadow-[#049FD9]/30 z-10 border-2 border-white/20">
+                    <span className="text-center text-[10px] uppercase font-mono font-bold leading-tight">Work<br />Orbit</span>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[#334155] mb-1">Company *</label>
-                    <input
-                      type="text"
-                      required
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      placeholder="GEONIXA"
-                      className="w-full px-3 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                    />
-                  </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1">Password (min 6 characters) *</label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Create password"
-                      className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
-                    </button>
+                  {/* Connecting Line 1 */}
+                  <div className="absolute -top-1 left-2 flex items-center gap-1.5 bg-[#082236] border border-[#049FD9]/50 rounded-lg px-2 py-1 text-[10px] text-white">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#6CC04A] animate-ping" />
+                    <span>Sprint Dev</span>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1">Confirm password *</label>
-                  <div className="relative">
-                    <input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      required
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Re-enter password"
-                      className="w-full px-4 py-2.5 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-2.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
-                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                    >
-                      {showConfirmPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
-                    </button>
+                  {/* Connecting Line 2 */}
+                  <div className="absolute -bottom-2 -left-2 flex items-center gap-1.5 bg-[#082236] border border-[#049FD9]/50 rounded-lg px-2 py-1 text-[10px] text-white">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#049FD9]" />
+                    <span>Campfire</span>
+                  </div>
+
+                  {/* Connecting Line 3 */}
+                  <div className="absolute top-8 -right-4 flex items-center gap-1.5 bg-[#082236] border border-[#049FD9]/50 rounded-lg px-2 py-1 text-[10px] text-white">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#238823]" />
+                    <span>Check-ins</span>
+                  </div>
+
+                  {/* Concentric rings */}
+                  <div className="absolute w-36 h-36 rounded-full border border-dashed border-[#049FD9]/30 animate-spin" style={{ animationDuration: '30s' }} />
+                </div>
+              </div>
+
+              {/* Bottom Details */}
+              <div className="relative z-10 space-y-2 pt-2 border-t border-white/10">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-light text-white tracking-tight">Connected Team Pod</h3>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#6CC04A] text-white text-[11px] font-bold">
+                    <span>● Active</span>
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 font-normal leading-relaxed">
+                  Real-time multi-project sync, automated check-ins, and high-speed chat built for modern agile teams.
+                </p>
+              </div>
+            </div>
+
+            {/* 2. Smaller Stacked Square Cards Side-by-Side with Asymmetric 24px Curves */}
+            <div className="w-full sm:w-56 flex flex-col gap-3.5 justify-between">
+              
+              {/* Stacked Card 1: Sprint Velocity */}
+              <div className="bg-white p-4.5 rounded-tl-[24px] rounded-br-[24px] rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold text-[#595959] uppercase tracking-wider">
+                    Sprint Velocity
+                  </span>
+                  <div className="w-6 h-6 rounded-md bg-[#F0FDF4] text-[#6CC04A] flex items-center justify-center text-xs">
+                    ✓
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="agreeTerms"
-                    checked={agreeTerms}
-                    onChange={(e) => setAgreeTerms(e.target.checked)}
-                    className="w-4 h-4 rounded border-[#CBD5E1] text-[#0B192C] focus:ring-[#0B192C] accent-[#0B192C] cursor-pointer"
-                  />
-                  <label htmlFor="agreeTerms" className="text-[11px] font-medium text-[#334155] cursor-pointer select-none">
-                    I agree to company Terms of Service & Privacy Policy.
-                  </label>
-                </div>
-              </>
-            )}
-
-            {/* LOGIN FIELDS */}
-            {mode === 'login' && (
-              <>
                 <div>
-                  <label className="block text-xs font-bold text-[#334155] mb-1.5">
-                    {loginRole === 'admin' ? 'Admin Email Address' : 'Employee Work Email'}
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
-                    className="w-full px-4 py-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-[#334155]">Password</label>
-                    <button
-                      type="button"
-                      onClick={handleForgotPasswordClick}
-                      className="text-[11px] font-bold text-[#0B192C] hover:underline cursor-pointer"
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder={loginRole === 'admin' ? 'Enter admin password' : 'Enter your password'}
-                      className="w-full px-4 py-3 pr-10 bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] transition-all placeholder:text-[#94A3B8]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3.5 text-[#64748B] hover:text-[#0F172A] cursor-pointer p-0.5 transition-colors"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
-                    </button>
+                  <div className="text-2xl font-light text-[#222222] leading-tight">68% Done</div>
+                  <div className="text-[11px] font-semibold text-[#238823] mt-1 flex items-center gap-1">
+                    <span>↑ +18% vs last cycle</span>
                   </div>
                 </div>
+              </div>
 
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="rememberMe"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-[#CCCCCC] text-[#049FD9] focus:ring-[#049FD9] accent-[#049FD9] cursor-pointer"
-                  />
-                  <label htmlFor="rememberMe" className="text-xs font-semibold text-[#595959] cursor-pointer select-none">
-                    Remember my session
-                  </label>
+              {/* Stacked Card 2: Campfire Active */}
+              <div className="bg-white p-4.5 rounded-tl-[24px] rounded-br-[24px] rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold text-[#595959] uppercase tracking-wider">
+                    Campfire Chat
+                  </span>
+                  <div className="w-6 h-6 rounded-md bg-[#F0F9FF] text-[#049FD9] flex items-center justify-center text-xs">
+                    💬
+                  </div>
                 </div>
-              </>
-            )}
+                <div>
+                  <div className="text-2xl font-light text-[#222222] leading-tight">4 Online</div>
+                  <div className="text-[11px] font-semibold text-[#049FD9] mt-1 flex items-center gap-1">
+                    <span>● General & Dev channels</span>
+                  </div>
+                </div>
+              </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full py-3 font-semibold text-sm rounded-lg shadow-sm transition-all cursor-pointer mt-2 ${
-                mode === 'signup'
-                  ? 'bg-[#6CC04A] hover:bg-[#5bb33b] text-white'
-                  : 'bg-[#011826] hover:bg-[#082236] text-white'
-              }`}
-            >
-              {isSubmitting
-                ? 'Verifying...'
-                : mode === 'signup'
-                ? 'Create Employee Account'
-                : loginRole === 'admin'
-                ? 'Sign in as Administrator →'
-                : 'Sign in as Employee →'}
-            </button>
-          </form>
-        )}
+              {/* Stacked Card 3: Security & Network Tier */}
+              <div className="bg-white p-4.5 rounded-tl-[24px] rounded-br-[24px] rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold text-[#595959] uppercase tracking-wider">
+                    Security Tier
+                  </span>
+                  <div className="w-6 h-6 rounded-md bg-[#011826] text-white flex items-center justify-center text-xs">
+                    🔒
+                  </div>
+                </div>
+                <div>
+                  <div className="text-2xl font-light text-[#011826] leading-tight">Enterprise</div>
+                  <div className="text-[11px] font-semibold text-[#595959] mt-1 flex items-center gap-1">
+                    <span>AES-256 cloud encryption</span>
+                  </div>
+                </div>
+              </div>
 
-        {/* Footer Navigation */}
-        {mode === 'signup' && (
-          <div className="text-center space-y-1.5 pt-2 border-t border-[#E5E5E5]">
-            <p className="text-xs text-[#595959] font-medium">
-              Already have an employee account?{' '}
-              <button
-                type="button"
-                onClick={() => {
-                  handleTabSwitch('login');
-                  setLoginRole('employee');
-                }}
-                className="font-bold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
-              >
-                Sign in
-              </button>
-            </p>
+            </div>
+
           </div>
-        )}
 
-        {mode === 'login' && loginRole === 'employee' && (
-          <div className="text-center space-y-2 pt-2 border-t border-[#E5E5E5]">
-            <p className="text-xs text-[#595959] font-medium">
-              Need an employee account?{' '}
-              <button
-                type="button"
-                onClick={() => handleTabSwitch('signup')}
-                className="font-bold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
-              >
-                Create Account
-              </button>
-            </p>
-            <p className="text-[11px] text-[#595959]">Employee registrations are automatically verified.</p>
-          </div>
-        )}
-
-        {mode === 'login' && loginRole === 'admin' && (
-          <div className="text-center pt-2 border-t border-[#E5E5E5]">
-            <p className="text-[11px] text-[#595959]">
-              🔒 Protected administrative console. Single master administrator credentials only.
-            </p>
-          </div>
-        )}
-      </div>
+        </div>
+      </main>
     </div>
   );
 };
