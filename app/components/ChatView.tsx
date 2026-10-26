@@ -22,13 +22,13 @@ export const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage }) =
   const filteredMessages = messages.filter((m) => m.channel === activeChannel);
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-micro h-[calc(100vh-8.5rem)] flex flex-col font-sans">
+    <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-micro h-[calc(100vh-8.5rem)] flex flex-col font-sans">
       {/* Campfire Header */}
-      <div className="p-5 border-b border-[#E5E5E5] flex items-center justify-between">
+      <div className="p-5 border-b border-[#E2E8F0] flex items-center justify-between">
         <div className="flex items-center gap-3.5">
           <div>
-            <h2 className="text-2xl font-light text-[#222222]">Campfire Chat</h2>
-            <p className="text-sm font-medium text-[#595959]">Real-time team messaging & informal discussions</p>
+            <h2 className="text-2xl font-extrabold text-[#0F172A]">Campfire Chat</h2>
+            <p className="text-sm font-medium text-[#64748B]">Real-time team messaging & informal discussions</p>
           </div>
         </div>
 
@@ -53,29 +53,29 @@ export const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage }) =
         {filteredMessages.map((msg) => (
           <div key={msg.id} className="flex items-start gap-4">
             <div
-              className={`w-10 h-10 rounded-full ${msg.avatarBg || 'bg-[#011826] text-white'} font-bold flex items-center justify-center text-base shadow-xs shrink-0`}
+              className={`w-10 h-10 rounded-full ${msg.avatarBg} font-extrabold flex items-center justify-center text-base shadow-xs shrink-0`}
             >
               {msg.senderAvatar}
             </div>
-            <div className="bg-[#F4F6F8] border border-[#E5E5E5] rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md p-4 max-w-xl shadow-2xs space-y-1">
+            <div className="bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl p-4 max-w-xl shadow-2xs space-y-1">
               <div className="flex items-center justify-between gap-6 mb-1">
-                <span className="text-sm font-bold text-[#222222]">{msg.sender}</span>
-                <span className="text-xs font-semibold text-[#595959]">{msg.timestamp}</span>
+                <span className="text-sm font-bold text-[#0F172A]">{msg.sender}</span>
+                <span className="text-xs font-semibold text-[#64748B]">{msg.timestamp}</span>
               </div>
-              <p className="text-base font-medium text-[#222222] leading-relaxed">{msg.content}</p>
+              <p className="text-base font-medium text-[#334155] leading-relaxed">{msg.content}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Chat Input Form */}
-      <form onSubmit={handleSubmit} className="p-5 border-t border-[#E5E5E5] flex items-center gap-4">
+      <form onSubmit={handleSubmit} className="p-5 border-t border-[#E2E8F0] flex items-center gap-4">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={`Type a message in #${activeChannel}...`}
-          className="flex-1 bg-white border border-[#CCCCCC] rounded-xl px-5 py-3 text-base text-[#222222] font-medium focus:outline-none focus:ring-2 focus:ring-[#049FD9]"
+          className="flex-1 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl px-5 py-3 text-base text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
         />
         <button
           type="submit"

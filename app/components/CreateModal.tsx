@@ -170,33 +170,33 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#011826]/60 backdrop-blur-xs p-4 overflow-y-auto font-sans">
-      <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-2xl w-full max-w-lg overflow-hidden my-6 relative flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B192C]/50 backdrop-blur-xs p-4 overflow-y-auto font-sans">
+      <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-2xl w-full max-w-lg overflow-hidden my-6 relative flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="p-5 border-b border-[#E5E5E5] flex items-center justify-between bg-white shrink-0">
+        <div className="p-5 border-b border-[#E2E8F0] flex items-center justify-between bg-white shrink-0">
           <div>
-            <h3 className="text-xl font-bold text-[#222222]">Create New</h3>
-            <p className="text-xs text-[#595959] font-medium">Add tasks or projects to your workspace</p>
+            <h3 className="text-xl font-extrabold text-[#0F172A]">Create New</h3>
+            <p className="text-xs text-[#64748B] font-medium">Add tasks or projects to your workspace</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#F4F6F8] hover:bg-[#E5E5E5] text-[#595959] hover:text-[#222222] font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[#EBF0F5] hover:bg-[#CBD5E1]/40 text-[#64748B] hover:text-[#0F172A] font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
           >
             ✕
           </button>
         </div>
 
         {/* Tab Switcher */}
-        <div className="p-2 bg-[#F4F6F8] border-b border-[#E5E5E5] flex gap-1 shrink-0">
+        <div className="p-2 bg-[#EBF0F5] border-b border-[#E2E8F0] flex gap-1 shrink-0">
           <button
             type="button"
             onClick={() => setActiveType('task')}
-            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
               activeType === 'task'
-                ? 'bg-[#011826] text-white shadow-xs'
-                : 'text-[#595959] hover:text-[#222222] hover:bg-white/60'
+                ? 'bg-[#0B192C] text-white shadow-xs'
+                : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#CBD5E1]/30'
             }`}
           >
             New Task
@@ -204,10 +204,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({
           <button
             type="button"
             onClick={() => setActiveType('project')}
-            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
               activeType === 'project'
-                ? 'bg-[#011826] text-white shadow-xs'
-                : 'text-[#595959] hover:text-[#222222] hover:bg-white/60'
+                ? 'bg-[#0B192C] text-white shadow-xs'
+                : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#CBD5E1]/30'
             }`}
           >
             New Project
@@ -220,8 +220,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             <form id="create-task-form" onSubmit={handleTaskSubmit} className="space-y-4">
               {/* 1. Task Title */}
               <div>
-                <label className="block text-xs font-bold text-[#222222] mb-1">
-                  Task Title <span className="text-[#595959] font-normal">*</span>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">
+                  Task Title <span className="text-[#64748B] font-normal">*</span>
                 </label>
                 <input
                   type="text"
@@ -229,29 +229,29 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   placeholder="e.g. Design homepage hero banner"
                   value={taskTitle}
                   onChange={(e) => setTaskTitle(e.target.value)}
-                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-lg text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all"
+                  className="w-full p-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] focus:bg-white transition-all"
                 />
               </div>
 
               {/* 2. Task Description */}
               <div>
-                <label className="block text-xs font-bold text-[#222222] mb-1">Task Description</label>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">Task Description</label>
                 <textarea
                   rows={2}
                   placeholder="Provide task details, instructions, or scope..."
                   value={taskDesc}
                   onChange={(e) => setTaskDesc(e.target.value)}
-                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-lg text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all resize-none"
+                  className="w-full p-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] focus:bg-white transition-all resize-none"
                 />
               </div>
 
               {/* 3. Project Space */}
               <div>
-                <label className="block text-xs font-bold text-[#222222] mb-1">Project Space</label>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">Project Space</label>
                 <select
                   value={taskProject}
                   onChange={(e) => setTaskProject(e.target.value)}
-                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-lg text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all cursor-pointer"
+                  className="w-full p-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] focus:bg-white transition-all cursor-pointer"
                 >
                   {projectList.map((p) => (
                     <option key={p} value={p}>
@@ -263,11 +263,11 @@ export const CreateModal: React.FC<CreateModalProps> = ({
 
               {/* 4. Team Member (Assignee) - Direct Dropdown, Initially Empty */}
               <div>
-                <label className="block text-xs font-bold text-[#222222] mb-1">Team Member (Assignee)</label>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">Team Member (Assignee)</label>
                 <select
                   value={assignedMember}
                   onChange={(e) => setAssignedMember(e.target.value)}
-                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-lg text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all cursor-pointer"
+                  className="w-full p-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] focus:bg-white transition-all cursor-pointer"
                 >
                   <option value="">Select Team Member...</option>
                   {employeeList.map((emp) => (
@@ -281,11 +281,11 @@ export const CreateModal: React.FC<CreateModalProps> = ({
               {/* 5. Priority & 6. Deadline (Grid) */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-[#222222] mb-1">Priority</label>
+                  <label className="block text-xs font-extrabold text-[#0F172A] mb-1">Priority</label>
                   <select
                     value={taskPriority}
                     onChange={(e) => setTaskPriority(e.target.value as any)}
-                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-lg text-xs font-bold text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] cursor-pointer"
+                    className="w-full p-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-bold text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] cursor-pointer"
                   >
                     <option value="high">High Priority</option>
                     <option value="medium">Medium Priority</option>
@@ -294,12 +294,12 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#222222] mb-1">Deadline / Due Date</label>
+                  <label className="block text-xs font-extrabold text-[#0F172A] mb-1">Deadline / Due Date</label>
                   <input
                     type="date"
                     value={taskDueDate}
                     onChange={(e) => setTaskDueDate(e.target.value)}
-                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-lg text-xs font-bold text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] cursor-pointer"
+                    className="w-full p-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-bold text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] cursor-pointer"
                   />
                 </div>
               </div>
@@ -308,8 +308,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             <form id="create-project-form" onSubmit={handleProjectSubmit} className="space-y-4">
               {/* 1. Project Title */}
               <div>
-                <label className="block text-xs font-bold text-[#222222] mb-1">
-                  Project Title <span className="text-[#595959] font-normal">*</span>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">
+                  Project Title <span className="text-[#64748B] font-normal">*</span>
                 </label>
                 <input
                   type="text"
@@ -317,29 +317,29 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   placeholder="e.g. AI Customer Service Agent"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
-                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-lg text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all"
+                  className="w-full p-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] focus:bg-white transition-all"
                 />
               </div>
 
               {/* 2. Project Description */}
               <div>
-                <label className="block text-xs font-bold text-[#222222] mb-1">Project Description</label>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">Project Description</label>
                 <textarea
                   rows={2}
                   placeholder="Project scope, objectives, key deliverables..."
                   value={projectDesc}
                   onChange={(e) => setProjectDesc(e.target.value)}
-                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-lg text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all resize-none"
+                  className="w-full p-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] focus:bg-white transition-all resize-none"
                 />
               </div>
 
               {/* 3. Project Manager - Direct Dropdown, Initially Empty */}
               <div>
-                <label className="block text-xs font-bold text-[#222222] mb-1">Manager</label>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">Manager</label>
                 <select
                   value={projectManager}
                   onChange={(e) => setProjectManager(e.target.value)}
-                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-lg text-sm font-medium text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] focus:border-[#049FD9] transition-all cursor-pointer"
+                  className="w-full p-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] focus:bg-white transition-all cursor-pointer"
                 >
                   <option value="">Select Manager...</option>
                   {employeeList.map((emp) => (
@@ -352,15 +352,15 @@ export const CreateModal: React.FC<CreateModalProps> = ({
 
               {/* 4. Team Members Checklist */}
               <div>
-                <label className="block text-xs font-bold text-[#222222] mb-1">Assign Team Members</label>
-                <div className="p-3 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg max-h-36 overflow-y-auto space-y-1.5">
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">Assign Team Members</label>
+                <div className="p-3 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl max-h-36 overflow-y-auto space-y-1.5">
                   {employeeList.map((emp) => {
                     const isChecked = projectMembers.includes(emp.name);
                     return (
                       <label
                         key={emp.id}
                         className={`p-2 rounded-lg flex items-center justify-between cursor-pointer transition-colors ${
-                          isChecked ? 'bg-[#011826]/10 font-bold text-[#222222]' : 'hover:bg-white text-[#595959]'
+                          isChecked ? 'bg-[#EBF0F5] font-bold text-[#0F172A]' : 'hover:bg-white text-[#334155]'
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
@@ -368,10 +368,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleProjectMember(emp.name)}
-                            className="w-4 h-4 rounded text-[#049FD9] focus:ring-[#049FD9] accent-[#6CC04A] cursor-pointer"
+                            className="w-4 h-4 rounded text-[#0B192C] focus:ring-[#0B192C] accent-[#0B192C] cursor-pointer"
                           />
                           <span className="text-xs font-semibold">{emp.name}</span>
-                          <span className="text-[10px] text-[#595959]">({emp.role})</span>
+                          <span className="text-[10px] text-[#64748B]">({emp.role})</span>
                         </div>
                       </label>
                     );
@@ -381,18 +381,18 @@ export const CreateModal: React.FC<CreateModalProps> = ({
 
               {/* 5. Deadline */}
               <div>
-                <label className="block text-xs font-bold text-[#222222] mb-1">Deadline</label>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">Deadline</label>
                 <input
                   type="date"
                   value={projectDeadline}
                   onChange={(e) => setProjectDeadline(e.target.value)}
-                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-lg text-xs font-bold text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#049FD9] cursor-pointer"
+                  className="w-full p-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs font-bold text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] cursor-pointer"
                 />
               </div>
 
               {/* 6. Required Documents */}
               <div>
-                <label className="block text-xs font-bold text-[#222222] mb-1">Required Documents</label>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">Required Documents</label>
                 <div className="space-y-2">
                   <div className="flex gap-2">
                     <input
@@ -400,20 +400,20 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                       placeholder="Doc name (e.g. PRD.pdf, Design_Spec.fig)"
                       value={docInputText}
                       onChange={(e) => setDocInputText(e.target.value)}
-                      className="flex-1 p-2 bg-white border border-[#CCCCCC] rounded-lg text-xs text-[#222222] font-medium focus:outline-none focus:ring-2 focus:ring-[#049FD9]"
+                      className="flex-1 p-2 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-xs text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
                     />
                     <button
                       type="button"
                       onClick={handleAddDoc}
-                      className="btn-login text-xs py-2 px-3"
+                      className="px-3 py-2 bg-[#EBF0F5] hover:bg-[#CBD5E1]/50 text-[#0F172A] font-bold text-xs rounded-xl transition-colors cursor-pointer"
                     >
                       Add
                     </button>
                   </div>
 
                   <div className="relative">
-                    <label className="w-full p-2.5 bg-[#F4F6F8] hover:bg-[#E5E5E5] border border-dashed border-[#CCCCCC] rounded-lg text-xs font-bold text-[#595959] flex items-center justify-center gap-2 cursor-pointer transition-colors">
-                      <FolderIcon className="w-4 h-4 text-[#595959]" />
+                    <label className="w-full p-2.5 bg-[#F1F3F6] hover:bg-[#EBF0F5] border border-dashed border-[#CBD5E1] rounded-xl text-xs font-bold text-[#334155] flex items-center justify-center gap-2 cursor-pointer transition-colors">
+                      <FolderIcon className="w-4 h-4 text-[#334155]" />
                       <span>Upload Document Files</span>
                       <input
                         type="file"
@@ -429,14 +429,14 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                       {requiredDocs.map((doc, idx) => (
                         <span
                           key={idx}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#F4F6F8] border border-[#E5E5E5] text-[#222222] text-[11px] font-semibold"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#EBF0F5] border border-[#E2E8F0] text-[#334155] text-[11px] font-semibold"
                         >
-                          <FileIcon className="w-3.5 h-3.5 text-[#049FD9]" />
+                          <FileIcon className="w-3.5 h-3.5 text-[#334155]" />
                           <span>{doc}</span>
                           <button
                             type="button"
                             onClick={() => setRequiredDocs(requiredDocs.filter((_, i) => i !== idx))}
-                            className="text-[#595959] hover:text-[#EF4444] cursor-pointer"
+                            className="text-[#64748B] hover:text-[#0F172A] cursor-pointer"
                           >
                             ✕
                           </button>
@@ -451,18 +451,18 @@ export const CreateModal: React.FC<CreateModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-[#E5E5E5] bg-[#F4F6F8] flex items-center justify-end gap-2 shrink-0">
+        <div className="p-4 border-t border-[#E2E8F0] bg-[#F1F3F6] flex items-center justify-end gap-2 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="btn-login text-xs py-2 px-4"
+            className="px-4 py-2 text-xs font-bold text-[#64748B] hover:bg-[#EBF0F5] rounded-xl transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
             form={activeType === 'task' ? 'create-task-form' : 'create-project-form'}
-            className="btn-signup text-xs py-2 px-5"
+            className="px-5 py-2.5 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-bold text-xs rounded-lg shadow-sm transition-all cursor-pointer"
           >
             Create {activeType === 'task' ? 'Task' : 'Project'}
           </button>

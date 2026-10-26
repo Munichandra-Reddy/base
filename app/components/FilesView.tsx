@@ -37,24 +37,24 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
           <div
             key={file.id}
             onClick={() => setViewingFile(file)}
-            className="group bg-white p-6 rounded-tl-2xl rounded-br-2xl rounded-tr-md rounded-bl-md border border-[#E5E5E5] shadow-micro hover:border-[#049FD9] hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+            className="group bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-micro hover:shadow-md hover:border-[#CBD5E1] transition-all cursor-pointer flex flex-col justify-between"
           >
             <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#049FD9]/10 text-[#049FD9] group-hover:bg-[#011826] group-hover:text-white transition-colors flex items-center justify-center font-bold">
+              <div className="w-12 h-12 rounded-2xl bg-[#EBF0F5] text-[#0F172A] group-hover:bg-[#0B192C] group-hover:text-white transition-colors flex items-center justify-center font-bold">
                 <FileIcon className="w-6 h-6" />
               </div>
             </div>
 
             <div className="mb-3">
-              <h4 className="text-base font-bold text-[#222222] group-hover:text-[#049FD9] transition-colors truncate mb-1" title={file.name}>
+              <h4 className="text-base font-bold text-[#0F172A] group-hover:text-[#0B192C] transition-colors truncate mb-1" title={file.name}>
                 {file.name}
               </h4>
-              <p className="text-xs font-semibold text-[#595959]">{file.project}</p>
+              <p className="text-xs font-semibold text-[#64748B]">{file.project}</p>
             </div>
 
-            <div className="flex items-center justify-between pt-3.5 border-t border-[#E5E5E5] text-xs font-bold text-[#595959]">
+            <div className="flex items-center justify-between pt-3.5 border-t border-[#E2E8F0] text-xs font-bold text-[#64748B]">
               <span>{file.size}</span>
-              <span className="text-[#222222] font-bold group-hover:underline">{file.uploadedAt}</span>
+              <span className="text-[#0F172A] font-bold group-hover:underline">{file.uploadedAt}</span>
             </div>
           </div>
         ))}

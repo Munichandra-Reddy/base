@@ -1120,20 +1120,20 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     <div className="space-y-6 font-sans">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-light text-[#222222] tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
           All Projects
         </h1>
 
         <div className="flex items-center gap-3 self-end sm:self-auto">
           {/* Team Member Avatars Stack */}
           <div className="flex -space-x-2 mr-1">
-            <div className="w-8 h-8 rounded-full bg-[#011826] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
+            <div className="w-8 h-8 rounded-full bg-[#0B192C] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
               H
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#082236] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
+            <div className="w-8 h-8 rounded-full bg-[#15293F] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
               M
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#049FD9] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
+            <div className="w-8 h-8 rounded-full bg-slate-400 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
               R
             </div>
           </div>
@@ -1142,9 +1142,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => alert('Invite feature active — workspace members updated!')}
-            className="btn-login text-xs py-2 px-3.5 flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-white hover:bg-[#EBF0F5] border border-[#E2E8F0] text-[#334155] font-bold text-xs rounded-lg shadow-micro flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <UserPlusIcon className="w-4 h-4 text-[#595959]" />
+            <UserPlusIcon className="w-4 h-4 text-[#334155]" />
             <span>Invite</span>
           </button>
 
@@ -1152,7 +1152,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={onOpenCreateProject}
-            className="btn-signup text-xs py-2 px-4 flex items-center gap-1.5"
+            className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-semibold text-xs rounded-lg shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <PlusIcon className="w-4 h-4" />
             <span>New Project</span>

@@ -131,23 +131,23 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#011826]/60 backdrop-blur-xs p-4 overflow-y-auto font-sans">
-      <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B192C]/50 backdrop-blur-xs p-4 overflow-y-auto font-sans">
+      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-6">
         {/* Header */}
-        <div className="p-6 border-b border-[#E5E5E5] flex items-center justify-between bg-[#F4F6F8]">
+        <div className="p-6 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#011826] text-white flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-[#0B192C] text-white flex items-center justify-center font-bold">
               <FileIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-[#222222] truncate max-w-xs">{file.name}</h3>
-              <span className="text-xs font-semibold text-[#595959]">{file.project}</span>
+              <h3 className="text-lg font-extrabold text-[#0F172A] truncate max-w-xs">{file.name}</h3>
+              <span className="text-xs font-bold text-[#334155]">{file.project}</span>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#E5E5E5] hover:bg-[#CCCCCC] text-[#222222] font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[#EBF0F5] hover:bg-[#CBD5E1]/40 text-[#64748B] hover:text-[#0F172A] font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
           >
             ✕
           </button>
@@ -158,32 +158,32 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
           {getFilePreviewContent()}
 
           {/* File Metadata Details */}
-          <div className="grid grid-cols-3 gap-3 p-4 bg-[#F4F6F8] rounded-xl border border-[#E5E5E5] text-xs font-semibold text-[#595959]">
+          <div className="grid grid-cols-3 gap-3 p-4 bg-[#F1F3F6] rounded-2xl border border-[#E2E8F0] text-xs font-semibold text-[#334155]">
             <div>
-              <span className="text-[10px] text-[#595959] block font-bold uppercase">Size</span>
-              <span className="text-[#222222] font-bold">{file.size}</span>
+              <span className="text-[10px] text-[#64748B] block font-bold uppercase">Size</span>
+              <span className="text-[#0F172A] font-bold">{file.size}</span>
             </div>
             <div>
-              <span className="text-[10px] text-[#595959] block font-bold uppercase">Uploaded By</span>
-              <span className="text-[#222222] font-bold">{file.uploadedBy}</span>
+              <span className="text-[10px] text-[#64748B] block font-bold uppercase">Uploaded By</span>
+              <span className="text-[#0F172A] font-bold">{file.uploadedBy}</span>
             </div>
             <div>
-              <span className="text-[10px] text-[#595959] block font-bold uppercase">Uploaded Date</span>
-              <span className="text-[#222222] font-bold">{file.uploadedAt}</span>
+              <span className="text-[10px] text-[#64748B] block font-bold uppercase">Uploaded Date</span>
+              <span className="text-[#0F172A] font-bold">{file.uploadedAt}</span>
             </div>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="p-5 border-t border-[#E5E5E5] flex items-center justify-between bg-[#F4F6F8]">
-          <span className="text-xs font-bold uppercase px-3 py-1 rounded-md bg-white text-[#222222] border border-[#E5E5E5]">
+        <div className="p-5 border-t border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
+          <span className="text-xs font-bold uppercase px-3 py-1 rounded-md bg-[#EBF0F5] text-[#334155] border border-[#E2E8F0]">
             {file.type}
           </span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="btn-login text-xs py-2 px-4"
+              className="px-4 py-2 text-xs font-bold text-[#64748B] hover:bg-[#EBF0F5] rounded-xl transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -191,7 +191,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
             <button
               type="button"
               onClick={handleDownloadFile}
-              className="btn-signup text-xs py-2 px-5 flex items-center gap-1.5"
+              className="px-5 py-2 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <DownloadIcon className="w-4 h-4" />
               <span>Download File</span>
