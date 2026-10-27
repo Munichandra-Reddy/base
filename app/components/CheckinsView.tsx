@@ -39,13 +39,13 @@ export const CheckinsView: React.FC<CheckinsViewProps> = ({ checkins, onAddCheck
 
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro space-y-4.5">
-          <h3 className="text-lg font-bold text-[#0F172A]">What did you complete today?</h3>
+          <h3 className="text-2xl sm:text-3xl font-light text-[#222222]">What did you complete today?</h3>
           <textarea
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             rows={3}
             placeholder="Share your accomplishments and key milestones..."
-            className="w-full p-4 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-base text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+            className="w-full p-4 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-base text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#6CC04A]"
           />
           <div className="flex justify-end gap-3">
             <button
@@ -68,16 +68,16 @@ export const CheckinsView: React.FC<CheckinsViewProps> = ({ checkins, onAddCheck
       <div className="space-y-5">
         {checkins.map((chk) => (
           <div key={chk.id} className="bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro space-y-4">
-            <div className="flex items-center gap-3.5">
-              <div className={`w-9 h-9 rounded-full ${chk.avatarBg} font-extrabold text-sm flex items-center justify-center shadow-xs shrink-0`}>
+            <div className="flex items-start gap-4">
+              <div className={`w-9 h-9 rounded-full ${chk.avatarBg} font-extrabold text-sm flex items-center justify-center shadow-xs shrink-0 mt-1`}>
                 {chk.authorAvatar}
               </div>
-              <div>
-                <h4 className="text-lg font-bold text-[#0F172A]">{chk.question}</h4>
-                <p className="text-xs font-semibold text-[#64748B] mt-0.5">Asked by {chk.author} • {chk.timeAgo}</p>
+              <div className="min-w-0">
+                <h4 className="text-2xl sm:text-3xl font-light text-[#222222] leading-snug">{chk.question}</h4>
+                <p className="text-base font-medium text-[#595959] mt-1">Asked by {chk.author} • {chk.timeAgo}</p>
               </div>
             </div>
-            <p className="text-base font-semibold italic text-[#334155] bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] leading-relaxed">
+            <p className="text-base font-normal italic text-[#595959] bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] leading-relaxed">
               "{chk.answer}"
             </p>
           </div>
