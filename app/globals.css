@@ -196,13 +196,13 @@ code, pre, .font-mono {
 
 /* Universal mapping for hardcoded legacy hex codes across all components */
 [class*="bg-[#0B192C]"] {
-  background-color: #011826 !important;
+  background-color: #6CC04A !important;
 }
 [class*="text-[#0B192C]"] {
-  color: #011826 !important;
+  color: #238823 !important;
 }
 [class*="border-[#0B192C]"] {
-  border-color: #011826 !important;
+  border-color: #6CC04A !important;
 }
 
 [class*="bg-[#15293F]"] {

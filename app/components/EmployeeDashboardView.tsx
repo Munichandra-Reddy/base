@@ -97,7 +97,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
       {/* 1. PERSONAL HERO BANNER & STATUS CONTROLS */}
       <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#011826] text-white font-black text-2xl flex items-center justify-center shadow-xs shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-[#6CC04A] text-white font-black text-2xl flex items-center justify-center shadow-xs shrink-0">
             {employeeName[0]?.toUpperCase() || 'P'}
           </div>
           <div>
@@ -131,7 +131,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             <button
               onClick={() => setWorkStatus('focus')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                workStatus === 'focus' ? 'bg-[#011826] text-white shadow-xs' : 'text-[#595959] hover:text-[#222222]'
+                workStatus === 'focus' ? 'bg-[#6CC04A] text-white shadow-xs' : 'text-[#595959] hover:text-[#222222]'
               }`}
             >
               <span>Focus</span>
@@ -394,7 +394,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                           className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${
                             task.completed
                               ? 'bg-[#6CC04A] border-[#6CC04A] text-white'
-                              : 'border-[#CCCCCC] group-hover:border-[#011826] bg-white'
+                              : 'border-[#CCCCCC] group-hover:border-[#6CC04A] bg-white'
                           }`}
                         >
                           {task.completed && (
@@ -441,7 +441,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
               </div>
               <button
                 onClick={onViewProjects}
-                className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
+                className="text-xs font-bold text-[#6CC04A] hover:underline cursor-pointer"
               >
                 View All
               </button>
@@ -491,14 +491,14 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
               <h3 className="font-extrabold text-[#0F172A] text-base">Today's Schedule</h3>
-              <button onClick={onViewCalendar} className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer">
+              <button onClick={onViewCalendar} className="text-xs font-bold text-[#6CC04A] hover:underline cursor-pointer">
                 Calendar
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#0B192C] text-white flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-[#6CC04A] text-white flex flex-col items-center justify-center font-bold text-[10px] shrink-0 shadow-xs">
                   <span>10:00</span>
                   <span className="text-[8px] uppercase">AM</span>
                 </div>
@@ -536,7 +536,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
               <h3 className="font-extrabold text-[#0F172A] text-base">Project Squad</h3>
-              <button onClick={onViewChat} className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer">
+              <button onClick={onViewChat} className="text-xs font-bold text-[#6CC04A] hover:underline cursor-pointer">
                 Campfire
               </button>
             </div>

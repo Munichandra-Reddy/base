@@ -39,7 +39,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage }) =
               key={ch}
               onClick={() => setActiveChannel(ch)}
               className={`px-4 py-2 rounded-lg text-xs font-bold capitalize transition-all ${
-                activeChannel === ch ? 'bg-[#011826] text-white shadow-xs font-bold' : 'text-[#595959] hover:text-[#011826]'
+                activeChannel === ch ? 'bg-[#6CC04A] text-white shadow-xs font-bold' : 'text-[#595959] hover:text-[#6CC04A]'
               }`}
             >
               #{ch}

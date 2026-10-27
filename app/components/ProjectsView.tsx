@@ -283,7 +283,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="hidden sm:block h-6 w-px bg-[#E2E8F0]" />
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#0B192C] text-white flex items-center justify-center shadow-micro">
+              <div className="w-10 h-10 rounded-xl bg-[#6CC04A] text-white flex items-center justify-center shadow-micro">
                 <FolderIcon className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -304,7 +304,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <button
               type="button"
               onClick={onOpenCreateProject}
-              className="px-4 py-2 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-lg shadow-micro flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-bold text-xs rounded-lg shadow-micro flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <PlusIcon className="w-4 h-4" />
               <span>New Project</span>
@@ -313,14 +313,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </div>
 
         {/* 5 TOP SUB-TABS (Messages, Meetings, Tasks, Work Updates, Overview) */}
-        <div className="bg-[#0B192C] rounded-xl p-1.5 flex flex-wrap items-center gap-1.5 text-xs font-bold text-white shadow-micro border border-[#1E2E42]">
+        <div className="bg-[#6CC04A] rounded-xl p-1.5 flex flex-wrap items-center gap-1.5 text-xs font-bold text-white shadow-micro">
           <button
             type="button"
             onClick={() => setActiveProjectTab('messages')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
               activeProjectTab === 'messages'
-                ? 'bg-white text-[#0F172A] shadow-micro font-black'
-                : 'text-slate-300 hover:bg-[#15293F] hover:text-white'
+                ? 'bg-white text-[#222222] shadow-micro font-black'
+                : 'text-white/90 hover:bg-black/10 hover:text-white'
             }`}
           >
             <ChatIcon className="w-4 h-4" />
@@ -332,8 +332,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => setActiveProjectTab('meetings')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
               activeProjectTab === 'meetings'
-                ? 'bg-white text-[#0F172A] shadow-micro font-black'
-                : 'text-slate-300 hover:bg-[#15293F] hover:text-white'
+                ? 'bg-white text-[#222222] shadow-micro font-black'
+                : 'text-white/90 hover:bg-black/10 hover:text-white'
             }`}
           >
             <VideoIcon className="w-4 h-4" />
@@ -345,8 +345,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => setActiveProjectTab('tasks')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
               activeProjectTab === 'tasks'
-                ? 'bg-white text-[#0F172A] shadow-micro font-black'
-                : 'text-slate-300 hover:bg-[#15293F] hover:text-white'
+                ? 'bg-white text-[#222222] shadow-micro font-black'
+                : 'text-white/90 hover:bg-black/10 hover:text-white'
             }`}
           >
             <CheckSquareIcon className="w-4 h-4" />
@@ -358,8 +358,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => setActiveProjectTab('updates')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
               activeProjectTab === 'updates'
-                ? 'bg-white text-[#0F172A] shadow-micro font-black'
-                : 'text-slate-300 hover:bg-[#15293F] hover:text-white'
+                ? 'bg-white text-[#222222] shadow-micro font-black'
+                : 'text-white/90 hover:bg-black/10 hover:text-white'
             }`}
           >
             <FileIcon className="w-4 h-4" />
@@ -371,8 +371,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => setActiveProjectTab('overview')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
               activeProjectTab === 'overview'
-                ? 'bg-white text-[#0F172A] shadow-micro font-black'
-                : 'text-slate-300 hover:bg-[#15293F] hover:text-white'
+                ? 'bg-white text-[#222222] shadow-micro font-black'
+                : 'text-white/90 hover:bg-black/10 hover:text-white'
             }`}
           >
             <FolderIcon className="w-4 h-4" />
@@ -392,7 +392,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 onClick={() => setMessagesTab('chats')}
                 className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   messagesTab === 'chats'
-                    ? 'bg-[#0B192C] text-white shadow-micro'
+                    ? 'bg-[#6CC04A] text-white shadow-micro'
                     : 'bg-[#EBF0F5] text-[#334155] hover:bg-slate-200'
                 }`}
               >
@@ -403,12 +403,12 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 onClick={() => setMessagesTab('groups')}
                 className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   messagesTab === 'groups'
-                    ? 'bg-[#0B192C] text-white shadow-micro'
+                    ? 'bg-[#6CC04A] text-white shadow-micro'
                     : 'bg-[#EBF0F5] text-[#334155] hover:bg-slate-200'
                 }`}
               >
                 <span>Groups</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${messagesTab === 'groups' ? 'bg-[#15293F] text-white' : 'bg-white text-[#0F172A]'}`}>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${messagesTab === 'groups' ? 'bg-[#5bb33b] text-white' : 'bg-white text-[#0F172A]'}`}>
                   {projectMembers.length}
                 </span>
               </button>
@@ -428,7 +428,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       onClick={() => setActiveChatMember(memberName)}
                       className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                         memberForPersonalChat === memberName
-                          ? 'bg-[#0B192C] text-white border-[#0B192C] shadow-micro'
+                          ? 'bg-[#6CC04A] text-white border-[#6CC04A] shadow-micro'
                           : 'bg-[#F1F3F6] hover:bg-[#EBF0F5] border-[#E2E8F0] text-[#0F172A]'
                       }`}
                     >
@@ -436,8 +436,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         <div
                           className={`w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-xs ${
                             memberForPersonalChat === memberName
-                              ? 'bg-white text-[#0B192C]'
-                              : 'bg-[#0B192C] text-white'
+                              ? 'bg-white text-[#238823]'
+                              : 'bg-[#6CC04A] text-white'
                           }`}
                         >
                           {memberName[0]}
@@ -446,7 +446,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           <div className="font-bold text-xs leading-snug">{memberName}</div>
                           <span
                             className={`text-[10px] font-semibold block ${
-                              memberForPersonalChat === memberName ? 'text-slate-300' : 'text-[#64748B]'
+                              memberForPersonalChat === memberName ? 'text-white/90' : 'text-[#64748B]'
                             }`}
                           >
                             {idx === 0 ? 'Lead Dev' : 'Team Member'}
@@ -456,7 +456,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <span
                         className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
                           memberForPersonalChat === memberName
-                            ? 'bg-white text-[#0B192C]'
+                            ? 'bg-white text-[#238823]'
                             : 'bg-white text-[#334155] border border-[#E2E8F0]'
                         }`}
                       >
@@ -470,7 +470,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="md:col-span-2 flex flex-col justify-between bg-[#F1F3F6] rounded-xl p-4 border border-[#E2E8F0]">
                   <div className="pb-3 border-b border-[#E2E8F0] flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-[#0B192C] text-white font-extrabold text-xs flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center">
                         {memberForPersonalChat[0]}
                       </div>
                       <div>
@@ -491,10 +491,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <span className="text-[9px] text-[#64748B] block mt-1">9:41 AM</span>
                     </div>
 
-                    <div className="bg-[#0B192C] text-white p-3 rounded-xl ml-auto max-w-sm shadow-micro">
-                      <p className="font-bold text-slate-200 text-[11px] mb-1">You ({projectLead})</p>
+                    <div className="bg-[#6CC04A] text-white p-3 rounded-xl ml-auto max-w-sm shadow-micro">
+                      <p className="font-bold text-white text-[11px] mb-1">You ({projectLead})</p>
                       <p>Will push the updated benchmark & deliverables right away!</p>
-                      <span className="text-[9px] text-slate-400 block mt-1">9:45 AM</span>
+                      <span className="text-[9px] text-white/80 block mt-1">9:45 AM</span>
                     </div>
 
                     {(customMessages[`personal-${selectedProject.id}-${memberForPersonalChat}`] || []).map((m) => (
@@ -502,7 +502,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         key={m.id}
                         className={`p-3 rounded-xl max-w-sm shadow-micro ${
                           m.sender === projectLead
-                            ? 'bg-[#0B192C] text-white ml-auto'
+                            ? 'bg-[#6CC04A] text-white ml-auto'
                             : 'bg-white text-[#334155] border border-[#E2E8F0]'
                         }`}
                       >
@@ -526,11 +526,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       placeholder={`Message ${memberForPersonalChat}...`}
                       value={chatInputText}
                       onChange={(e) => setChatInputText(e.target.value)}
-                      className="flex-1 px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+                      className="flex-1 px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#6CC04A]"
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-[#0B192C] hover:bg-[#15293F] text-white font-bold text-xs rounded-lg shadow-micro transition-colors cursor-pointer"
+                      className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-lg shadow-micro transition-colors cursor-pointer"
                     >
                       Send
                     </button>
@@ -549,7 +549,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       Members: <strong>{projectMembers.join(', ')}</strong>
                     </p>
                   </div>
-                  <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-[#0B192C] text-white shadow-micro">
+                  <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-[#6CC04A] text-white shadow-micro">
                     {projectMembers.length} Members Active
                   </span>
                 </div>
@@ -562,10 +562,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <span className="text-[9px] text-[#64748B] block mt-1">10:15 AM</span>
                   </div>
 
-                  <div className="bg-[#0B192C] text-white p-3.5 rounded-xl ml-auto max-w-md shadow-micro">
-                    <p className="font-bold text-slate-200 text-xs mb-1">{projectLead}</p>
+                  <div className="bg-[#6CC04A] text-white p-3.5 rounded-xl ml-auto max-w-md shadow-micro">
+                    <p className="font-bold text-white text-xs mb-1">{projectLead}</p>
                     <p>Great work! All deliverables confirmed for <strong>{selectedProject.name}</strong>.</p>
-                    <span className="text-[9px] text-slate-400 block mt-1">10:20 AM</span>
+                    <span className="text-[9px] text-white/80 block mt-1">10:20 AM</span>
                   </div>
 
                   {(customMessages[`group-${selectedProject.id}`] || []).map((m) => (
@@ -573,7 +573,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       key={m.id}
                       className={`p-3.5 rounded-xl max-w-md shadow-micro ${
                         m.sender === projectLead
-                          ? 'bg-[#0B192C] text-white ml-auto'
+                          ? 'bg-[#6CC04A] text-white ml-auto'
                           : 'bg-white text-[#334155] border border-[#E2E8F0]'
                       }`}
                     >
@@ -597,11 +597,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     placeholder={`Message ${selectedProject.name} group...`}
                     value={chatInputText}
                     onChange={(e) => setChatInputText(e.target.value)}
-                    className="flex-1 px-4 py-2.5 bg-white border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+                    className="flex-1 px-4 py-2.5 bg-white border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#6CC04A]"
                   />
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-[#0B192C] hover:bg-[#15293F] text-white font-bold text-xs rounded-lg shadow-micro transition-colors cursor-pointer"
+                    className="px-5 py-2.5 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-lg shadow-micro transition-colors cursor-pointer"
                   >
                     Send Group Message
                   </button>
@@ -622,7 +622,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <button
                 type="button"
                 onClick={() => alert(`Launching virtual meeting room for ${selectedProject.name}...`)}
-                className="px-4 py-2 bg-[#0B192C] hover:bg-[#15293F] text-white font-bold text-xs rounded-lg shadow-micro flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-lg shadow-micro flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <VideoIcon className="w-4 h-4" />
                 <span>Schedule New Sync</span>
@@ -662,7 +662,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => alert(`Joining Virtual Sync Room for ${selectedProject.name}!`)}
-                    className="px-5 py-2.5 bg-[#0B192C] hover:bg-[#15293F] text-white font-extrabold text-xs rounded-lg shadow-micro transition-colors cursor-pointer flex items-center gap-2"
+                    className="px-5 py-2.5 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-extrabold text-xs rounded-lg shadow-micro transition-colors cursor-pointer flex items-center gap-2"
                   >
                     <span>Join Virtual Room</span>
                     <span>→</span>
@@ -709,7 +709,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => alert('Joining Virtual Sync Room!')}
-                    className="px-5 py-2.5 bg-[#0B192C] hover:bg-[#15293F] text-white font-extrabold text-xs rounded-lg shadow-micro transition-colors cursor-pointer flex items-center gap-2"
+                    className="px-5 py-2.5 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-extrabold text-xs rounded-lg shadow-micro transition-colors cursor-pointer flex items-center gap-2"
                   >
                     <span>Join Virtual Room</span>
                     <span>→</span>
@@ -738,7 +738,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <button
                 type="button"
                 onClick={onOpenCreateProject}
-                className="px-4 py-2 bg-[#0B192C] hover:bg-[#15293F] text-white font-bold text-xs rounded-lg shadow-micro flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-lg shadow-micro flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <PlusIcon className="w-4 h-4" />
                 <span>Post New Sprint Task</span>
@@ -761,7 +761,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider ${
                           t.completed
                             ? 'bg-[#ECFDF5] text-[#10B981] border border-emerald-200'
-                            : 'bg-[#0B192C] text-white shadow-micro'
+                            : 'bg-[#6CC04A] text-white shadow-micro'
                         }`}
                       >
                         {t.completed ? 'COMPLETED' : 'IN PROGRESS'}
@@ -785,7 +785,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <h4 className="text-base font-extrabold text-[#0F172A] leading-snug">
                     Implement dynamic memory fallback & node benchmarks for {selectedProject.name}
                   </h4>
-                  <span className="text-[10px] font-black px-3 py-1 rounded-full bg-[#0B192C] text-white uppercase tracking-wider shadow-micro">
+                  <span className="text-[10px] font-black px-3 py-1 rounded-full bg-[#6CC04A] text-white uppercase tracking-wider shadow-micro">
                     IN PROGRESS
                   </span>
                 </div>
@@ -845,12 +845,12 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 placeholder={`Share your daily work progress update for ${selectedProject.name}...`}
                 value={newUpdateText}
                 onChange={(e) => setNewUpdateText(e.target.value)}
-                className="w-full p-3 bg-white border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C] resize-none"
+                className="w-full p-3 bg-white border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#6CC04A] resize-none"
               />
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#0B192C] hover:bg-[#15293F] text-white font-extrabold text-xs rounded-lg shadow-micro transition-colors cursor-pointer"
+                  className="px-5 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-extrabold text-xs rounded-lg shadow-micro transition-colors cursor-pointer"
                 >
                   Post Work Update
                 </button>
@@ -863,7 +863,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div key={u.id} className="bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#0B192C] text-white font-extrabold text-xs flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center">
                         {u.author[0]}
                       </div>
                       <div>
@@ -880,7 +880,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                   <div className="flex items-center justify-between pt-1 text-xs">
                     <span className="text-[#64748B] font-semibold">Assignee: <strong className="text-[#0F172A]">{selectedProject.name} Team</strong></span>
-                    <span className="px-3 py-1 rounded-full bg-[#0B192C] text-white font-extrabold text-[10px] uppercase tracking-wider shadow-micro">
+                    <span className="px-3 py-1 rounded-full bg-[#6CC04A] text-white font-extrabold text-[10px] uppercase tracking-wider shadow-micro">
                       {u.category}
                     </span>
                   </div>
@@ -890,7 +890,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#0B192C] text-white font-extrabold text-xs flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center">
                       {(projectMembers[1] || 'Priya Sharma')[0]}
                     </div>
                     <div>
@@ -907,7 +907,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                 <div className="flex items-center justify-between pt-1 text-xs">
                   <span className="text-[#64748B] font-semibold">Assignee: <strong className="text-[#0F172A]">Enterprise Scope & LOIs</strong></span>
-                  <span className="px-3 py-1 rounded-full bg-[#0B192C] text-white font-extrabold text-[10px] uppercase tracking-wider shadow-micro">
+                  <span className="px-3 py-1 rounded-full bg-[#6CC04A] text-white font-extrabold text-[10px] uppercase tracking-wider shadow-micro">
                     Verified Submission
                   </span>
                 </div>
@@ -916,7 +916,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#0B192C] text-white font-extrabold text-xs flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center">
                       {projectLead[0]}
                     </div>
                     <div>
@@ -933,7 +933,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                 <div className="flex items-center justify-between pt-1 text-xs">
                   <span className="text-[#64748B] font-semibold">Assignee: <strong className="text-[#0F172A]">Core Infrastructure</strong></span>
-                  <span className="px-3 py-1 rounded-full bg-[#0B192C] text-white font-extrabold text-[10px] uppercase tracking-wider shadow-micro">
+                  <span className="px-3 py-1 rounded-full bg-[#6CC04A] text-white font-extrabold text-[10px] uppercase tracking-wider shadow-micro">
                     Verified Submission
                   </span>
                 </div>
@@ -963,7 +963,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   </div>
                   <div className="w-full bg-[#EBF0F5] rounded-full h-2.5 overflow-hidden">
                     <div
-                      className="bg-[#0B192C] h-full rounded-full transition-all duration-500"
+                      className="bg-[#6CC04A] h-full rounded-full transition-all duration-500"
                       style={{ width: `${selectedProject.progress}%` }}
                     />
                   </div>
@@ -1049,7 +1049,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         >
                           <FileIcon className="w-4 h-4 text-[#334155]" />
                           <span className="group-hover:underline truncate max-w-xs">{doc}</span>
-                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#0B192C] text-white ml-1 shrink-0">
+                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#6CC04A] text-white ml-1 shrink-0">
                             View / Open ↗
                           </span>
                         </button>
@@ -1075,7 +1075,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         className="flex items-center justify-between p-3 rounded-xl bg-[#F1F3F6] border border-[#E2E8F0] text-xs"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[#0B192C] text-white font-extrabold text-xs flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center">
                             {member[0]}
                           </div>
                           <span className="font-bold text-[#0F172A]">{member}</span>
@@ -1127,7 +1127,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         <div className="flex items-center gap-3 self-end sm:self-auto">
           {/* Team Member Avatars Stack */}
           <div className="flex -space-x-2 mr-1">
-            <div className="w-8 h-8 rounded-full bg-[#0B192C] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
+            <div className="w-8 h-8 rounded-full bg-[#6CC04A] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
               H
             </div>
             <div className="w-8 h-8 rounded-full bg-[#15293F] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
@@ -1169,8 +1169,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => setViewMode('list')}
             className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 ${
               viewMode === 'list'
-                ? 'text-[#011826] border-[#011826] font-bold'
-                : 'border-transparent hover:text-[#011826]'
+                ? 'text-[#6CC04A] border-[#6CC04A] font-bold'
+                : 'border-transparent hover:text-[#6CC04A]'
             }`}
           >
             <ListIcon className="w-4 h-4" /> List
@@ -1181,8 +1181,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => setViewMode('cards')}
             className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 ${
               viewMode === 'cards'
-                ? 'text-[#011826] border-[#011826] font-bold'
-                : 'border-transparent hover:text-[#011826]'
+                ? 'text-[#6CC04A] border-[#6CC04A] font-bold'
+                : 'border-transparent hover:text-[#6CC04A]'
             }`}
           >
             <GridIcon className="w-4 h-4" /> Cards
@@ -1193,8 +1193,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => setViewMode('kanban')}
             className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 ${
               viewMode === 'kanban'
-                ? 'text-[#011826] border-[#011826] font-bold'
-                : 'border-transparent hover:text-[#011826]'
+                ? 'text-[#6CC04A] border-[#6CC04A] font-bold'
+                : 'border-transparent hover:text-[#6CC04A]'
             }`}
           >
             <KanbanIcon className="w-4 h-4" /> Kanban
@@ -1440,7 +1440,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               >
                 ‹ Previous
               </button>
-              <button className="w-8 h-8 bg-[#0B192C] text-white font-extrabold rounded-lg border border-[#0B192C] flex items-center justify-center shadow-micro">
+              <button className="w-8 h-8 bg-[#6CC04A] text-white font-extrabold rounded-lg border border-[#6CC04A] flex items-center justify-center shadow-micro">
                 1
               </button>
               <button
@@ -1490,7 +1490,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="w-7 h-7 rounded-lg bg-[#EBF0F5] group-hover:bg-[#0B192C] group-hover:text-white text-[#0B192C] flex items-center justify-center font-bold shadow-micro transition-colors">
+                      <div className="w-7 h-7 rounded-lg bg-[#EBF0F5] group-hover:bg-[#6CC04A] group-hover:text-white text-[#6CC04A] flex items-center justify-center font-bold shadow-micro transition-colors">
                         <FolderIcon className="w-3.5 h-3.5" />
                       </div>
                       <span
@@ -1512,7 +1512,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       </div>
                       <div className="w-full bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="bg-[#0B192C] h-full rounded-full transition-all duration-500"
+                          className="bg-[#6CC04A] h-full rounded-full transition-all duration-500"
                           style={{ width: `${project.progress}%` }}
                         />
                       </div>

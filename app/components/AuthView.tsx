@@ -36,7 +36,7 @@ export const ADMIN_CREDENTIALS = {
 };
 
 const OrbitLogoIcon = () => (
-  <div className="w-14 h-14 rounded-2xl bg-[#011826] flex items-center justify-center text-white shadow-md mx-auto mb-3">
+  <div className="w-14 h-14 rounded-2xl bg-[#6CC04A] flex items-center justify-center text-white shadow-md mx-auto mb-3">
     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <circle cx="12" cy="12" r="7" strokeWidth="2.5" />
       <circle cx="12" cy="5" r="2" fill="currentColor" />
@@ -779,7 +779,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
       // 2. Create Employee Person entry
       const avatarColors = [
-        'bg-[#0B192C] text-white',
+        'bg-[#6CC04A] text-white',
         'bg-[#15293F] text-white',
         'bg-indigo-600 text-white',
         'bg-purple-600 text-white',

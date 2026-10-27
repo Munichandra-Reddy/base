@@ -79,7 +79,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
             <div className="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-xs space-y-4">
               <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#0B192C] text-white flex items-center justify-center font-black text-xs shadow-2xs">
+                  <div className="w-10 h-10 rounded-xl bg-[#6CC04A] text-white flex items-center justify-center font-black text-xs shadow-2xs">
                     PDF
                   </div>
                   <div>
@@ -90,7 +90,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
                 <button
                   type="button"
                   onClick={handleOpenDocument}
-                  className="px-3.5 py-2 bg-[#0B192C] hover:bg-[#15293F] text-white text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-3.5 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   <span>Open Document ↗</span>
                 </button>
@@ -136,7 +136,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
         {/* Header */}
         <div className="p-6 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#0B192C] text-white flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-[#6CC04A] text-white flex items-center justify-center font-bold">
               <FileIcon className="w-5 h-5" />
             </div>
             <div>
@@ -191,7 +191,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
             <button
               type="button"
               onClick={handleDownloadFile}
-              className="px-5 py-2 bg-[#0B192C] hover:bg-[#15293F] active:bg-[#0B192C] text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="px-5 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <DownloadIcon className="w-4 h-4" />
               <span>Download File</span>

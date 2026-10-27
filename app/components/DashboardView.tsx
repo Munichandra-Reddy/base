@@ -324,7 +324,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 {/* Deadline Item 1 */}
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F1F3F6]/70 border border-[#E2E8F0]">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#0B192C] text-white font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-[#6CC04A] text-white font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 shadow-xs">
                       <span>10</span>
                       <span className="text-[9px] uppercase mt-0.5">Oct</span>
                     </div>
@@ -425,7 +425,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
                           <div className="w-16 bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#0B192C] h-full rounded-full" style={{ width: '68%' }} />
+                            <div className="bg-[#6CC04A] h-full rounded-full" style={{ width: '68%' }} />
                           </div>
                           <span className="text-[10px] font-bold text-[#64748B]">68%</span>
                         </div>
@@ -446,7 +446,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
                           <div className="w-16 bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#0B192C] h-full rounded-full" style={{ width: '45%' }} />
+                            <div className="bg-[#6CC04A] h-full rounded-full" style={{ width: '45%' }} />
                           </div>
                           <span className="text-[10px] font-bold text-[#64748B]">45%</span>
                         </div>
@@ -467,7 +467,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
                           <div className="w-16 bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#0B192C] h-full rounded-full" style={{ width: '82%' }} />
+                            <div className="bg-[#6CC04A] h-full rounded-full" style={{ width: '82%' }} />
                           </div>
                           <span className="text-[10px] font-bold text-[#64748B]">82%</span>
                         </div>
@@ -509,7 +509,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
                           <div className="w-16 bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#0B192C] h-full rounded-full" style={{ width: '60%' }} />
+                            <div className="bg-[#6CC04A] h-full rounded-full" style={{ width: '60%' }} />
                           </div>
                           <span className="text-[10px] font-bold text-[#64748B]">60%</span>
                         </div>
@@ -608,7 +608,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <h4 className="font-bold text-xs text-[#0F172A] uppercase tracking-wider">Team Workload</h4>
                   <button
                     onClick={onViewEmployees}
-                    className="text-[11px] font-bold text-[#0B192C] hover:underline cursor-pointer"
+                    className="text-[11px] font-bold text-[#6CC04A] hover:underline cursor-pointer"
                   >
                     View Team
                   </button>
@@ -619,7 +619,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     people.slice(0, 5).map((member) => (
                       <div key={member.id} className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-[100px]">
-                          <div className={`w-6 h-6 rounded-full ${member.avatarBg || 'bg-[#0B192C] text-white'} font-extrabold text-[10px] flex items-center justify-center`}>
+                          <div className={`w-6 h-6 rounded-full ${member.avatarBg || 'bg-[#6CC04A] text-white'} font-extrabold text-[10px] flex items-center justify-center`}>
                             {member.avatar}
                           </div>
                           <div>
@@ -630,7 +630,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         <div className="flex items-center gap-2 flex-1 max-w-[140px]">
                           <span className="text-[10px] font-medium text-[#64748B] whitespace-nowrap">{member.projectsCount || 1} tasks</span>
                           <div className="w-full bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden">
-                            <div className="bg-[#0B192C] h-full rounded-full" style={{ width: `${Math.min(100, (member.projectsCount || 1) * 35)}%` }} />
+                            <div className="bg-[#6CC04A] h-full rounded-full" style={{ width: `${Math.min(100, (member.projectsCount || 1) * 35)}%` }} />
                           </div>
                           <span className="text-[10px] font-bold text-[#334155]">{Math.min(100, (member.projectsCount || 1) * 35)}%</span>
                         </div>
@@ -720,7 +720,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                           task.completed
                             ? 'bg-[#6CC04A] border-[#6CC04A] text-white'
-                            : 'border-[#CCCCCC] group-hover:border-[#011826] bg-white'
+                            : 'border-[#CCCCCC] group-hover:border-[#6CC04A] bg-white'
                         }`}
                       >
                         {task.completed && (
@@ -761,7 +761,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 type="button"
                 onClick={onViewActivity}
-                className="text-xs font-bold text-[#0B192C] hover:underline cursor-pointer"
+                className="text-xs font-bold text-[#6CC04A] hover:underline cursor-pointer"
               >
                 View All
               </button>

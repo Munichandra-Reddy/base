@@ -57,7 +57,7 @@ export const CheckinsView: React.FC<CheckinsViewProps> = ({ checkins, onAddCheck
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-[#0B192C] text-white font-bold text-sm rounded-xl shadow-xs hover:bg-[#15293F] transition-colors"
+              className="px-5 py-2.5 bg-[#6CC04A] text-white font-bold text-sm rounded-xl shadow-xs hover:bg-[#5bb33b] transition-colors"
             >
               Submit Check-in
             </button>

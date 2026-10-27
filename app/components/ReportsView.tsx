@@ -40,7 +40,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ activities }) => {
           <h3 className="text-xl font-extrabold text-[#0F172A]">Project Allocation</h3>
           <div className="space-y-4">
             {[
-              { name: 'E-Commerce Website', pct: 40, color: 'bg-[#0B192C]' },
+              { name: 'E-Commerce Website', pct: 40, color: 'bg-[#6CC04A]' },
               { name: 'Mobile App v2', pct: 25, color: 'bg-[#2563EB]' },
               { name: 'Marketing Campaign', pct: 20, color: 'bg-[#0D9488]' },
               { name: 'Internal Ops', pct: 15, color: 'bg-[#F59E0B]' },

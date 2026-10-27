@@ -335,7 +335,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="absolute right-0 top-14 w-60 bg-white rounded-2xl border border-[#E5E5E5] shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-[#222222]">
             <div className="p-4 border-b border-[#E5E5E5] bg-[#F4F6F8]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#011826] text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
+                <div className="w-9 h-9 rounded-full bg-[#6CC04A] text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
                   {userAvatar}
                 </div>
                 <div className="min-w-0">

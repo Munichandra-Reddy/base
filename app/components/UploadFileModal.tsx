@@ -133,7 +133,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
               onChange={handleFileChange}
               className="hidden"
             />
-            <div className="w-12 h-12 rounded-2xl bg-[#0B192C] text-white font-extrabold flex items-center justify-center mx-auto text-xl">
+            <div className="w-12 h-12 rounded-2xl bg-[#6CC04A] text-white font-extrabold flex items-center justify-center mx-auto text-xl shadow-xs">
               📁
             </div>
             {selectedFileObj ? (

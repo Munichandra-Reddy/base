@@ -34,7 +34,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmploye
               className="bg-white rounded-xl border border-[#E2E8F0] p-4 shadow-micro flex items-center gap-3.5 hover:shadow-md transition-shadow"
             >
               <div
-                className={`w-11 h-11 rounded-full ${person.avatarBg || 'bg-[#0B192C] text-white'} font-extrabold text-base flex items-center justify-center shadow-xs shrink-0`}
+                className={`w-11 h-11 rounded-full ${person.avatarBg || 'bg-[#6CC04A] text-white'} font-extrabold text-base flex items-center justify-center shadow-xs shrink-0`}
               >
                 {person.avatar}
               </div>

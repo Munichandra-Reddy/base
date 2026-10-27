@@ -195,7 +195,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             onClick={() => setActiveType('task')}
             className={`flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
               activeType === 'task'
-                ? 'bg-[#0B192C] text-white shadow-xs'
+                ? 'bg-[#6CC04A] text-white shadow-xs'
                 : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#CBD5E1]/30'
             }`}
           >
@@ -206,7 +206,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             onClick={() => setActiveType('project')}
             className={`flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
               activeType === 'project'
-                ? 'bg-[#0B192C] text-white shadow-xs'
+                ? 'bg-[#6CC04A] text-white shadow-xs'
                 : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#CBD5E1]/30'
             }`}
           >

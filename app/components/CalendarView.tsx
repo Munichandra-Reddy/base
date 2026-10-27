@@ -124,8 +124,8 @@ export const CalendarView: React.FC = () => {
               onClick={() => setViewMode('month')}
               className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
                 viewMode === 'month'
-                  ? 'bg-[#011826] shadow-xs text-white font-extrabold'
-                  : 'bg-white text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8]'
+                  ? 'bg-[#6CC04A] shadow-xs text-white font-extrabold'
+                  : 'bg-white text-[#595959] hover:text-[#6CC04A] hover:bg-[#F4F6F8]'
               }`}
             >
               Month
@@ -135,8 +135,8 @@ export const CalendarView: React.FC = () => {
               onClick={() => setViewMode('week')}
               className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
                 viewMode === 'week'
-                  ? 'bg-[#011826] shadow-xs text-white font-extrabold'
-                  : 'bg-white text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8]'
+                  ? 'bg-[#6CC04A] shadow-xs text-white font-extrabold'
+                  : 'bg-white text-[#595959] hover:text-[#6CC04A] hover:bg-[#F4F6F8]'
               }`}
             >
               Week
@@ -163,7 +163,7 @@ export const CalendarView: React.FC = () => {
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-sm font-bold text-[#334155] group-hover:text-[#0F172A]">{day}</span>
                   {events[day] && events[day].length > 0 && (
-                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-[#0B192C] text-white">
+                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-[#6CC04A] text-white">
                       {events[day].length}
                     </span>
                   )}
@@ -303,7 +303,7 @@ export const CalendarView: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-[#0B192C] hover:bg-[#15293F] text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
+                    className="px-5 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
                   >
                     Add Event
                   </button>
@@ -383,7 +383,7 @@ export const CalendarView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#0B192C] hover:bg-[#15293F] text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
+                  className="px-5 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
                 >
                   Create Event
                 </button>

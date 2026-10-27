@@ -40,13 +40,13 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
             className="group bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-micro hover:shadow-md hover:border-[#CBD5E1] transition-all cursor-pointer flex flex-col justify-between"
           >
             <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#EBF0F5] text-[#0F172A] group-hover:bg-[#0B192C] group-hover:text-white transition-colors flex items-center justify-center font-bold">
+              <div className="w-12 h-12 rounded-2xl bg-[#EBF0F5] text-[#0F172A] group-hover:bg-[#6CC04A] group-hover:text-white transition-colors flex items-center justify-center font-bold">
                 <FileIcon className="w-6 h-6" />
               </div>
             </div>
 
             <div className="mb-3">
-              <h4 className="text-base font-bold text-[#0F172A] group-hover:text-[#0B192C] transition-colors truncate mb-1" title={file.name}>
+              <h4 className="text-base font-bold text-[#0F172A] group-hover:text-[#6CC04A] transition-colors truncate mb-1" title={file.name}>
                 {file.name}
               </h4>
               <p className="text-xs font-semibold text-[#64748B]">{file.project}</p>

@@ -73,11 +73,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className={`w-full group flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all cursor-pointer ${
                     isActive
                       ? 'bg-[#6CC04A] text-white font-bold shadow-xs'
-                      : 'text-[#222222] hover:bg-[#F4F6F8] hover:text-[#011826] font-medium'
+                      : 'text-[#222222] hover:bg-[#F4F6F8] hover:text-[#6CC04A] font-medium'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-[#595959] group-hover:text-[#011826]'}`} />
+                    <Icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-[#595959] group-hover:text-[#6CC04A]'}`} />
                     <span className="whitespace-nowrap truncate text-sm font-semibold">{item.label}</span>
                   </div>
                   {item.badge !== undefined && item.badge > 0 && (
