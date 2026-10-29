@@ -1260,7 +1260,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               className={`w-full py-2.5 px-5 font-semibold text-sm rounded-md transition-all cursor-pointer mt-3 shadow-xs ${
                 mode === 'signup'
                   ? 'btn-signup text-white'
-                  : 'btn-login hover:bg-[#011826] hover:text-white hover:border-[#011826]'
+                  : 'btn-login hover:bg-[#6CC04A] hover:text-white hover:border-[#6CC04A]'
               }`}
             >
               {isSubmitting
