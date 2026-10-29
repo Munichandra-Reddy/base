@@ -898,7 +898,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               onClick={() => handleRoleSwitch('admin')}
               className={`py-2 px-3 rounded-md font-semibold text-sm transition-all flex items-center justify-center cursor-pointer ${
                 loginRole === 'admin'
-                  ? 'bg-[#011826] text-white shadow-xs'
+                  ? 'bg-[#6CC04A] text-white shadow-xs'
                   : 'bg-transparent text-[#595959] hover:text-[#222222]'
               }`}
             >
@@ -909,7 +909,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               onClick={() => handleRoleSwitch('employee')}
               className={`py-2 px-3 rounded-md font-semibold text-sm transition-all flex items-center justify-center cursor-pointer ${
                 loginRole === 'employee'
-                  ? 'bg-[#011826] text-white shadow-xs'
+                  ? 'bg-[#6CC04A] text-white shadow-xs'
                   : 'bg-transparent text-[#595959] hover:text-[#222222]'
               }`}
             >
