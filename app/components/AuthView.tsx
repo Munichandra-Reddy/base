@@ -741,7 +741,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       }, 450);
       return;
     }
-    }
 
     // ==========================================
     // B. SIGN UP SUBMISSION (ONLY FOR EMPLOYEES)
