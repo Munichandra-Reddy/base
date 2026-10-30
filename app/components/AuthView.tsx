@@ -30,7 +30,7 @@ interface AuthViewProps {
 // Single Fixed Admin Credentials
 export const ADMIN_CREDENTIALS = {
   email: 'cr7156816@gmail.com',
-  password: 'Muni@526',
+  password: 'Dhoni@526',
   fullName: 'Muni',
   companyName: 'GEONIXA',
 };
@@ -246,10 +246,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
   };
 
   // Helper to strictly verify if an email belongs to a registered account
-  const isEmailRegistered = async (cleanEmail: string, role: 'admin' | 'employee') => {
+  const isEmailRegistered = async (cleanEmail: string, role?: 'admin' | 'employee') => {
     if (!cleanEmail || !validateEmail(cleanEmail)) return false;
 
-    if (role === 'admin') {
+    if (role === 'admin' || cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase()) {
       return cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase();
     }
 
@@ -292,17 +292,23 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
     const cleanEmail = email.toLowerCase().trim();
 
-    // 1. Must be a valid email format (rejects random words like "GEONIXA", empty values, etc.)
+    // 1. Must be a valid email format
     if (!cleanEmail || !validateEmail(cleanEmail)) {
       setErrorMessage('Please enter registered email address.');
       return;
     }
 
     // 2. Must be an actually registered account
-    const registered = await isEmailRegistered(cleanEmail, loginRole);
+    const registered = await isEmailRegistered(cleanEmail);
     if (!registered) {
       setErrorMessage('Please enter registered email address.');
       return;
+    }
+
+    if (cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase()) {
+      setLoginRole('admin');
+    } else {
+      setLoginRole('employee');
     }
 
     // 3. Only if registered, allow opening the recovery screen!
@@ -322,11 +328,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     }
 
     // Verify account exists before attempting reset
-    const accountExists = await isEmailRegistered(cleanEmail, loginRole);
+    const accountExists = await isEmailRegistered(cleanEmail);
     if (!accountExists) {
       setErrorMessage('Please enter registered email address.');
       return;
     }
+
+    const effectiveRole = cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase() ? 'admin' : 'employee';
+    setLoginRole(effectiveRole);
 
     setIsResetSending(true);
     let smtpSent = false;
@@ -339,7 +348,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: cleanEmail,
-          role: loginRole,
+          role: effectiveRole,
           smtpPass: smtpAppPassword || undefined,
         }),
       });
@@ -568,7 +577,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     }
 
     // ==========================================
-    // A. LOGIN SUBMISSION
+    // A. UNIFIED LOGIN SUBMISSION (ADMIN & EMPLOYEE)
     // ==========================================
     if (mode === 'login') {
       if (!password) {
@@ -576,26 +585,21 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         return;
       }
 
-      // ADMIN LOGIN
-      if (loginRole === 'admin') {
-        if (cleanEmail !== ADMIN_CREDENTIALS.email.toLowerCase()) {
-          setErrorMessage('Invalid administrator credentials. Access restricted to authorized admin only.');
-          return;
-        }
+      setIsSubmitting(true);
 
-        setIsSubmitting(true);
-
+      // 1. ADMIN LOGIN: cr7156816@gmail.com
+      if (cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase()) {
         const localAdminPass =
           typeof window !== 'undefined' ? localStorage.getItem('workorbit_admin_password') : null;
 
-        // Background Check 1: Check master credentials & updated admin passwords
-        const authorizedMasterPasswords = [ADMIN_CREDENTIALS.password, 'Dhoni@526'];
+        // Master credentials check (Dhoni@526, Muni@526, or saved admin password)
+        const authorizedMasterPasswords = ['Dhoni@526', 'Muni@526', ADMIN_CREDENTIALS.password];
         let isAuthenticated =
           authorizedMasterPasswords.includes(password) ||
           (localAdminPass ? password === localAdminPass : false);
 
         // Background Check 2: Check Firestore database in background for updated admin password
-        if (!isAuthenticated) {
+        if (!isAuthenticated && db) {
           try {
             const adminDocRef = doc(db, 'user_accounts', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'));
             const adminSnap = await getDoc(adminDocRef);
@@ -613,7 +617,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
           }
         }
 
-        // Background Check 3: Check Firebase Authentication in background (for passwords reset via Firebase email)
+        // Background Check 3: Check Firebase Authentication in background
         if (!isAuthenticated && auth) {
           try {
             const userCred = await signInWithEmailAndPassword(auth, cleanEmail, password);
@@ -622,7 +626,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               if (typeof window !== 'undefined') {
                 localStorage.setItem('workorbit_admin_password', password);
               }
-              // Cache in Firestore so it's permanently synced across all domains
               await addFirebaseUserAccount({
                 email: ADMIN_CREDENTIALS.email,
                 password: password,
@@ -632,9 +635,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 createdAt: new Date().toISOString(),
               });
             }
-          } catch (authErr) {
-            // Password did not match in Firebase Auth
-          }
+          } catch (authErr) {}
         }
 
         if (isAuthenticated) {
@@ -653,102 +654,93 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         }
       }
 
-      // EMPLOYEE LOGIN
-      if (loginRole === 'employee') {
-        // Prevent using admin email in employee login
-        if (cleanEmail === ADMIN_CREDENTIALS.email.toLowerCase()) {
-          setErrorMessage('This is the administrator email. Please switch to "Admin Login" above.');
-          return;
-        }
+      // 2. EMPLOYEE LOGIN: ALL OTHER RESPECTIVE CREDENTIALS
+      let employeeAccount = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
+      let isAuthenticated = false;
 
-        setIsSubmitting(true);
+      if (employeeAccount && employeeAccount.password === password) {
+        isAuthenticated = true;
+      }
 
-        let employeeAccount = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
-        let isAuthenticated = false;
-
-        if (employeeAccount && employeeAccount.password === password) {
-          isAuthenticated = true;
-        }
-
-        // Background Check 1: Check Firestore user_accounts
-        if (!isAuthenticated) {
-          try {
-            const empDocRef = doc(db, 'user_accounts', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'));
-            const empSnap = await getDoc(empDocRef);
-            if (empSnap.exists()) {
-              const data = empSnap.data() as StoredUserAccount;
-              if (data && data.email) {
-                if (!employeeAccount) {
-                  employeeAccount = {
-                    email: data.email,
-                    password: data.password,
-                    fullName: data.fullName,
-                    companyName: data.companyName,
-                    role: 'employee',
-                    designation: data.designation,
-                  };
-                }
-                if (data.password === password) {
-                  isAuthenticated = true;
-                }
+      // Background Check 1: Check Firestore user_accounts
+      if (!isAuthenticated && db) {
+        try {
+          const empDocRef = doc(db, 'user_accounts', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'));
+          const empSnap = await getDoc(empDocRef);
+          if (empSnap.exists()) {
+            const data = empSnap.data() as StoredUserAccount;
+            if (data && data.email) {
+              if (!employeeAccount) {
+                employeeAccount = {
+                  email: data.email,
+                  password: data.password,
+                  fullName: data.fullName,
+                  companyName: data.companyName,
+                  role: 'employee',
+                  designation: data.designation,
+                };
+              }
+              if (data.password === password) {
+                isAuthenticated = true;
               }
             }
-          } catch (e) {
-            console.warn('Firestore employee check error:', e);
           }
+        } catch (e) {
+          console.warn('Firestore employee check error:', e);
         }
+      }
 
-        // Background Check 2: Check Firebase Auth
-        if (!isAuthenticated && auth) {
-          try {
-            const cred = await signInWithEmailAndPassword(auth, cleanEmail, password);
-            if (cred && cred.user) {
-              isAuthenticated = true;
-              if (employeeAccount) {
-                employeeAccount.password = password;
-              }
+      // Background Check 2: Check Firebase Auth
+      if (!isAuthenticated && auth) {
+        try {
+          const cred = await signInWithEmailAndPassword(auth, cleanEmail, password);
+          if (cred && cred.user) {
+            isAuthenticated = true;
+            if (employeeAccount) {
+              employeeAccount.password = password;
             }
-          } catch (e) {}
-        }
-
-        // Background Check 3: Check people directory if account not yet in user_accounts
-        if (!employeeAccount) {
-          const foundInPeople = people.find((p) => p.email && p.email.toLowerCase() === cleanEmail);
-          if (foundInPeople) {
-            employeeAccount = {
-              email: foundInPeople.email,
-              password: password,
-              fullName: foundInPeople.name,
-              companyName: 'GEONIXA',
-              role: 'employee',
-              designation: foundInPeople.role,
-            };
           }
-        }
+        } catch (e) {}
+      }
 
-        if (!employeeAccount && !isAuthenticated) {
-          setIsSubmitting(false);
-          setErrorMessage('Employee account not found. Please click "Create Employee Account" below to register.');
-          return;
+      // Background Check 3: Check people directory if account not yet in user_accounts
+      if (!employeeAccount) {
+        const foundInPeople = people.find((p) => p.email && p.email.toLowerCase() === cleanEmail);
+        if (foundInPeople) {
+          employeeAccount = {
+            email: foundInPeople.email,
+            password: password,
+            fullName: foundInPeople.name,
+            companyName: 'GEONIXA',
+            role: 'employee',
+            designation: foundInPeople.role,
+          };
         }
+      }
 
-        if (!isAuthenticated) {
-          setIsSubmitting(false);
-          setErrorMessage('Incorrect password. Please enter the correct password.');
-          return;
-        }
-
-        setSuccessMessage(`Welcome back, ${employeeAccount?.fullName || 'Employee'}! Opening Employee Dashboard...`);
-        setTimeout(() => {
-          onLogin(
-            employeeAccount?.email || cleanEmail,
-            employeeAccount?.fullName || 'Employee',
-            employeeAccount?.companyName || 'GEONIXA',
-            'employee'
-          );
-        }, 450);
+      if (!employeeAccount && !isAuthenticated) {
+        setIsSubmitting(false);
+        setErrorMessage('Employee account not found. Please click "Create Account" below to register.');
         return;
       }
+
+      if (!isAuthenticated) {
+        setIsSubmitting(false);
+        setErrorMessage('Incorrect password. Please enter the correct password.');
+        return;
+      }
+
+      setSuccessMessage(`Welcome back, ${employeeAccount?.fullName || 'Employee'}! Opening Employee Dashboard...`);
+      setTimeout(() => {
+        onLogin(
+          employeeAccount?.email || cleanEmail,
+          employeeAccount?.fullName || 'Employee',
+          employeeAccount?.companyName || 'GEONIXA',
+          'employee'
+        );
+      }, 450);
+      return;
+    }
     }
 
     // ==========================================
@@ -884,9 +876,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 WorkOrbit
               </h1>
               <p className="text-[16px] font-normal text-[#595959] leading-[1.6]">
-                {loginRole === 'admin'
-                  ? 'Administrator Access Portal'
-                  : 'Employee Workspace Portal'}
+                Workspace Access Portal
               </p>
             </div>
           )}
@@ -916,41 +906,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   ? isResetExpired
                     ? '15-minute validity has expired.'
                     : 'Enter your new password below to finish resetting.'
-                  : loginRole === 'admin'
-                  ? 'Administrator Password Recovery'
-                  : 'Employee Password Recovery'}
+                  : 'Enter your registered email to receive reset instructions.'}
               </p>
             </div>
           )}
         </div>
-
-        {/* ADMIN vs EMPLOYEE LOGIN SWITCHER (ONLY IN LOGIN MODE) */}
-        {mode === 'login' && (
-          <div className="grid grid-cols-2 p-1 bg-[#F4F6F8] rounded-lg border border-[#E5E5E5] gap-1">
-            <button
-              type="button"
-              onClick={() => handleRoleSwitch('admin')}
-              className={`py-2 px-3 rounded-md font-semibold text-sm transition-all flex items-center justify-center cursor-pointer ${
-                loginRole === 'admin'
-                  ? 'bg-[#6CC04A] text-white shadow-xs'
-                  : 'bg-transparent text-[#595959] hover:text-[#222222]'
-              }`}
-            >
-              Admin Login
-            </button>
-            <button
-              type="button"
-              onClick={() => handleRoleSwitch('employee')}
-              className={`py-2 px-3 rounded-md font-semibold text-sm transition-all flex items-center justify-center cursor-pointer ${
-                loginRole === 'employee'
-                  ? 'bg-[#6CC04A] text-white shadow-xs'
-                  : 'bg-transparent text-[#595959] hover:text-[#222222]'
-              }`}
-            >
-              Employee Login
-            </button>
-          </div>
-        )}
 
         {/* Validation / Success Messages */}
         {errorMessage && (
@@ -1071,14 +1031,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               <form onSubmit={handleForgotPassword} className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-[#222222] mb-1.5">
-                    {loginRole === 'admin' ? 'Admin Registered Email' : 'Employee Registered Email'}
+                    Registered Email Address
                   </label>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
+                    placeholder="name@company.com"
                     className="w-full px-4 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                   />
                 </div>
@@ -1107,7 +1067,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 }}
                 className="highlight-link text-sm font-semibold cursor-pointer"
               >
-                ← Back to {loginRole === 'admin' ? 'Admin' : 'Employee'} Sign in
+                ← Back to Sign in
               </button>
             </div>
           </div>
@@ -1230,14 +1190,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               <>
                 <div>
                   <label className="block text-sm font-semibold text-[#222222] mb-1.5">
-                    {loginRole === 'admin' ? 'Admin Email Address' : 'Employee Work Email'}
+                    Email Address
                   </label>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={loginRole === 'admin' ? 'admin@company.com' : 'employee@company.com'}
+                    placeholder="name@company.com"
                     className="w-full px-4 py-2.5 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                   />
                 </div>
@@ -1259,7 +1219,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder={loginRole === 'admin' ? 'Enter admin password' : 'Enter your password'}
+                      placeholder="Enter your password"
                       className="w-full px-4 py-2.5 pr-10 bg-white border border-[#CCCCCC] rounded-md text-[15px] font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all placeholder:text-[#888888]"
                     />
                     <button
@@ -1301,9 +1261,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 ? 'Verifying...'
                 : mode === 'signup'
                 ? 'Create Employee Account'
-                : loginRole === 'admin'
-                ? 'Sign in as Administrator →'
-                : 'Sign in as Employee →'}
+                : 'Sign in →'}
             </button>
           </form>
         )}
@@ -1327,7 +1285,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
           </div>
         )}
 
-        {mode === 'login' && loginRole === 'employee' && (
+        {mode === 'login' && (
           <div className="text-center space-y-2 pt-4 border-t border-[#E5E5E5]">
             <p className="text-sm text-[#595959]">
               Need an employee account?{' '}
@@ -1338,15 +1296,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               >
                 Create Account
               </button>
-            </p>
-            <p className="text-xs text-[#595959]">Employee registrations are automatically verified.</p>
-          </div>
-        )}
-
-        {mode === 'login' && loginRole === 'admin' && (
-          <div className="text-center pt-4 border-t border-[#E5E5E5]">
-            <p className="text-xs text-[#595959]">
-              🔒 Protected administrative console. Single master administrator credentials only.
             </p>
           </div>
         )}
