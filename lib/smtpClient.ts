@@ -43,7 +43,7 @@ export function sendSmtpEmail(options: SmtpOptions): Promise<{ success: boolean;
         host,
         port,
         servername: host,
-        rejectUnauthorized: false,
+        rejectUnauthorized: true,
       },
       () => {
         // Connected securely
@@ -86,7 +86,7 @@ export function sendSmtpEmail(options: SmtpOptions): Promise<{ success: boolean;
         case 0: // 220 Initial server greeting
           if (code === 220) {
             step = 1;
-            send('EHLO workorbit.app');
+            send('EHLO mail.gmail.com');
           }
           break;
 
@@ -135,34 +135,51 @@ export function sendSmtpEmail(options: SmtpOptions): Promise<{ success: boolean;
         case 7: // 354 Start mail input
           if (code === 354) {
             step = 8;
-            const senderDomain = cleanUser.includes('@') ? cleanUser.split('@')[1] : 'gmail.com';
-            const messageId = `<${Date.now()}.${Math.random().toString(36).substring(2)}@${senderDomain}>`;
             const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).substring(2)}`;
-            const plainText = options.text || 'WorkOrbit Password Reset: Please view this email in an HTML-compatible client.';
+            const plainText = options.text || 'WorkOrbit: Please view this email in an HTML-compatible client.';
+            const htmlContent = options.html || '';
 
-            const emailContent = [
-              `From: "WorkOrbit" <${cleanUser}>`,
+            // Clean subject and encode with RFC 2047 if non-ASCII
+            const cleanSubject = (subject || '').trim();
+            const encodedSubject = /^[\x20-\x7E]*$/.test(cleanSubject)
+              ? cleanSubject
+              : `=?UTF-8?B?${Buffer.from(cleanSubject, 'utf8').toString('base64')}?=`;
+
+            // Standard RFC 2045 base64 encoding with 76 character line wrapping
+            const b64Text = Buffer.from(plainText, 'utf8')
+              .toString('base64')
+              .replace(/(.{76})/g, '$1\r\n');
+            const b64Html = Buffer.from(htmlContent, 'utf8')
+              .toString('base64')
+              .replace(/(.{76})/g, '$1\r\n');
+
+            const fromHeader = options.from || `"WorkOrbit" <${cleanUser}>`;
+
+            const emailHeaders = [
+              `From: ${fromHeader}`,
               `To: <${cleanTo}>`,
-              `Reply-To: <${cleanUser}>`,
-              `Subject: ${subject}`,
-              `Message-ID: ${messageId}`,
-              `Date: ${new Date().toUTCString()}`,
+              `Reply-To: ${fromHeader}`,
+              `Subject: ${encodedSubject}`,
               'MIME-Version: 1.0',
               `Content-Type: multipart/alternative; boundary="${boundary}"`,
-              'X-Mailer: WorkOrbit-Mailer/1.0',
-              'Auto-Submitted: auto-generated',
+              'X-Priority: 3',
+              'Importance: Normal',
+            ];
+
+            const emailContent = [
+              emailHeaders.join('\r\n'),
               '',
               `--${boundary}`,
               'Content-Type: text/plain; charset=UTF-8',
-              'Content-Transfer-Encoding: 7bit',
+              'Content-Transfer-Encoding: base64',
               '',
-              plainText,
+              b64Text,
               '',
               `--${boundary}`,
               'Content-Type: text/html; charset=UTF-8',
-              'Content-Transfer-Encoding: 7bit',
+              'Content-Transfer-Encoding: base64',
               '',
-              html,
+              b64Html,
               '',
               `--${boundary}--`,
               '.',

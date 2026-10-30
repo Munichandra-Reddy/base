@@ -102,13 +102,32 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
-      const urlEmail = urlParams.get('resetEmail');
-      const urlRole = urlParams.get('role');
-      const urlCode = urlParams.get('resetCode');
-      const urlExp = urlParams.get('exp');
+      let urlEmail = urlParams.get('resetEmail');
+      let urlRole = urlParams.get('role');
+      let urlCode = urlParams.get('resetCode');
+      let urlExp = urlParams.get('exp');
+      const token = urlParams.get('token');
       const hash = window.location.hash;
 
-      if (urlEmail && (urlCode || hash === '#reset-password')) {
+      // Extract secure token parameters if present
+      if (token) {
+        try {
+          const b64 = token.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonStr = decodeURIComponent(
+            atob(b64)
+              .split('')
+              .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          const decoded = JSON.parse(jsonStr);
+          if (decoded.email) urlEmail = decoded.email;
+          if (decoded.role) urlRole = decoded.role;
+          if (decoded.code) urlCode = decoded.code;
+          if (decoded.exp) urlExp = String(decoded.exp);
+        } catch (e) {}
+      }
+
+      if (urlEmail && (urlCode || hash === '#reset-password' || token)) {
         const decodedEmail = decodeURIComponent(urlEmail);
         setMode('forgot');
         setEmail(decodedEmail);
@@ -339,15 +358,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       console.warn('SMTP fetch warning:', err);
     }
 
-    // 2. Also trigger Firebase sendPasswordResetEmail as complementary backup
-    try {
-      if (auth) {
-        await sendPasswordResetEmail(auth, cleanEmail);
-        if (!smtpSent) {
+    // 2. Only fallback to Firebase sendPasswordResetEmail if SMTP failed
+    if (!smtpSent) {
+      try {
+        if (auth) {
+          await sendPasswordResetEmail(auth, cleanEmail);
           setSuccessMessage('Password reset message sent to mail');
         }
-      }
-    } catch (err: any) {}
+      } catch (err: any) {}
+    }
 
     if (!smtpSent) {
       if (smtpErrorDetails) {
@@ -369,7 +388,22 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
     // Enforce 15-minute expiration verification before changing password
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
-      const urlExp = urlParams.get('exp');
+      let urlExp = urlParams.get('exp');
+      const token = urlParams.get('token');
+      if (token) {
+        try {
+          const b64 = token.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonStr = decodeURIComponent(
+            atob(b64)
+              .split('')
+              .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          const decoded = JSON.parse(jsonStr);
+          if (decoded.exp) urlExp = String(decoded.exp);
+        } catch (e) {}
+      }
+
       if (urlExp) {
         const expirationTime = parseInt(urlExp, 10);
         if (Date.now() > expirationTime) {

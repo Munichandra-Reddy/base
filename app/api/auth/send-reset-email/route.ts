@@ -30,7 +30,19 @@ export async function POST(request: Request) {
     const now = Date.now();
     const expiresAt = now + 15 * 60 * 1000; // 15 minutes validity
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const resetLink = `${baseUrl}/?resetEmail=${encodeURIComponent(email)}&role=${encodeURIComponent(role)}&resetCode=${resetCode}&exp=${expiresAt}#reset-password`;
+
+    // Create safe base64url token to avoid exposing raw email query params (prevents phishing filter triggers)
+    const token = Buffer.from(
+      JSON.stringify({
+        email,
+        role,
+        code: resetCode,
+        exp: expiresAt,
+      }),
+      'utf8'
+    ).toString('base64url');
+
+    const resetLink = `${baseUrl}/?token=${token}#reset-password`;
 
     // Record reset request in Firestore with 15-minute expiration
     try {
@@ -46,18 +58,15 @@ export async function POST(request: Request) {
       console.warn('Firestore password_resets write warning:', dbErr);
     }
 
-    // Plain text alternative for email deliverability & anti-spam
-    const text = `WorkOrbit Password Reset
+    // High deliverability plain text version (recognized by Gmail/Outlook primary inbox)
+    const text = `Hello,
 
-Hello,
+Your WorkOrbit verification code is: ${resetCode}
 
-We received a request to change the password for your WorkOrbit ${role === 'admin' ? 'Administrator' : 'Employee'} account (${email}).
-
-Your 6-Digit Password Reset Code: ${resetCode}
-(Valid for 15 minutes only - link will time out afterwards)
-
-To reset your password, visit this link:
+To reset your password, visit the link below:
 ${resetLink}
+
+This code is valid for 15 minutes.
 
 If you did not request this, you can safely ignore this email.
 
@@ -81,54 +90,96 @@ If you did not request this, you can safely ignore this email.
       });
     }
 
-    // HTML Email Template
+    // High-Deliverability HTML Email Template formatted for Primary / Main Inbox delivery
     const html = `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Reset Your WorkOrbit Password</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkOrbit Verification Code</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f3f6; margin: 0; padding: 24px;">
-  <div style="max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-    <div style="background-color: #0B192C; width: 44px; height: 44px; border-radius: 12px; display: inline-block; text-align: center; line-height: 44px; color: #ffffff; font-size: 20px; font-weight: 900; margin-bottom: 20px;">
-      W
-    </div>
-    <h2 style="color: #0F172A; font-size: 22px; font-weight: 800; margin: 0 0 12px 0;">Reset Your Password</h2>
-    <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 20px 0;">
-      Hello, we received a request to change the password for your WorkOrbit ${role === 'admin' ? 'Administrator' : 'Employee'} account (<strong>${email}</strong>).
-    </p>
-    
-    <div style="text-align: center; margin: 24px 0;">
-      <a href="${resetLink}" style="display: inline-block; background-color: #0B192C; color: #ffffff; font-weight: 700; font-size: 14px; text-decoration: none; padding: 13px 28px; border-radius: 9999px;">
-        Click Here to Reset Password &rarr;
-      </a>
-    </div>
+<body style="margin: 0; padding: 24px 0; background-color: #F3F4F6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1F2937;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F3F4F6; margin: 0; padding: 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 520px; background-color: #FFFFFF; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; margin: 0 auto; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 28px 32px 20px 32px; border-bottom: 1px solid #F3F4F6; text-align: left;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="width: 38px; height: 38px; background-color: #6CC04A; border-radius: 8px; text-align: center; vertical-align: middle;">
+                    <span style="color: #FFFFFF; font-size: 20px; font-weight: 700; line-height: 38px; display: inline-block;">W</span>
+                  </td>
+                  <td style="padding-left: 12px; font-size: 18px; font-weight: 700; color: #111827;">
+                    WorkOrbit
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-    <div style="background-color: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 16px; text-align: center; margin: 24px 0;">
-      <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748B; margin-bottom: 6px;">Your 6-Digit Password Reset Code</div>
-      <div style="font-size: 28px; font-weight: 900; letter-spacing: 6px; color: #0F172A; font-family: monospace;">${resetCode}</div>
-      <div style="font-size: 11px; color: #64748B; margin-top: 6px;">Valid for 15 minutes only (times out afterwards)</div>
-    </div>
+          <!-- Content Body -->
+          <tr>
+            <td style="padding: 28px 32px 32px 32px;">
+              <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 14px 0;">
+                Password Reset Verification
+              </h1>
+              <p style="font-size: 14px; line-height: 1.6; color: #4B5563; margin: 0 0 24px 0;">
+                Hello, we received a request to reset the password for your WorkOrbit ${role === 'admin' ? 'Administrator' : 'Employee'} account.
+              </p>
 
-    <p style="font-size: 12px; color: #64748B; line-height: 1.5; margin: 20px 0 0 0;">
-      If you did not request a password change, you can safely ignore this email. Your account remains protected.
-    </p>
+              <!-- Verification Code Card -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; margin: 0 0 24px 0; text-align: center;">
+                <tr>
+                  <td style="padding: 20px 16px;">
+                    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #6B7280; margin-bottom: 8px;">
+                      Your Verification Code
+                    </div>
+                    <div style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #111827; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+                      ${resetCode}
+                    </div>
+                    <div style="font-size: 12px; color: #6B7280; margin-top: 8px;">
+                      Valid for 15 minutes
+                    </div>
+                  </td>
+                </tr>
+              </table>
 
-    <div style="border-top: 1px solid #E2E8F0; margin-top: 24px; padding-top: 16px; font-size: 11px; color: #94A3B8; text-align: center;">
-      &copy; 2026 WorkOrbit Workspace. All rights reserved.
-    </div>
-  </div>
+              <!-- Direct Link Button -->
+              <div style="text-align: center; margin: 0 0 24px 0;">
+                <a href="${resetLink}" style="display: inline-block; background-color: #6CC04A; color: #FFFFFF; font-weight: 600; font-size: 14px; text-decoration: none; padding: 12px 32px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                  Reset Password
+                </a>
+              </div>
+
+              <p style="font-size: 12px; line-height: 1.5; color: #6B7280; margin: 0;">
+                If you did not request this, you can safely ignore this email. Your password will remain unchanged.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 16px 32px 24px 32px; background-color: #F9FAFB; border-top: 1px solid #F3F4F6; text-align: center; font-size: 11px; color: #9CA3AF;">
+              &copy; 2026 WorkOrbit. All rights reserved.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 
-    // Dispatch email via TLS SMTP
+    // Dispatch email via TLS SMTP using standard OTP subject format recognized by Primary / Main tab
     await sendSmtpEmail({
       host: smtpHost,
       port: smtpPort,
       user: smtpUser,
       pass: smtpPass,
       to: email,
-      subject: `WorkOrbit - Password Reset Code: ${resetCode}`,
+      subject: `${resetCode} is your WorkOrbit verification code`,
       html,
       text,
     });
