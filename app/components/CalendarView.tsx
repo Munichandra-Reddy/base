@@ -220,7 +220,12 @@ export const CalendarView: React.FC = () => {
 
       {/* Date Details Pop-up Modal */}
       {selectedDay !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B192C]/40 backdrop-blur-xs p-4">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedDay(null);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4"
+        >
           <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
             <div className="p-5 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
@@ -316,7 +321,12 @@ export const CalendarView: React.FC = () => {
 
       {/* Global Add Event Modal (Triggered by + Add Event Header Button) */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B192C]/40 backdrop-blur-xs p-4">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsAddModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4"
+        >
           <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="p-5 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
               <h3 className="text-lg font-extrabold text-[#0F172A]">Add New Calendar Event</h3>
