@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -15,6 +15,21 @@ const firebaseConfig = {
 // Initialize Firebase app singleton safely across SSR and Client
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
+// Initialize Firestore with experimentalForceLongPolling to prevent ERR_QUIC_PROTOCOL_ERROR
+// and WebChannel streaming disconnects in modern browsers
+let firestoreDb: ReturnType<typeof getFirestore>;
+if (typeof window !== 'undefined') {
+  try {
+    firestoreDb = initializeFirestore(app, {
+      experimentalForceLongPolling: true,
+    });
+  } catch {
+    firestoreDb = getFirestore(app);
+  }
+} else {
+  firestoreDb = getFirestore(app);
+}
+
+export const db = firestoreDb;
 export const auth = getAuth(app);
 export default app;
