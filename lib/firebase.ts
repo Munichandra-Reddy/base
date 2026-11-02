@@ -1,6 +1,13 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, initializeFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import {
+  getAuth,
+  initializeAuth,
+  indexedDBLocalPersistence,
+  browserLocalPersistence,
+  inMemoryPersistence,
+  Auth,
+} from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyAFJCJ5JqYohhGXxn7XmPtxyaWZpMiaR3k",
@@ -30,6 +37,20 @@ if (typeof window !== 'undefined') {
   firestoreDb = getFirestore(app);
 }
 
+// Initialize Auth without popupRedirectResolver to prevent injecting iframe.js and CONFIGURATION_NOT_FOUND errors
+let authInstance: Auth;
+if (typeof window !== 'undefined') {
+  try {
+    authInstance = initializeAuth(app, {
+      persistence: [indexedDBLocalPersistence, browserLocalPersistence, inMemoryPersistence],
+    });
+  } catch {
+    authInstance = getAuth(app);
+  }
+} else {
+  authInstance = getAuth(app);
+}
+
 export const db = firestoreDb;
-export const auth = getAuth(app);
+export const auth = authInstance;
 export default app;
