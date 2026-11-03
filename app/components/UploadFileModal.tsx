@@ -122,10 +122,10 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4 font-sans"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4 overflow-y-auto font-sans"
     >
-      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        <div className="p-6 border-b border-[#E2E8F0] flex items-center justify-between">
+      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-auto">
+        <div className="p-6 border-b border-[#E2E8F0] flex items-center justify-between shrink-0">
           <h3 className="text-xl font-extrabold text-[#0F172A]">Upload Project File</h3>
           <button
             onClick={onClose}
@@ -135,7 +135,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
           {/* File Picker Zone */}
           <div
             onClick={() => fileInputRef.current?.click()}

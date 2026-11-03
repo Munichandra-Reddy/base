@@ -59,8 +59,8 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
     switch (file.type) {
       case 'image':
         return (
-          <div className="bg-[#0B192C] rounded-2xl p-6 flex flex-col items-center justify-center min-h-[260px] text-white">
-            <div className="w-full max-h-[300px] overflow-hidden rounded-xl bg-[#15293F] flex items-center justify-center border border-[#1E2E42] p-4">
+          <div className="bg-[#011826] rounded-2xl p-6 flex flex-col items-center justify-center min-h-[260px] text-white">
+            <div className="w-full max-h-[300px] overflow-hidden rounded-xl bg-[#082236] flex items-center justify-center border border-[#0d314d] p-4">
               <img
                 src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop"
                 alt={file.name}
@@ -73,8 +73,8 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
 
       case 'code':
         return (
-          <div className="bg-[#0B192C] text-slate-100 rounded-2xl p-5 font-mono text-xs overflow-x-auto min-h-[240px] border border-[#1E2E42]">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#1E2E42] text-[#64748B] text-[11px]">
+          <div className="bg-[#011826] text-slate-100 rounded-2xl p-5 font-mono text-xs overflow-x-auto min-h-[240px] border border-[#0d314d]">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#0d314d] text-[#64748B] text-[11px]">
               <span>{file.name}</span>
               <span>JSON / REST Spec</span>
             </div>
@@ -155,9 +155,9 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
       }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4 overflow-y-auto font-sans"
     >
-      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-2xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-6">
+      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-auto">
         {/* Header */}
-        <div className="p-6 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
+        <div className="p-5 sm:p-6 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6] shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#6CC04A] text-white flex items-center justify-center font-bold">
               <FileIcon className="w-5 h-5" />
@@ -177,7 +177,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
         </div>
 
         {/* Content Viewer Body */}
-        <div className="p-6 space-y-5">
+        <div className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
           {getFilePreviewContent()}
 
           {/* File Metadata Details */}
@@ -198,7 +198,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
         </div>
 
         {/* Footer Actions */}
-        <div className="p-5 border-t border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
+        <div className="p-4 sm:p-5 border-t border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6] shrink-0">
           <span className="text-xs font-bold uppercase px-3 py-1 rounded-md bg-[#EBF0F5] text-[#334155] border border-[#E2E8F0]">
             {file.type}
           </span>
