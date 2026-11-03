@@ -428,27 +428,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       onClick={() => setActiveChatMember(memberName)}
                       className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                         memberForPersonalChat === memberName
-                          ? 'bg-[#6CC04A] text-white border-[#6CC04A] shadow-micro'
+                          ? 'bg-white border-2 border-[#6CC04A] shadow-micro text-[#0F172A]'
                           : 'bg-[#F1F3F6] hover:bg-[#EBF0F5] border-[#E2E8F0] text-[#0F172A]'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div
-                          className={`w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-xs ${
-                            memberForPersonalChat === memberName
-                              ? 'bg-white text-[#238823]'
-                              : 'bg-[#6CC04A] text-white'
-                          }`}
-                        >
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-xs bg-[#6CC04A] text-white">
                           {memberName[0]}
                         </div>
                         <div>
-                          <div className="font-bold text-xs leading-snug">{memberName}</div>
-                          <span
-                            className={`text-[10px] font-semibold block ${
-                              memberForPersonalChat === memberName ? 'text-white/90' : 'text-[#64748B]'
-                            }`}
-                          >
+                          <div className="font-bold text-xs leading-snug text-[#0F172A]">{memberName}</div>
+                          <span className="text-[10px] font-semibold block text-[#64748B]">
                             {idx === 0 ? 'Lead Dev' : 'Team Member'}
                           </span>
                         </div>
@@ -456,7 +446,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <span
                         className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
                           memberForPersonalChat === memberName
-                            ? 'bg-white text-[#238823]'
+                            ? 'bg-[#ECFDF5] text-[#10B981] border border-emerald-200'
                             : 'bg-white text-[#334155] border border-[#E2E8F0]'
                         }`}
                       >
