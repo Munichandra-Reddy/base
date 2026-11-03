@@ -45,6 +45,7 @@ import {
   addFirebaseFile,
   seedInitialDataToFirebase,
   isRealEmployee,
+  deduplicateEmployees,
 } from '@/lib/firebaseServices';
 
 export default function Home() {
@@ -68,7 +69,7 @@ export default function Home() {
         try {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed)) {
-            return parsed.filter(isRealEmployee);
+            return deduplicateEmployees(parsed);
           }
         } catch (e) {}
       }
@@ -111,7 +112,7 @@ export default function Home() {
         try {
           const parsed = JSON.parse(savedPeople);
           if (Array.isArray(parsed)) {
-            const cleanPeople = parsed.filter(isRealEmployee);
+            const cleanPeople = deduplicateEmployees(parsed);
             setPeople(cleanPeople);
             localStorage.setItem('workorbit_people', JSON.stringify(cleanPeople));
           }
@@ -183,7 +184,7 @@ export default function Home() {
         });
         const unsubEmp = subscribeToEmployees((peopleList) => {
           if (peopleList) {
-            const realEmployees = peopleList.filter(isRealEmployee);
+            const realEmployees = deduplicateEmployees(peopleList);
             setPeople(realEmployees);
             if (typeof window !== 'undefined') {
               localStorage.setItem('workorbit_people', JSON.stringify(realEmployees));
@@ -299,9 +300,12 @@ export default function Home() {
 
   const handleAddEmployee = async (name: string, email: string, role?: string) => {
     const cleanEmail = email.trim().toLowerCase();
-    const existing = people.find((p) => p.email.toLowerCase() === cleanEmail);
+    if (!cleanEmail || cleanEmail === 'cr7156816@gmail.com' || cleanEmail.endsWith('@abctech.com')) return;
+
+    const existing = people.find((p) => p.email && p.email.toLowerCase() === cleanEmail);
     if (existing) return existing;
 
+    const docId = cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
     const colorOptions = [
       'bg-blue-100 text-blue-700',
       'bg-purple-100 text-purple-700',
@@ -315,7 +319,7 @@ export default function Home() {
     const formattedName = name.trim() || cleanEmail.split('@')[0];
 
     const newPerson: Person = {
-      id: `emp-${Date.now()}`,
+      id: docId,
       name: formattedName,
       role: role?.trim() || 'Team Member',
       email: cleanEmail,
@@ -326,7 +330,7 @@ export default function Home() {
     };
 
     setPeople((prev) => {
-      const updated = [...prev, newPerson];
+      const updated = deduplicateEmployees([...prev, newPerson]);
       if (typeof window !== 'undefined') {
         localStorage.setItem('workorbit_people', JSON.stringify(updated));
       }
@@ -386,9 +390,20 @@ export default function Home() {
       }
 
       if (role === 'employee' && cleanEmail !== 'cr7156816@gmail.com') {
-        const existing = people.find((p) => p.email.toLowerCase() === cleanEmail);
+        const existing = people.find((p) => p.email && p.email.toLowerCase() === cleanEmail);
         if (!existing) {
-          handleAddEmployee(userObj.fullName, cleanEmail);
+          let userDesignation: string | undefined;
+          try {
+            const savedReg = localStorage.getItem('workorbit_registered_users');
+            if (savedReg) {
+              const parsedReg = JSON.parse(savedReg);
+              if (Array.isArray(parsedReg)) {
+                const match = parsedReg.find((u: any) => u.email?.toLowerCase() === cleanEmail);
+                if (match?.designation) userDesignation = match.designation;
+              }
+            }
+          } catch (e) {}
+          handleAddEmployee(userObj.fullName, cleanEmail, userDesignation);
         }
       }
     }

@@ -814,7 +814,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
       const randomAvatarColor = avatarColors[updatedUsers.length % avatarColors.length];
 
       const newEmployee: Person = {
-        id: `emp-${Date.now()}`,
+        id: cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'),
         name: fullName.trim(),
         role: assignedRole,
         email: cleanEmail,

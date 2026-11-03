@@ -23,6 +23,31 @@ export const isRealEmployee = (p: Partial<Person> | null | undefined): boolean =
   return true;
 };
 
+export const deduplicateEmployees = (peopleList: Person[]): Person[] => {
+  if (!Array.isArray(peopleList)) return [];
+
+  const map = new Map<string, Person>();
+
+  for (const person of peopleList) {
+    if (!isRealEmployee(person)) continue;
+    const cleanEmail = person.email.toLowerCase().trim();
+
+    if (!map.has(cleanEmail)) {
+      map.set(cleanEmail, { ...person, email: cleanEmail });
+    } else {
+      const existing = map.get(cleanEmail)!;
+      const isExistingGeneric = !existing.role || existing.role.toLowerCase() === 'team member';
+      const isNewSpecific = person.role && person.role.toLowerCase() !== 'team member';
+
+      if (isExistingGeneric && isNewSpecific) {
+        map.set(cleanEmail, { ...existing, ...person, email: cleanEmail });
+      }
+    }
+  }
+
+  return Array.from(map.values());
+};
+
 // ==========================================
 // AUTO-SEED INITIAL DATA TO FIREBASE FIRESTORE
 // ==========================================
@@ -40,7 +65,7 @@ export const seedInitialDataToFirebase = async () => {
       await setDoc(doc(db, 'chat_messages', c.id), c, { merge: true });
     }
     // Purge any legacy dummy employee documents from Firestore
-    const dummyIds = ['usr-1', 'usr-2', 'usr-3', 'usr-4', 'usr-5', 'usr-6', 'usr-7'];
+    const dummyIds = ['usr-1', 'usr-2', 'usr-3', 'usr-4', 'usr-5', 'usr-6', 'usr-7', 'cr7156816_gmail_com'];
     for (const id of dummyIds) {
       try {
         await deleteDoc(doc(db, 'employees', id));
@@ -103,7 +128,8 @@ export const subscribeToEmployees = (callback: (people: Person[]) => void) => {
       collection(db, 'employees'),
       (snapshot) => {
         const dummyIds = ['usr-1', 'usr-2', 'usr-3', 'usr-4', 'usr-5', 'usr-6', 'usr-7'];
-        const peopleList: Person[] = [];
+        const seen = new Map<string, { person: Person; docId: string }>();
+        const duplicateDocIdsToDelete: string[] = [];
 
         snapshot.docs.forEach((d) => {
           const data = d.data();
@@ -111,18 +137,70 @@ export const subscribeToEmployees = (callback: (people: Person[]) => void) => {
           const isDummy =
             dummyIds.includes(d.id) ||
             email === 'cr7156816@gmail.com' ||
-            email.endsWith('@abctech.com');
+            email.endsWith('@abctech.com') ||
+            !email;
 
           if (isDummy) {
             try {
               deleteDoc(doc(db, 'employees', d.id)).catch(() => {});
             } catch (e) {}
+            return;
+          }
+
+          const personObj: Person = { ...data, id: d.id, email } as Person;
+          const deterministicDocId = email.replace(/[^a-zA-Z0-9]/g, '_');
+
+          if (!seen.has(email)) {
+            seen.set(email, { person: personObj, docId: d.id });
           } else {
-            peopleList.push({ ...data, id: d.id } as Person);
+            // Found duplicate document in Firestore for this email!
+            const existing = seen.get(email)!;
+            const existingRole = (existing.person.role || '').toLowerCase();
+            const currentRole = (personObj.role || '').toLowerCase();
+
+            // Best role to keep (prefer specific designation like Developer over generic Team Member)
+            const preferredRole =
+              existingRole !== 'team member' && existingRole !== ''
+                ? existing.person.role
+                : personObj.role || 'Team Member';
+
+            // Best name to keep
+            const preferredName =
+              existing.person.name && existing.person.name !== email.split('@')[0]
+                ? existing.person.name
+                : personObj.name || existing.person.name;
+
+            // Prefer deterministic document ID based on email
+            if (d.id === deterministicDocId && existing.docId !== deterministicDocId) {
+              duplicateDocIdsToDelete.push(existing.docId);
+              seen.set(email, {
+                person: { ...personObj, role: preferredRole, name: preferredName },
+                docId: d.id,
+              });
+            } else if (existing.docId === deterministicDocId && d.id !== deterministicDocId) {
+              duplicateDocIdsToDelete.push(d.id);
+              seen.set(email, {
+                person: { ...existing.person, role: preferredRole, name: preferredName },
+                docId: existing.docId,
+              });
+            } else if (existingRole === 'team member' && currentRole !== 'team member') {
+              duplicateDocIdsToDelete.push(existing.docId);
+              seen.set(email, { person: personObj, docId: d.id });
+            } else {
+              duplicateDocIdsToDelete.push(d.id);
+            }
           }
         });
 
-        callback(peopleList);
+        // Clean up duplicate documents from Firestore
+        duplicateDocIdsToDelete.forEach((dupId) => {
+          try {
+            deleteDoc(doc(db, 'employees', dupId)).catch(() => {});
+          } catch (e) {}
+        });
+
+        const cleanList = Array.from(seen.values()).map((v) => v.person);
+        callback(cleanList);
       },
       (error) => {
         if (error?.code !== 'unavailable') {
@@ -137,8 +215,14 @@ export const subscribeToEmployees = (callback: (people: Person[]) => void) => {
 
 export const addFirebaseEmployee = async (person: Person) => {
   try {
-    const docRef = doc(db, 'employees', person.id);
-    await setDoc(docRef, person, { merge: true });
+    const cleanEmail = (person.email || '').toLowerCase().trim();
+    if (!cleanEmail || cleanEmail === 'cr7156816@gmail.com') return;
+
+    // Use deterministic document ID based on clean email to prevent duplicate documents
+    const docId = cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
+    const docRef = doc(db, 'employees', docId);
+
+    await setDoc(docRef, { ...person, id: docId, email: cleanEmail }, { merge: true });
   } catch (error) {
     console.error('Error adding employee to Firebase:', error);
   }

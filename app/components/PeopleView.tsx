@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Person } from '@/lib/types';
+import { deduplicateEmployees } from '@/lib/firebaseServices';
 
 interface PeopleViewProps {
   people: Person[];
@@ -9,6 +10,10 @@ interface PeopleViewProps {
 }
 
 export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmployee }) => {
+  const displayPeople = useMemo(() => {
+    return deduplicateEmployees(people || []);
+  }, [people]);
+
   return (
     <div className="space-y-7 font-sans">
       <div className="bg-white p-7 rounded-2xl border border-[#E5E5E5] shadow-micro flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -26,11 +31,11 @@ export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmploye
         )}
       </div>
 
-      {people && people.length > 0 ? (
+      {displayPeople && displayPeople.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {people.map((person) => (
+          {displayPeople.map((person) => (
             <div
-              key={person.id}
+              key={person.id || person.email}
               className="bg-white rounded-xl border border-[#E2E8F0] p-4 shadow-micro flex items-center gap-3.5 hover:shadow-md transition-shadow"
             >
               <div
