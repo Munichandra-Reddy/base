@@ -313,14 +313,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </div>
 
         {/* 5 TOP SUB-TABS (Messages, Meetings, Tasks, Work Updates, Overview) */}
-        <div className="bg-[#6CC04A] rounded-xl p-1.5 flex flex-wrap items-center gap-1.5 text-xs font-bold text-white shadow-micro">
+        <div className="bg-white rounded-xl p-1.5 flex flex-wrap items-center gap-1.5 text-xs font-bold border border-[#E2E8F0] shadow-micro">
           <button
             type="button"
             onClick={() => setActiveProjectTab('messages')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
               activeProjectTab === 'messages'
-                ? 'bg-white text-[#222222] shadow-micro font-black'
-                : 'text-white/90 hover:bg-black/10 hover:text-white'
+                ? 'bg-[#6CC04A] text-white shadow-micro font-bold'
+                : 'text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#0F172A]'
             }`}
           >
             <ChatIcon className="w-4 h-4" />
@@ -332,8 +332,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => setActiveProjectTab('meetings')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
               activeProjectTab === 'meetings'
-                ? 'bg-white text-[#222222] shadow-micro font-black'
-                : 'text-white/90 hover:bg-black/10 hover:text-white'
+                ? 'bg-[#6CC04A] text-white shadow-micro font-bold'
+                : 'text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#0F172A]'
             }`}
           >
             <VideoIcon className="w-4 h-4" />
@@ -345,8 +345,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => setActiveProjectTab('tasks')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
               activeProjectTab === 'tasks'
-                ? 'bg-white text-[#222222] shadow-micro font-black'
-                : 'text-white/90 hover:bg-black/10 hover:text-white'
+                ? 'bg-[#6CC04A] text-white shadow-micro font-bold'
+                : 'text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#0F172A]'
             }`}
           >
             <CheckSquareIcon className="w-4 h-4" />
@@ -358,8 +358,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => setActiveProjectTab('updates')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
               activeProjectTab === 'updates'
-                ? 'bg-white text-[#222222] shadow-micro font-black'
-                : 'text-white/90 hover:bg-black/10 hover:text-white'
+                ? 'bg-[#6CC04A] text-white shadow-micro font-bold'
+                : 'text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#0F172A]'
             }`}
           >
             <FileIcon className="w-4 h-4" />
@@ -371,8 +371,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             onClick={() => setActiveProjectTab('overview')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
               activeProjectTab === 'overview'
-                ? 'bg-white text-[#222222] shadow-micro font-black'
-                : 'text-white/90 hover:bg-black/10 hover:text-white'
+                ? 'bg-[#6CC04A] text-white shadow-micro font-bold'
+                : 'text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#0F172A]'
             }`}
           >
             <FolderIcon className="w-4 h-4" />
