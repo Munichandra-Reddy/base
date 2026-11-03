@@ -50,54 +50,68 @@ export const getFileFromDB = async (name: string): Promise<string | Blob | File 
   }
 };
 
-export const createRealPdfBlobUrl = (docName: string, projectName: string = 'Workspace'): string => {
+export const generateValidPdfBlob = (docName: string, projectName: string = 'Workspace'): Blob => {
   const safeTitle = docName.replace(/[()\\]/g, '');
   const safeProject = projectName.replace(/[()\\]/g, '');
-  const pdfString = `%PDF-1.4
-1 0 obj
-<< /Type /Catalog /Pages 2 0 R >>
-endobj
-2 0 obj
-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
-endobj
-3 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
-endobj
-4 0 obj
-<< /Length 180 >>
-stream
-BT
-/F1 22 Tf
+
+  const contentStream = 
+`BT
+/F1 18 Tf
 50 720 Td
 (${safeTitle}) Tj
-/F1 14 Tf
-0 -35 Td
+/F1 12 Tf
+0 -32 Td
 (Project Space: ${safeProject}) Tj
-0 -25 Td
+0 -22 Td
 (Status: Official Verified PDF Document Deliverable) Tj
-0 -25 Td
+0 -22 Td
 (System Access: Authorized & Active) Tj
-ET
-endstream
-endobj
-5 0 obj
-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
-endobj
-xref
-0 6
-0000000000 65535 f 
-0000000010 00000 n 
-0000000060 00000 n 
-0000000117 00000 n 
-0000000244 00000 n 
-0000000475 00000 n 
-trailer
-<< /Size 6 /Root 1 0 R >>
-startxref
-545
-%%EOF`;
+ET`;
 
-  const blob = new Blob([pdfString], { type: 'application/pdf' });
+  const streamBytes = new TextEncoder().encode(contentStream);
+  const streamLength = streamBytes.length;
+
+  const header = '%PDF-1.4\n%WorkOrbit\n';
+  
+  let body = header;
+  const offsets: number[] = [0];
+
+  // Object 1: Catalog
+  offsets.push(new TextEncoder().encode(body).length);
+  body += '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n';
+
+  // Object 2: Pages
+  offsets.push(new TextEncoder().encode(body).length);
+  body += '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n';
+
+  // Object 3: Page
+  offsets.push(new TextEncoder().encode(body).length);
+  body += '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n';
+
+  // Object 4: Stream
+  offsets.push(new TextEncoder().encode(body).length);
+  body += `4 0 obj\n<< /Length ${streamLength} >>\nstream\n${contentStream}\nendstream\nendobj\n`;
+
+  // Object 5: Font
+  offsets.push(new TextEncoder().encode(body).length);
+  body += '5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n';
+
+  // xref
+  const startXref = new TextEncoder().encode(body).length;
+  body += 'xref\n0 6\n0000000000 65535 f \n';
+  for (let i = 1; i <= 5; i++) {
+    body += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+  }
+
+  // trailer
+  body += `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${startXref}\n%%EOF\n`;
+
+  const finalBytes = new TextEncoder().encode(body);
+  return new Blob([finalBytes], { type: 'application/pdf' });
+};
+
+export const createRealPdfBlobUrl = (docName: string, projectName: string = 'Workspace'): string => {
+  const blob = generateValidPdfBlob(docName, projectName);
   return URL.createObjectURL(blob);
 };
 
@@ -140,35 +154,71 @@ export const getDirectBlobUrl = (docName: string, dataUrl?: string, projectName:
   return URL.createObjectURL(textBlob);
 };
 
-export const getDirectFileBlobUrl = async (
+export const getDirectFileBlob = async (
   docName: string,
   providedUrl?: string,
   projectName: string = 'Workspace'
-): Promise<string> => {
-  if (providedUrl && (providedUrl.startsWith('blob:') || providedUrl.startsWith('data:'))) {
-    return getDirectBlobUrl(docName, providedUrl, projectName);
+): Promise<Blob> => {
+  const lowerName = docName.toLowerCase();
+  const isPdf = lowerName.endsWith('.pdf');
+
+  // 1. If providedUrl is data URL
+  if (providedUrl && providedUrl.startsWith('data:')) {
+    try {
+      const parts = providedUrl.split(',');
+      const mimeMatch = parts[0].match(/:(.*?);/);
+      const mimeType = mimeMatch ? mimeMatch[1] : (isPdf ? 'application/pdf' : 'application/octet-stream');
+      const bstr = atob(parts[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], { type: mimeType });
+    } catch (e) {}
   }
 
+  // 2. In browser window, check memory cache, IndexedDB, and localStorage
   if (typeof window !== 'undefined') {
     const store = (window as any).__WORKORBIT_FILE_STORE__ || {};
 
     const memoryObj = store[docName] || store[docName.toLowerCase()];
     if (memoryObj instanceof File || memoryObj instanceof Blob) {
-      return URL.createObjectURL(memoryObj);
+      return memoryObj;
     }
 
     const memoryUrl = store[docName + '_dataurl'] || store[docName] || store[docName.toLowerCase()];
-    if (typeof memoryUrl === 'string' && (memoryUrl.startsWith('data:') || memoryUrl.startsWith('blob:'))) {
-      return getDirectBlobUrl(docName, memoryUrl, projectName);
+    if (typeof memoryUrl === 'string' && memoryUrl.startsWith('data:')) {
+      try {
+        const parts = memoryUrl.split(',');
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mimeType = mimeMatch ? mimeMatch[1] : (isPdf ? 'application/pdf' : 'application/octet-stream');
+        const bstr = atob(parts[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mimeType });
+      } catch (e) {}
     }
 
     try {
       const dbFile = await getFileFromDB(docName);
       if (dbFile) {
         if (dbFile instanceof File || dbFile instanceof Blob) {
-          return URL.createObjectURL(dbFile);
-        } else if (typeof dbFile === 'string' && (dbFile.startsWith('data:') || dbFile.startsWith('blob:'))) {
-          return getDirectBlobUrl(docName, dbFile, projectName);
+          return dbFile;
+        } else if (typeof dbFile === 'string' && dbFile.startsWith('data:')) {
+          const parts = dbFile.split(',');
+          const mimeMatch = parts[0].match(/:(.*?);/);
+          const mimeType = mimeMatch ? mimeMatch[1] : (isPdf ? 'application/pdf' : 'application/octet-stream');
+          const bstr = atob(parts[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+          }
+          return new Blob([u8arr], { type: mimeType });
         }
       }
     } catch (e) {}
@@ -176,11 +226,45 @@ export const getDirectFileBlobUrl = async (
     try {
       const saved = JSON.parse(localStorage.getItem('workorbit_file_urls') || '{}');
       const localUrl = saved[docName] || saved[docName.toLowerCase()];
-      if (localUrl && typeof localUrl === 'string') {
-        return getDirectBlobUrl(docName, localUrl, projectName);
+      if (localUrl && typeof localUrl === 'string' && localUrl.startsWith('data:')) {
+        const parts = localUrl.split(',');
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mimeType = mimeMatch ? mimeMatch[1] : (isPdf ? 'application/pdf' : 'application/octet-stream');
+        const bstr = atob(parts[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mimeType });
       }
     } catch (e) {}
   }
 
-  return getDirectBlobUrl(docName, providedUrl, projectName);
+  // 3. If PDF, generate valid standard PDF
+  if (isPdf) {
+    return generateValidPdfBlob(docName, projectName);
+  }
+
+  // 4. If image, generate SVG blob
+  const isImage = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'].some((ext) => lowerName.endsWith('.' + ext));
+  if (isImage) {
+    const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect width="800" height="600" fill="%230f172a"/><text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="white" font-family="sans-serif" font-size="24" font-weight="bold">${docName}</text><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-family="sans-serif" font-size="16">Project Image Deliverable • ${projectName}</text></svg>`;
+    return new Blob([svgString], { type: 'image/svg+xml' });
+  }
+
+  // 5. Default text deliverable
+  return new Blob([`WorkOrbit Document: ${docName}\nProject: ${projectName}\nStatus: Verified Deliverable`], { type: 'text/plain' });
+};
+
+export const getDirectFileBlobUrl = async (
+  docName: string,
+  providedUrl?: string,
+  projectName: string = 'Workspace'
+): Promise<string> => {
+  if (providedUrl && providedUrl.startsWith('blob:')) {
+    return providedUrl;
+  }
+  const blob = await getDirectFileBlob(docName, providedUrl, projectName);
+  return URL.createObjectURL(blob);
 };

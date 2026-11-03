@@ -87,15 +87,24 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
     e.preventDefault();
     if (!fileName.trim()) return;
 
+    const trimmedName = fileName.trim();
+
+    if (selectedFileObj && typeof window !== 'undefined') {
+      (window as any).__WORKORBIT_FILE_STORE__ = (window as any).__WORKORBIT_FILE_STORE__ || {};
+      (window as any).__WORKORBIT_FILE_STORE__[trimmedName] = selectedFileObj;
+      (window as any).__WORKORBIT_FILE_STORE__[trimmedName.toLowerCase()] = selectedFileObj;
+      saveFileToDB(trimmedName, selectedFileObj);
+    }
+
     const newFileItem: FileItem = {
       id: `f-${Date.now()}`,
-      name: fileName.trim(),
+      name: trimmedName,
       size: fileSize.trim() || '1.2 MB',
       uploadedBy: 'Rahul Kumar',
       uploadedAt: 'Just now',
       type: fileType,
       project: project,
-      fileUrl: fileDataUrl || undefined,
+      fileUrl: fileDataUrl || (selectedFileObj ? URL.createObjectURL(selectedFileObj) : undefined),
     };
 
     onUpload(newFileItem);

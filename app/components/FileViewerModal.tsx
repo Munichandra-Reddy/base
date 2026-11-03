@@ -3,7 +3,7 @@
 import React from 'react';
 import { FileItem } from '@/lib/types';
 import { FileIcon, DownloadIcon } from './Icons';
-import { getDirectFileBlobUrl } from '@/lib/fileUtils';
+import { getDirectFileBlobUrl, getDirectFileBlob } from '@/lib/fileUtils';
 
 interface FileViewerModalProps {
   file: FileItem | null;
@@ -19,22 +19,40 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
     window.open(targetBlobUrl, '_blank');
   };
 
-  const handleDownloadFile = (e: React.MouseEvent) => {
+  const handleDownloadFile = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (file.fileUrl && file.fileUrl.startsWith('http')) {
-      window.open(file.fileUrl, '_blank');
-      return;
+    try {
+      if (file.fileUrl && file.fileUrl.startsWith('http')) {
+        try {
+          const res = await fetch(file.fileUrl);
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = file.name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          return;
+        } catch {
+          window.open(file.fileUrl, '_blank');
+          return;
+        }
+      }
+
+      const blob = await getDirectFileBlob(file.name, file.fileUrl, file.project);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      console.error('Download error:', err);
     }
-    const content = `WorkOrbit Official Document: ${file.name}\nProject: ${file.project}\nUploaded by: ${file.uploadedBy} on ${file.uploadedAt}\nSize: ${file.size}\n\nDocument Status: Active & Verified.`;
-    const blob = new Blob([content], { type: file.type === 'pdf' ? 'application/pdf' : 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = file.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   };
 
   const getFilePreviewContent = () => {
