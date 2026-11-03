@@ -1,5 +1,11 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, initializeFirestore } from 'firebase/firestore';
+import {
+  getFirestore,
+  initializeFirestore,
+  setLogLevel,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 import {
   getAuth,
   initializeAuth,
@@ -22,16 +28,36 @@ const firebaseConfig = {
 // Initialize Firebase app singleton safely across SSR and Client
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// Initialize Firestore with experimentalForceLongPolling to prevent ERR_QUIC_PROTOCOL_ERROR
-// and WebChannel streaming disconnects in modern browsers
+// Initialize Firestore with fast-cycle long-polling (timeoutSeconds: 15)
+// This prevents Chrome QUIC protocol idle timeouts (QUIC_NETWORK_IDLE_TIMEOUT)
+// and ensures connection sessions never hang and get rejected with 400.
 let firestoreDb: ReturnType<typeof getFirestore>;
 if (typeof window !== 'undefined') {
   try {
+    setLogLevel('error');
+  } catch {}
+
+  try {
     firestoreDb = initializeFirestore(app, {
       experimentalForceLongPolling: true,
+      experimentalLongPollingOptions: {
+        timeoutSeconds: 15,
+      },
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
     });
   } catch {
-    firestoreDb = getFirestore(app);
+    try {
+      firestoreDb = initializeFirestore(app, {
+        experimentalForceLongPolling: true,
+        experimentalLongPollingOptions: {
+          timeoutSeconds: 15,
+        },
+      });
+    } catch {
+      firestoreDb = getFirestore(app);
+    }
   }
 } else {
   firestoreDb = getFirestore(app);

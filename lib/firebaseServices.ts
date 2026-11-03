@@ -28,6 +28,7 @@ export const isRealEmployee = (p: Partial<Person> | null | undefined): boolean =
 // ==========================================
 export const seedInitialDataToFirebase = async () => {
   if (typeof window === 'undefined') return;
+  if (localStorage.getItem('workorbit_firebase_seeded') === 'true') return;
   try {
     for (const t of initialTasks) {
       await setDoc(doc(db, 'tasks', t.id), t, { merge: true });
@@ -45,6 +46,7 @@ export const seedInitialDataToFirebase = async () => {
         await deleteDoc(doc(db, 'employees', id));
       } catch (e) {}
     }
+    localStorage.setItem('workorbit_firebase_seeded', 'true');
   } catch (e) {
     console.error('Firebase seeding error:', e);
   }
@@ -68,7 +70,11 @@ export const subscribeToChatMessages = (
           .filter((m) => m.channel === channel);
         callback(msgs);
       },
-      (error) => console.error('Chat snapshot error:', error)
+      (error) => {
+        if (error?.code !== 'unavailable') {
+          console.warn('Chat snapshot sync notice:', error?.message || error);
+        }
+      }
     );
   } catch (e) {
     return () => {};
@@ -118,7 +124,11 @@ export const subscribeToEmployees = (callback: (people: Person[]) => void) => {
 
         callback(peopleList);
       },
-      (error) => console.error('Employees snapshot error:', error)
+      (error) => {
+        if (error?.code !== 'unavailable') {
+          console.warn('Employees snapshot sync notice:', error?.message || error);
+        }
+      }
     );
   } catch (e) {
     return () => {};
@@ -162,7 +172,11 @@ export const subscribeToUserAccounts = (callback: (accounts: StoredUserAccount[]
         const accounts: StoredUserAccount[] = snapshot.docs.map((d) => d.data() as StoredUserAccount);
         callback(accounts);
       },
-      (error) => console.error('User accounts snapshot error:', error)
+      (error) => {
+        if (error?.code !== 'unavailable') {
+          console.warn('User accounts snapshot notice:', error?.message || error);
+        }
+      }
     );
   } catch (e) {
     return () => {};
@@ -181,7 +195,11 @@ export const subscribeToTasks = (callback: (tasks: Task[]) => void) => {
         const tasksList: Task[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Task));
         callback(tasksList);
       },
-      (error) => console.error('Tasks snapshot error:', error)
+      (error) => {
+        if (error?.code !== 'unavailable') {
+          console.warn('Tasks snapshot notice:', error?.message || error);
+        }
+      }
     );
   } catch (e) {
     return () => {};
@@ -218,7 +236,11 @@ export const subscribeToProjects = (callback: (projects: Project[]) => void) => 
         const projList: Project[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Project));
         callback(projList);
       },
-      (error) => console.error('Projects snapshot error:', error)
+      (error) => {
+        if (error?.code !== 'unavailable') {
+          console.warn('Projects snapshot notice:', error?.message || error);
+        }
+      }
     );
   } catch (e) {
     return () => {};
@@ -246,7 +268,11 @@ export const subscribeToCheckIns = (callback: (checkins: CheckIn[]) => void) => 
         const checkinList: CheckIn[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as CheckIn));
         callback(checkinList);
       },
-      (error) => console.error('Checkins snapshot error:', error)
+      (error) => {
+        if (error?.code !== 'unavailable') {
+          console.warn('Checkins snapshot notice:', error?.message || error);
+        }
+      }
     );
   } catch (e) {
     return () => {};
@@ -271,7 +297,11 @@ export const subscribeToFiles = (callback: (files: FileItem[]) => void) => {
         const fileList: FileItem[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as FileItem));
         callback(fileList);
       },
-      (error) => console.error('Files snapshot error:', error)
+      (error) => {
+        if (error?.code !== 'unavailable') {
+          console.warn('Files snapshot notice:', error?.message || error);
+        }
+      }
     );
   } catch (e) {
     return () => {};
