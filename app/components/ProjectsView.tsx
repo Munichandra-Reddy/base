@@ -481,24 +481,22 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <span className="text-[9px] text-[#64748B] block mt-1">9:41 AM</span>
                     </div>
 
-                    <div className="bg-[#6CC04A] text-white p-3 rounded-xl ml-auto max-w-sm shadow-micro">
-                      <p className="font-bold text-white text-[11px] mb-1">You ({projectLead})</p>
+                    <div className="bg-white text-[#334155] border border-[#E2E8F0] p-3 rounded-xl ml-auto max-w-sm shadow-micro">
+                      <p className="font-bold text-[#0F172A] text-[11px] mb-1">You ({projectLead})</p>
                       <p>Will push the updated benchmark & deliverables right away!</p>
-                      <span className="text-[9px] text-white/80 block mt-1">9:45 AM</span>
+                      <span className="text-[9px] text-[#64748B] block mt-1">9:45 AM</span>
                     </div>
 
                     {(customMessages[`personal-${selectedProject.id}-${memberForPersonalChat}`] || []).map((m) => (
                       <div
                         key={m.id}
-                        className={`p-3 rounded-xl max-w-sm shadow-micro ${
-                          m.sender === projectLead
-                            ? 'bg-[#6CC04A] text-white ml-auto'
-                            : 'bg-white text-[#334155] border border-[#E2E8F0]'
+                        className={`p-3 rounded-xl max-w-sm shadow-micro bg-white text-[#334155] border border-[#E2E8F0] ${
+                          m.sender === projectLead ? 'ml-auto' : ''
                         }`}
                       >
-                        <p className="font-bold text-[11px] mb-1">{m.sender}</p>
+                        <p className="font-bold text-[#0F172A] text-[11px] mb-1">{m.sender}</p>
                         <p>{m.text}</p>
-                        <span className="text-[9px] opacity-70 block mt-1">{m.time}</span>
+                        <span className="text-[9px] text-[#64748B] block mt-1">{m.time}</span>
                       </div>
                     ))}
                   </div>
@@ -552,24 +550,22 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <span className="text-[9px] text-[#64748B] block mt-1">10:15 AM</span>
                   </div>
 
-                  <div className="bg-[#6CC04A] text-white p-3.5 rounded-xl ml-auto max-w-md shadow-micro">
-                    <p className="font-bold text-white text-xs mb-1">{projectLead}</p>
+                  <div className="bg-white text-[#334155] border border-[#E2E8F0] p-3.5 rounded-xl ml-auto max-w-md shadow-micro">
+                    <p className="font-bold text-[#0F172A] text-xs mb-1">{projectLead}</p>
                     <p>Great work! All deliverables confirmed for <strong>{selectedProject.name}</strong>.</p>
-                    <span className="text-[9px] text-white/80 block mt-1">10:20 AM</span>
+                    <span className="text-[9px] text-[#64748B] block mt-1">10:20 AM</span>
                   </div>
 
                   {(customMessages[`group-${selectedProject.id}`] || []).map((m) => (
                     <div
                       key={m.id}
-                      className={`p-3.5 rounded-xl max-w-md shadow-micro ${
-                        m.sender === projectLead
-                          ? 'bg-[#6CC04A] text-white ml-auto'
-                          : 'bg-white text-[#334155] border border-[#E2E8F0]'
+                      className={`p-3.5 rounded-xl max-w-md shadow-micro bg-white text-[#334155] border border-[#E2E8F0] ${
+                        m.sender === projectLead ? 'ml-auto' : ''
                       }`}
                     >
-                      <p className="font-bold text-xs mb-1">{m.sender}</p>
+                      <p className="font-bold text-[#0F172A] text-xs mb-1">{m.sender}</p>
                       <p>{m.text}</p>
-                      <span className="text-[9px] opacity-70 block mt-1">{m.time}</span>
+                      <span className="text-[9px] text-[#64748B] block mt-1">{m.time}</span>
                     </div>
                   ))}
                 </div>
