@@ -131,8 +131,13 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B192C]/50 backdrop-blur-xs p-4 overflow-y-auto font-sans">
-      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-6">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4 overflow-y-auto font-sans"
+    >
+      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-2xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-6">
         {/* Header */}
         <div className="p-6 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
           <div className="flex items-center gap-3">

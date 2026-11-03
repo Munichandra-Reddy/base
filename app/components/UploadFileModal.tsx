@@ -109,8 +109,13 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B192C]/50 backdrop-blur-xs p-4 font-sans">
-      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4 font-sans"
+    >
+      <div className="bg-white rounded-3xl border border-[#E2E8F0] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         <div className="p-6 border-b border-[#E2E8F0] flex items-center justify-between">
           <h3 className="text-xl font-extrabold text-[#0F172A]">Upload Project File</h3>
           <button
