@@ -34,6 +34,7 @@ import {
   addFirebaseChatMessage,
   subscribeToEmployees,
   addFirebaseEmployee,
+  addFirebaseUserAccount,
   subscribeToTasks,
   addFirebaseTask,
   toggleFirebaseTask,
