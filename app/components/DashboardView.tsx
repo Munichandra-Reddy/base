@@ -55,31 +55,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="space-y-6 font-sans">
 
-      {/* 2. TOP METRICS CARDS BAR (6 Cards Grid - Ultra-Attractive Vibrant Polish) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 w-full">
+      {/* 2. TOP METRICS CARDS BAR (6 Cards Grid - Clean Enterprise Style) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 w-full">
         {/* Card 1: Total Projects */}
         <div
           onClick={onViewProjects}
-          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-indigo-200 transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-50 via-indigo-100/60 to-violet-100/70 text-indigo-600 border border-indigo-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(99,102,241,0.25)] group-hover:border-indigo-300 transition-all duration-300">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
+              Total Projects
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center shrink-0">
               <FolderIcon className="w-3.5 h-3.5" />
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-indigo-600 transition-colors whitespace-nowrap">
-                Total Projects
-              </span>
-              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all">→</span>
             </div>
           </div>
           <div>
-            <div className="text-lg font-black text-[#0F172A] leading-tight">
+            <div className="text-xl font-bold text-[#222222] leading-tight">
               {stats.projectsTotal || 6}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] shrink-0" />
-              <span className="whitespace-nowrap">{stats.projectsActive || 2} Active</span>
+            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
+              {stats.projectsActive || 2} active
             </div>
           </div>
         </div>
@@ -87,26 +83,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 2: Total Tasks */}
         <div
           onClick={onViewAllTasks}
-          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-emerald-200 transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-50 via-emerald-100/60 to-teal-100/70 text-emerald-600 border border-emerald-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(16,185,129,0.25)] group-hover:border-emerald-300 transition-all duration-300">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
+              Total Tasks
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center shrink-0">
               <CheckSquareIcon className="w-3.5 h-3.5" />
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-emerald-600 transition-colors whitespace-nowrap">
-                Total Tasks
-              </span>
-              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all">→</span>
             </div>
           </div>
           <div>
-            <div className="text-lg font-black text-[#0F172A] leading-tight">
+            <div className="text-xl font-bold text-[#222222] leading-tight">
               {stats.todosTotal || 120}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] shrink-0" />
-              <span className="whitespace-nowrap">{stats.todosInProgress || 35} In Progress</span>
+            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
+              {stats.todosInProgress || 35} in progress
             </div>
           </div>
         </div>
@@ -114,26 +106,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 3: Due Soon */}
         <div
           onClick={onViewCalendar}
-          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-amber-200 transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-50 via-amber-100/60 to-orange-100/70 text-amber-600 border border-amber-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(245,158,11,0.25)] group-hover:border-amber-300 transition-all duration-300">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
+              Due Soon
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#D97706] border border-[#E5E5E5] flex items-center justify-center shrink-0">
               <ClockIcon className="w-3.5 h-3.5" />
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-amber-600 transition-colors whitespace-nowrap">
-                Due Soon
-              </span>
-              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all">→</span>
             </div>
           </div>
           <div>
-            <div className="text-lg font-black text-[#0F172A] leading-tight">
+            <div className="text-xl font-bold text-[#222222] leading-tight">
               {stats.dueSoon || 8}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shrink-0" />
-              <span className="whitespace-nowrap">{stats.dueSoon ? 'This Week' : 'None'}</span>
+            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
+              due this week
             </div>
           </div>
         </div>
@@ -141,26 +129,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 4: Team Online */}
         <div
           onClick={onViewEmployees}
-          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-sky-200 transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-50 via-blue-100/60 to-cyan-100/70 text-sky-600 border border-sky-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(14,165,233,0.25)] group-hover:border-sky-300 transition-all duration-300">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
+              Team Online
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center shrink-0">
               <UsersIcon className="w-3.5 h-3.5" />
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-sky-600 transition-colors whitespace-nowrap">
-                Team Online
-              </span>
-              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-sky-600 group-hover:translate-x-0.5 transition-all">→</span>
             </div>
           </div>
           <div>
-            <div className="text-lg font-black text-[#0F172A] leading-tight">
+            <div className="text-xl font-bold text-[#222222] leading-tight">
               {stats.teamOnline !== undefined ? stats.teamOnline : activeEmployeesCount}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#334155] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse shrink-0" />
-              <span className="whitespace-nowrap">Active Now</span>
+            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
+              active now
             </div>
           </div>
         </div>
@@ -168,24 +152,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 5: Overdue Tasks */}
         <div
           onClick={onViewCalendar}
-          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-rose-200 transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-rose-50 via-rose-100/60 to-red-100/70 text-rose-600 border border-rose-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(244,63,94,0.25)] group-hover:border-rose-300 transition-all duration-300">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
+              Overdue Tasks
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#DC2626] border border-[#E5E5E5] flex items-center justify-center shrink-0">
               <CalendarIcon className="w-3.5 h-3.5" />
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-rose-600 transition-colors whitespace-nowrap">
-                Overdue Tasks
-              </span>
-              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-rose-600 group-hover:translate-x-0.5 transition-all">→</span>
             </div>
           </div>
           <div>
-            <div className="text-lg font-black text-[#0F172A] leading-tight">15</div>
-            <div className="text-[9.5px] font-semibold text-[#EF4444] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444] shrink-0" />
-              <span className="whitespace-nowrap">Needs Attention</span>
+            <div className="text-xl font-bold text-[#222222] leading-tight">15</div>
+            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
+              needs attention
             </div>
           </div>
         </div>
@@ -193,26 +173,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 6: Total Employees */}
         <div
           onClick={onViewEmployees}
-          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-purple-200 transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-50 via-purple-100/60 to-fuchsia-100/70 text-purple-600 border border-purple-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(168,85,247,0.25)] group-hover:border-purple-300 transition-all duration-300">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
+              Employees
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center shrink-0">
               <UsersIcon className="w-3.5 h-3.5" />
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-purple-600 transition-colors whitespace-nowrap">
-                Total Employees
-              </span>
-              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-purple-600 group-hover:translate-x-0.5 transition-all">→</span>
             </div>
           </div>
           <div>
-            <div className="text-lg font-black text-[#0F172A] leading-tight">
+            <div className="text-xl font-bold text-[#222222] leading-tight">
               {totalEmployeesCount}
             </div>
-            <div className="text-[9.5px] font-semibold text-[#8B5CF6] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6] shrink-0" />
-              <span className="whitespace-nowrap">{activeEmployeesCount} Active</span>
+            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
+              {activeEmployeesCount} active
             </div>
           </div>
         </div>
@@ -662,13 +638,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Filter Pills */}
-            <div className="flex items-center gap-1 bg-white border border-[#E5E5E5] p-1 rounded-xl text-xs font-bold shadow-2xs">
+            <div className="flex items-center gap-1 bg-[#F4F6F8] border border-[#E5E5E5] p-1 rounded-xl text-xs font-medium">
               <button
                 onClick={() => setTaskFilter('all')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
                   taskFilter === 'all'
-                    ? 'bg-[#6CC04A] text-white shadow-2xs font-extrabold'
-                    : 'bg-white text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8]'
+                    ? 'bg-white text-[#222222] shadow-2xs font-semibold'
+                    : 'text-[#595959] hover:text-[#222222]'
                 }`}
               >
                 All
@@ -677,8 +653,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={() => setTaskFilter('pending')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
                   taskFilter === 'pending'
-                    ? 'bg-[#6CC04A] text-white shadow-2xs font-extrabold'
-                    : 'bg-white text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8]'
+                    ? 'bg-white text-[#222222] shadow-2xs font-semibold'
+                    : 'text-[#595959] hover:text-[#222222]'
                 }`}
               >
                 Pending
@@ -687,8 +663,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 onClick={() => setTaskFilter('completed')}
                 className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
                   taskFilter === 'completed'
-                    ? 'bg-[#6CC04A] text-white shadow-2xs font-extrabold'
-                    : 'bg-white text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8]'
+                    ? 'bg-white text-[#222222] shadow-2xs font-semibold'
+                    : 'text-[#595959] hover:text-[#222222]'
                 }`}
               >
                 Completed
@@ -717,10 +693,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                        className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
                           task.completed
-                            ? 'bg-[#6CC04A] border-[#6CC04A] text-white'
-                            : 'border-[#CCCCCC] group-hover:border-[#6CC04A] bg-white'
+                            ? 'bg-[#049FD9] border-[#049FD9] text-white'
+                            : 'border-[#CCCCCC] group-hover:border-[#049FD9] bg-white'
                         }`}
                       >
                         {task.completed && (

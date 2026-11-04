@@ -72,18 +72,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full group flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#6CC04A] text-white font-bold shadow-xs'
-                      : 'text-[#222222] hover:bg-[#F4F6F8] hover:text-[#6CC04A] font-medium'
+                      ? 'bg-[#F4F6F8] text-[#011826] font-bold border-l-2 border-[#049FD9]'
+                      : 'text-[#595959] hover:bg-[#F4F6F8] hover:text-[#222222] font-medium'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-[#595959] group-hover:text-[#6CC04A]'}`} />
-                    <span className="whitespace-nowrap truncate text-sm font-semibold">{item.label}</span>
+                    <Icon className={`w-5 h-5 shrink-0 transition-colors ${isActive ? 'text-[#049FD9]' : 'text-[#595959] group-hover:text-[#222222]'}`} />
+                    <span className="whitespace-nowrap truncate text-sm">{item.label}</span>
                   </div>
                   {item.badge !== undefined && item.badge > 0 && (
                     <span
                       className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ml-2 ${
-                        isActive ? 'bg-white/25 text-white' : 'bg-[#F4F6F8] text-[#595959]'
+                        isActive ? 'bg-white text-[#011826] border border-[#E5E5E5]' : 'bg-[#F4F6F8] text-[#595959]'
                       }`}
                     >
                       {item.badge}
