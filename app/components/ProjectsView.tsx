@@ -1153,37 +1153,40 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setViewMode('list')}
-            className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 ${
+            className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 text-xs font-semibold ${
               viewMode === 'list'
-                ? 'text-[#6CC04A] border-[#6CC04A] font-bold'
-                : 'border-transparent hover:text-[#6CC04A]'
+                ? 'text-[#222222] border-[#049FD9]'
+                : 'text-[#595959] border-transparent hover:text-[#222222]'
             }`}
           >
-            <ListIcon className="w-4 h-4" /> List
+            <ListIcon className={`w-4 h-4 ${viewMode === 'list' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
+            <span>List</span>
           </button>
 
           <button
             type="button"
             onClick={() => setViewMode('cards')}
-            className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 ${
+            className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 text-xs font-semibold ${
               viewMode === 'cards'
-                ? 'text-[#6CC04A] border-[#6CC04A] font-bold'
-                : 'border-transparent hover:text-[#6CC04A]'
+                ? 'text-[#222222] border-[#049FD9]'
+                : 'text-[#595959] border-transparent hover:text-[#222222]'
             }`}
           >
-            <GridIcon className="w-4 h-4" /> Cards
+            <GridIcon className={`w-4 h-4 ${viewMode === 'cards' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
+            <span>Cards</span>
           </button>
 
           <button
             type="button"
             onClick={() => setViewMode('kanban')}
-            className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 ${
+            className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 text-xs font-semibold ${
               viewMode === 'kanban'
-                ? 'text-[#6CC04A] border-[#6CC04A] font-bold'
-                : 'border-transparent hover:text-[#6CC04A]'
+                ? 'text-[#222222] border-[#049FD9]'
+                : 'text-[#595959] border-transparent hover:text-[#222222]'
             }`}
           >
-            <KanbanIcon className="w-4 h-4" /> Kanban
+            <KanbanIcon className={`w-4 h-4 ${viewMode === 'kanban' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
+            <span>Kanban</span>
           </button>
         </div>
 
