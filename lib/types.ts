@@ -45,6 +45,8 @@ export interface ChatMessage {
   content: string;
   timestamp: string;
   channel: string;
+  date?: string;
+  createdAt?: number;
 }
 
 export interface Person {

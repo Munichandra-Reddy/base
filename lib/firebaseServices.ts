@@ -86,7 +86,7 @@ export const subscribeToChatMessages = (
 ) => {
   if (typeof window === 'undefined') return () => {};
   try {
-    const q = query(collection(db, 'chat_messages'), orderBy('timestamp', 'asc'));
+    const q = query(collection(db, 'chat_messages'));
     return onSnapshot(
       q,
       (snapshot) => {
@@ -108,9 +108,12 @@ export const subscribeToChatMessages = (
 
 export const addFirebaseChatMessage = async (msg: Omit<ChatMessage, 'id'>) => {
   try {
+    const now = new Date();
     const docRef = await addDoc(collection(db, 'chat_messages'), {
       ...msg,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      createdAt: msg.createdAt || Date.now(),
+      date: msg.date || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`,
+      timestamp: msg.timestamp || now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     });
     return docRef.id;
   } catch (error) {
