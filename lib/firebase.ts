@@ -28,21 +28,16 @@ const firebaseConfig = {
 // Initialize Firebase app singleton safely across SSR and Client
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// Initialize Firestore with fast-cycle long-polling (timeoutSeconds: 15)
-// This prevents Chrome QUIC protocol idle timeouts (QUIC_NETWORK_IDLE_TIMEOUT)
-// and ensures connection sessions never hang and get rejected with 400.
+// Initialize Firestore with auto-detect transport and multi-tab cache
 let firestoreDb: ReturnType<typeof getFirestore>;
 if (typeof window !== 'undefined') {
   try {
-    setLogLevel('error');
+    setLogLevel('silent');
   } catch {}
 
   try {
     firestoreDb = initializeFirestore(app, {
-      experimentalForceLongPolling: true,
-      experimentalLongPollingOptions: {
-        timeoutSeconds: 15,
-      },
+      experimentalAutoDetectLongPolling: true,
       localCache: persistentLocalCache({
         tabManager: persistentMultipleTabManager(),
       }),
@@ -50,10 +45,7 @@ if (typeof window !== 'undefined') {
   } catch {
     try {
       firestoreDb = initializeFirestore(app, {
-        experimentalForceLongPolling: true,
-        experimentalLongPollingOptions: {
-          timeoutSeconds: 15,
-        },
+        experimentalAutoDetectLongPolling: true,
       });
     } catch {
       firestoreDb = getFirestore(app);
