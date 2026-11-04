@@ -78,6 +78,7 @@ export default function Home() {
   });
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createModalType, setCreateModalType] = useState<'task' | 'project' | 'employee'>('task');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
@@ -687,7 +688,10 @@ export default function Home() {
     <div className="h-screen w-screen overflow-hidden flex flex-col bg-[#FFFFFF]">
       {/* Top Header - Fixed at Top */}
       <Header
-        onOpenCreateModal={() => setIsCreateModalOpen(true)}
+        onOpenCreateModal={() => {
+          setCreateModalType('task');
+          setIsCreateModalOpen(true);
+        }}
         onOpenSearchModal={() => setIsSearchModalOpen(true)}
         onToggleNotifications={() => setIsNotificationsOpen(!isNotificationsOpen)}
         unreadNotifications={unreadCount}
@@ -788,7 +792,15 @@ export default function Home() {
           {activeTab === 'people' && (
             <PeopleView
               people={people}
-              onOpenAddEmployee={() => setIsCreateModalOpen(true)}
+              isAdmin={dashboardRole === 'admin'}
+              onOpenAddEmployee={
+                dashboardRole === 'admin'
+                  ? () => {
+                      setCreateModalType('employee');
+                      setIsCreateModalOpen(true);
+                    }
+                  : undefined
+              }
             />
           )}
 
@@ -809,6 +821,8 @@ export default function Home() {
         onAddEmployee={handleAddEmployee}
         people={people}
         projects={projects}
+        initialType={createModalType}
+        isAdmin={dashboardRole === 'admin'}
       />
 
       <SearchModal

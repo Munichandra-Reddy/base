@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Person, Project } from '@/lib/types';
 import { saveFileToDB } from '@/lib/fileUtils';
 import { FolderIcon, FileIcon } from './Icons';
@@ -27,6 +27,8 @@ interface CreateModalProps {
   people?: Person[];
   projects?: Project[];
   onAddEmployee?: (name: string, email: string, role?: string) => void;
+  initialType?: 'task' | 'project' | 'employee';
+  isAdmin?: boolean;
 }
 
 export const CreateModal: React.FC<CreateModalProps> = ({
@@ -36,6 +38,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   onAddProject,
   people,
   projects,
+  onAddEmployee,
+  initialType = 'task',
+  isAdmin = false,
 }) => {
   const employeeList = (people && people.length > 0) ? people : [];
   const projectList = (projects && projects.length > 0) ? projects.map(p => p.name) : [
@@ -47,7 +52,27 @@ export const CreateModal: React.FC<CreateModalProps> = ({
     'Brand Identity Refresh'
   ];
 
-  const [activeType, setActiveType] = useState<'task' | 'project'>('task');
+  const [activeType, setActiveType] = useState<'task' | 'project' | 'employee'>('task');
+
+  // Employee Form State (Admin only)
+  const [empName, setEmpName] = useState('');
+  const [empEmail, setEmpEmail] = useState('');
+  const [empRole, setEmpRole] = useState('Team Member');
+  const [empError, setEmpError] = useState<string | null>(null);
+
+  // Sync initial activeType when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      if (initialType === 'employee' && isAdmin) {
+        setActiveType('employee');
+      } else if (initialType === 'project') {
+        setActiveType('project');
+      } else {
+        setActiveType('task');
+      }
+      setEmpError(null);
+    }
+  }, [isOpen, initialType, isAdmin]);
 
   // Task Form State (Initially Empty)
   const [taskTitle, setTaskTitle] = useState('');
@@ -169,6 +194,36 @@ export const CreateModal: React.FC<CreateModalProps> = ({
     }
   };
 
+  const handleEmployeeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmpError(null);
+    if (!isAdmin) return;
+
+    const cleanEmail = empEmail.trim().toLowerCase();
+    if (!empName.trim()) {
+      setEmpError('Please enter employee full name.');
+      return;
+    }
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setEmpError('Please enter a valid email address.');
+      return;
+    }
+    if (people?.some((p) => p.email && p.email.toLowerCase() === cleanEmail)) {
+      setEmpError('An employee with this email already exists in workspace.');
+      return;
+    }
+
+    if (onAddEmployee) {
+      onAddEmployee(empName.trim(), cleanEmail, empRole.trim());
+    }
+
+    setEmpName('');
+    setEmpEmail('');
+    setEmpRole('Team Member');
+    setEmpError(null);
+    onClose();
+  };
+
   return (
     <div
       onClick={(e) => {
@@ -182,7 +237,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
         <div className="p-5 border-b border-[#E2E8F0] flex items-center justify-between bg-white shrink-0">
           <div>
             <h3 className="text-xl font-extrabold text-[#0F172A]">Create New</h3>
-            <p className="text-xs text-[#64748B] font-medium">Add tasks or projects to your workspace</p>
+            <p className="text-xs text-[#64748B] font-medium">Add {isAdmin ? 'tasks, projects, or employees' : 'tasks or projects'} to your workspace</p>
           </div>
           <button
             type="button"
@@ -217,11 +272,73 @@ export const CreateModal: React.FC<CreateModalProps> = ({
           >
             New Project
           </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setActiveType('employee')}
+              className={`flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                activeType === 'employee'
+                  ? 'bg-[#6CC04A] text-white shadow-xs'
+                  : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#CBD5E1]/30'
+              }`}
+            >
+              New Employee
+            </button>
+          )}
         </div>
 
         {/* Scrollable Form Body */}
         <div className="p-6 overflow-y-auto space-y-4 flex-1">
-          {activeType === 'task' ? (
+          {activeType === 'employee' && isAdmin ? (
+            <form id="create-employee-form" onSubmit={handleEmployeeSubmit} className="space-y-4">
+              {empError && (
+                <div className="p-3 bg-[#FEF2F2] border border-[#EF4444]/30 text-[#EF4444] rounded-lg text-xs font-semibold">
+                  {empError}
+                </div>
+              )}
+              {/* 1. Employee Full Name */}
+              <div>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">
+                  Employee Full Name <span className="text-[#EF4444] font-normal">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. John Doe"
+                  value={empName}
+                  onChange={(e) => setEmpName(e.target.value)}
+                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all"
+                />
+              </div>
+
+              {/* 2. Work Email Address */}
+              <div>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">
+                  Work Email Address <span className="text-[#EF4444] font-normal">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. john@company.com"
+                  value={empEmail}
+                  onChange={(e) => setEmpEmail(e.target.value)}
+                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all"
+                />
+              </div>
+
+              {/* 3. Role / Designation */}
+              <div>
+                <label className="block text-xs font-semibold text-[#222222] mb-1">Role / Designation</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Software Engineer, Product Designer, Team Member"
+                  value={empRole}
+                  onChange={(e) => setEmpRole(e.target.value)}
+                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all"
+                />
+              </div>
+            </form>
+          ) : activeType === 'task' ? (
             <form id="create-task-form" onSubmit={handleTaskSubmit} className="space-y-4">
               {/* 1. Task Title */}
               <div>
@@ -466,10 +583,16 @@ export const CreateModal: React.FC<CreateModalProps> = ({
           </button>
           <button
             type="submit"
-            form={activeType === 'task' ? 'create-task-form' : 'create-project-form'}
+            form={
+              activeType === 'employee' && isAdmin
+                ? 'create-employee-form'
+                : activeType === 'task'
+                ? 'create-task-form'
+                : 'create-project-form'
+            }
             className="btn-signup text-xs py-2 px-5"
           >
-            Create {activeType === 'task' ? 'Task' : 'Project'}
+            Create {activeType === 'employee' && isAdmin ? 'Employee' : activeType === 'task' ? 'Task' : 'Project'}
           </button>
         </div>
 

@@ -7,9 +7,10 @@ import { deduplicateEmployees } from '@/lib/firebaseServices';
 interface PeopleViewProps {
   people: Person[];
   onOpenAddEmployee?: () => void;
+  isAdmin?: boolean;
 }
 
-export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmployee }) => {
+export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmployee, isAdmin = false }) => {
   const displayPeople = useMemo(() => {
     return deduplicateEmployees(people || []);
   }, [people]);
@@ -21,7 +22,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmploye
           <h1 className="text-3xl font-light text-[#222222]">Workspace Employees Directory</h1>
           <p className="text-[#595959] text-base font-medium mt-1">Employees, administrators, and team members in your workspace.</p>
         </div>
-        {onOpenAddEmployee && (
+        {isAdmin && onOpenAddEmployee && (
           <button
             onClick={onOpenAddEmployee}
             className="px-5 py-2.5 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-semibold text-sm rounded-lg shadow-xs transition-all shrink-0 self-start md:self-auto cursor-pointer"
