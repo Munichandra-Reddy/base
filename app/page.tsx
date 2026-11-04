@@ -357,8 +357,34 @@ export default function Home() {
       return updated;
     });
 
+    if (typeof window !== 'undefined') {
+      try {
+        const regStr = localStorage.getItem('workorbit_registered_users');
+        const regUsers = regStr ? JSON.parse(regStr) : [];
+        if (!regUsers.some((u: any) => u.email?.toLowerCase() === cleanEmail)) {
+          regUsers.push({
+            email: cleanEmail,
+            fullName: formattedName,
+            companyName: 'GEONIXA',
+            role: 'employee',
+            designation: newPerson.role,
+          });
+          localStorage.setItem('workorbit_registered_users', JSON.stringify(regUsers));
+        }
+      } catch (e) {}
+    }
+
     try {
       await addFirebaseEmployee(newPerson);
+      await addFirebaseUserAccount({
+        email: cleanEmail,
+        password: 'Employee@123',
+        fullName: formattedName,
+        companyName: 'GEONIXA',
+        role: 'employee',
+        designation: newPerson.role,
+        createdAt: new Date().toISOString(),
+      });
     } catch (err) {}
 
     return newPerson;
@@ -375,6 +401,25 @@ export default function Home() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('workorbit_logged_in', 'true');
       localStorage.setItem('workorbit_dashboard_role', role);
+
+      const savedPeople = localStorage.getItem('workorbit_people');
+      if (savedPeople) {
+        try {
+          const parsed = JSON.parse(savedPeople);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setPeople(deduplicateEmployees(parsed));
+          }
+        } catch (e) {}
+      }
+      const savedActs = localStorage.getItem('workorbit_activities');
+      if (savedActs) {
+        try {
+          const parsed = JSON.parse(savedActs);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setActivities(parsed);
+          }
+        } catch (e) {}
+      }
     }
 
     if (email) {
@@ -759,6 +804,7 @@ export default function Home() {
               onViewChat={() => handleTabChange('chat')}
               onViewCalendar={() => handleTabChange('calendar')}
               onViewCheckins={() => handleTabChange('checkins')}
+              onViewEmployees={() => handleTabChange('people')}
             />
           )}
 

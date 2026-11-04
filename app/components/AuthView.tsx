@@ -835,6 +835,25 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         }
         const updatedPeople = [...currentPeopleList.filter((p) => p.email?.toLowerCase() !== cleanEmail), newEmployee];
         localStorage.setItem('workorbit_people', JSON.stringify(updatedPeople));
+
+        const savedActs = localStorage.getItem('workorbit_activities');
+        let currentActList: any[] = [];
+        if (savedActs) {
+          try {
+            currentActList = JSON.parse(savedActs);
+          } catch (e) {}
+        }
+        const signupAct = {
+          id: `act-${Date.now()}`,
+          userName: fullName.trim(),
+          userAvatar: newEmployee.avatar,
+          avatarBg: randomAvatarColor,
+          action: 'joined as employee',
+          target: 'Workspace Team',
+          timeAgo: 'Just now',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        localStorage.setItem('workorbit_activities', JSON.stringify([signupAct, ...currentActList]));
       }
 
       // 4. Save to Firebase Firestore Database (Both user_accounts & employees collections)

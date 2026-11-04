@@ -610,13 +610,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     onClick={onViewEmployees}
                     className="text-[11px] font-bold text-[#6CC04A] hover:underline cursor-pointer"
                   >
-                    View Team
+                    View Team ({totalEmployeesCount})
                   </button>
                 </div>
 
-                <div className="space-y-2 text-xs">
+                <div className="space-y-2 text-xs max-h-56 overflow-y-auto pr-1">
                   {people && people.length > 0 ? (
-                    people.slice(0, 5).map((member) => (
+                    people.map((member) => (
                       <div key={member.id} className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-[100px]">
                           <div className={`w-6 h-6 rounded-full ${member.avatarBg || 'bg-[#6CC04A] text-white'} font-extrabold text-[10px] flex items-center justify-center`}>

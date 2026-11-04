@@ -26,6 +26,7 @@ interface EmployeeDashboardViewProps {
   onViewChat: () => void;
   onViewCalendar: () => void;
   onViewCheckins: () => void;
+  onViewEmployees?: () => void;
 }
 
 export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
@@ -41,9 +42,13 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
   onViewChat,
   onViewCalendar,
   onViewCheckins,
+  onViewEmployees,
 }) => {
   const employeeName = currentUser?.fullName || 'Priya Sharma';
   const employeeEmail = currentUser?.email || 'priya@abctech.com';
+
+  const totalEmployeesCount = people?.length ?? 0;
+  const activeEmployeesCount = people?.filter((p) => p.status === 'active').length ?? totalEmployeesCount;
 
   // Work Status Toggle
   const [workStatus, setWorkStatus] = useState<'available' | 'focus' | 'meeting' | 'away'>('available');
@@ -156,15 +161,15 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 2. EMPLOYEE PERSONAL KPI METRICS (5 Compact Cards Grid) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 w-full">
+      {/* 2. EMPLOYEE PERSONAL KPI METRICS (6 Compact Cards Grid) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 w-full">
         {/* Card 1: My Open Tasks */}
         <div
           onClick={onViewTasks}
           className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-emerald-200 transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-50 via-emerald-100/60 to-teal-100/70 text-emerald-600 border border-emerald-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(16,185,129,0.25)] transition-all duration-300">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-50 via-emerald-100/60 to-teal-100/70 text-emerald-600 border border-emerald-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(160,185,129,0.25)] transition-all duration-300">
               <CheckSquareIcon className="w-3.5 h-3.5" />
             </div>
             <div className="flex items-center gap-1">
@@ -289,6 +294,33 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             <div className="text-[9.5px] font-semibold text-[#0284C7] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0284C7] shrink-0" />
               <span>New Mentions</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 6: Total Employees */}
+        <div
+          onClick={onViewEmployees}
+          className="bg-white p-2.5 rounded-xl border border-[#E2E8F0] shadow-2xs hover:shadow-micro hover:border-purple-200 transition-all cursor-pointer group flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-50 via-purple-100/60 to-fuchsia-100/70 text-purple-600 border border-purple-200/70 shadow-xs flex items-center justify-center group-hover:scale-110 group-hover:shadow-[0_4px_12px_rgba(168,85,247,0.25)] transition-all duration-300">
+              <UsersIcon className="w-3.5 h-3.5" />
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] font-bold text-[#64748B] group-hover:text-purple-600 transition-colors whitespace-nowrap">
+                Total Employees
+              </span>
+              <span className="text-[10px] font-bold text-[#CBD5E1] group-hover:text-purple-600 transition-all">→</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-lg font-black text-[#0F172A] leading-tight">
+              {totalEmployeesCount}
+            </div>
+            <div className="text-[9.5px] font-semibold text-[#8B5CF6] flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6] shrink-0" />
+              <span className="whitespace-nowrap">{activeEmployeesCount} Active</span>
             </div>
           </div>
         </div>
@@ -535,15 +567,27 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           {/* Card 4: My Project Collaborators (Online) */}
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
-              <h3 className="font-extrabold text-[#0F172A] text-base">Project Squad</h3>
-              <button onClick={onViewChat} className="text-xs font-bold text-[#6CC04A] hover:underline cursor-pointer">
-                Campfire
-              </button>
+              <div className="flex items-center gap-2">
+                <h3 className="font-extrabold text-[#0F172A] text-base">Project Squad</h3>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#475569]">
+                  {totalEmployeesCount}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {onViewEmployees && (
+                  <button onClick={onViewEmployees} className="text-xs font-bold text-[#049FD9] hover:underline cursor-pointer">
+                    View All ({totalEmployeesCount})
+                  </button>
+                )}
+                <button onClick={onViewChat} className="text-xs font-bold text-[#6CC04A] hover:underline cursor-pointer">
+                  Campfire
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
               {people && people.length > 0 ? (
-                people.slice(0, 4).map((member) => (
+                people.map((member) => (
                   <div key={member.id} className="flex items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-2.5">
                       <div className={`w-7 h-7 rounded-full ${member.avatarBg || 'bg-slate-800 text-white'} flex items-center justify-center font-black text-xs shrink-0`}>
