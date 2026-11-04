@@ -22,24 +22,24 @@ export const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage }) =
   const filteredMessages = messages.filter((m) => m.channel === activeChannel);
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-micro h-[calc(100vh-8.5rem)] flex flex-col font-sans">
+    <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs h-[calc(100vh-8.5rem)] flex flex-col font-sans">
       {/* Campfire Header */}
-      <div className="p-5 border-b border-[#E2E8F0] flex items-center justify-between">
+      <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between">
         <div className="flex items-center gap-3.5">
           <div>
-            <h2 className="text-2xl font-extrabold text-[#0F172A]">Campfire Chat</h2>
-            <p className="text-sm font-medium text-[#64748B]">Real-time team messaging & informal discussions</p>
+            <h2 className="text-xl font-semibold text-[#111827]">Campfire Chat</h2>
+            <p className="text-xs text-[#595959] font-normal">Real-time team messaging & informal discussions</p>
           </div>
         </div>
 
         {/* Channels */}
-        <div className="flex items-center gap-2 bg-[#F4F6F8] p-1.5 rounded-xl border border-[#E5E5E5]">
+        <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg border border-[#E5E5E5] text-xs font-medium">
           {['general', 'development', 'design'].map((ch) => (
             <button
               key={ch}
               onClick={() => setActiveChannel(ch)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold capitalize transition-all ${
-                activeChannel === ch ? 'bg-[#6CC04A] text-white shadow-xs font-bold' : 'text-[#595959] hover:text-[#6CC04A]'
+              className={`px-3 py-1.5 rounded-md text-xs capitalize transition-all cursor-pointer ${
+                activeChannel === ch ? 'bg-white text-[#111827] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#111827]'
               }`}
             >
               #{ch}
@@ -49,37 +49,37 @@ export const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage }) =
       </div>
 
       {/* Messages Stream */}
-      <div className="flex-1 overflow-y-auto p-7 space-y-5">
+      <div className="flex-1 overflow-y-auto p-5 space-y-4">
         {filteredMessages.map((msg) => (
-          <div key={msg.id} className="flex items-start gap-4">
+          <div key={msg.id} className="flex items-start gap-3.5">
             <div
-              className={`w-10 h-10 rounded-full ${msg.avatarBg} font-extrabold flex items-center justify-center text-base shadow-xs shrink-0`}
+              className={`w-8 h-8 rounded-full ${msg.avatarBg} font-bold flex items-center justify-center text-xs shadow-2xs shrink-0`}
             >
               {msg.senderAvatar}
             </div>
-            <div className="bg-[#F1F3F6] border border-[#E2E8F0] rounded-2xl p-4 max-w-xl shadow-2xs space-y-1">
-              <div className="flex items-center justify-between gap-6 mb-1">
-                <span className="text-sm font-bold text-[#0F172A]">{msg.sender}</span>
-                <span className="text-xs font-semibold text-[#64748B]">{msg.timestamp}</span>
+            <div className="bg-[#F9FAFB] border border-[#E5E5E5] rounded-lg p-3 max-w-xl space-y-1">
+              <div className="flex items-center justify-between gap-4 mb-0.5">
+                <span className="text-xs font-semibold text-[#111827]">{msg.sender}</span>
+                <span className="text-[10px] text-[#6B7280]">{msg.timestamp}</span>
               </div>
-              <p className="text-base font-medium text-[#334155] leading-relaxed">{msg.content}</p>
+              <p className="text-xs text-[#374151] leading-relaxed">{msg.content}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Chat Input Form */}
-      <form onSubmit={handleSubmit} className="p-5 border-t border-[#E2E8F0] flex items-center gap-4">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-[#E5E5E5] flex items-center gap-3">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={`Type a message in #${activeChannel}...`}
-          className="flex-1 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl px-5 py-3 text-base text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+          className="flex-1 bg-[#F9FAFB] border border-[#E5E5E5] rounded-md px-3.5 py-2 text-xs text-[#111827] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
         />
         <button
           type="submit"
-          className="px-6 py-3 bg-[#049FD9] hover:bg-[#004BAF] active:bg-[#049FD9] text-white font-semibold text-base rounded-lg shadow-xs transition-colors cursor-pointer"
+          className="px-4 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs transition-colors cursor-pointer"
         >
           Send
         </button>

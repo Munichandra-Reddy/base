@@ -201,12 +201,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* ROW 1 CARDS: Project Progress & Upcoming Deadlines */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Card 1: Project Progress */}
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-micro flex flex-col justify-between">
+            <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-extrabold text-[#222222] text-base">Project Progress</h3>
+                <h3 className="font-semibold text-[#222222] text-sm">Project Progress</h3>
                 <button
                   onClick={onViewProjects}
-                  className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
+                  className="text-xs font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
                 >
                   View All
                 </button>
@@ -224,7 +224,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                     <path
-                      className="text-[#6CC04A]"
+                      className="text-[#011826]"
                       strokeDasharray="68, 100"
                       strokeWidth="4.5"
                       strokeLinecap="round"
@@ -244,53 +244,53 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     />
                   </svg>
                   <div className="absolute text-center leading-tight">
-                    <div className="text-xl font-black text-[#222222]">68%</div>
-                    <div className="text-[10px] font-bold text-[#595959]">Overall Progress</div>
+                    <div className="text-xl font-bold text-[#222222]">68%</div>
+                    <div className="text-[10px] font-medium text-[#595959]">Overall Progress</div>
                   </div>
                 </div>
 
                 {/* Legend List */}
-                <div className="space-y-2 text-xs font-semibold text-[#595959] flex-1">
+                <div className="space-y-2 text-xs font-medium text-[#595959] flex-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#6CC04A]" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#011826]" />
                       <span>Completed</span>
                     </div>
-                    <span className="font-bold text-[#222222]">4</span>
+                    <span className="font-semibold text-[#222222]">4</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-[#049FD9]" />
                       <span>In Progress</span>
                     </div>
-                    <span className="font-bold text-[#222222]">2</span>
+                    <span className="font-semibold text-[#222222]">2</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-[#CBD5E1]" />
                       <span>Not Started</span>
                     </div>
-                    <span className="font-bold text-[#0F172A]">0</span>
+                    <span className="font-semibold text-[#0F172A]">0</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
                       <span>On Hold</span>
                     </div>
-                    <span className="font-bold text-[#0F172A]">0</span>
+                    <span className="font-semibold text-[#0F172A]">0</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Card 2: Upcoming Deadlines */}
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-micro flex flex-col justify-between">
+            <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-extrabold text-[#0F172A] text-base">Upcoming Deadlines</h3>
+                <h3 className="font-semibold text-[#222222] text-sm">Upcoming Deadlines</h3>
                 <button
                   type="button"
                   onClick={onViewCalendar}
-                  className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
+                  className="text-xs font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
                 >
                   View Calendar
                 </button>
@@ -298,9 +298,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               <div className="space-y-2.5">
                 {/* Deadline Item 1 */}
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F1F3F6]/70 border border-[#E2E8F0]">
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5]">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#6CC04A] text-white font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 shadow-xs">
+                    <div className="w-9 h-9 rounded-md bg-[#049FD9] text-white font-bold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 shadow-2xs">
                       <span>10</span>
                       <span className="text-[9px] uppercase mt-0.5">Oct</span>
                     </div>
@@ -371,12 +371,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* ROW 2 CARDS: Top Projects & Task Status / Team Workload */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Card 3: Top Projects Table */}
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-micro">
+            <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-extrabold text-[#222222] text-base">Top Projects</h3>
+                <h3 className="font-semibold text-[#222222] text-sm">Top Projects</h3>
                 <button
                   onClick={onViewProjects}
-                  className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
+                  className="text-xs font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
                 >
                   View All
                 </button>
@@ -385,114 +385,114 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="text-[10px] font-bold text-[#64748B] uppercase border-b border-[#E2E8F0] pb-2">
-                      <th className="pb-2 font-bold whitespace-nowrap pr-3">Project Name</th>
-                      <th className="pb-2 font-bold whitespace-nowrap pr-3">Progress</th>
-                      <th className="pb-2 font-bold whitespace-nowrap pr-3">Due Date</th>
-                      <th className="pb-2 font-bold text-right whitespace-nowrap pl-2">Status</th>
+                    <tr className="text-[10px] font-bold text-[#595959] uppercase border-b border-[#E5E5E5] pb-2">
+                      <th className="pb-2 font-semibold whitespace-nowrap pr-3">Project Name</th>
+                      <th className="pb-2 font-semibold whitespace-nowrap pr-3">Progress</th>
+                      <th className="pb-2 font-semibold whitespace-nowrap pr-3">Due Date</th>
+                      <th className="pb-2 font-semibold text-right whitespace-nowrap pl-2">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E2E8F0] font-medium text-[#334155]">
+                  <tbody className="divide-y divide-[#E5E5E5] font-medium text-[#595959]">
                     {/* Row 1 */}
-                    <tr className="hover:bg-[#EBF0F5] transition-colors">
-                      <td className="py-2.5 font-bold text-[#0F172A] whitespace-nowrap pr-3">
+                    <tr className="hover:bg-[#F4F6F8] transition-colors">
+                      <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
                         <span className="truncate max-w-[125px]">E-Commerce Website</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#6CC04A] h-full rounded-full" style={{ width: '68%' }} />
+                          <div className="w-16 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
+                            <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '68%' }} />
                           </div>
-                          <span className="text-[10px] font-bold text-[#64748B]">68%</span>
+                          <span className="text-[10px] font-semibold text-[#595959]">68%</span>
                         </div>
                       </td>
-                      <td className="py-2.5 text-[11px] text-[#64748B] font-semibold whitespace-nowrap pr-3">Oct 30, 2026</td>
+                      <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">Oct 30, 2026</td>
                       <td className="py-2.5 text-right whitespace-nowrap pl-2">
-                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
+                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
                           Active
                         </span>
                       </td>
                     </tr>
 
                     {/* Row 2 */}
-                    <tr className="hover:bg-[#EBF0F5] transition-colors">
-                      <td className="py-2.5 font-bold text-[#0F172A] whitespace-nowrap pr-3">
+                    <tr className="hover:bg-[#F4F6F8] transition-colors">
+                      <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
                         <span className="truncate max-w-[125px]">Mobile App v2</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#6CC04A] h-full rounded-full" style={{ width: '45%' }} />
+                          <div className="w-16 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
+                            <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '45%' }} />
                           </div>
-                          <span className="text-[10px] font-bold text-[#64748B]">45%</span>
+                          <span className="text-[10px] font-semibold text-[#595959]">45%</span>
                         </div>
                       </td>
-                      <td className="py-2.5 text-[11px] text-[#64748B] font-semibold whitespace-nowrap pr-3">Nov 15, 2026</td>
+                      <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">Nov 15, 2026</td>
                       <td className="py-2.5 text-right whitespace-nowrap pl-2">
-                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
+                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
                           Active
                         </span>
                       </td>
                     </tr>
 
                     {/* Row 3 */}
-                    <tr className="hover:bg-[#EBF0F5] transition-colors">
-                      <td className="py-2.5 font-bold text-[#0F172A] whitespace-nowrap pr-3">
+                    <tr className="hover:bg-[#F4F6F8] transition-colors">
+                      <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
                         <span className="truncate max-w-[125px]">Marketing Campaign Q4</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#6CC04A] h-full rounded-full" style={{ width: '82%' }} />
+                          <div className="w-16 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
+                            <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '82%' }} />
                           </div>
-                          <span className="text-[10px] font-bold text-[#64748B]">82%</span>
+                          <span className="text-[10px] font-semibold text-[#595959]">82%</span>
                         </div>
                       </td>
-                      <td className="py-2.5 text-[11px] text-[#64748B] font-semibold whitespace-nowrap pr-3">Oct 25, 2026</td>
+                      <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">Oct 25, 2026</td>
                       <td className="py-2.5 text-right whitespace-nowrap pl-2">
-                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
+                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
                           Active
                         </span>
                       </td>
                     </tr>
 
                     {/* Row 4 */}
-                    <tr className="hover:bg-[#EBF0F5] transition-colors">
-                      <td className="py-2.5 font-bold text-[#0F172A] whitespace-nowrap pr-3">
+                    <tr className="hover:bg-[#F4F6F8] transition-colors">
+                      <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
                         <span className="truncate max-w-[125px]">HR Management System</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden shrink-0">
+                          <div className="w-16 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
                             <div className="bg-[#CBD5E1] h-full rounded-full" style={{ width: '32%' }} />
                           </div>
-                          <span className="text-[10px] font-bold text-[#64748B]">32%</span>
+                          <span className="text-[10px] font-semibold text-[#595959]">32%</span>
                         </div>
                       </td>
-                      <td className="py-2.5 text-[11px] text-[#64748B] font-semibold whitespace-nowrap pr-3">Nov 10, 2026</td>
+                      <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">Nov 10, 2026</td>
                       <td className="py-2.5 text-right whitespace-nowrap pl-2">
-                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/20 whitespace-nowrap">
+                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/20 whitespace-nowrap">
                           On Hold
                         </span>
                       </td>
                     </tr>
 
                     {/* Row 5 */}
-                    <tr className="hover:bg-[#EBF0F5] transition-colors">
-                      <td className="py-2.5 font-bold text-[#0F172A] whitespace-nowrap pr-3">
+                    <tr className="hover:bg-[#F4F6F8] transition-colors">
+                      <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
                         <span className="truncate max-w-[125px]">Cloud Migration</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#6CC04A] h-full rounded-full" style={{ width: '60%' }} />
+                          <div className="w-16 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
+                            <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '60%' }} />
                           </div>
-                          <span className="text-[10px] font-bold text-[#64748B]">60%</span>
+                          <span className="text-[10px] font-semibold text-[#595959]">60%</span>
                         </div>
                       </td>
-                      <td className="py-2.5 text-[11px] text-[#64748B] font-semibold whitespace-nowrap pr-3">Dec 05, 2026</td>
+                      <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">Dec 05, 2026</td>
                       <td className="py-2.5 text-right whitespace-nowrap pl-2">
-                        <span className="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
+                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
                           Active
                         </span>
                       </td>
@@ -503,7 +503,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Card 4: Task Status & Team Workload */}
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-micro space-y-5">
+            <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-5">
               {/* Task Status */}
               <div>
                 <h3 className="font-extrabold text-[#0F172A] text-base mb-3">Task Status</h3>
@@ -579,12 +579,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               {/* Team Workload */}
-              <div className="pt-3 border-t border-[#E2E8F0]">
+              <div className="pt-3 border-t border-[#E5E5E5]">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-bold text-xs text-[#0F172A] uppercase tracking-wider">Team Workload</h4>
+                  <h4 className="font-semibold text-xs text-[#222222] uppercase tracking-wider">Team Workload</h4>
                   <button
                     onClick={onViewEmployees}
-                    className="text-[11px] font-bold text-[#6CC04A] hover:underline cursor-pointer"
+                    className="text-[11px] font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
                   >
                     View Team ({totalEmployeesCount})
                   </button>
@@ -595,25 +595,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     people.map((member) => (
                       <div key={member.id} className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-[100px]">
-                          <div className={`w-6 h-6 rounded-full ${member.avatarBg || 'bg-[#6CC04A] text-white'} font-extrabold text-[10px] flex items-center justify-center`}>
+                          <div className={`w-6 h-6 rounded-full ${member.avatarBg || 'bg-[#049FD9] text-white'} font-bold text-[10px] flex items-center justify-center`}>
                             {member.avatar}
                           </div>
                           <div>
-                            <div className="font-bold text-[#0F172A] text-[11px] leading-tight truncate max-w-[95px]">{member.name}</div>
-                            <div className="text-[9px] text-[#64748B] font-medium truncate max-w-[95px]">{member.role}</div>
+                            <div className="font-semibold text-[#111827] text-[11px] leading-tight truncate max-w-[95px]">{member.name}</div>
+                            <div className="text-[9px] text-[#595959] font-normal truncate max-w-[95px]">{member.role}</div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 flex-1 max-w-[140px]">
-                          <span className="text-[10px] font-medium text-[#64748B] whitespace-nowrap">{member.projectsCount || 1} tasks</span>
-                          <div className="w-full bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden">
-                            <div className="bg-[#6CC04A] h-full rounded-full" style={{ width: `${Math.min(100, (member.projectsCount || 1) * 35)}%` }} />
+                          <span className="text-[10px] font-normal text-[#595959] whitespace-nowrap">{member.projectsCount || 1} tasks</span>
+                          <div className="w-full bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden">
+                            <div className="bg-[#049FD9] h-full rounded-full" style={{ width: `${Math.min(100, (member.projectsCount || 1) * 35)}%` }} />
                           </div>
-                          <span className="text-[10px] font-bold text-[#334155]">{Math.min(100, (member.projectsCount || 1) * 35)}%</span>
+                          <span className="text-[10px] font-semibold text-[#222222]">{Math.min(100, (member.projectsCount || 1) * 35)}%</span>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="p-3 text-center text-[11px] text-[#64748B] bg-[#F8FAFC] rounded-xl border border-dashed border-[#E2E8F0]">
+                    <div className="p-3 text-center text-[11px] text-[#595959] bg-[#F4F6F8] rounded-lg border border-dashed border-[#E5E5E5]">
                       No employee accounts registered yet.
                     </div>
                   )}
@@ -626,22 +626,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* RIGHT COLUMN (1 SPAN): My Tasks & Recent Activity */}
         <div className="space-y-6">
           {/* Card 5: My Tasks Widget */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-micro space-y-4">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-extrabold text-[#222222] text-base">My Tasks</h3>
+              <h3 className="font-semibold text-[#222222] text-sm">My Tasks</h3>
               <button
                 onClick={onViewAllTasks}
-                className="text-xs font-semibold text-[#049FD9] hover:text-[#238823] hover:underline cursor-pointer"
+                className="text-xs font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
               >
                 View All
               </button>
             </div>
 
             {/* Filter Pills */}
-            <div className="flex items-center gap-1 bg-[#F4F6F8] border border-[#E5E5E5] p-1 rounded-xl text-xs font-medium">
+            <div className="flex items-center gap-1 bg-[#F4F6F8] border border-[#E5E5E5] p-1 rounded-lg text-xs font-medium">
               <button
                 onClick={() => setTaskFilter('all')}
-                className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
+                className={`flex-1 py-1 rounded-md transition-all cursor-pointer ${
                   taskFilter === 'all'
                     ? 'bg-white text-[#222222] shadow-2xs font-semibold'
                     : 'text-[#595959] hover:text-[#222222]'
@@ -651,7 +651,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
               <button
                 onClick={() => setTaskFilter('pending')}
-                className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
+                className={`flex-1 py-1 rounded-md transition-all cursor-pointer ${
                   taskFilter === 'pending'
                     ? 'bg-white text-[#222222] shadow-2xs font-semibold'
                     : 'text-[#595959] hover:text-[#222222]'
@@ -661,7 +661,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
               <button
                 onClick={() => setTaskFilter('completed')}
-                className={`flex-1 py-1 rounded-lg transition-all cursor-pointer ${
+                className={`flex-1 py-1 rounded-md transition-all cursor-pointer ${
                   taskFilter === 'completed'
                     ? 'bg-white text-[#222222] shadow-2xs font-semibold'
                     : 'text-[#595959] hover:text-[#222222]'
@@ -689,7 +689,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div
                     key={task.id}
                     onClick={() => onToggleTask(task.id)}
-                    className="p-3 rounded-xl border border-[#E5E5E5] bg-white hover:bg-[#F4F6F8] transition-all cursor-pointer flex items-center justify-between gap-3 group"
+                    className="p-3 rounded-lg border border-[#E5E5E5] bg-white hover:bg-[#F4F6F8] transition-all cursor-pointer flex items-center justify-between gap-3 group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div
@@ -707,20 +707,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       </div>
                       <div className="min-w-0">
                         <div
-                          className={`text-xs font-bold truncate transition-colors ${
-                            task.completed ? 'line-through text-[#64748B]' : 'text-[#0F172A] group-hover:text-[#334155]'
+                          className={`text-xs font-medium truncate transition-colors ${
+                            task.completed ? 'line-through text-[#8C8C8C]' : 'text-[#222222]'
                           }`}
                         >
                           {task.title}
                         </div>
-                        <div className="text-[10px] font-medium text-[#64748B] truncate mt-0.5">
+                        <div className="text-[10px] font-normal text-[#595959] truncate mt-0.5">
                           {dueDateStr}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${prioBadge}`}>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${prioBadge}`}>
                         {task.project}
                       </span>
                     </div>
@@ -731,13 +731,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* Card 6: Recent Activity Widget */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-micro space-y-4">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-extrabold text-[#0F172A] text-base">Recent Activity</h3>
+              <h3 className="font-semibold text-[#222222] text-sm">Recent Activity</h3>
               <button
                 type="button"
                 onClick={onViewActivity}
-                className="text-xs font-bold text-[#6CC04A] hover:underline cursor-pointer"
+                className="text-xs font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
               >
                 View All
               </button>

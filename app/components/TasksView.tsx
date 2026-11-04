@@ -27,35 +27,35 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
   });
 
   return (
-    <div className="space-y-7 font-sans">
+    <div className="space-y-6 font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white p-7 rounded-2xl border border-[#E5E5E5] shadow-micro">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs">
         <div>
-          <h1 className="text-3xl font-light text-[#222222]">My Tasks & To-Dos</h1>
-          <p className="text-[#595959] text-base font-medium mt-1">
+          <h1 className="text-xl font-semibold text-[#111827]">My Tasks & To-Dos</h1>
+          <p className="text-[#595959] text-xs font-normal mt-0.5">
             Track, filter, and complete assigned tasks across all active Basecamp projects.
           </p>
         </div>
         <button
           onClick={onOpenAddTask}
-          className="px-5 py-3 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-semibold text-base rounded-lg shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
+          className="px-3.5 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs flex items-center gap-1.5 cursor-pointer transition-colors"
         >
-          <PlusIcon className="w-5 h-5" />
+          <PlusIcon className="w-4 h-4" />
           <span>New Task</span>
         </button>
       </div>
 
       {/* Filter Tabs & Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 bg-white p-4.5 rounded-2xl border border-[#E5E5E5] shadow-micro">
-        <div className="flex items-center gap-1.5 bg-white border border-[#E5E5E5] p-1.5 rounded-xl shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs">
+        <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg border border-[#E5E5E5] text-xs font-medium">
           {(['all', 'pending', 'completed'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className={`px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-md text-xs capitalize transition-all cursor-pointer ${
                 filter === tab
-                  ? 'bg-[#6CC04A] text-white shadow-xs font-extrabold'
-                  : 'bg-white text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8]'
+                  ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                  : 'text-[#595959] hover:text-[#111827]'
               }`}
             >
               {tab}
@@ -68,31 +68,31 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
           placeholder="Filter tasks by name or project..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="px-4 py-2.5 bg-white border border-[#E2E8F0] rounded-xl text-base text-[#0F172A] font-medium focus:outline-none focus:ring-2 focus:ring-[#0B192C] w-full sm:w-72"
+          className="px-3 py-1.5 bg-white border border-[#E5E5E5] rounded-md text-xs text-[#111827] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] w-full sm:w-72"
         />
       </div>
 
       {/* Tasks List Table */}
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden shadow-micro">
-        <div className="divide-y divide-[#E2E8F0]">
+      <div className="bg-white rounded-lg border border-[#E5E5E5] overflow-hidden shadow-2xs">
+        <div className="divide-y divide-[#E5E5E5]">
           {filteredTasks.length === 0 ? (
-            <div className="p-14 text-center text-[#64748B]">
-              <CheckSquareIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p className="text-base font-semibold">No tasks found matching your filter criteria.</p>
+            <div className="p-12 text-center text-[#595959]">
+              <CheckSquareIcon className="w-10 h-10 mx-auto mb-2 opacity-40 text-[#595959]" />
+              <p className="text-xs font-medium">No tasks found matching your filter criteria.</p>
             </div>
           ) : (
             filteredTasks.map((task) => (
               <div
                 key={task.id}
                 onClick={() => onToggleTask(task.id)}
-                className="flex items-center justify-between p-5 hover:bg-[#EBF0F5] transition-colors cursor-pointer gap-4"
+                className="flex items-center justify-between p-4 hover:bg-[#F9FAFB] transition-colors cursor-pointer gap-4"
               >
-                <div className="flex items-start gap-4 min-w-0">
+                <div className="flex items-center gap-3.5 min-w-0">
                   <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 mt-0.5 ${
+                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
                       task.completed
-                        ? 'bg-[#6CC04A] border-[#6CC04A] text-white'
-                        : 'border-[#CCCCCC] hover:border-[#6CC04A] bg-white'
+                        ? 'bg-[#049FD9] border-[#049FD9] text-white'
+                        : 'border-[#CCCCCC] hover:border-[#049FD9] bg-white'
                     }`}
                   >
                     {task.completed && (
@@ -103,13 +103,13 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
                   </div>
                   <div className="min-w-0">
                     <h4
-                      className={`text-lg font-bold transition-colors truncate ${
-                        task.completed ? 'line-through text-[#64748B]' : 'text-[#0F172A]'
+                      className={`text-sm font-semibold transition-colors truncate ${
+                        task.completed ? 'line-through text-[#9CA3AF]' : 'text-[#111827]'
                       }`}
                     >
                       {task.title}
                     </h4>
-                    <div className="flex items-center gap-3 text-xs font-semibold text-[#64748B] mt-1">
+                    <div className="flex items-center gap-2 text-[11px] font-medium text-[#6B7280] mt-0.5">
                       <span>Due {task.dueDate || 'Soon'}</span>
                       <span>•</span>
                       <span>Assigned to {task.assignedTo}</span>
@@ -117,16 +117,16 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-2.5 shrink-0">
                   <span
-                    className={`min-w-[130px] max-w-[190px] py-1.5 px-3 rounded-lg text-xs font-bold border inline-flex items-center justify-center text-center truncate transition-colors ${
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium border inline-flex items-center justify-center text-center truncate ${
                       task.priority === 'high'
-                        ? 'bg-[#FEF2F2] text-[#EF4444] border-[#EF4444]/25'
+                        ? 'bg-[#FEF2F2] text-[#DC2626] border-[#FCA5A5]'
                         : task.priority === 'medium'
-                        ? 'bg-[#FFFBEB] text-[#F59E0B] border-[#F59E0B]/25'
+                        ? 'bg-[#FFFBEB] text-[#D97706] border-[#FDE68A]'
                         : task.priority === 'low'
-                        ? 'bg-[#F0FDFA] text-[#0D9488] border-[#0D9488]/25'
-                        : 'bg-[#EBF0F5] text-[#334155] border-[#E2E8F0]'
+                        ? 'bg-[#F0FDF4] text-[#16A34A] border-[#BBF7D0]'
+                        : 'bg-[#F3F4F6] text-[#4B5563] border-[#E5E7EB]'
                     }`}
                   >
                     {task.project}

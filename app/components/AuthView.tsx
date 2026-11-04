@@ -36,9 +36,9 @@ export const ADMIN_CREDENTIALS = {
 };
 
 const OrbitLogoIcon = () => (
-  <div className="w-14 h-14 rounded-2xl bg-[#6CC04A] flex items-center justify-center text-white shadow-md mx-auto mb-3">
-    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <circle cx="12" cy="12" r="7" strokeWidth="2.5" />
+  <div className="w-11 h-11 rounded-lg bg-[#011826] flex items-center justify-center text-[#049FD9] shadow-xs mx-auto mb-2">
+    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <circle cx="12" cy="12" r="7" strokeWidth="2" />
       <circle cx="12" cy="5" r="2" fill="currentColor" />
       <circle cx="17" cy="16" r="1.5" fill="currentColor" />
       <circle cx="7" cy="15" r="1.5" fill="currentColor" />
@@ -882,18 +882,18 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
   return (
     <div className="min-h-screen bg-[#FFFFFF] flex flex-col justify-center items-center p-4 sm:p-6 font-sans">
-      <div className="w-full max-w-md bg-white rounded-2xl border border-[#E5E5E5] shadow-lg p-8 sm:p-10 space-y-6">
+      <div className="w-full max-w-md bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-6 sm:p-8 space-y-5">
         
         {/* Logo Header */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-1">
           <OrbitLogoIcon />
 
           {mode === 'login' && (
             <div>
-              <h1 className="text-[40px] md:text-[44px] font-light text-[#222222] leading-[1.1] mb-2 tracking-tight">
+              <h1 className="text-2xl font-bold text-[#111827] mb-1 tracking-tight">
                 WorkOrbit
               </h1>
-              <p className="text-[16px] font-normal text-[#595959] leading-[1.6]">
+              <p className="text-xs font-normal text-[#595959]">
                 Workspace Access Portal
               </p>
             </div>
@@ -901,10 +901,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
           {mode === 'signup' && (
             <div>
-              <h1 className="text-[32px] md:text-[38px] font-light text-[#222222] leading-[1.1] mb-2 tracking-tight">
+              <h1 className="text-2xl font-bold text-[#111827] mb-1 tracking-tight">
                 Create Employee Account
               </h1>
-              <p className="text-[16px] font-normal text-[#595959] leading-[1.6]">
+              <p className="text-xs font-normal text-[#595959]">
                 Join your team on WorkOrbit.
               </p>
             </div>
@@ -912,14 +912,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
           {mode === 'forgot' && (
             <div>
-              <h1 className="text-[32px] md:text-[38px] font-light text-[#222222] leading-[1.1] mb-2 tracking-tight">
+              <h1 className="text-2xl font-bold text-[#111827] mb-1 tracking-tight">
                 {isResetLinkFromEmail
                   ? isResetExpired
                     ? 'Link Timed Out'
                     : 'Create New Password'
                   : 'Reset your password'}
               </h1>
-              <p className="text-[16px] font-normal text-[#595959] leading-[1.6]">
+              <p className="text-xs font-normal text-[#595959]">
                 {isResetLinkFromEmail
                   ? isResetExpired
                     ? '15-minute validity has expired.'

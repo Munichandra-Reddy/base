@@ -93,19 +93,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Bottom Storage & Workspace Plan Card */}
-      <div className="pt-4 border-t border-[#E5E5E5]">
+      <div className="pt-3 border-t border-[#E5E5E5]">
         <div>
-          <div className="flex items-center justify-between text-xs font-bold text-[#222222] mb-2">
+          <div className="flex items-center justify-between text-xs font-semibold text-[#111827] mb-1.5">
             <span>Workspace Plan</span>
-            <span className="text-[#049FD9] font-bold">Pro Plan</span>
+            <span className="text-[#049FD9] font-medium text-[11px]">Pro Plan</span>
           </div>
-          <div className="w-full bg-[#F4F6F8] rounded-full h-1.5 overflow-hidden mb-2">
+          <div className="w-full bg-[#F3F4F6] rounded-full h-1 overflow-hidden mb-1.5">
             <div
               className="bg-[#049FD9] h-full rounded-full transition-all duration-500"
               style={{ width: `${storagePercentage}%` }}
             />
           </div>
-          <div className="text-[11px] font-medium text-[#595959]">
+          <div className="text-[10px] font-normal text-[#6B7280]">
             {storageUsedGB} GB of {storageTotalGB} GB storage used
           </div>
         </div>

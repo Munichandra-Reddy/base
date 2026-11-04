@@ -165,7 +165,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Workspace Dropdown Menu */}
           {isWorkspaceOpen && (
-            <div className="absolute left-2 top-12 w-72 bg-white rounded-2xl border border-[#E5E5E5] shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-[#222222]">
+            <div className="absolute left-2 top-12 w-72 bg-white rounded-xl border border-[#E5E5E5] shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-[#222222]">
               <div className="p-3 border-b border-[#E5E5E5] bg-[#F4F6F8] flex items-center justify-between">
                 <span className="text-xs font-bold text-[#595959] uppercase tracking-wider">
                   Workspaces ({workspaces.length})
@@ -173,7 +173,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsCreatingWorkspace(!isCreatingWorkspace)}
-                  className="text-xs font-bold text-[#049FD9] hover:text-[#238823] flex items-center gap-1 hover:underline"
+                  className="text-xs font-bold text-[#049FD9] hover:text-[#004BAF] flex items-center gap-1 hover:underline"
                 >
                   {isCreatingWorkspace ? 'Cancel' : '+ Add Workspace'}
                 </button>
@@ -332,10 +332,10 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Profile Dropdown Menu */}
         {isProfileOpen && (
-          <div className="absolute right-0 top-14 w-60 bg-white rounded-2xl border border-[#E5E5E5] shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-[#222222]">
+          <div className="absolute right-0 top-14 w-60 bg-white rounded-xl border border-[#E5E5E5] shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-[#222222]">
             <div className="p-4 border-b border-[#E5E5E5] bg-[#F4F6F8]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#6CC04A] text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
+                <div className="w-9 h-9 rounded-full bg-[#049FD9] text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
                   {userAvatar}
                 </div>
                 <div className="min-w-0">

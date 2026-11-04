@@ -27,19 +27,19 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-[#011826]/60 backdrop-blur-xs p-4 font-sans">
-      <div className="bg-white rounded-2xl border border-[#E5E5E5] shadow-2xl w-full max-w-lg overflow-hidden">
-        <div className="p-4 border-b border-[#E5E5E5] flex items-center gap-3">
-          <SearchIcon className="w-5 h-5 text-[#595959]" />
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-[#011826]/40 backdrop-blur-xs p-4 font-sans">
+      <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg overflow-hidden">
+        <div className="p-3.5 border-b border-[#E5E5E5] flex items-center gap-3">
+          <SearchIcon className="w-4 h-4 text-[#595959]" />
           <input
             type="text"
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search projects, tasks, people, files..."
-            className="flex-1 bg-transparent text-sm text-[#222222] focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-[#222222] focus:outline-none placeholder-[#8C8C8C]"
           />
-          <button onClick={onClose} className="text-xs font-bold text-[#595959] hover:text-[#222222]">
+          <button onClick={onClose} className="text-xs font-semibold text-[#595959] hover:text-[#222222] px-1.5 py-0.5 rounded border border-[#E5E5E5] bg-[#F4F6F8]">
             ESC
           </button>
         </div>
@@ -52,10 +52,10 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
                 onNavigate(item.tab);
                 onClose();
               }}
-              className="w-full flex items-center justify-between p-3 hover:bg-[#EBF0F5] rounded-xl text-left transition-colors"
+              className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-[#F4F6F8] rounded-lg text-left transition-colors cursor-pointer"
             >
-              <span className="text-sm font-medium text-[#0F172A]">{item.label}</span>
-              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#EBF0F5] text-[#334155] border border-[#E2E8F0]">
+              <span className="text-xs font-medium text-[#222222]">{item.label}</span>
+              <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-[#F4F6F8] text-[#595959] border border-[#E5E5E5]">
                 {item.type}
               </span>
             </button>

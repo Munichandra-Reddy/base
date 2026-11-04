@@ -231,32 +231,32 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4 overflow-y-auto font-sans"
     >
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-2xl w-full max-w-lg overflow-hidden my-6 relative flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg overflow-hidden my-6 relative flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="p-5 border-b border-[#E2E8F0] flex items-center justify-between bg-white shrink-0">
+        <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between bg-white shrink-0">
           <div>
-            <h3 className="text-xl font-extrabold text-[#0F172A]">Create New</h3>
-            <p className="text-xs text-[#64748B] font-medium">Add {isAdmin ? 'tasks, projects, or employees' : 'tasks or projects'} to your workspace</p>
+            <h3 className="text-base font-semibold text-[#111827]">Create New</h3>
+            <p className="text-xs text-[#595959] font-normal">Add {isAdmin ? 'tasks, projects, or employees' : 'tasks or projects'} to your workspace</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#EBF0F5] hover:bg-[#CBD5E1]/40 text-[#64748B] hover:text-[#0F172A] font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-md bg-[#F4F6F8] hover:bg-[#E5E5E5] text-[#595959] hover:text-[#111827] font-medium flex items-center justify-center text-xs transition-colors cursor-pointer"
           >
             ✕
           </button>
         </div>
 
         {/* Tab Switcher */}
-        <div className="p-2 bg-[#EBF0F5] border-b border-[#E2E8F0] flex gap-1 shrink-0">
+        <div className="p-1.5 bg-[#F4F6F8] border-b border-[#E5E5E5] flex gap-1 shrink-0">
           <button
             type="button"
             onClick={() => setActiveType('task')}
-            className={`flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+            className={`flex-1 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
               activeType === 'task'
-                ? 'bg-[#6CC04A] text-white shadow-xs'
-                : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#CBD5E1]/30'
+                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                : 'text-[#595959] hover:text-[#111827]'
             }`}
           >
             New Task
@@ -264,10 +264,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({
           <button
             type="button"
             onClick={() => setActiveType('project')}
-            className={`flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+            className={`flex-1 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
               activeType === 'project'
-                ? 'bg-[#6CC04A] text-white shadow-xs'
-                : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#CBD5E1]/30'
+                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                : 'text-[#595959] hover:text-[#111827]'
             }`}
           >
             New Project
@@ -276,10 +276,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             <button
               type="button"
               onClick={() => setActiveType('employee')}
-              className={`flex-1 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
                 activeType === 'employee'
-                  ? 'bg-[#6CC04A] text-white shadow-xs'
-                  : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#CBD5E1]/30'
+                  ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                  : 'text-[#595959] hover:text-[#111827]'
               }`}
             >
               New Employee

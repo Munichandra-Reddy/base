@@ -283,17 +283,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="hidden sm:block h-6 w-px bg-[#E2E8F0]" />
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#6CC04A] text-white flex items-center justify-center shadow-micro">
-                <FolderIcon className="w-5 h-5 text-white" />
+              <div className="w-9 h-9 rounded-lg bg-[#011826] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center">
+                <FolderIcon className="w-4 h-4 text-[#049FD9]" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">{selectedProject.name}</h2>
-                  <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#10B981] border border-emerald-200 uppercase tracking-wider">
+                  <h2 className="text-xl font-bold text-[#111827] tracking-tight">{selectedProject.name}</h2>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0] uppercase tracking-wider">
                     {selectedProject.status || 'Active'}
                   </span>
                 </div>
-                <p className="text-xs text-[#64748B] font-semibold mt-0.5">
+                <p className="text-xs text-[#595959] font-normal mt-0.5">
                   Updated {selectedProject.updatedAt || 'Recently'}
                 </p>
               </div>
@@ -304,7 +304,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <button
               type="button"
               onClick={onOpenCreateProject}
-              className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-bold text-xs rounded-lg shadow-micro flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3.5 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <PlusIcon className="w-4 h-4" />
               <span>New Project</span>
@@ -313,69 +313,69 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </div>
 
         {/* 5 TOP SUB-TABS (Messages, Meetings, Tasks, Work Updates, Overview) */}
-        <div className="bg-white rounded-xl p-1.5 flex flex-wrap items-center gap-1.5 text-xs font-bold border border-[#E2E8F0] shadow-micro">
+        <div className="bg-[#F4F6F8] rounded-lg p-1 flex flex-wrap items-center gap-1 text-xs font-medium border border-[#E5E5E5]">
           <button
             type="button"
             onClick={() => setActiveProjectTab('messages')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
               activeProjectTab === 'messages'
-                ? 'bg-[#6CC04A] text-white shadow-micro font-bold'
-                : 'text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#0F172A]'
+                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                : 'text-[#595959] hover:text-[#111827]'
             }`}
           >
-            <ChatIcon className="w-4 h-4" />
+            <ChatIcon className={`w-4 h-4 ${activeProjectTab === 'messages' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
             <span>Messages</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveProjectTab('meetings')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
               activeProjectTab === 'meetings'
-                ? 'bg-[#6CC04A] text-white shadow-micro font-bold'
-                : 'text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#0F172A]'
+                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                : 'text-[#595959] hover:text-[#111827]'
             }`}
           >
-            <VideoIcon className="w-4 h-4" />
+            <VideoIcon className={`w-4 h-4 ${activeProjectTab === 'meetings' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
             <span>Meetings</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveProjectTab('tasks')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
               activeProjectTab === 'tasks'
-                ? 'bg-[#6CC04A] text-white shadow-micro font-bold'
-                : 'text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#0F172A]'
+                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                : 'text-[#595959] hover:text-[#111827]'
             }`}
           >
-            <CheckSquareIcon className="w-4 h-4" />
+            <CheckSquareIcon className={`w-4 h-4 ${activeProjectTab === 'tasks' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
             <span>Tasks</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveProjectTab('updates')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
               activeProjectTab === 'updates'
-                ? 'bg-[#6CC04A] text-white shadow-micro font-bold'
-                : 'text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#0F172A]'
+                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                : 'text-[#595959] hover:text-[#111827]'
             }`}
           >
-            <FileIcon className="w-4 h-4" />
+            <FileIcon className={`w-4 h-4 ${activeProjectTab === 'updates' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
             <span>Work Updates</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveProjectTab('overview')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
               activeProjectTab === 'overview'
-                ? 'bg-[#6CC04A] text-white shadow-micro font-bold'
-                : 'text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#0F172A]'
+                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                : 'text-[#595959] hover:text-[#111827]'
             }`}
           >
-            <FolderIcon className="w-4 h-4" />
+            <FolderIcon className={`w-4 h-4 ${activeProjectTab === 'overview' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
             <span>Overview & Docs</span>
           </button>
         </div>
@@ -1106,14 +1106,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     <div className="space-y-6 font-sans">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+        <h1 className="text-xl font-semibold text-[#111827]">
           All Projects
         </h1>
 
         <div className="flex items-center gap-3 self-end sm:self-auto">
           {/* Team Member Avatars Stack */}
           <div className="flex -space-x-2 mr-1">
-            <div className="w-8 h-8 rounded-full bg-[#6CC04A] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
+            <div className="w-8 h-8 rounded-full bg-[#049FD9] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
               H
             </div>
             <div className="w-8 h-8 rounded-full bg-[#15293F] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
@@ -1138,7 +1138,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={onOpenCreateProject}
-            className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-semibold text-xs rounded-lg shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+            className="px-3.5 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <PlusIcon className="w-4 h-4" />
             <span>New Project</span>
@@ -1429,7 +1429,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               >
                 ‹ Previous
               </button>
-              <button className="w-8 h-8 bg-[#6CC04A] text-white font-extrabold rounded-lg border border-[#6CC04A] flex items-center justify-center shadow-micro">
+              <button className="w-8 h-8 bg-[#011826] text-white font-medium rounded-md border border-[#011826] flex items-center justify-center text-xs">
                 1
               </button>
               <button
@@ -1479,29 +1479,29 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="w-7 h-7 rounded-lg bg-[#EBF0F5] group-hover:bg-[#6CC04A] group-hover:text-white text-[#6CC04A] flex items-center justify-center font-bold shadow-micro transition-colors">
+                      <div className="w-7 h-7 rounded-md bg-[#F0F9FF] text-[#049FD9] flex items-center justify-center font-bold transition-colors">
                         <FolderIcon className="w-3.5 h-3.5" />
                       </div>
                       <span
-                        className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border uppercase tracking-wider ${statusStyle}`}
+                        className={`text-[9px] font-extrabold px-2 py-0.5 rounded border uppercase tracking-wider ${statusStyle}`}
                       >
                         {rawStatus.toUpperCase()}
                       </span>
                     </div>
-                    <h3 className="text-sm font-bold text-[#0F172A] leading-snug group-hover:underline">
+                    <h3 className="text-sm font-semibold text-[#0F172A] leading-snug group-hover:text-[#049FD9] transition-colors">
                       {project.name}
                     </h3>
                   </div>
 
                   <div className="space-y-2 pt-2 border-t border-[#E2E8F0]">
                     <div>
-                      <div className="flex justify-between text-[10px] font-bold text-[#334155] mb-1">
+                      <div className="flex justify-between text-[10px] font-semibold text-[#334155] mb-1">
                         <span>Progress</span>
                         <span>{project.progress}%</span>
                       </div>
                       <div className="w-full bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="bg-[#6CC04A] h-full rounded-full transition-all duration-500"
+                          className="bg-[#049FD9] h-full rounded-full transition-all duration-500"
                           style={{ width: `${project.progress}%` }}
                         />
                       </div>

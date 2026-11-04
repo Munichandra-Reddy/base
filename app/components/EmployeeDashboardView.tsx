@@ -430,15 +430,15 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           </div>
 
           {/* Card 2: My Projects & Active Sprint Deliverables */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <div>
-                <h3 className="text-lg font-extrabold text-[#0F172A]">My Active Projects</h3>
-                <p className="text-xs text-[#64748B] font-medium">Projects you are actively contributing to in this workspace.</p>
+                <h3 className="text-sm font-semibold text-[#111827]">My Active Projects</h3>
+                <p className="text-xs text-[#595959] font-normal">Projects you are actively contributing to in this workspace.</p>
               </div>
               <button
                 onClick={onViewProjects}
-                className="text-xs font-bold text-[#6CC04A] hover:underline cursor-pointer"
+                className="text-xs font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
               >
                 View All
               </button>
@@ -485,66 +485,66 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* RIGHT 1 COLUMN */}
         <div className="space-y-6">
           {/* Card 3: Today's Schedule & Meetings */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-4">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
-              <h3 className="font-bold text-[#222222] text-base">Today's Schedule</h3>
-              <button onClick={onViewCalendar} className="text-xs font-semibold text-[#049FD9] hover:underline cursor-pointer">
+              <h3 className="font-semibold text-[#222222] text-sm">Today's Schedule</h3>
+              <button onClick={onViewCalendar} className="text-xs font-medium text-[#049FD9] hover:underline cursor-pointer">
                 Calendar
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E5E5E5] flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#011826] text-white flex flex-col items-center justify-center font-bold text-[10px] shrink-0 shadow-xs">
+              <div className="p-3 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5] flex items-start gap-3">
+                <div className="w-10 h-10 rounded-md bg-[#011826] text-white flex flex-col items-center justify-center font-bold text-[10px] shrink-0 shadow-2xs">
                   <span>10:00</span>
                   <span className="text-[8px] uppercase">AM</span>
                 </div>
                 <div>
-                  <h5 className="font-extrabold text-[#0F172A]">Sprint Daily Standup</h5>
-                  <p className="text-[10px] text-[#64748B] font-medium mt-0.5">Campfire Audio & Video Room</p>
+                  <h5 className="font-semibold text-[#111827]">Sprint Daily Standup</h5>
+                  <p className="text-[10px] text-[#595959] font-normal mt-0.5">Campfire Audio & Video Room</p>
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#E2E8F0] text-[#0F172A] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
+              <div className="p-3 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5] flex items-start gap-3">
+                <div className="w-10 h-10 rounded-md bg-white border border-[#E5E5E5] text-[#111827] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
                   <span>02:30</span>
                   <span className="text-[8px] uppercase">PM</span>
                 </div>
                 <div>
-                  <h5 className="font-extrabold text-[#0F172A]">UI / UX Design Review</h5>
-                  <p className="text-[10px] text-[#64748B] font-medium mt-0.5">E-Commerce Website wireframes</p>
+                  <h5 className="font-semibold text-[#111827]">UI / UX Design Review</h5>
+                  <p className="text-[10px] text-[#595959] font-normal mt-0.5">E-Commerce Website wireframes</p>
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#E2E8F0] text-[#0F172A] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
+              <div className="p-3 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5] flex items-start gap-3">
+                <div className="w-10 h-10 rounded-md bg-white border border-[#E5E5E5] text-[#111827] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
                   <span>05:00</span>
                   <span className="text-[8px] uppercase">PM</span>
                 </div>
                 <div>
-                  <h5 className="font-extrabold text-[#0F172A]">Daily Check-in Due</h5>
-                  <p className="text-[10px] text-[#64748B] font-medium mt-0.5">Automated prompt in #checkins</p>
+                  <h5 className="font-semibold text-[#111827]">Daily Check-in Due</h5>
+                  <p className="text-[10px] text-[#595959] font-normal mt-0.5">Automated prompt in #checkins</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Card 4: My Project Collaborators (Online) */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-[#0F172A] text-base">Project Squad</h3>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#475569]">
+                <h3 className="font-semibold text-[#111827] text-sm">Project Squad</h3>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-[#F4F6F8] text-[#595959] border border-[#E5E5E5]">
                   {totalEmployeesCount}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 {onViewEmployees && (
-                  <button onClick={onViewEmployees} className="text-xs font-bold text-[#049FD9] hover:underline cursor-pointer">
+                  <button onClick={onViewEmployees} className="text-xs font-medium text-[#049FD9] hover:underline cursor-pointer">
                     View All ({totalEmployeesCount})
                   </button>
                 )}
-                <button onClick={onViewChat} className="text-xs font-bold text-[#6CC04A] hover:underline cursor-pointer">
+                <button onClick={onViewChat} className="text-xs font-medium text-[#049FD9] hover:underline cursor-pointer">
                   Campfire
                 </button>
               </div>

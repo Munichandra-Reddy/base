@@ -91,12 +91,12 @@ export const CalendarView: React.FC = () => {
   const selectedDayEvents = selectedDay ? events[selectedDay] || [] : [];
 
   return (
-    <div className="space-y-7 font-sans">
+    <div className="space-y-6 font-sans">
       {/* Header */}
-      <div className="bg-white p-7 rounded-2xl border border-[#E2E8F0] shadow-micro flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-light text-[#222222]">Workspace Schedule</h1>
-          <p className="text-[#595959] text-base font-medium mt-1">
+          <h1 className="text-xl font-semibold text-[#111827]">Workspace Schedule</h1>
+          <p className="text-[#595959] text-xs font-normal mt-0.5">
             {viewMode === 'month'
               ? 'October 2026 Milestone & Deliverables Calendar (Click any date for details)'
               : 'Current Week (Oct 1 - Oct 7, 2026) Schedule'}
@@ -112,20 +112,20 @@ export const CalendarView: React.FC = () => {
               setNewEventTitle('');
               setIsAddModalOpen(true);
             }}
-            className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] active:bg-[#4ea230] text-white font-semibold text-sm rounded-lg shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+            className="px-3.5 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <span className="text-base leading-none">+</span>
+            <span className="text-sm leading-none">+</span>
             <span>Add Event</span>
           </button>
 
-          <div className="flex items-center gap-1.5 bg-white border border-[#E5E5E5] p-1.5 rounded-xl shadow-2xs">
+          <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg border border-[#E5E5E5] text-xs font-medium">
             <button
               type="button"
               onClick={() => setViewMode('month')}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
                 viewMode === 'month'
-                  ? 'bg-[#6CC04A] shadow-xs text-white font-extrabold'
-                  : 'bg-white text-[#595959] hover:text-[#6CC04A] hover:bg-[#F4F6F8]'
+                  ? 'bg-white shadow-2xs text-[#111827] font-semibold'
+                  : 'text-[#595959] hover:text-[#111827]'
               }`}
             >
               Month
@@ -133,10 +133,10 @@ export const CalendarView: React.FC = () => {
             <button
               type="button"
               onClick={() => setViewMode('week')}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
                 viewMode === 'week'
-                  ? 'bg-[#6CC04A] shadow-xs text-white font-extrabold'
-                  : 'bg-white text-[#595959] hover:text-[#6CC04A] hover:bg-[#F4F6F8]'
+                  ? 'bg-white shadow-2xs text-[#111827] font-semibold'
+                  : 'text-[#595959] hover:text-[#111827]'
               }`}
             >
               Week
@@ -277,8 +277,8 @@ export const CalendarView: React.FC = () => {
               </div>
 
               {/* Add New Event Form */}
-              <form onSubmit={handleAddEventForSelectedDay} className="pt-4 border-t border-[#E2E8F0] space-y-3">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#0F172A]">
+              <form onSubmit={handleAddEventForSelectedDay} className="pt-4 border-t border-[#E5E5E5] space-y-3">
+                <h4 className="text-xs font-semibold text-[#111827]">
                   + Add Event for Oct {selectedDay}
                 </h4>
                 <div className="flex gap-2">
@@ -288,27 +288,27 @@ export const CalendarView: React.FC = () => {
                     placeholder="Event title or milestone..."
                     value={newEventTitle}
                     onChange={(e) => setNewEventTitle(e.target.value)}
-                    className="flex-1 px-3.5 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+                    className="flex-1 px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
                   />
                   <input
                     type="text"
                     placeholder="10:00 AM"
                     value={newEventTime}
                     onChange={(e) => setNewEventTime(e.target.value)}
-                    className="w-28 px-3.5 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+                    className="w-28 px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-1">
                   <button
                     type="button"
                     onClick={() => setSelectedDay(null)}
-                    className="px-4 py-2 text-xs font-semibold text-[#64748B] hover:bg-[#EBF0F5] rounded-xl"
+                    className="btn-login text-xs py-1.5 px-3"
                   >
                     Close
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
+                    className="btn-signup text-xs py-1.5 px-4"
                   >
                     Add Event
                   </button>
@@ -325,28 +325,31 @@ export const CalendarView: React.FC = () => {
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsAddModalOpen(false);
           }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4 font-sans"
         >
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-5 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
-              <h3 className="text-lg font-extrabold text-[#0F172A]">Add New Calendar Event</h3>
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between bg-white">
+              <div>
+                <h3 className="text-sm font-semibold text-[#111827]">Add New Calendar Event</h3>
+                <p className="text-xs text-[#595959] font-normal">Schedule milestone or team meeting</p>
+              </div>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#EBF0F5] hover:bg-[#CBD5E1]/40 text-[#334155] font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] hover:bg-[#E5E5E5] text-[#595959] hover:text-[#111827] font-medium flex items-center justify-center text-xs transition-colors cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleAddEventGlobal} className="p-6 space-y-4">
+            <form onSubmit={handleAddEventGlobal} className="p-5 space-y-3.5">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#0F172A] mb-1.5">
+                <label className="block text-xs font-semibold text-[#222222] mb-1">
                   Select Date (October 2026)
                 </label>
                 <select
                   value={targetDay}
                   onChange={(e) => setTargetDay(Number(e.target.value))}
-                  className="w-full px-3.5 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-semibold text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
                 >
                   {currentMonthDays.map((d) => (
                     <option key={d} value={d}>
@@ -357,7 +360,7 @@ export const CalendarView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#0F172A] mb-1.5">
+                <label className="block text-xs font-semibold text-[#222222] mb-1">
                   Event Title / Milestone Name
                 </label>
                 <input
@@ -366,12 +369,12 @@ export const CalendarView: React.FC = () => {
                   placeholder="e.g. Q4 Strategy Review & Release"
                   value={newEventTitle}
                   onChange={(e) => setNewEventTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#0F172A] mb-1.5">
+                <label className="block text-xs font-semibold text-[#222222] mb-1">
                   Time
                 </label>
                 <input
@@ -379,21 +382,21 @@ export const CalendarView: React.FC = () => {
                   placeholder="e.g. 10:00 AM"
                   value={newEventTime}
                   onChange={(e) => setNewEventTime(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#F1F3F6] border border-[#E2E8F0] rounded-xl text-sm font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#E5E5E5]">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-[#64748B] hover:bg-[#EBF0F5] rounded-xl"
+                  className="btn-login text-xs py-1.5 px-3"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-xl shadow-2xs transition-all"
+                  className="btn-signup text-xs py-1.5 px-4"
                 >
                   Create Event
                 </button>
