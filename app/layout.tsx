@@ -4,6 +4,9 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'WorkOrbit - Cisco Workspace Platform',
   description: 'Project management, campfire chat, tasks, check-ins, and file sharing in one modern workspace.',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
