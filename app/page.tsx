@@ -635,24 +635,14 @@ export default function Home() {
   };
 
   const handleSendMessage = async (content: string, channel: string) => {
-    const senderName = currentUser?.fullName || (dashboardRole === 'admin' ? 'Muni' : 'Employee');
-    const senderAvatar = (senderName[0] || 'U').toUpperCase();
-    const avatarBg = dashboardRole === 'admin' ? 'bg-[#049FD9] text-white' : 'bg-[#6CC04A] text-white';
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const createdAtMs = Date.now();
-
     const newMsg: ChatMessage = {
-      id: `c-${createdAtMs}`,
-      sender: senderName,
-      senderAvatar,
-      avatarBg,
+      id: `c-${Date.now()}`,
+      sender: 'Rahul Kumar',
+      senderAvatar: 'R',
+      avatarBg: 'bg-blue-100 text-blue-700',
       content,
-      timestamp: timeStr,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       channel,
-      date: dateStr,
-      createdAt: createdAtMs,
     };
     setChatMessages((prev) => {
       const updated = [...prev, newMsg];
@@ -664,14 +654,12 @@ export default function Home() {
 
     try {
       await addFirebaseChatMessage({
-        sender: senderName,
-        senderAvatar,
-        avatarBg,
+        sender: 'Rahul Kumar',
+        senderAvatar: 'R',
+        avatarBg: 'bg-blue-100 text-blue-700',
         content,
-        timestamp: timeStr,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         channel,
-        date: dateStr,
-        createdAt: createdAtMs,
       });
     } catch (err) {}
   };
@@ -841,11 +829,7 @@ export default function Home() {
           {activeTab === 'calendar' && <CalendarView />}
 
           {activeTab === 'chat' && (
-            <ChatView
-              messages={chatMessages}
-              onSendMessage={handleSendMessage}
-              currentUser={currentUser}
-            />
+            <ChatView messages={chatMessages} onSendMessage={handleSendMessage} />
           )}
 
           {activeTab === 'files' && (
