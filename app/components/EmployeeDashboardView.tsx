@@ -113,7 +113,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           {/* Quick Check-in Button */}
           <button
             onClick={onViewCheckins}
-            className="px-4 py-2 bg-[#049FD9] hover:bg-[#004BAF] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
+            className="btn-primary"
           >
             <span>Daily Check-in</span>
           </button>
@@ -326,7 +326,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
               </select>
               <button
                 type="submit"
-                className="px-4 py-2.5 bg-[#011826] hover:bg-[#082236] text-white text-xs font-semibold rounded-lg shrink-0 cursor-pointer transition-colors whitespace-nowrap"
+                className="btn-primary shrink-0"
               >
                 Add Task
               </button>

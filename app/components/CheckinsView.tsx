@@ -30,7 +30,7 @@ export const CheckinsView: React.FC<CheckinsViewProps> = ({ checkins, onAddCheck
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-3.5 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs flex items-center gap-1.5 cursor-pointer transition-colors"
+          className="btn-primary"
         >
           <PlusIcon className="w-4 h-4" />
           <span>Post Check-in</span>
@@ -51,13 +51,13 @@ export const CheckinsView: React.FC<CheckinsViewProps> = ({ checkins, onAddCheck
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="px-3 py-1.5 text-xs font-medium text-[#595959] hover:bg-[#F4F6F8] rounded-md transition-colors"
+              className="btn-secondary"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-3.5 py-1.5 bg-[#011826] text-white font-medium text-xs rounded-md shadow-2xs hover:bg-[#082236] transition-colors"
+              className="btn-primary"
             >
               Submit Check-in
             </button>

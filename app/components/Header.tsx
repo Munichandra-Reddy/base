@@ -290,7 +290,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-2 sm:gap-3 relative shrink-0" ref={profileRef}>
         <button
           onClick={onOpenCreateModal}
-          className="btn-signup flex items-center text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4 shadow-sm shrink-0 whitespace-nowrap"
+          className="btn-primary"
         >
           <span>Create New</span>
         </button>

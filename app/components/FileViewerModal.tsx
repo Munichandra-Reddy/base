@@ -206,7 +206,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
             <button
               type="button"
               onClick={onClose}
-              className="btn-login text-xs py-1.5 px-3"
+              className="btn-secondary"
             >
               Close
             </button>
@@ -214,7 +214,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
             <button
               type="button"
               onClick={handleDownloadFile}
-              className="px-3.5 py-1.5 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="btn-primary"
             >
               <DownloadIcon className="w-3.5 h-3.5" />
               <span>Download File</span>

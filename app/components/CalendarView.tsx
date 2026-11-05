@@ -112,7 +112,7 @@ export const CalendarView: React.FC = () => {
               setNewEventTitle('');
               setIsAddModalOpen(true);
             }}
-            className="px-3.5 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
+            className="btn-primary"
           >
             <span className="text-sm leading-none">+</span>
             <span>Add Event</span>
@@ -302,13 +302,13 @@ export const CalendarView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setSelectedDay(null)}
-                    className="btn-login text-xs py-1.5 px-3"
+                    className="btn-secondary"
                   >
                     Close
                   </button>
                   <button
                     type="submit"
-                    className="btn-signup text-xs py-1.5 px-4"
+                    className="btn-primary"
                   >
                     Add Event
                   </button>
@@ -390,13 +390,13 @@ export const CalendarView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="btn-login text-xs py-1.5 px-3"
+                  className="btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-signup text-xs py-1.5 px-4"
+                  className="btn-primary"
                 >
                   Create Event
                 </button>

@@ -26,7 +26,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmploye
         {isAdmin && onOpenAddEmployee && (
           <button
             onClick={onOpenAddEmployee}
-            className="px-3.5 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs transition-all shrink-0 self-start md:self-auto cursor-pointer flex items-center gap-1.5"
+            className="btn-primary shrink-0 self-start md:self-auto"
           >
             <PlusIcon className="w-4 h-4" />
             <span>Add Employee</span>

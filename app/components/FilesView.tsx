@@ -25,7 +25,7 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
         </div>
         <button
           onClick={() => setIsUploadModalOpen(true)}
-          className="px-3.5 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs flex items-center gap-1.5 cursor-pointer transition-colors"
+          className="btn-primary"
         >
           <PlusIcon className="w-4 h-4" />
           <span>Upload File</span>

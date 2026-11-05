@@ -79,7 +79,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage }) =
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs transition-colors cursor-pointer"
+          className="btn-primary"
         >
           Send
         </button>

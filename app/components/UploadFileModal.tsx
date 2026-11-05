@@ -238,13 +238,13 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="btn-login text-xs py-1.5 px-3"
+              className="btn-secondary"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn-signup text-xs py-1.5 px-4"
+              className="btn-primary"
             >
               Upload File
             </button>

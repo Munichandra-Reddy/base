@@ -972,7 +972,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                         window.history.replaceState({}, document.title, window.location.pathname);
                       }
                     }}
-                    className="btn-signup w-full py-2.5 rounded-md shadow-xs text-sm mt-1"
+                    className="btn-primary w-full py-2.5 text-sm mt-1"
                   >
                     Request New Reset Link →
                   </button>
@@ -1064,7 +1064,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 <button
                   type="submit"
                   disabled={isResetSending}
-                  className="btn-signup w-full py-2.5 rounded-md shadow-xs text-sm flex items-center justify-center gap-2"
+                  className="btn-primary w-full py-2.5 text-sm flex items-center justify-center gap-2"
                 >
                   <span>✉️</span>
                   <span>{isResetSending ? 'Sending direct message to mail...' : 'Send Password Reset Email'}</span>
@@ -1269,11 +1269,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full py-2.5 px-5 font-semibold text-sm rounded-md transition-all cursor-pointer mt-3 shadow-xs ${
-                mode === 'signup'
-                  ? 'btn-signup text-white'
-                  : 'btn-login hover:bg-[#6CC04A] hover:text-white hover:border-[#6CC04A]'
-              }`}
+              className="btn-primary w-full py-2.5 px-5 text-sm mt-3"
             >
               {isSubmitting
                 ? 'Verifying...'
@@ -1295,7 +1291,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   handleTabSwitch('login');
                   setLoginRole('employee');
                 }}
-                className="btn-login py-1 px-3 text-xs ml-1 font-semibold"
+                className="btn-secondary py-1 px-3 text-xs ml-1"
               >
                 Sign in
               </button>
@@ -1310,7 +1306,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               <button
                 type="button"
                 onClick={() => handleTabSwitch('signup')}
-                className="btn-signup py-1 px-3 text-xs ml-1 font-semibold"
+                className="btn-primary py-1 px-3 text-xs ml-1"
               >
                 Create Account
               </button>

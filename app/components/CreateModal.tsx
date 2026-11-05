@@ -577,7 +577,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="btn-login text-xs py-2 px-4"
+            className="btn-secondary"
           >
             Cancel
           </button>
@@ -590,7 +590,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 ? 'create-task-form'
                 : 'create-project-form'
             }
-            className="btn-signup text-xs py-2 px-5"
+            className="btn-primary"
           >
             Create {activeType === 'employee' && isAdmin ? 'Employee' : activeType === 'task' ? 'Task' : 'Project'}
           </button>

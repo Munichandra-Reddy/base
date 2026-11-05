@@ -274,7 +274,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <button
               type="button"
               onClick={handleBackToProjects}
-              className="px-4 py-2 bg-[#EBF0F5] hover:bg-slate-200 text-[#0F172A] font-bold text-xs rounded-lg border border-[#E2E8F0] shadow-micro flex items-center gap-2 transition-colors cursor-pointer"
+              className="btn-secondary"
             >
               <span className="text-sm font-extrabold">←</span>
               <span>Back to Projects</span>
@@ -304,7 +304,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <button
               type="button"
               onClick={onOpenCreateProject}
-              className="px-3.5 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="btn-primary"
             >
               <PlusIcon className="w-4 h-4" />
               <span>New Project</span>
@@ -518,7 +518,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-lg shadow-micro transition-colors cursor-pointer"
+                      className="btn-primary"
                     >
                       Send
                     </button>
@@ -587,7 +587,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   />
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-lg shadow-micro transition-colors cursor-pointer"
+                    className="btn-primary"
                   >
                     Send Group Message
                   </button>
@@ -608,7 +608,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <button
                 type="button"
                 onClick={() => alert(`Launching virtual meeting room for ${selectedProject.name}...`)}
-                className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-lg shadow-micro flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="btn-primary"
               >
                 <VideoIcon className="w-4 h-4" />
                 <span>Schedule New Sync</span>
@@ -648,7 +648,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => alert(`Joining Virtual Sync Room for ${selectedProject.name}!`)}
-                    className="px-5 py-2.5 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-extrabold text-xs rounded-lg shadow-micro transition-colors cursor-pointer flex items-center gap-2"
+                    className="btn-primary"
                   >
                     <span>Join Virtual Room</span>
                     <span>→</span>
@@ -656,7 +656,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => alert('Meeting link copied to clipboard!')}
-                    className="px-4 py-2.5 bg-white border border-[#E2E8F0] hover:bg-[#EBF0F5] text-[#334155] text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shadow-micro"
+                    className="btn-secondary"
                   >
                     <span>Copy Link</span>
                   </button>
@@ -695,7 +695,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => alert('Joining Virtual Sync Room!')}
-                    className="px-5 py-2.5 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-extrabold text-xs rounded-lg shadow-micro transition-colors cursor-pointer flex items-center gap-2"
+                    className="btn-primary"
                   >
                     <span>Join Virtual Room</span>
                     <span>→</span>
@@ -703,9 +703,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => alert('Meeting link copied!')}
-                    className="px-4 py-2.5 bg-white border border-[#E2E8F0] hover:bg-[#EBF0F5] text-[#334155] text-xs font-bold rounded-lg transition-colors cursor-pointer shadow-micro"
+                    className="btn-secondary"
                   >
-                    Copy Link
+                    <span>Copy Link</span>
                   </button>
                 </div>
               </div>
@@ -724,7 +724,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <button
                 type="button"
                 onClick={onOpenCreateProject}
-                className="px-4 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-bold text-xs rounded-lg shadow-micro flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="btn-primary"
               >
                 <PlusIcon className="w-4 h-4" />
                 <span>Post New Sprint Task</span>
@@ -836,7 +836,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#6CC04A] hover:bg-[#5bb33b] text-white font-extrabold text-xs rounded-lg shadow-micro transition-colors cursor-pointer"
+                  className="btn-primary"
                 >
                   Post Work Update
                 </button>
@@ -1128,7 +1128,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => alert('Invite feature active — workspace members updated!')}
-            className="px-3.5 py-2 bg-white hover:bg-[#EBF0F5] border border-[#E2E8F0] text-[#334155] font-bold text-xs rounded-lg shadow-micro flex items-center gap-1.5 transition-all cursor-pointer"
+            className="btn-secondary"
           >
             <UserPlusIcon className="w-4 h-4 text-[#334155]" />
             <span>Invite</span>
@@ -1138,7 +1138,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={onOpenCreateProject}
-            className="px-3.5 py-2 bg-[#011826] hover:bg-[#082236] text-white font-medium text-xs rounded-md shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="btn-primary"
           >
             <PlusIcon className="w-4 h-4" />
             <span>New Project</span>
