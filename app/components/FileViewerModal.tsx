@@ -200,36 +200,23 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
         </div>
 
         {/* Footer Actions */}
-        <div className="p-3.5 border-t border-[#E5E5E5] flex items-center justify-between bg-[#F4F6F8] shrink-0">
-          <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-white text-[#595959] border border-[#E5E5E5]">
-            {file.type}
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary"
-            >
-              Close
-            </button>
+        <div className="p-3.5 border-t border-[#E5E5E5] flex items-center justify-end gap-2 bg-[#F4F6F8] shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="btn-secondary"
+          >
+            Close
+          </button>
 
-            <button
-              type="button"
-              onClick={handleOpenDocument}
-              className="btn-primary"
-            >
-              <span>View File ↗</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleDownloadFile}
-              className="btn-secondary"
-            >
-              <DownloadIcon className="w-3.5 h-3.5" />
-              <span>Download File</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleDownloadFile}
+            className="btn-primary"
+          >
+            <DownloadIcon className="w-3.5 h-3.5" />
+            <span>Download File</span>
+          </button>
         </div>
       </div>
     </div>

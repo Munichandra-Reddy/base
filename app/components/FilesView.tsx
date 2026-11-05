@@ -5,7 +5,6 @@ import { FileItem } from '@/lib/types';
 import { FileIcon, PlusIcon } from './Icons';
 import { UploadFileModal } from './UploadFileModal';
 import { FileViewerModal } from './FileViewerModal';
-import { getDirectFileBlobUrl } from '@/lib/fileUtils';
 
 interface FilesViewProps {
   files: FileItem[];
@@ -15,12 +14,6 @@ interface FilesViewProps {
 export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
-
-  const handleDirectViewFile = async (e: React.MouseEvent, file: FileItem) => {
-    e.stopPropagation();
-    const targetBlobUrl = await getDirectFileBlobUrl(file.name, file.fileUrl, file.project);
-    window.open(targetBlobUrl, '_blank');
-  };
 
   return (
     <div className="space-y-6 font-sans w-full">
@@ -51,14 +44,6 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
               <div className="w-10 h-10 rounded-lg bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center font-bold">
                 <FileIcon className="w-5 h-5" />
               </div>
-              <button
-                type="button"
-                onClick={(e) => handleDirectViewFile(e, file)}
-                className="text-xs font-semibold text-[#011826] hover:text-[#049FD9] px-2.5 py-1 rounded bg-[#F4F6F8] hover:bg-[#E5E5E5] transition-colors flex items-center gap-1 cursor-pointer"
-                title="View file directly in new tab"
-              >
-                <span>View File ↗</span>
-              </button>
             </div>
 
             <div className="mb-3">
