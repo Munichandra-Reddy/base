@@ -83,69 +83,78 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
           </button>
         </div>
 
-        {/* Content Viewer Body - Single Box for all details */}
-        <div className="p-4 sm:p-5 overflow-y-auto flex-1">
-          <div className="rounded-lg border border-[#E5E5E5] overflow-hidden bg-white shadow-2xs">
-            {/* Top Row: File Details & View File Action */}
-            <div className="p-4 sm:p-5 flex items-center justify-between gap-3 border-b border-[#E5E5E5]">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-md bg-[#049FD9] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
-                  {file.type === 'pdf' ? 'PDF' : file.type === 'image' ? 'IMG' : file.type === 'code' ? 'CODE' : 'FILE'}
-                </div>
-                <div className="min-w-0">
-                  <h4 className="text-sm font-semibold text-[#111827] truncate" title={file.name}>{file.name}</h4>
-                  <p className="text-xs text-[#595959] font-normal truncate">{file.project} Deliverable</p>
-                </div>
+        {/* Content Viewer Body - Clean, simple content without inner borders, divider lines, card boxes, or background containers */}
+        <div className="p-6 space-y-6 overflow-y-auto flex-1 font-sans">
+          {/* Main File Header & View File Action */}
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-11 h-11 rounded-lg bg-[#049FD9] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                {file.type === 'pdf' ? 'PDF' : file.type === 'image' ? 'IMG' : file.type === 'code' ? 'CODE' : 'FILE'}
               </div>
-              <button
-                type="button"
-                onClick={handleOpenDocument}
-                className="btn-primary shrink-0"
-              >
-                <span>View File ↗</span>
-              </button>
+              <div className="min-w-0">
+                <h4 className="text-base font-semibold text-[#111827] truncate" title={file.name}>
+                  {file.name}
+                </h4>
+                <p className="text-xs text-[#595959] mt-0.5 truncate">
+                  {file.project}
+                </p>
+              </div>
             </div>
 
-            {/* Optional preview snippet for image / code inside the same box */}
-            {file.type === 'image' && (
-              <div className="p-4 bg-[#082236] flex items-center justify-center border-b border-[#E5E5E5]">
-                <img
-                  src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop"
-                  alt={file.name}
-                  className="max-h-[220px] w-auto object-contain rounded-md shadow-md"
-                />
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={handleOpenDocument}
+              className="btn-primary shrink-0"
+            >
+              <span>View File ↗</span>
+            </button>
+          </div>
 
-            {file.type === 'code' && (
-              <div className="p-4 bg-[#011826] text-slate-100 font-mono text-xs overflow-x-auto border-b border-[#E5E5E5]">
-                <pre className="text-slate-300">
-{`{
-  "api_version": "2.0",
-  "endpoint": "/api/v2/ecommerce/checkout",
-  "status": "active",
-  "authenticated_by": "${file.uploadedBy}",
-  "project": "${file.project}",
-  "size": "${file.size}"
-}`}
-                </pre>
-              </div>
-            )}
+          {/* Clean Content Details Grid with proper spacing and alignment */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-5 gap-x-6 text-xs">
+            <div>
+              <span className="text-[11px] font-medium text-[#595959] block mb-1 uppercase tracking-wider">
+                File Type
+              </span>
+              <span className="font-semibold text-[#111827] uppercase">
+                {file.type}
+              </span>
+            </div>
 
-            {/* Bottom Row: File Metadata Details inside the same single box */}
-            <div className="grid grid-cols-3 gap-3 p-3.5 sm:p-4 bg-[#F4F6F8] text-xs font-medium text-[#595959]">
-              <div>
-                <span className="text-[10px] text-[#595959] block font-semibold uppercase">Size</span>
-                <span className="text-[#111827] font-semibold">{file.size}</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-[#595959] block font-semibold uppercase">Uploaded By</span>
-                <span className="text-[#111827] font-semibold">{file.uploadedBy}</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-[#595959] block font-semibold uppercase">Uploaded Date</span>
-                <span className="text-[#111827] font-semibold">{file.uploadedAt}</span>
-              </div>
+            <div>
+              <span className="text-[11px] font-medium text-[#595959] block mb-1 uppercase tracking-wider">
+                Project Name
+              </span>
+              <span className="font-semibold text-[#111827] truncate block" title={file.project}>
+                {file.project}
+              </span>
+            </div>
+
+            <div>
+              <span className="text-[11px] font-medium text-[#595959] block mb-1 uppercase tracking-wider">
+                File Size
+              </span>
+              <span className="font-semibold text-[#111827]">
+                {file.size}
+              </span>
+            </div>
+
+            <div>
+              <span className="text-[11px] font-medium text-[#595959] block mb-1 uppercase tracking-wider">
+                Uploaded By
+              </span>
+              <span className="font-semibold text-[#111827]">
+                {file.uploadedBy}
+              </span>
+            </div>
+
+            <div>
+              <span className="text-[11px] font-medium text-[#595959] block mb-1 uppercase tracking-wider">
+                Upload Date
+              </span>
+              <span className="font-semibold text-[#111827]">
+                {file.uploadedAt}
+              </span>
             </div>
           </div>
         </div>
