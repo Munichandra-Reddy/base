@@ -27,7 +27,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
   });
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans w-full">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs">
         <div>

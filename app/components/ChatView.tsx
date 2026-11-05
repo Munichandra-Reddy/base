@@ -22,7 +22,7 @@ export const ChatView: React.FC<ChatViewProps> = ({ messages, onSendMessage }) =
   const filteredMessages = messages.filter((m) => m.channel === activeChannel);
 
   return (
-    <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs h-[calc(100vh-8.5rem)] flex flex-col font-sans">
+    <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs h-full min-h-[500px] flex flex-col font-sans w-full">
       {/* Campfire Header */}
       <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between">
         <div className="flex items-center gap-3.5">

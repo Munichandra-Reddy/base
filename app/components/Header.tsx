@@ -127,7 +127,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="h-[72px] bg-white border-b border-[#E5E5E5] px-6 flex items-center justify-between shrink-0 z-30 shadow-xs text-[#222222]">
+    <header className="h-[72px] w-full bg-white border-b border-[#E5E5E5] px-4 sm:px-6 flex items-center justify-between shrink-0 z-30 shadow-xs text-[#222222]">
       {/* Left section: Clean Title + Workspace Dropdown */}
       <div className="flex items-center gap-4">
         <div className="flex items-center font-black text-2xl text-[#011826] tracking-tight cursor-pointer">
@@ -271,26 +271,26 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Middle section: Global Search Bar */}
-      <div className="flex-1 max-w-lg mx-6">
+      <div className="flex-1 max-w-md xl:max-w-lg mx-2 sm:mx-6 min-w-0">
         <button
           onClick={onOpenSearchModal}
-          className="w-full bg-[#F4F6F8] hover:bg-[#EBF0F5] border border-[#E5E5E5] rounded-full px-4 py-2 flex items-center justify-between text-[#595959] text-sm transition-all group"
+          className="w-full bg-[#F4F6F8] hover:bg-[#EBF0F5] border border-[#E5E5E5] rounded-full px-3 sm:px-4 py-2 flex items-center justify-between text-[#595959] text-sm transition-all group min-w-0"
         >
-          <div className="flex items-center gap-2.5">
-            <SearchIcon className="w-4 h-4 text-[#595959] group-hover:text-[#222222]" />
-            <span className="text-[#595959] font-medium">Search projects, tasks, employees, files...</span>
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <SearchIcon className="w-4 h-4 text-[#595959] group-hover:text-[#222222] shrink-0" />
+            <span className="text-[#595959] font-medium text-xs sm:text-sm truncate">Search projects, tasks, employees, files...</span>
           </div>
-          <kbd className="hidden sm:inline-flex items-center gap-1 bg-white border border-[#E5E5E5] text-[#595959] text-xs font-mono font-semibold px-2 py-0.5 rounded shadow-2xs">
+          <kbd className="hidden sm:inline-flex items-center gap-1 bg-white border border-[#E5E5E5] text-[#595959] text-xs font-mono font-semibold px-2 py-0.5 rounded shadow-2xs shrink-0 ml-1">
             ⌘F / Ctrl+K
           </kbd>
         </button>
       </div>
 
       {/* Right section: Create New + Notifications + User Avatar */}
-      <div className="flex items-center gap-3 relative" ref={profileRef}>
+      <div className="flex items-center gap-2 sm:gap-3 relative shrink-0" ref={profileRef}>
         <button
           onClick={onOpenCreateModal}
-          className="btn-signup flex items-center text-sm py-2 px-4 shadow-sm"
+          className="btn-signup flex items-center text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4 shadow-sm shrink-0 whitespace-nowrap"
         >
           <span>Create New</span>
         </button>
@@ -298,7 +298,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Bell Notifications */}
         <button
           onClick={onToggleNotifications}
-          className="relative p-2 text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8] rounded-full transition-colors"
+          className="relative p-2 text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8] rounded-full transition-colors shrink-0"
         >
           <BellIcon className="w-5 h-5" />
           {unreadNotifications > 0 && (
@@ -314,18 +314,18 @@ export const Header: React.FC<HeaderProps> = ({
             setIsProfileOpen(!isProfileOpen);
             setIsWorkspaceOpen(false);
           }}
-          className="flex items-center gap-2 pl-2 border-l border-[#E5E5E5] cursor-pointer hover:opacity-90 select-none py-1"
+          className="flex items-center gap-2 pl-2 border-l border-[#E5E5E5] cursor-pointer hover:opacity-90 select-none py-1 min-w-0"
         >
-          <div className="w-8 h-8 rounded-full bg-[#049FD9] text-white font-extrabold flex items-center justify-center text-sm shadow-xs border border-[#E5E5E5]">
+          <div className="w-8 h-8 rounded-full bg-[#049FD9] text-white font-extrabold flex items-center justify-center text-sm shadow-xs border border-[#E5E5E5] shrink-0">
             {userAvatar}
           </div>
-          <div className="hidden md:block text-left leading-tight">
-            <div className="font-bold text-xs text-[#222222]">{userName}</div>
-            <div className="text-[11px] text-[#595959] font-medium">
+          <div className="hidden md:block text-left leading-tight min-w-0 max-w-[140px] xl:max-w-none">
+            <div className="font-bold text-xs text-[#222222] truncate">{userName}</div>
+            <div className="text-[11px] text-[#595959] font-medium truncate">
               {currentRole === 'employee' ? 'Product Designer' : 'Workspace Admin'}
             </div>
           </div>
-          <svg className={`w-3.5 h-3.5 text-[#595959] transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className={`w-3.5 h-3.5 text-[#595959] transition-transform shrink-0 ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
           </svg>
         </div>

@@ -56,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const storagePercentage = Math.min(100, Math.round((storageUsedGB / storageTotalGB) * 100));
 
   return (
-    <aside className="w-68 bg-white border-r border-[#E5E5E5] p-4 flex flex-col justify-between h-full shrink-0 select-none overflow-y-auto">
+    <aside className="w-64 bg-white border-r border-[#E5E5E5] p-4 flex flex-col justify-between h-full shrink-0 select-none overflow-y-auto">
       <div className="space-y-5">
         <div>
           <h3 className="px-3 text-[11px] font-bold tracking-wider text-[#595959] uppercase mb-2">

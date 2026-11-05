@@ -16,7 +16,7 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
   const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans w-full">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs">
         <div>

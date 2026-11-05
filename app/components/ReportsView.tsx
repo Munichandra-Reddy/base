@@ -12,7 +12,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ activities }) => {
   const activityList = activities && activities.length > 0 ? activities : initialActivities;
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans w-full">
       <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs">
         <h1 className="text-xl font-semibold text-[#111827]">Workspace Productivity Reports</h1>
         <p className="text-[#595959] text-xs font-normal mt-0.5">Task completion rates, velocity metrics, and project load analysis.</p>

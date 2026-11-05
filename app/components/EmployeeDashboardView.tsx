@@ -98,7 +98,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans w-full">
       {/* 1. PERSONAL HERO BANNER & STATUS CONTROLS */}
       <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -152,7 +152,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
       </div>
 
       {/* 2. EMPLOYEE PERSONAL KPI METRICS (6 Compact Cards Grid) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 w-full">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 w-full">
         {/* Card 1: My Open Tasks */}
         <div
           onClick={onViewTasks}
@@ -293,9 +293,9 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
       </div>
 
       {/* 3. MAIN WORKSTATION (Split 2-Column + 1-Column Grid) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 w-full">
         {/* LEFT 2 COLUMNS */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 lg:space-y-6">
           {/* Card 1: Today's Focus & Interactive To-Do Checklist */}
           <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E5E5]">
@@ -336,18 +336,18 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             </div>
 
             {/* In-Place Quick Add Personal Task */}
-            <form onSubmit={handleCreateQuickTask} className="flex items-center gap-2">
+            <form onSubmit={handleCreateQuickTask} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 type="text"
                 value={newQuickTaskTitle}
                 onChange={(e) => setNewQuickTaskTitle(e.target.value)}
                 placeholder="+ Add personal to-do for today and press Enter..."
-                className="flex-1 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl px-4 py-2.5 text-xs text-[#0F172A] placeholder:text-[#94A3B8] font-medium focus:outline-none focus:border-[#049FD9]"
+                className="flex-1 min-w-0 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl px-4 py-2.5 text-xs text-[#0F172A] placeholder:text-[#94A3B8] font-medium focus:outline-none focus:border-[#049FD9]"
               />
               <select
                 value={newQuickTaskProject}
                 onChange={(e) => setNewQuickTaskProject(e.target.value)}
-                className="bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl px-3 py-2.5 text-xs text-[#0F172A] font-semibold focus:outline-none"
+                className="bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl px-3 py-2.5 text-xs text-[#0F172A] font-semibold focus:outline-none sm:w-48 shrink-0"
               >
                 {displayedProjects.map((p) => (
                   <option key={p.id} value={p.name}>
@@ -357,7 +357,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
               </select>
               <button
                 type="submit"
-                className="px-4 py-2.5 bg-[#011826] hover:bg-[#082236] text-white text-xs font-semibold rounded-lg shrink-0 cursor-pointer transition-colors"
+                className="px-4 py-2.5 bg-[#011826] hover:bg-[#082236] text-white text-xs font-semibold rounded-lg shrink-0 cursor-pointer transition-colors whitespace-nowrap"
               >
                 Add Task
               </button>
@@ -483,7 +483,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         </div>
 
         {/* RIGHT 1 COLUMN */}
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6">
           {/* Card 3: Today's Schedule & Meetings */}
           <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">

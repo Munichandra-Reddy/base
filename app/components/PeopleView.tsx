@@ -17,7 +17,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({ people, onOpenAddEmploye
   }, [people]);
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans w-full">
       <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold text-[#111827]">Workspace Employees Directory</h1>

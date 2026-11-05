@@ -266,7 +266,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     );
 
     return (
-      <div className="space-y-6 font-sans animate-in fade-in duration-150 text-[#0F172A]">
+      <div className="space-y-6 font-sans animate-in fade-in duration-150 text-[#0F172A] w-full">
         
         {/* Navigation Top Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] shadow-micro">
@@ -1103,7 +1103,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
   // STANDARD ALL PROJECTS GRID / CARDS / KANBAN VIEW
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans w-full">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-xl font-semibold text-[#111827]">

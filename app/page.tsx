@@ -731,7 +731,7 @@ export default function Home() {
   const pendingTasksCount = tasks.filter((t) => !t.completed).length;
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col bg-[#FFFFFF]">
+    <div className="h-screen w-full overflow-hidden flex flex-col bg-[#FFFFFF]">
       {/* Top Header - Fixed at Top */}
       <Header
         onOpenCreateModal={() => {
@@ -755,7 +755,7 @@ export default function Home() {
       />
 
       {/* Main Container */}
-      <div className="flex flex-1 h-[calc(100vh-4rem)] overflow-hidden">
+      <div className="flex flex-1 min-h-0 w-full overflow-hidden">
         {/* Left Sidebar - Fixed */}
         <Sidebar
           activeTab={activeTab}
@@ -767,7 +767,7 @@ export default function Home() {
         />
 
         {/* Right Main Content Area - Scrollable */}
-        <main className="flex-1 h-full overflow-y-auto p-6 md:p-8 max-w-7xl">
+        <main className="flex-1 h-full overflow-y-auto p-4 sm:p-6 lg:p-8 w-full min-w-0">
           {activeTab === 'dashboard' && dashboardRole === 'admin' && (
             <DashboardView
               stats={{

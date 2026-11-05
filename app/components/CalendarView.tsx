@@ -91,7 +91,7 @@ export const CalendarView: React.FC = () => {
   const selectedDayEvents = selectedDay ? events[selectedDay] || [] : [];
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans w-full">
       {/* Header */}
       <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>

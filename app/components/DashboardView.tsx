@@ -53,10 +53,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   });
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-6 font-sans w-full">
 
       {/* 2. TOP METRICS CARDS BAR (6 Cards Grid - Clean Enterprise Style) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 w-full">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 w-full">
         {/* Card 1: Total Projects */}
         <div
           onClick={onViewProjects}
@@ -195,11 +195,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* 3. MAIN DASHBOARD GRID (Split Layout) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 w-full">
         {/* LEFT 2 COLUMNS */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 lg:space-y-6">
           {/* ROW 1 CARDS: Project Progress & Upcoming Deadlines */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
             {/* Card 1: Project Progress */}
             <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between mb-4">
@@ -212,9 +212,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </button>
               </div>
 
-              <div className="flex items-center justify-between gap-4 py-2">
+              <div className="flex items-center justify-between gap-3 sm:gap-4 py-2 flex-wrap sm:flex-nowrap">
                 {/* SVG Donut Chart */}
-                <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
+                <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center shrink-0">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                     <path
                       className="text-[#F4F6F8]"
@@ -369,7 +369,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* ROW 2 CARDS: Top Projects & Task Status / Team Workload */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
             {/* Card 3: Top Projects Table */}
             <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs">
               <div className="flex items-center justify-between mb-4">
@@ -396,11 +396,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {/* Row 1 */}
                     <tr className="hover:bg-[#F4F6F8] transition-colors">
                       <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
-                        <span className="truncate max-w-[125px]">E-Commerce Website</span>
+                        <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">E-Commerce Website</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
+                          <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
                             <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '68%' }} />
                           </div>
                           <span className="text-[10px] font-semibold text-[#595959]">68%</span>
@@ -417,11 +417,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {/* Row 2 */}
                     <tr className="hover:bg-[#F4F6F8] transition-colors">
                       <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
-                        <span className="truncate max-w-[125px]">Mobile App v2</span>
+                        <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">Mobile App v2</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
+                          <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
                             <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '45%' }} />
                           </div>
                           <span className="text-[10px] font-semibold text-[#595959]">45%</span>
@@ -438,11 +438,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {/* Row 3 */}
                     <tr className="hover:bg-[#F4F6F8] transition-colors">
                       <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
-                        <span className="truncate max-w-[125px]">Marketing Campaign Q4</span>
+                        <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">Marketing Campaign Q4</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
+                          <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
                             <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '82%' }} />
                           </div>
                           <span className="text-[10px] font-semibold text-[#595959]">82%</span>
@@ -459,11 +459,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {/* Row 4 */}
                     <tr className="hover:bg-[#F4F6F8] transition-colors">
                       <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
-                        <span className="truncate max-w-[125px]">HR Management System</span>
+                        <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">HR Management System</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
+                          <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
                             <div className="bg-[#CBD5E1] h-full rounded-full" style={{ width: '32%' }} />
                           </div>
                           <span className="text-[10px] font-semibold text-[#595959]">32%</span>
@@ -480,11 +480,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     {/* Row 5 */}
                     <tr className="hover:bg-[#F4F6F8] transition-colors">
                       <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
-                        <span className="truncate max-w-[125px]">Cloud Migration</span>
+                        <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">Cloud Migration</span>
                       </td>
                       <td className="py-2.5 whitespace-nowrap pr-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
+                          <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
                             <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '60%' }} />
                           </div>
                           <span className="text-[10px] font-semibold text-[#595959]">60%</span>
@@ -599,11 +599,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             {member.avatar}
                           </div>
                           <div>
-                            <div className="font-semibold text-[#111827] text-[11px] leading-tight truncate max-w-[95px]">{member.name}</div>
-                            <div className="text-[9px] text-[#595959] font-normal truncate max-w-[95px]">{member.role}</div>
+                            <div className="font-semibold text-[#111827] text-[11px] leading-tight truncate max-w-[110px] sm:max-w-[140px] xl:max-w-none">{member.name}</div>
+                            <div className="text-[9px] text-[#595959] font-normal truncate max-w-[110px] sm:max-w-[140px] xl:max-w-none">{member.role}</div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-1 max-w-[140px]">
+                        <div className="flex items-center gap-2 flex-1 max-w-[160px] sm:max-w-[190px]">
                           <span className="text-[10px] font-normal text-[#595959] whitespace-nowrap">{member.projectsCount || 1} tasks</span>
                           <div className="w-full bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden">
                             <div className="bg-[#049FD9] h-full rounded-full" style={{ width: `${Math.min(100, (member.projectsCount || 1) * 35)}%` }} />
