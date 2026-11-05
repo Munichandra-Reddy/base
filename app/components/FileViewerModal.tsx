@@ -55,101 +55,6 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
     }
   };
 
-  const getFilePreviewContent = () => {
-    switch (file.type) {
-      case 'image':
-        return (
-          <div className="bg-[#011826] rounded-2xl p-6 flex flex-col items-center justify-center min-h-[260px] text-white">
-            <div className="w-full max-h-[300px] overflow-hidden rounded-xl bg-[#082236] flex items-center justify-center border border-[#0d314d] p-4">
-              <img
-                src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop"
-                alt={file.name}
-                className="max-h-[240px] w-auto object-contain rounded-lg shadow-md"
-              />
-            </div>
-            <div className="flex items-center justify-between w-full mt-3">
-              <p className="text-xs text-[#CBD5E1] font-medium">Image Preview • {file.name}</p>
-              <button
-                type="button"
-                onClick={handleOpenDocument}
-                className="btn-primary text-xs"
-              >
-                <span>View File ↗</span>
-              </button>
-            </div>
-          </div>
-        );
-
-      case 'code':
-        return (
-          <div className="bg-[#011826] text-slate-100 rounded-2xl p-5 font-mono text-xs overflow-x-auto min-h-[240px] border border-[#0d314d]">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#0d314d] text-[#64748B] text-[11px]">
-              <span>{file.name}</span>
-              <button
-                type="button"
-                onClick={handleOpenDocument}
-                className="btn-primary text-xs"
-              >
-                <span>View File ↗</span>
-              </button>
-            </div>
-            <pre className="text-slate-300">
-{`{
-  "api_version": "2.0",
-  "endpoint": "/api/v2/ecommerce/checkout",
-  "status": "active",
-  "authenticated_by": "${file.uploadedBy}",
-  "project": "${file.project}",
-  "size": "${file.size}"
-}`}
-            </pre>
-          </div>
-        );
-
-      case 'pdf':
-        return (
-          <div className="bg-[#F4F6F8] rounded-lg p-4 border border-[#E5E5E5]">
-            <div className="bg-white p-4 rounded-md border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-md bg-[#049FD9] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
-                  PDF
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-[#111827]">{file.name}</h4>
-                  <p className="text-xs text-[#595959] font-normal">{file.project} Deliverable</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={handleOpenDocument}
-                className="btn-primary"
-              >
-                <span>View File ↗</span>
-              </button>
-            </div>
-          </div>
-        );
-
-      default:
-        return (
-          <div className="bg-[#F1F3F6] rounded-2xl p-8 text-center border border-[#E2E8F0] min-h-[200px] flex flex-col items-center justify-center space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-[#EBF0F5] text-[#0F172A] flex items-center justify-center">
-              <FileIcon className="w-8 h-8 text-[#0F172A]" />
-            </div>
-            <h4 className="text-base font-bold text-[#0F172A]">{file.name}</h4>
-            <p className="text-xs text-[#64748B] font-medium">Standard Project Document</p>
-            <button
-              type="button"
-              onClick={handleOpenDocument}
-              className="btn-primary mt-2"
-            >
-              <span>View File ↗</span>
-            </button>
-          </div>
-        );
-    }
-  };
-
   return (
     <div
       onClick={(e) => {
@@ -178,23 +83,69 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
           </button>
         </div>
 
-        {/* Content Viewer Body */}
-        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
-          {getFilePreviewContent()}
+        {/* Content Viewer Body - Single Box for all details */}
+        <div className="p-4 sm:p-5 overflow-y-auto flex-1">
+          <div className="rounded-lg border border-[#E5E5E5] overflow-hidden bg-white shadow-2xs">
+            {/* Top Row: File Details & View File Action */}
+            <div className="p-4 sm:p-5 flex items-center justify-between gap-3 border-b border-[#E5E5E5]">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-md bg-[#049FD9] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                  {file.type === 'pdf' ? 'PDF' : file.type === 'image' ? 'IMG' : file.type === 'code' ? 'CODE' : 'FILE'}
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-sm font-semibold text-[#111827] truncate" title={file.name}>{file.name}</h4>
+                  <p className="text-xs text-[#595959] font-normal truncate">{file.project} Deliverable</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleOpenDocument}
+                className="btn-primary shrink-0"
+              >
+                <span>View File ↗</span>
+              </button>
+            </div>
 
-          {/* File Metadata Details */}
-          <div className="grid grid-cols-3 gap-3 p-3 bg-[#F4F6F8] rounded-md border border-[#E5E5E5] text-xs font-medium text-[#595959]">
-            <div>
-              <span className="text-[10px] text-[#595959] block font-semibold uppercase">Size</span>
-              <span className="text-[#111827] font-semibold">{file.size}</span>
-            </div>
-            <div>
-              <span className="text-[10px] text-[#595959] block font-semibold uppercase">Uploaded By</span>
-              <span className="text-[#111827] font-semibold">{file.uploadedBy}</span>
-            </div>
-            <div>
-              <span className="text-[10px] text-[#595959] block font-semibold uppercase">Uploaded Date</span>
-              <span className="text-[#111827] font-semibold">{file.uploadedAt}</span>
+            {/* Optional preview snippet for image / code inside the same box */}
+            {file.type === 'image' && (
+              <div className="p-4 bg-[#082236] flex items-center justify-center border-b border-[#E5E5E5]">
+                <img
+                  src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop"
+                  alt={file.name}
+                  className="max-h-[220px] w-auto object-contain rounded-md shadow-md"
+                />
+              </div>
+            )}
+
+            {file.type === 'code' && (
+              <div className="p-4 bg-[#011826] text-slate-100 font-mono text-xs overflow-x-auto border-b border-[#E5E5E5]">
+                <pre className="text-slate-300">
+{`{
+  "api_version": "2.0",
+  "endpoint": "/api/v2/ecommerce/checkout",
+  "status": "active",
+  "authenticated_by": "${file.uploadedBy}",
+  "project": "${file.project}",
+  "size": "${file.size}"
+}`}
+                </pre>
+              </div>
+            )}
+
+            {/* Bottom Row: File Metadata Details inside the same single box */}
+            <div className="grid grid-cols-3 gap-3 p-3.5 sm:p-4 bg-[#F4F6F8] text-xs font-medium text-[#595959]">
+              <div>
+                <span className="text-[10px] text-[#595959] block font-semibold uppercase">Size</span>
+                <span className="text-[#111827] font-semibold">{file.size}</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-[#595959] block font-semibold uppercase">Uploaded By</span>
+                <span className="text-[#111827] font-semibold">{file.uploadedBy}</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-[#595959] block font-semibold uppercase">Uploaded Date</span>
+                <span className="text-[#111827] font-semibold">{file.uploadedAt}</span>
+              </div>
             </div>
           </div>
         </div>
