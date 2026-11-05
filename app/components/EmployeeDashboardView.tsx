@@ -50,8 +50,6 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
   const totalEmployeesCount = people?.length ?? 0;
   const activeEmployeesCount = people?.filter((p) => p.status === 'active').length ?? totalEmployeesCount;
 
-  // Work Status Toggle
-  const [workStatus, setWorkStatus] = useState<'available' | 'focus' | 'meeting' | 'away'>('available');
   const [newQuickTaskTitle, setNewQuickTaskTitle] = useState('');
   const [newQuickTaskProject, setNewQuickTaskProject] = useState('E-Commerce Website');
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('pending');
@@ -110,37 +108,8 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           </p>
         </div>
 
-        {/* Status Toggle & Quick Actions */}
+        {/* Quick Actions */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          {/* Work Status Selector */}
-          <div className="flex items-center bg-[#F4F6F8] p-1 rounded-xl border border-[#E5E5E5] text-xs font-medium">
-            <button
-              onClick={() => setWorkStatus('available')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                workStatus === 'available' ? 'bg-white text-[#222222] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#222222]'
-              }`}
-            >
-              <span className="w-2 h-2 rounded-full bg-[#16A34A]" />
-              <span>Available</span>
-            </button>
-            <button
-              onClick={() => setWorkStatus('focus')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                workStatus === 'focus' ? 'bg-[#011826] text-white shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#222222]'
-              }`}
-            >
-              <span>Focus</span>
-            </button>
-            <button
-              onClick={() => setWorkStatus('meeting')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                workStatus === 'meeting' ? 'bg-white text-[#222222] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#222222]'
-              }`}
-            >
-              <span>Meeting</span>
-            </button>
-          </div>
-
           {/* Quick Check-in Button */}
           <button
             onClick={onViewCheckins}
