@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileItem } from '@/lib/types';
 import { FileIcon, PlusIcon } from './Icons';
 import { UploadFileModal } from './UploadFileModal';
 import { FileViewerModal } from './FileViewerModal';
+import { getFileRelativeTime } from '@/lib/fileUtils';
 
 interface FilesViewProps {
   files: FileItem[];
@@ -14,6 +15,15 @@ interface FilesViewProps {
 export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
+
+  // Live timer so relative upload times automatically update (e.g. Just now -> 1 min ago)
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTick((prev) => prev + 1);
+    }, 15000); // Check and re-render every 15 seconds
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="space-y-6 font-sans w-full">
@@ -55,7 +65,7 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
 
             <div className="flex items-center justify-between pt-3 border-t border-[#E5E5E5] text-[11px] font-medium text-[#6B7280]">
               <span>{file.size}</span>
-              <span className="text-[#111827] font-semibold">{file.uploadedAt}</span>
+              <span className="text-[#111827] font-semibold">{getFileRelativeTime(file)}</span>
             </div>
           </div>
         ))}

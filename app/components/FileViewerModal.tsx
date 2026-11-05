@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileItem } from '@/lib/types';
 import { FileIcon, DownloadIcon } from './Icons';
-import { getDirectFileBlobUrl, getDirectFileBlob } from '@/lib/fileUtils';
+import { getDirectFileBlobUrl, getDirectFileBlob, getFileRelativeTime } from '@/lib/fileUtils';
 
 interface FileViewerModalProps {
   file: FileItem | null;
@@ -11,6 +11,15 @@ interface FileViewerModalProps {
 }
 
 export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose }) => {
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTick((prev) => prev + 1);
+    }, 15000);
+    return () => clearInterval(timer);
+  }, []);
+
   if (!file) return null;
 
   const handleOpenDocument = async () => {
@@ -153,7 +162,7 @@ export const FileViewerModal: React.FC<FileViewerModalProps> = ({ file, onClose 
                 Upload Date
               </span>
               <span className="font-semibold text-[#111827]">
-                {file.uploadedAt}
+                {getFileRelativeTime(file)}
               </span>
             </div>
           </div>

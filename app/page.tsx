@@ -29,6 +29,7 @@ import {
 } from '@/lib/data';
 
 import { Task, Activity, Project, ChatMessage, CheckIn, FileItem, Person } from '@/lib/types';
+import { getFileRelativeTime } from '@/lib/fileUtils';
 import {
   subscribeToChatMessages,
   addFirebaseChatMessage,
@@ -133,7 +134,40 @@ export default function Home() {
       if (savedFiles) {
         try {
           const parsed = JSON.parse(savedFiles);
-          if (Array.isArray(parsed) && parsed.length > 0) setFiles(parsed);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const normalized = parsed.map((f: FileItem, idx: number) => {
+              let createdAt = f.createdAt;
+              if (!createdAt && f.id && f.id.startsWith('f-')) {
+                const numericPart = Number(f.id.replace('f-', ''));
+                if (!isNaN(numericPart) && numericPart > 1600000000000) {
+                  createdAt = numericPart;
+                }
+              }
+              if (!createdAt) {
+                const lower = (f.uploadedAt || '').toLowerCase().trim();
+                if (lower.includes('25 min')) {
+                  createdAt = Date.now() - 25 * 60 * 1000;
+                } else if (lower.includes('2 hour')) {
+                  createdAt = Date.now() - 2 * 60 * 60 * 1000;
+                } else if (lower.includes('1 day')) {
+                  createdAt = Date.now() - 24 * 60 * 60 * 1000;
+                } else if (lower.includes('3 day')) {
+                  createdAt = Date.now() - 3 * 24 * 60 * 60 * 1000;
+                } else if (lower === 'just now') {
+                  createdAt = Date.now() - (idx + 1) * 4 * 60 * 1000;
+                } else {
+                  createdAt = Date.now();
+                }
+              }
+              return {
+                ...f,
+                createdAt,
+                uploadedAt: getFileRelativeTime({ ...f, createdAt }),
+              };
+            });
+            setFiles(normalized);
+            localStorage.setItem('workorbit_files', JSON.stringify(normalized));
+          }
         } catch (e) {}
       }
 
@@ -685,8 +719,14 @@ export default function Home() {
   };
 
   const handleUploadFile = async (newFile: FileItem) => {
+    const fileWithTime: FileItem = {
+      ...newFile,
+      createdAt: newFile.createdAt || Date.now(),
+      uploadedAt: getFileRelativeTime(newFile),
+    };
+
     setFiles((prev) => {
-      const updated = [newFile, ...prev];
+      const updated = [fileWithTime, ...prev];
       if (typeof window !== 'undefined') {
         localStorage.setItem('workorbit_files', JSON.stringify(updated));
       }

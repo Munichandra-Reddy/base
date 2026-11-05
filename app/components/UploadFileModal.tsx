@@ -96,12 +96,14 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
       saveFileToDB(trimmedName, selectedFileObj);
     }
 
+    const uploadTimestamp = Date.now();
     const newFileItem: FileItem = {
-      id: `f-${Date.now()}`,
+      id: `f-${uploadTimestamp}`,
       name: trimmedName,
       size: fileSize.trim() || '1.2 MB',
       uploadedBy: 'Rahul Kumar',
       uploadedAt: 'Just now',
+      createdAt: uploadTimestamp,
       type: fileType,
       project: project,
       fileUrl: fileDataUrl || (selectedFileObj ? URL.createObjectURL(selectedFileObj) : undefined),

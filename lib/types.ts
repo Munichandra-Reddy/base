@@ -75,6 +75,7 @@ export interface FileItem {
   size: string;
   uploadedBy: string;
   uploadedAt: string;
+  createdAt?: number;
   type: 'pdf' | 'image' | 'code' | 'document' | 'zip';
   project: string;
   fileUrl?: string;

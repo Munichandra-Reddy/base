@@ -268,3 +268,84 @@ export const getDirectFileBlobUrl = async (
   const blob = await getDirectFileBlob(docName, providedUrl, projectName);
   return URL.createObjectURL(blob);
 };
+
+export const getFileRelativeTime = (file: { createdAt?: number | string; uploadedAt?: string; id?: string }): string => {
+  let timestamp: number | null = null;
+
+  if (file.createdAt) {
+    timestamp = typeof file.createdAt === 'number' ? file.createdAt : new Date(file.createdAt).getTime();
+  }
+
+  // If no explicit createdAt, extract from numeric id (e.g. f-1730812345678)
+  if (!timestamp && file.id && file.id.startsWith('f-')) {
+    const numericPart = Number(file.id.replace('f-', ''));
+    if (!isNaN(numericPart) && numericPart > 1600000000000) {
+      timestamp = numericPart;
+    }
+  }
+
+  // If still no timestamp, parse common static strings (e.g. from initial data)
+  if (!timestamp && file.uploadedAt) {
+    const lower = file.uploadedAt.toLowerCase().trim();
+    if (lower === 'just now') {
+      timestamp = Date.now();
+    } else if (lower.includes('min')) {
+      const match = lower.match(/\d+/);
+      const mins = match ? parseInt(match[0], 10) : 1;
+      timestamp = Date.now() - mins * 60 * 1000;
+    } else if (lower.includes('hour')) {
+      const match = lower.match(/\d+/);
+      const hours = match ? parseInt(match[0], 10) : 1;
+      timestamp = Date.now() - hours * 60 * 60 * 1000;
+    } else if (lower.includes('day')) {
+      const match = lower.match(/\d+/);
+      const days = match ? parseInt(match[0], 10) : 1;
+      timestamp = Date.now() - days * 24 * 60 * 60 * 1000;
+    } else if (lower.includes('week')) {
+      const match = lower.match(/\d+/);
+      const weeks = match ? parseInt(match[0], 10) : 1;
+      timestamp = Date.now() - weeks * 7 * 24 * 60 * 60 * 1000;
+    }
+  }
+
+  if (!timestamp || isNaN(timestamp)) {
+    return file.uploadedAt || 'Just now';
+  }
+
+  const diffMs = Date.now() - timestamp;
+  const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+
+  if (diffSec < 45) {
+    return 'Just now';
+  }
+
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) {
+    return `${diffMin} min ago`;
+  }
+
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) {
+    return diffHour === 1 ? '1 hour ago' : `${diffHour} hours ago`;
+  }
+
+  const diffDay = Math.floor(diffHour / 24);
+  if (diffDay === 1) {
+    return '1 day ago';
+  }
+  if (diffDay < 7) {
+    return `${diffDay} days ago`;
+  }
+
+  const diffWeek = Math.floor(diffDay / 7);
+  if (diffWeek < 4) {
+    return diffWeek === 1 ? '1 week ago' : `${diffWeek} weeks ago`;
+  }
+
+  const diffMonth = Math.floor(diffDay / 30);
+  if (diffMonth < 12) {
+    return diffMonth === 1 ? '1 month ago' : `${diffMonth} months ago`;
+  }
+
+  return `${Math.floor(diffDay / 365)} year ago`;
+};

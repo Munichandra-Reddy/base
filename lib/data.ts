@@ -263,6 +263,8 @@ export const initialCheckIns: CheckIn[] = [
   },
 ];
 
+const initialFileBaseTime = Date.now();
+
 export const initialFiles: FileItem[] = [
   {
     id: 'f-1',
@@ -270,6 +272,7 @@ export const initialFiles: FileItem[] = [
     size: '4.2 MB',
     uploadedBy: 'Priya Sharma',
     uploadedAt: '25 min ago',
+    createdAt: initialFileBaseTime - 25 * 60 * 1000,
     type: 'pdf',
     project: 'E-Commerce Website',
   },
@@ -279,6 +282,7 @@ export const initialFiles: FileItem[] = [
     size: '184 KB',
     uploadedBy: 'Chandra Reddy',
     uploadedAt: '2 hours ago',
+    createdAt: initialFileBaseTime - 2 * 60 * 60 * 1000,
     type: 'code',
     project: 'E-Commerce Website',
   },
@@ -288,6 +292,7 @@ export const initialFiles: FileItem[] = [
     size: '12.5 MB',
     uploadedBy: 'Priya Sharma',
     uploadedAt: '1 day ago',
+    createdAt: initialFileBaseTime - 24 * 60 * 60 * 1000,
     type: 'pdf',
     project: 'Marketing Campaign',
   },
@@ -297,6 +302,7 @@ export const initialFiles: FileItem[] = [
     size: '8.1 MB',
     uploadedBy: 'Priya Sharma',
     uploadedAt: '3 days ago',
+    createdAt: initialFileBaseTime - 3 * 24 * 60 * 60 * 1000,
     type: 'image',
     project: 'Brand Identity Refresh',
   },
