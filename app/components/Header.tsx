@@ -97,10 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* User Profile Trigger */}
         <div
-          onClick={() => {
-            setIsProfileOpen(!isProfileOpen);
-            setIsWorkspaceOpen(false);
-          }}
+          onClick={() => setIsProfileOpen(!isProfileOpen)}
           className="flex items-center gap-2 pl-2 border-l border-[#E5E5E5] cursor-pointer hover:opacity-90 select-none py-1 min-w-0"
         >
           <div className="w-8 h-8 rounded-full bg-[#049FD9] text-white font-extrabold flex items-center justify-center text-sm shadow-xs border border-[#E5E5E5] shrink-0">

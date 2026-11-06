@@ -8,8 +8,6 @@ import {
   FolderIcon,
   ChatIcon,
   CheckCircleIcon,
-  CalendarIcon,
-  PlusIcon,
   UsersIcon,
 } from './Icons';
 
