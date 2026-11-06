@@ -91,8 +91,8 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
                   <div
                     className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
                       task.completed
-                        ? 'bg-[#049FD9] border-[#049FD9] text-white'
-                        : 'border-[#CCCCCC] hover:border-[#049FD9] bg-white'
+                        ? 'bg-black border-black text-white'
+                        : 'border-[#CCCCCC] hover:border-black bg-white'
                     }`}
                   >
                     {task.completed && (

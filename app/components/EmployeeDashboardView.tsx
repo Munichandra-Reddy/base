@@ -291,8 +291,8 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                         <div
                           className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
                             task.completed
-                              ? 'bg-[#049FD9] border-[#049FD9] text-white'
-                              : 'border-[#CCCCCC] group-hover:border-[#049FD9] bg-white'
+                              ? 'bg-black border-black text-white'
+                              : 'border-[#CCCCCC] group-hover:border-black bg-white'
                           }`}
                         >
                           {task.completed && (
