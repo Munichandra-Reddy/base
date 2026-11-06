@@ -175,9 +175,9 @@ export const CalendarView: React.FC = () => {
                       <div
                         key={idx}
                         title={evt.title}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedEventId(isSelected ? null : eventKey);
+                        onClick={() => {
+                          setSelectedEventId(eventKey);
+                          setSelectedDay(day);
                         }}
                         className={`text-xs font-bold p-2 rounded-lg mb-1 truncate shadow-2xs transition-all duration-150 cursor-pointer ${
                           isSelected
@@ -222,9 +222,9 @@ export const CalendarView: React.FC = () => {
                       <div
                         key={idx}
                         title={evt.title}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedEventId(isSelected ? null : eventKey);
+                        onClick={() => {
+                          setSelectedEventId(eventKey);
+                          setSelectedDay(wDay.dayNumber);
                         }}
                         className={`p-2.5 rounded-xl space-y-1 shadow-2xs transition-all duration-150 cursor-pointer group/weekEvt ${
                           isSelected
