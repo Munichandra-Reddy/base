@@ -14,7 +14,6 @@ import { PeopleView } from './components/PeopleView';
 import { CheckinsView } from './components/CheckinsView';
 import { ReportsView } from './components/ReportsView';
 import { CreateModal } from './components/CreateModal';
-import { SearchModal } from './components/SearchModal';
 import { NotificationPanel } from './components/NotificationPanel';
 import { AuthView } from './components/AuthView';
 
@@ -81,7 +80,6 @@ export default function Home() {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createModalType, setCreateModalType] = useState<'task' | 'project' | 'employee'>('task');
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
   const [dashboardRole, setDashboardRole] = useState<'admin' | 'employee'>('admin');
@@ -827,7 +825,7 @@ export default function Home() {
           setCreateModalType('task');
           setIsCreateModalOpen(true);
         }}
-        onOpenSearchModal={() => setIsSearchModalOpen(true)}
+        onNavigate={handleTabChange}
         onToggleNotifications={() => setIsNotificationsOpen(!isNotificationsOpen)}
         unreadNotifications={unreadCount}
         onLogout={handleLogout}
@@ -961,11 +959,6 @@ export default function Home() {
         isAdmin={dashboardRole === 'admin'}
       />
 
-      <SearchModal
-        isOpen={isSearchModalOpen}
-        onClose={() => setIsSearchModalOpen(false)}
-        onNavigate={(tab) => setActiveTab(tab)}
-      />
     </div>
   );
 }

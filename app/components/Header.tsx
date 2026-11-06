@@ -5,7 +5,8 @@ import { SearchIcon, BellIcon } from './Icons';
 
 interface HeaderProps {
   onOpenCreateModal: () => void;
-  onOpenSearchModal: () => void;
+  onOpenSearchModal?: () => void;
+  onNavigate?: (tab: any) => void;
   onToggleNotifications: () => void;
   unreadNotifications: number;
   onLogout?: () => void;
@@ -16,6 +17,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   onOpenCreateModal,
   onOpenSearchModal,
+  onNavigate,
   onToggleNotifications,
   unreadNotifications,
   onLogout,
@@ -23,7 +25,26 @@ export const Header: React.FC<HeaderProps> = ({
   currentRole = 'admin',
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
   const profileRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const quickLinks = [
+    { label: 'E-Commerce Homepage Design', type: 'Task', tab: 'tasks' },
+    { label: 'Mobile App v2 Architecture', type: 'Project', tab: 'projects' },
+    { label: 'Login API Endpoint Spec', type: 'File', tab: 'files' },
+    { label: 'Workspace Employees Directory', type: 'People', tab: 'people' },
+    { label: 'Daily Standup Campfire', type: 'Chat', tab: 'chat' },
+  ];
+
+  const filteredResults = quickLinks.filter(
+    (l) =>
+      l.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const userName = currentUser?.fullName || (currentRole === 'employee' ? 'Employee' : 'Muni');
   const userEmail = currentUser?.email || (currentRole === 'employee' ? 'employee@company.com' : 'cr7156816@gmail.com');
@@ -34,9 +55,24 @@ export const Header: React.FC<HeaderProps> = ({
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'f')) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        setIsSearchFocused(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleLogoutClick = () => {
@@ -57,20 +93,97 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Middle section: Global Search Bar */}
-      <div className="flex-1 max-w-md xl:max-w-lg mx-2 sm:mx-6 min-w-0">
-        <button
-          onClick={onOpenSearchModal}
-          className="w-full bg-[#F4F6F8] hover:bg-[#EBF0F5] border border-[#E5E5E5] rounded-full px-3 sm:px-4 py-2 flex items-center justify-between text-[#595959] text-sm transition-all group min-w-0"
+      {/* Middle section: Direct Global Search Bar with Live Dropdown */}
+      <div className="flex-1 max-w-md xl:max-w-lg mx-2 sm:mx-6 min-w-0 relative" ref={searchRef}>
+        <div
+          className={`w-full bg-[#F4F6F8] border transition-all rounded-full px-3 sm:px-4 py-2 flex items-center justify-between text-sm min-w-0 ${
+            isSearchFocused
+              ? 'border-[#049FD9] ring-2 ring-[#049FD9]/15 bg-white'
+              : 'border-[#E5E5E5] hover:border-[#CCCCCC]'
+          }`}
         >
-          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-            <SearchIcon className="w-4 h-4 text-[#595959] group-hover:text-[#222222] shrink-0" />
-            <span className="text-[#595959] font-medium text-xs sm:text-sm truncate">Search projects, tasks, employees, files...</span>
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
+            <SearchIcon
+              className={`w-4 h-4 shrink-0 transition-colors ${
+                isSearchFocused ? 'text-[#049FD9]' : 'text-[#595959]'
+              }`}
+            />
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setIsSearchFocused(true);
+              }}
+              onFocus={() => setIsSearchFocused(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setIsSearchFocused(false);
+                  searchInputRef.current?.blur();
+                }
+              }}
+              placeholder="Search projects, tasks, employees, files..."
+              className="w-full bg-transparent text-xs sm:text-sm text-[#222222] font-medium placeholder-[#8C8C8C] focus:outline-none"
+            />
           </div>
-          <kbd className="hidden sm:inline-flex items-center gap-1 bg-white border border-[#E5E5E5] text-[#595959] text-xs font-mono font-semibold px-2 py-0.5 rounded shadow-2xs shrink-0 ml-1">
-            ⌘F / Ctrl+K
-          </kbd>
-        </button>
+
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                searchInputRef.current?.focus();
+              }}
+              className="text-[#8C8C8C] hover:text-[#222222] text-xs font-bold px-1.5 py-0.5 shrink-0 transition-colors cursor-pointer"
+            >
+              ✕
+            </button>
+          ) : (
+            <kbd className="hidden sm:inline-flex items-center gap-1 bg-white border border-[#E5E5E5] text-[#595959] text-[10px] font-mono font-semibold px-2 py-0.5 rounded shadow-2xs shrink-0 ml-1">
+              ⌘F / Ctrl+K
+            </kbd>
+          )}
+        </div>
+
+        {/* Search Results Dropdown - Directly attached below search input */}
+        {isSearchFocused && (
+          <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl border border-[#E5E5E5] shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150 font-sans">
+            <div className="p-2 max-h-80 overflow-y-auto space-y-1">
+              {filteredResults.length > 0 ? (
+                filteredResults.map((item, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      if (onNavigate) {
+                        onNavigate(item.tab);
+                      }
+                      setIsSearchFocused(false);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-[#F4F6F8] rounded-lg text-left transition-colors cursor-pointer group"
+                  >
+                    <span className="text-xs font-medium text-[#222222] group-hover:text-[#049FD9] transition-colors truncate">
+                      {item.label}
+                    </span>
+                    <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-[#F4F6F8] text-[#595959] border border-[#E5E5E5] shrink-0 ml-2">
+                      {item.type}
+                    </span>
+                  </button>
+                ))
+              ) : (
+                <div className="p-4 text-center text-xs text-[#8C8C8C] font-medium">
+                  No results found for &ldquo;{searchQuery}&rdquo;
+                </div>
+              )}
+            </div>
+            <div className="px-3 py-2 bg-[#F8FAFC] border-t border-[#E5E5E5] flex items-center justify-between text-[11px] text-[#64748B] font-medium">
+              <span>Quick navigation</span>
+              <span>Press <kbd className="bg-white border border-[#E2E8F0] px-1 rounded font-mono text-[10px]">ESC</kbd> to close</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Right section: Create New + Notifications + User Avatar */}
