@@ -11,8 +11,6 @@ import { CalendarView } from './components/CalendarView';
 import { ChatView } from './components/ChatView';
 import { FilesView } from './components/FilesView';
 import { PeopleView } from './components/PeopleView';
-import { CheckinsView } from './components/CheckinsView';
-import { ReportsView } from './components/ReportsView';
 import { CreateModal } from './components/CreateModal';
 import { NotificationPanel } from './components/NotificationPanel';
 import { AuthView } from './components/AuthView';
@@ -25,8 +23,6 @@ import {
   ChatSkeleton,
   FilesSkeleton,
   PeopleSkeleton,
-  CheckinsSkeleton,
-  ReportsSkeleton,
 } from './components/Skeletons';
 
 import {

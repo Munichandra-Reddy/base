@@ -23,7 +23,7 @@ interface EmployeeDashboardViewProps {
   onViewTasks: () => void;
   onViewChat: () => void;
   onViewCalendar: () => void;
-  onViewCheckins: () => void;
+  onViewCheckins?: () => void;
   onViewEmployees?: () => void;
 }
 
