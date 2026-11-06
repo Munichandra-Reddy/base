@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 interface CalendarEvent {
   title: string;
   time?: string;
-  color: string;
+  color?: string;
 }
 
 export const CalendarView: React.FC = () => {
@@ -28,20 +28,21 @@ export const CalendarView: React.FC = () => {
   ];
 
   const initialMockEvents: Record<number, CalendarEvent[]> = {
-    1: [{ title: 'Weekly Planning', time: '09:00 AM', color: 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/25' }],
-    2: [{ title: 'Homepage Design Signoff', time: '11:00 AM', color: 'bg-[#F0FDFA] text-[#0D9488] border border-[#0D9488]/25' }],
-    3: [{ title: 'Client Onboarding Sync', time: '02:30 PM', color: 'bg-[#EBF0F5] text-[#334155] border border-[#E2E8F0]' }],
-    4: [{ title: 'Database Migration Review', time: '04:00 PM', color: 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/25' }],
-    5: [{ title: 'API Release v2.0', time: '10:00 AM', color: 'bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/25' }],
-    6: [{ title: 'Frontend UI Polish', time: '01:00 PM', color: 'bg-[#F0FDFA] text-[#0D9488] border border-[#0D9488]/25' }],
-    7: [{ title: 'Team Catchup & QA', time: '05:00 PM', color: 'bg-[#EBF0F5] text-[#334155] border border-[#E2E8F0]' }],
-    12: [{ title: 'Sprint Demo & Retrospective', time: '03:00 PM', color: 'bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/25' }],
-    18: [{ title: 'Q4 Strategy Sync', time: '10:30 AM', color: 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/25' }],
-    25: [{ title: 'Infrastructure Maintenance', time: '11:00 PM', color: 'bg-[#FEF2F2] text-[#EF4444] border border-[#EF4444]/25' }],
+    1: [{ title: 'Weekly Planning', time: '09:00 AM' }],
+    2: [{ title: 'Homepage Design Signoff', time: '11:00 AM' }],
+    3: [{ title: 'Client Onboarding Sync', time: '02:30 PM' }],
+    4: [{ title: 'Database Migration Review', time: '04:00 PM' }],
+    5: [{ title: 'API Release v2.0', time: '10:00 AM' }],
+    6: [{ title: 'Frontend UI Polish', time: '01:00 PM' }],
+    7: [{ title: 'Team Catchup & QA', time: '05:00 PM' }],
+    12: [{ title: 'Sprint Demo & Retrospective', time: '03:00 PM' }],
+    18: [{ title: 'Q4 Strategy Sync', time: '10:30 AM' }],
+    25: [{ title: 'Infrastructure Maintenance', time: '11:00 PM' }],
   };
 
   const [events, setEvents] = useState<Record<number, CalendarEvent[]>>(initialMockEvents);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Form states for Date Pop-up / Add Event Modal
@@ -57,7 +58,6 @@ export const CalendarView: React.FC = () => {
     const newEvt: CalendarEvent = {
       title: newEventTitle.trim(),
       time: newEventTime.trim() || '10:00 AM',
-      color: 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/25',
     };
 
     setEvents((prev) => ({
@@ -76,7 +76,6 @@ export const CalendarView: React.FC = () => {
     const newEvt: CalendarEvent = {
       title: newEventTitle.trim(),
       time: newEventTime.trim() || '10:00 AM',
-      color: 'bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/25',
     };
 
     setEvents((prev) => ({
@@ -169,14 +168,27 @@ export const CalendarView: React.FC = () => {
                   )}
                 </div>
                 {events[day] &&
-                  events[day].map((evt, idx) => (
-                    <div
-                      key={idx}
-                      className={`text-xs font-bold p-2 rounded-lg mb-1 truncate shadow-2xs ${evt.color}`}
-                    >
-                      {evt.title}
-                    </div>
-                  ))}
+                  events[day].map((evt, idx) => {
+                    const eventKey = `${day}-${idx}`;
+                    const isSelected = selectedEventId === eventKey;
+                    return (
+                      <div
+                        key={idx}
+                        title={evt.title}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedEventId(isSelected ? null : eventKey);
+                        }}
+                        className={`text-xs font-bold p-2 rounded-lg mb-1 truncate shadow-2xs transition-all duration-150 cursor-pointer ${
+                          isSelected
+                            ? 'bg-black text-white border border-black'
+                            : 'bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black'
+                        }`}
+                      >
+                        {evt.title}
+                      </div>
+                    );
+                  })}
               </div>
             ))}
           </div>
@@ -203,12 +215,36 @@ export const CalendarView: React.FC = () => {
                   {wDay.dayName}, {wDay.dateStr}
                 </div>
                 {events[wDay.dayNumber] && events[wDay.dayNumber].length > 0 ? (
-                  events[wDay.dayNumber].map((evt, idx) => (
-                    <div key={idx} className={`p-2.5 rounded-xl space-y-1 shadow-2xs ${evt.color}`}>
-                      {evt.time && <div className="text-[10px] font-extrabold opacity-75">{evt.time}</div>}
-                      <div className="text-xs font-bold leading-tight">{evt.title}</div>
-                    </div>
-                  ))
+                  events[wDay.dayNumber].map((evt, idx) => {
+                    const eventKey = `week-${wDay.dayNumber}-${idx}`;
+                    const isSelected = selectedEventId === eventKey || selectedEventId === `${wDay.dayNumber}-${idx}`;
+                    return (
+                      <div
+                        key={idx}
+                        title={evt.title}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedEventId(isSelected ? null : eventKey);
+                        }}
+                        className={`p-2.5 rounded-xl space-y-1 shadow-2xs transition-all duration-150 cursor-pointer group/weekEvt ${
+                          isSelected
+                            ? 'bg-black text-white border border-black'
+                            : 'bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black'
+                        }`}
+                      >
+                        {evt.time && (
+                          <div
+                            className={`text-[10px] font-extrabold opacity-75 transition-colors ${
+                              isSelected ? 'text-white/80' : 'text-[#64748B] group-hover/weekEvt:text-white/80'
+                            }`}
+                          >
+                            {evt.time}
+                          </div>
+                        )}
+                        <div className="text-xs font-bold leading-tight">{evt.title}</div>
+                      </div>
+                    );
+                  })
                 ) : (
                   <div className="text-[11px] font-medium text-[#CBD5E1] italic pt-4 text-center">No events</div>
                 )}
@@ -253,19 +289,36 @@ export const CalendarView: React.FC = () => {
                 </h4>
                 {selectedDayEvents.length > 0 ? (
                   <div className="space-y-2.5">
-                    {selectedDayEvents.map((evt, i) => (
-                      <div
-                        key={i}
-                        className={`p-3.5 rounded-xl flex items-center justify-between shadow-2xs ${evt.color}`}
-                      >
-                        <div className="font-bold text-sm">{evt.title}</div>
-                        {evt.time && (
-                          <div className="text-xs font-extrabold px-2 py-1 bg-white/80 rounded-md shrink-0 ml-3">
-                            {evt.time}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                    {selectedDayEvents.map((evt, i) => {
+                      const modalKey = `modal-${selectedDay}-${i}`;
+                      const isSelected = selectedEventId === modalKey || selectedEventId === `${selectedDay}-${i}`;
+                      return (
+                        <div
+                          key={i}
+                          onClick={() => {
+                            setSelectedEventId(isSelected ? null : modalKey);
+                          }}
+                          className={`p-3.5 rounded-xl flex items-center justify-between shadow-2xs transition-all duration-150 cursor-pointer group/modalEvt ${
+                            isSelected
+                              ? 'bg-black text-white border border-black'
+                              : 'bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black'
+                          }`}
+                        >
+                          <div className="font-bold text-sm">{evt.title}</div>
+                          {evt.time && (
+                            <div
+                              className={`text-xs font-extrabold px-2 py-1 rounded-md shrink-0 ml-3 transition-colors ${
+                                isSelected
+                                  ? 'bg-white/20 text-white'
+                                  : 'bg-[#F1F3F6] text-[#334155] group-hover/modalEvt:bg-white/20 group-hover/modalEvt:text-white'
+                              }`}
+                            >
+                              {evt.time}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="p-6 text-center bg-[#F1F3F6] border border-dashed border-[#CBD5E1] rounded-xl">
