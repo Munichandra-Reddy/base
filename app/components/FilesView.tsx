@@ -119,11 +119,11 @@ export const FilesView: React.FC<FilesViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleOpenFile(file)}
-                  className="w-8 h-8 rounded-lg bg-[#011826] hover:bg-[#049FD9] text-white flex items-center justify-center transition-all cursor-pointer shadow-2xs group-hover:scale-105"
+                  className="w-8 h-8 rounded-lg bg-white hover:bg-[#011826] text-[#011826] hover:text-white border border-[#E5E5E5] hover:border-[#011826] flex items-center justify-center transition-all cursor-pointer shadow-2xs group-hover:scale-105"
                   title="View File"
                   aria-label="View File"
                 >
-                  <EyeIcon className="w-4 h-4" />
+                  <EyeIcon className="w-4 h-4 transition-colors" />
                 </button>
               </div>
 
