@@ -128,7 +128,7 @@ export const Header: React.FC<HeaderProps> = ({
             />
           </div>
 
-          {searchQuery ? (
+          {searchQuery && (
             <button
               type="button"
               onClick={() => {
@@ -139,10 +139,6 @@ export const Header: React.FC<HeaderProps> = ({
             >
               ✕
             </button>
-          ) : (
-            <kbd className="hidden sm:inline-flex items-center gap-1 bg-white border border-[#E5E5E5] text-[#595959] text-[10px] font-mono font-semibold px-2 py-0.5 rounded shadow-2xs shrink-0 ml-1">
-              ⌘F / Ctrl+K
-            </kbd>
           )}
         </div>
 
