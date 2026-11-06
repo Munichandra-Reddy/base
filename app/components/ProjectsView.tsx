@@ -38,7 +38,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   currentUser,
 }) => {
   const [viewMode, setViewMode] = useState<'list' | 'cards' | 'kanban'>('cards');
-  const [showFilter, setShowFilter] = useState(!isAdmin ? 'My Projects' : 'All Projects');
+  const [showFilter, setShowFilter] = useState('All Projects');
   const [sortFilter, setSortFilter] = useState('Create Date');
   const [groupFilter, setGroupFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -1218,8 +1218,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               onChange={(e) => setShowFilter(e.target.value)}
               className="bg-transparent font-bold text-[#0F172A] focus:outline-none cursor-pointer appearance-none pr-3"
             >
-              {!isAdmin && <option value="My Projects">My Assigned Projects</option>}
               <option value="All Projects">All Projects</option>
+              {!isAdmin && <option value="My Projects">My Assigned Projects</option>}
               <option value="Active">Active</option>
               <option value="Design">Design</option>
               <option value="Brief">Brief</option>
