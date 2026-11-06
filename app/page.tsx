@@ -16,6 +16,18 @@ import { ReportsView } from './components/ReportsView';
 import { CreateModal } from './components/CreateModal';
 import { NotificationPanel } from './components/NotificationPanel';
 import { AuthView } from './components/AuthView';
+import {
+  EmployeeDashboardSkeleton,
+  DashboardSkeleton,
+  TasksSkeleton,
+  ProjectsSkeleton,
+  CalendarSkeleton,
+  ChatSkeleton,
+  FilesSkeleton,
+  PeopleSkeleton,
+  CheckinsSkeleton,
+  ReportsSkeleton,
+} from './components/Skeletons';
 
 import {
   initialStats,
@@ -55,14 +67,119 @@ export default function Home() {
     email: string;
     fullName: string;
     companyName: string;
-  } | null>(null);
+  } | null>(() => {
+    if (typeof window !== 'undefined') {
+      const sessionUser = sessionStorage.getItem('workorbit_current_user');
+      if (sessionUser) {
+        try {
+          const parsed = JSON.parse(sessionUser);
+          if (parsed && typeof parsed === 'object') return parsed;
+        } catch (e) {}
+      }
+      const savedRole = sessionStorage.getItem('workorbit_dashboard_role') || localStorage.getItem('workorbit_dashboard_role');
+      const userKey = savedRole === 'employee' ? 'workorbit_employee_user' : 'workorbit_admin_user';
+      const localUser = localStorage.getItem(userKey) || localStorage.getItem('workorbit_current_user');
+      if (localUser) {
+        try {
+          const parsed = JSON.parse(localUser);
+          if (parsed && typeof parsed === 'object') return parsed;
+        } catch (e) {}
+      }
+    }
+    return null;
+  });
+
+  const [dashboardRole, setDashboardRole] = useState<'admin' | 'employee'>(() => {
+    if (typeof window !== 'undefined') {
+      const sessionRole = sessionStorage.getItem('workorbit_dashboard_role') as 'admin' | 'employee' | null;
+      if (sessionRole === 'admin' || sessionRole === 'employee') return sessionRole;
+      const localRole = localStorage.getItem('workorbit_dashboard_role') as 'admin' | 'employee' | null;
+      if (localRole === 'admin' || localRole === 'employee') return localRole;
+    }
+    return 'admin';
+  });
+
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [activities, setActivities] = useState<Activity[]>(initialActivities);
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(initialChatMessages);
-  const [checkins, setCheckins] = useState<CheckIn[]>(initialCheckIns);
-  const [files, setFiles] = useState<FileItem[]>(initialFiles);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('workorbit_tasks');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+      }
+    }
+    return initialTasks;
+  });
+
+  const [activities, setActivities] = useState<Activity[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('workorbit_activities');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+      }
+    }
+    return initialActivities;
+  });
+
+  const [projects, setProjects] = useState<Project[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('workorbit_projects');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+      }
+    }
+    return initialProjects;
+  });
+
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('workorbit_chat_messages');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+      }
+    }
+    return initialChatMessages;
+  });
+
+  const [checkins, setCheckins] = useState<CheckIn[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('workorbit_checkins');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+      }
+    }
+    return initialCheckIns;
+  });
+
+  const [files, setFiles] = useState<FileItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('workorbit_files');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+      }
+    }
+    return initialFiles;
+  });
+
   const [people, setPeople] = useState<Person[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('workorbit_people');
@@ -82,7 +199,6 @@ export default function Home() {
   const [createModalType, setCreateModalType] = useState<'task' | 'project' | 'employee'>('task');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
-  const [dashboardRole, setDashboardRole] = useState<'admin' | 'employee'>('admin');
 
   // Load persisted state from localStorage on mount so page refreshes don't lose data!
   useEffect(() => {
@@ -268,7 +384,12 @@ export default function Home() {
           if (projList && projList.length > 0) setProjects(projList);
         });
 
+        const loadingTimer = setTimeout(() => {
+          setIsLoading(false);
+        }, 220);
+
         return () => {
+          clearTimeout(loadingTimer);
           unsubChat();
           unsubEmp();
           unsubTasks();
@@ -844,94 +965,120 @@ export default function Home() {
 
         {/* Right Main Content Area - Scrollable */}
         <main className="flex-1 h-full overflow-y-auto p-4 sm:p-6 lg:p-8 w-full min-w-0 bg-[#F4F6F8]">
-          {activeTab === 'dashboard' && dashboardRole === 'admin' && (
-            <DashboardView
-              stats={{
-                ...initialStats,
-                projectsTotal: projects.length,
-                projectsActive: projects.filter((p) => p.status === 'active').length,
-                teamOnline: people.filter((p) => p.status === 'active').length,
-                employeesTotal: people.length,
-              }}
-              tasks={tasks}
-              activities={activities}
-              people={people}
-              onToggleTask={handleToggleTask}
-              onOpenAddTask={() => setIsCreateModalOpen(true)}
-              onViewAllTasks={() => handleTabChange('tasks')}
-              onViewEmployees={() => handleTabChange('people')}
-              onViewProjects={() => handleTabChange('projects')}
-              onViewCalendar={() => handleTabChange('calendar')}
-              onViewActivity={() => handleTabChange('reports')}
-              currentUser={currentUser}
-            />
+          {isLoading ? (
+            activeTab === 'dashboard' && dashboardRole === 'employee' ? (
+              <EmployeeDashboardSkeleton />
+            ) : activeTab === 'dashboard' ? (
+              <DashboardSkeleton />
+            ) : activeTab === 'tasks' ? (
+              <TasksSkeleton />
+            ) : activeTab === 'projects' ? (
+              <ProjectsSkeleton />
+            ) : activeTab === 'calendar' ? (
+              <CalendarSkeleton />
+            ) : activeTab === 'chat' ? (
+              <ChatSkeleton />
+            ) : activeTab === 'files' ? (
+              <FilesSkeleton />
+            ) : activeTab === 'people' ? (
+              <PeopleSkeleton />
+            ) : activeTab === 'checkins' ? (
+              <CheckinsSkeleton />
+            ) : (
+              <ReportsSkeleton />
+            )
+          ) : (
+            <>
+              {activeTab === 'dashboard' && dashboardRole === 'admin' && (
+                <DashboardView
+                  stats={{
+                    ...initialStats,
+                    projectsTotal: projects.length,
+                    projectsActive: projects.filter((p) => p.status === 'active').length,
+                    teamOnline: people.filter((p) => p.status === 'active').length,
+                    employeesTotal: people.length,
+                  }}
+                  tasks={tasks}
+                  activities={activities}
+                  people={people}
+                  onToggleTask={handleToggleTask}
+                  onOpenAddTask={() => setIsCreateModalOpen(true)}
+                  onViewAllTasks={() => handleTabChange('tasks')}
+                  onViewEmployees={() => handleTabChange('people')}
+                  onViewProjects={() => handleTabChange('projects')}
+                  onViewCalendar={() => handleTabChange('calendar')}
+                  onViewActivity={() => handleTabChange('reports')}
+                  currentUser={currentUser}
+                />
+              )}
+
+              {activeTab === 'dashboard' && dashboardRole === 'employee' && (
+                <EmployeeDashboardView
+                  tasks={tasks}
+                  projects={projects}
+                  activities={activities}
+                  people={people}
+                  currentUser={currentUser}
+                  onToggleTask={handleToggleTask}
+                  onAddTask={handleAddTask}
+                  onViewProjects={() => handleTabChange('projects')}
+                  onViewTasks={() => handleTabChange('tasks')}
+                  onViewChat={() => handleTabChange('chat')}
+                  onViewCalendar={() => handleTabChange('calendar')}
+                  onViewCheckins={() => handleTabChange('checkins')}
+                  onViewEmployees={() => handleTabChange('people')}
+                />
+              )}
+
+              {activeTab === 'tasks' && (
+                <TasksView
+                  tasks={tasks}
+                  onToggleTask={handleToggleTask}
+                  onOpenAddTask={() => setIsCreateModalOpen(true)}
+                />
+              )}
+
+              {activeTab === 'projects' && (
+                <ProjectsView
+                  projects={projects}
+                  tasks={tasks}
+                  files={files}
+                  onOpenCreateProject={() => setIsCreateModalOpen(true)}
+                />
+              )}
+
+              {activeTab === 'calendar' && <CalendarView />}
+
+              {activeTab === 'chat' && (
+                <ChatView messages={chatMessages} onSendMessage={handleSendMessage} />
+              )}
+
+              {activeTab === 'files' && (
+                <FilesView files={files} onUploadFile={handleUploadFile} />
+              )}
+
+              {activeTab === 'people' && (
+                <PeopleView
+                  people={people}
+                  isAdmin={dashboardRole === 'admin'}
+                  onOpenAddEmployee={
+                    dashboardRole === 'admin'
+                      ? () => {
+                          setCreateModalType('employee');
+                          setIsCreateModalOpen(true);
+                        }
+                      : undefined
+                  }
+                />
+              )}
+
+              {activeTab === 'checkins' && (
+                <CheckinsView checkins={checkins} onAddCheckIn={handleAddCheckIn} />
+              )}
+
+              {activeTab === 'reports' && <ReportsView activities={activities} />}
+            </>
           )}
-
-          {activeTab === 'dashboard' && dashboardRole === 'employee' && (
-            <EmployeeDashboardView
-              tasks={tasks}
-              projects={projects}
-              activities={activities}
-              people={people}
-              currentUser={currentUser}
-              onToggleTask={handleToggleTask}
-              onAddTask={handleAddTask}
-              onViewProjects={() => handleTabChange('projects')}
-              onViewTasks={() => handleTabChange('tasks')}
-              onViewChat={() => handleTabChange('chat')}
-              onViewCalendar={() => handleTabChange('calendar')}
-              onViewCheckins={() => handleTabChange('checkins')}
-              onViewEmployees={() => handleTabChange('people')}
-            />
-          )}
-
-          {activeTab === 'tasks' && (
-            <TasksView
-              tasks={tasks}
-              onToggleTask={handleToggleTask}
-              onOpenAddTask={() => setIsCreateModalOpen(true)}
-            />
-          )}
-
-          {activeTab === 'projects' && (
-            <ProjectsView
-              projects={projects}
-              tasks={tasks}
-              files={files}
-              onOpenCreateProject={() => setIsCreateModalOpen(true)}
-            />
-          )}
-
-          {activeTab === 'calendar' && <CalendarView />}
-
-          {activeTab === 'chat' && (
-            <ChatView messages={chatMessages} onSendMessage={handleSendMessage} />
-          )}
-
-          {activeTab === 'files' && (
-            <FilesView files={files} onUploadFile={handleUploadFile} />
-          )}
-
-          {activeTab === 'people' && (
-            <PeopleView
-              people={people}
-              isAdmin={dashboardRole === 'admin'}
-              onOpenAddEmployee={
-                dashboardRole === 'admin'
-                  ? () => {
-                      setCreateModalType('employee');
-                      setIsCreateModalOpen(true);
-                    }
-                  : undefined
-              }
-            />
-          )}
-
-          {activeTab === 'checkins' && (
-            <CheckinsView checkins={checkins} onAddCheckIn={handleAddCheckIn} />
-          )}
-
-          {activeTab === 'reports' && <ReportsView activities={activities} />}
         </main>
       </div>
 
