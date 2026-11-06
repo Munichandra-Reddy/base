@@ -50,8 +50,6 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
   const totalEmployeesCount = people?.length ?? 0;
   const activeEmployeesCount = people?.filter((p) => p.status === 'active').length ?? totalEmployeesCount;
 
-  const [newQuickTaskTitle, setNewQuickTaskTitle] = useState('');
-  const [newQuickTaskProject, setNewQuickTaskProject] = useState('E-Commerce Website');
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('pending');
 
   // Filter tasks belonging to this employee
@@ -82,45 +80,9 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
     return true;
   });
 
-  const handleCreateQuickTask = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newQuickTaskTitle.trim()) return;
-    onAddTask({
-      title: newQuickTaskTitle.trim(),
-      project: newQuickTaskProject,
-      assignedTo: employeeName,
-      priority: 'medium',
-      dueDate: new Date().toISOString().split('T')[0],
-    });
-    setNewQuickTaskTitle('');
-  };
-
   return (
     <div className="space-y-6 font-sans w-full">
-      {/* 1. PERSONAL HERO BANNER & STATUS CONTROLS */}
-      <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-[#222222] tracking-tight">
-            Welcome back, {employeeName}!
-          </h1>
-          <p className="text-xs font-medium text-[#595959] mt-1">
-            You have <strong className="text-[#222222] font-semibold">{myPendingTasks.length} pending tasks</strong> across <strong className="text-[#222222] font-semibold">{displayedProjects.length} active projects</strong> today.
-          </p>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {/* Quick Check-in Button */}
-          <button
-            onClick={onViewCheckins}
-            className="btn-primary"
-          >
-            <span>Daily Check-in</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 2. EMPLOYEE PERSONAL KPI METRICS (6 Compact Cards Grid) */}
+      {/* EMPLOYEE PERSONAL KPI METRICS (6 Compact Cards Grid) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 w-full">
         {/* Card 1: My Open Tasks */}
         <div
@@ -303,34 +265,6 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                 </button>
               </div>
             </div>
-
-            {/* In-Place Quick Add Personal Task */}
-            <form onSubmit={handleCreateQuickTask} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-              <input
-                type="text"
-                value={newQuickTaskTitle}
-                onChange={(e) => setNewQuickTaskTitle(e.target.value)}
-                placeholder="+ Add personal to-do for today and press Enter..."
-                className="flex-1 min-w-0 bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl px-4 py-2.5 text-xs text-[#0F172A] placeholder:text-[#94A3B8] font-medium focus:outline-none focus:border-[#049FD9]"
-              />
-              <select
-                value={newQuickTaskProject}
-                onChange={(e) => setNewQuickTaskProject(e.target.value)}
-                className="bg-[#F8FAFC] border border-[#CBD5E1] rounded-xl px-3 py-2.5 text-xs text-[#0F172A] font-semibold focus:outline-none sm:w-48 shrink-0"
-              >
-                {displayedProjects.map((p) => (
-                  <option key={p.id} value={p.name}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                className="btn-primary shrink-0"
-              >
-                Add Task
-              </button>
-            </form>
 
             {/* Task Item List */}
             <div className="space-y-2.5">
