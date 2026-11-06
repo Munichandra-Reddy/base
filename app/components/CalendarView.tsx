@@ -42,7 +42,6 @@ export const CalendarView: React.FC = () => {
 
   const [events, setEvents] = useState<Record<number, CalendarEvent[]>>(initialMockEvents);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Form states for Date Pop-up / Add Event Modal
@@ -168,27 +167,16 @@ export const CalendarView: React.FC = () => {
                   )}
                 </div>
                 {events[day] &&
-                  events[day].map((evt, idx) => {
-                    const eventKey = `${day}-${idx}`;
-                    const isSelected = selectedEventId === eventKey;
-                    return (
-                      <div
-                        key={idx}
-                        title={evt.title}
-                        onClick={() => {
-                          setSelectedEventId(eventKey);
-                          setSelectedDay(day);
-                        }}
-                        className={`text-xs font-bold p-2 rounded-lg mb-1 truncate shadow-2xs transition-all duration-150 cursor-pointer ${
-                          isSelected
-                            ? 'bg-black text-white border border-black'
-                            : 'bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black'
-                        }`}
-                      >
-                        {evt.title}
-                      </div>
-                    );
-                  })}
+                  events[day].map((evt, idx) => (
+                    <div
+                      key={idx}
+                      title={evt.title}
+                      onClick={() => setSelectedDay(day)}
+                      className="text-xs font-bold p-2 rounded-lg mb-1 truncate shadow-2xs transition-all duration-150 cursor-pointer bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black"
+                    >
+                      {evt.title}
+                    </div>
+                  ))}
               </div>
             ))}
           </div>
@@ -215,36 +203,21 @@ export const CalendarView: React.FC = () => {
                   {wDay.dayName}, {wDay.dateStr}
                 </div>
                 {events[wDay.dayNumber] && events[wDay.dayNumber].length > 0 ? (
-                  events[wDay.dayNumber].map((evt, idx) => {
-                    const eventKey = `week-${wDay.dayNumber}-${idx}`;
-                    const isSelected = selectedEventId === eventKey || selectedEventId === `${wDay.dayNumber}-${idx}`;
-                    return (
-                      <div
-                        key={idx}
-                        title={evt.title}
-                        onClick={() => {
-                          setSelectedEventId(eventKey);
-                          setSelectedDay(wDay.dayNumber);
-                        }}
-                        className={`p-2.5 rounded-xl space-y-1 shadow-2xs transition-all duration-150 cursor-pointer group/weekEvt ${
-                          isSelected
-                            ? 'bg-black text-white border border-black'
-                            : 'bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black'
-                        }`}
-                      >
-                        {evt.time && (
-                          <div
-                            className={`text-[10px] font-extrabold opacity-75 transition-colors ${
-                              isSelected ? 'text-white/80' : 'text-[#64748B] group-hover/weekEvt:text-white/80'
-                            }`}
-                          >
-                            {evt.time}
-                          </div>
-                        )}
-                        <div className="text-xs font-bold leading-tight">{evt.title}</div>
-                      </div>
-                    );
-                  })
+                  events[wDay.dayNumber].map((evt, idx) => (
+                    <div
+                      key={idx}
+                      title={evt.title}
+                      onClick={() => setSelectedDay(wDay.dayNumber)}
+                      className="p-2.5 rounded-xl space-y-1 shadow-2xs transition-all duration-150 cursor-pointer group/weekEvt bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black"
+                    >
+                      {evt.time && (
+                        <div className="text-[10px] font-extrabold opacity-75 text-[#64748B] group-hover/weekEvt:text-white/80 transition-colors">
+                          {evt.time}
+                        </div>
+                      )}
+                      <div className="text-xs font-bold leading-tight">{evt.title}</div>
+                    </div>
+                  ))
                 ) : (
                   <div className="text-[11px] font-medium text-[#CBD5E1] italic pt-4 text-center">No events</div>
                 )}
@@ -289,36 +262,19 @@ export const CalendarView: React.FC = () => {
                 </h4>
                 {selectedDayEvents.length > 0 ? (
                   <div className="space-y-2.5">
-                    {selectedDayEvents.map((evt, i) => {
-                      const modalKey = `modal-${selectedDay}-${i}`;
-                      const isSelected = selectedEventId === modalKey || selectedEventId === `${selectedDay}-${i}`;
-                      return (
-                        <div
-                          key={i}
-                          onClick={() => {
-                            setSelectedEventId(isSelected ? null : modalKey);
-                          }}
-                          className={`p-3.5 rounded-xl flex items-center justify-between shadow-2xs transition-all duration-150 cursor-pointer group/modalEvt ${
-                            isSelected
-                              ? 'bg-black text-white border border-black'
-                              : 'bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black'
-                          }`}
-                        >
-                          <div className="font-bold text-sm">{evt.title}</div>
-                          {evt.time && (
-                            <div
-                              className={`text-xs font-extrabold px-2 py-1 rounded-md shrink-0 ml-3 transition-colors ${
-                                isSelected
-                                  ? 'bg-white/20 text-white'
-                                  : 'bg-[#F1F3F6] text-[#334155] group-hover/modalEvt:bg-white/20 group-hover/modalEvt:text-white'
-                              }`}
-                            >
-                              {evt.time}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                    {selectedDayEvents.map((evt, i) => (
+                      <div
+                        key={i}
+                        className="p-3.5 rounded-xl flex items-center justify-between shadow-2xs transition-all duration-150 cursor-pointer group/modalEvt bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white"
+                      >
+                        <div className="font-bold text-sm">{evt.title}</div>
+                        {evt.time && (
+                          <div className="text-xs font-extrabold px-2 py-1 bg-[#F1F3F6] text-[#334155] group-hover/modalEvt:bg-white/20 group-hover/modalEvt:text-white rounded-md shrink-0 ml-3 transition-colors">
+                            {evt.time}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="p-6 text-center bg-[#F1F3F6] border border-dashed border-[#CBD5E1] rounded-xl">

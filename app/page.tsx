@@ -89,19 +89,55 @@ export default function Home() {
   // Load persisted state from localStorage on mount so page refreshes don't lose data!
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedLoggedIn = localStorage.getItem('workorbit_logged_in') === 'true';
-      const savedUser = localStorage.getItem('workorbit_current_user');
-      const savedRole = localStorage.getItem('workorbit_dashboard_role') as 'admin' | 'employee';
+      // 1. Check sessionStorage first for strict per-tab isolation (prevents Admin and Employee tabs from exchanging on refresh)
+      const sessionLoggedIn = sessionStorage.getItem('workorbit_logged_in');
+      const sessionRole = sessionStorage.getItem('workorbit_dashboard_role') as 'admin' | 'employee' | null;
+      const sessionUser = sessionStorage.getItem('workorbit_current_user');
+
+      let savedLoggedIn = sessionLoggedIn === 'true';
+      let savedRole = sessionRole;
+      let savedUser = sessionUser;
+
+      // 2. Fall back to localStorage if this is a fresh tab
+      if (!savedLoggedIn && sessionLoggedIn === null) {
+        savedLoggedIn = localStorage.getItem('workorbit_logged_in') === 'true';
+      }
+      if (!savedRole) {
+        savedRole = localStorage.getItem('workorbit_dashboard_role') as 'admin' | 'employee' | null;
+      }
+      if (!savedUser) {
+        if (savedRole === 'admin') {
+          savedUser = localStorage.getItem('workorbit_admin_user') || localStorage.getItem('workorbit_current_user');
+        } else if (savedRole === 'employee') {
+          savedUser = localStorage.getItem('workorbit_employee_user') || localStorage.getItem('workorbit_current_user');
+        } else {
+          savedUser = localStorage.getItem('workorbit_current_user');
+        }
+      }
 
       if (savedLoggedIn && savedUser) {
         try {
           const parsed = JSON.parse(savedUser);
           if (parsed && typeof parsed === 'object') {
-            setCurrentUser(parsed);
+            const cleanRole: 'admin' | 'employee' =
+              (savedRole === 'admin' || savedRole === 'employee')
+                ? savedRole
+                : (parsed.role === 'admin' || parsed.role === 'employee')
+                ? parsed.role
+                : parsed.email?.toLowerCase() === 'cr7156816@gmail.com'
+                ? 'admin'
+                : 'employee';
+
+            const userWithRole = { ...parsed, role: cleanRole };
+
+            setCurrentUser(userWithRole);
+            setDashboardRole(cleanRole);
             setIsLoggedIn(true);
-            if (savedRole && (savedRole === 'admin' || savedRole === 'employee')) {
-              setDashboardRole(savedRole);
-            }
+
+            // Persist strictly to this tab's sessionStorage
+            sessionStorage.setItem('workorbit_logged_in', 'true');
+            sessionStorage.setItem('workorbit_dashboard_role', cleanRole);
+            sessionStorage.setItem('workorbit_current_user', JSON.stringify(userWithRole));
           }
         } catch (e) {
           setIsLoggedIn(false);
@@ -328,6 +364,9 @@ export default function Home() {
     setIsLoggedIn(false);
     setCurrentUser(null);
     if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('workorbit_logged_in');
+      sessionStorage.removeItem('workorbit_current_user');
+      sessionStorage.removeItem('workorbit_dashboard_role');
       localStorage.setItem('workorbit_logged_in', 'false');
       localStorage.removeItem('workorbit_current_user');
       localStorage.removeItem('workorbit_dashboard_role');
@@ -434,6 +473,8 @@ export default function Home() {
     setIsLoggedIn(true);
     setDashboardRole(role);
     if (typeof window !== 'undefined') {
+      sessionStorage.setItem('workorbit_logged_in', 'true');
+      sessionStorage.setItem('workorbit_dashboard_role', role);
       localStorage.setItem('workorbit_logged_in', 'true');
       localStorage.setItem('workorbit_dashboard_role', role);
 
@@ -467,7 +508,15 @@ export default function Home() {
       };
       setCurrentUser(userObj);
       if (typeof window !== 'undefined') {
+        sessionStorage.setItem('workorbit_current_user', JSON.stringify(userObj));
+        sessionStorage.setItem('workorbit_dashboard_role', role);
         localStorage.setItem('workorbit_current_user', JSON.stringify(userObj));
+        localStorage.setItem('workorbit_dashboard_role', role);
+        if (role === 'admin') {
+          localStorage.setItem('workorbit_admin_user', JSON.stringify(userObj));
+        } else {
+          localStorage.setItem('workorbit_employee_user', JSON.stringify(userObj));
+        }
       }
 
       if (role === 'employee' && cleanEmail !== 'cr7156816@gmail.com') {
