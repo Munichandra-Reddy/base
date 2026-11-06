@@ -18,7 +18,7 @@ import {
   SearchIcon,
   PlusIcon,
 } from './Icons';
-import { getDirectFileBlobUrl } from '@/lib/fileUtils';
+import { getDirectFileBlobUrl, openProtectedDocument } from '@/lib/fileUtils';
 
 interface ProjectsViewProps {
   projects: Project[];
@@ -213,8 +213,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       fileUrl = existingFile.fileUrl;
     }
 
-    const targetBlobUrl = await getDirectFileBlobUrl(docName, fileUrl, selectedProject?.name || 'Workspace');
-    window.open(targetBlobUrl, '_blank');
+    openProtectedDocument(docName, fileUrl, selectedProject?.name || 'Workspace');
   };
 
   const hasActiveFilters =

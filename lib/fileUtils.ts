@@ -349,3 +349,118 @@ export const getFileRelativeTime = (file: { createdAt?: number | string; uploade
 
   return `${Math.floor(diffDay / 365)} year ago`;
 };
+
+export const openProtectedDocument = async (
+  docName: string,
+  providedUrl?: string,
+  projectName: string = 'Workspace'
+): Promise<void> => {
+  let newTab: Window | null = null;
+  if (typeof window !== 'undefined') {
+    try {
+      newTab = window.open('about:blank', '_blank');
+    } catch (e) {}
+  }
+
+  try {
+    const rawBlob = await getDirectFileBlob(docName, providedUrl, projectName);
+    const mimeType = rawBlob.type || '';
+    const lowerName = docName.toLowerCase();
+    const isPdf = lowerName.endsWith('.pdf') || mimeType.includes('pdf');
+    const isImage =
+      ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'].some((ext) => lowerName.endsWith('.' + ext)) ||
+      mimeType.includes('image');
+
+    const fileBlobUrl = URL.createObjectURL(rawBlob);
+
+    let contentHtml = '';
+    if (isPdf) {
+      // #toolbar=0&navpanes=0 suppresses Chrome's built-in PDF toolbar with the download icon
+      contentHtml = `<iframe src="${fileBlobUrl}#toolbar=0&navpanes=0" width="100%" height="100%"></iframe>`;
+    } else if (isImage) {
+      contentHtml = `<div class="img-wrapper"><img src="${fileBlobUrl}" alt="${docName.replace(/"/g, '&quot;')}" oncontextmenu="return false;" /></div>`;
+    } else {
+      const textContent = await rawBlob.text();
+      const escaped = textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      contentHtml = `<pre oncontextmenu="return false;">${escaped}</pre>`;
+    }
+
+    const viewerHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${docName.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #525659;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    .img-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: #1e293b;
+      padding: 20px;
+    }
+    img {
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      background: #ffffff;
+      border-radius: 4px;
+    }
+    pre {
+      margin: 20px;
+      padding: 20px;
+      background: #1e293b;
+      color: #f8fafc;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      border-radius: 8px;
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+    }
+  </style>
+</head>
+<body oncontextmenu="return false;">
+  ${contentHtml}
+</body>
+</html>`;
+
+    const viewerBlob = new Blob([viewerHtml], { type: 'text/html' });
+    const viewerUrl = URL.createObjectURL(viewerBlob);
+
+    if (newTab && !newTab.closed) {
+      newTab.location.href = viewerUrl;
+    } else if (typeof window !== 'undefined') {
+      window.open(viewerUrl, '_blank');
+    }
+  } catch (e) {
+    const fallbackUrl = providedUrl ? `${providedUrl}#toolbar=0&navpanes=0` : '';
+    if (fallbackUrl) {
+      if (newTab && !newTab.closed) {
+        newTab.location.href = fallbackUrl;
+      } else if (typeof window !== 'undefined') {
+        window.open(fallbackUrl, '_blank');
+      }
+    }
+  }
+};

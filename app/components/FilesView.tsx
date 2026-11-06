@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileItem } from '@/lib/types';
-import { FileIcon, PlusIcon } from './Icons';
+import { FileIcon, PlusIcon, EyeIcon } from './Icons';
 import { UploadFileModal } from './UploadFileModal';
-import { getDirectFileBlobUrl, getFileRelativeTime } from '@/lib/fileUtils';
+import { openProtectedDocument, getFileRelativeTime } from '@/lib/fileUtils';
 
 interface FilesViewProps {
   files: FileItem[];
@@ -55,15 +55,8 @@ export const FilesView: React.FC<FilesViewProps> = ({
     });
   }, [files, isAdmin, fileScope, myProjectNames]);
 
-  const handleOpenFile = async (file: FileItem) => {
-    try {
-      const targetBlobUrl = await getDirectFileBlobUrl(file.name, file.fileUrl, file.project);
-      window.open(targetBlobUrl, '_blank');
-    } catch (e) {
-      if (file.fileUrl) {
-        window.open(file.fileUrl, '_blank');
-      }
-    }
+  const handleOpenFile = (file: FileItem) => {
+    openProtectedDocument(file.name, file.fileUrl, file.project);
   };
 
   return (
@@ -126,9 +119,11 @@ export const FilesView: React.FC<FilesViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleOpenFile(file)}
-                  className="btn-primary text-xs py-1.5 px-3"
+                  className="w-8 h-8 rounded-lg bg-[#011826] hover:bg-[#049FD9] text-white flex items-center justify-center transition-all cursor-pointer shadow-2xs group-hover:scale-105"
+                  title="View File"
+                  aria-label="View File"
                 >
-                  View File
+                  <EyeIcon className="w-4 h-4" />
                 </button>
               </div>
 
