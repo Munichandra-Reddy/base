@@ -434,17 +434,19 @@ export const FilesSkeleton: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="bg-white p-4 rounded-xl border border-[#E5E5E5] shadow-2xs space-y-3">
-            <div className="w-10 h-10 rounded-lg bg-[#F1F5F9] border border-[#E5E5E5]" />
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 rounded-lg bg-[#F1F5F9] border border-[#E5E5E5]" />
+              <div className="h-7 w-20 bg-[#CBD5E1] rounded-lg" />
+            </div>
             <div className="space-y-1">
               <div className="h-3.5 w-3/4 bg-[#CBD5E1] rounded" />
               <div className="h-2.5 w-1/2 bg-[#E2E8F0] rounded" />
             </div>
-            <div className="pt-2 border-t border-[#E5E5E5] space-y-2.5">
+            <div className="pt-2 border-t border-[#E5E5E5]">
               <div className="flex justify-between">
                 <div className="h-2 w-16 bg-[#F1F5F9] rounded" />
                 <div className="h-2 w-10 bg-[#F1F5F9] rounded" />
               </div>
-              <div className="h-7 w-20 bg-[#CBD5E1] rounded-lg" />
             </div>
           </div>
         ))}

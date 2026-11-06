@@ -63,6 +63,13 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
                 <div className="w-10 h-10 rounded-lg bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center font-bold">
                   <FileIcon className="w-5 h-5" />
                 </div>
+                <button
+                  type="button"
+                  onClick={() => handleOpenFile(file)}
+                  className="btn-primary text-xs py-1.5 px-3"
+                >
+                  View File
+                </button>
               </div>
 
               <div className="mb-3">
@@ -77,19 +84,10 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
               </div>
             </div>
 
-            <div className="pt-3 border-t border-[#E5E5E5] space-y-2.5">
+            <div className="pt-3 border-t border-[#E5E5E5]">
               <div className="flex items-center justify-between text-[11px] font-medium text-[#6B7280]">
                 <span>{file.size}</span>
                 <span className="text-[#111827] font-semibold">{getFileRelativeTime(file)}</span>
-              </div>
-              <div className="flex items-center justify-start">
-                <button
-                  type="button"
-                  onClick={() => handleOpenFile(file)}
-                  className="btn-primary text-xs py-1.5 px-3"
-                >
-                  View File
-                </button>
               </div>
             </div>
           </div>
