@@ -59,6 +59,8 @@ import {
   seedInitialDataToFirebase,
   isRealEmployee,
   deduplicateEmployees,
+  updateFirebaseEmployee,
+  deleteFirebaseEmployee,
 } from '@/lib/firebaseServices';
 
 export default function Home() {
@@ -745,6 +747,34 @@ export default function Home() {
     } catch (err) {}
   };
 
+  const handleUpdateEmployee = async (email: string, updates: Partial<Person>) => {
+    const cleanEmail = email.toLowerCase().trim();
+    setPeople((prev) => {
+      const updated = prev.map((p) => (p.email.toLowerCase() === cleanEmail ? { ...p, ...updates } : p));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workorbit_people', JSON.stringify(updated));
+      }
+      return updated;
+    });
+    try {
+      await updateFirebaseEmployee(cleanEmail, updates);
+    } catch (e) {}
+  };
+
+  const handleDeleteEmployee = async (email: string) => {
+    const cleanEmail = email.toLowerCase().trim();
+    setPeople((prev) => {
+      const updated = prev.filter((p) => p.email.toLowerCase() !== cleanEmail);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workorbit_people', JSON.stringify(updated));
+      }
+      return updated;
+    });
+    try {
+      await deleteFirebaseEmployee(cleanEmail);
+    } catch (e) {}
+  };
+
   // Add Project with localStorage & Firebase Persistence
   const handleAddProject = async (
     projectData:
@@ -826,11 +856,13 @@ export default function Home() {
   };
 
   const handleSendMessage = async (content: string, channel: string) => {
+    const senderName = currentUser?.fullName || (dashboardRole === 'admin' ? 'Muni' : 'Team Member');
+    const senderAvatar = senderName[0]?.toUpperCase() || 'U';
     const newMsg: ChatMessage = {
       id: `c-${Date.now()}`,
-      sender: 'Rahul Kumar',
-      senderAvatar: 'R',
-      avatarBg: 'bg-blue-100 text-blue-700',
+      sender: senderName,
+      senderAvatar,
+      avatarBg: dashboardRole === 'admin' ? 'bg-[#011826] text-white' : 'bg-blue-100 text-blue-700',
       content,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       channel,
@@ -845,9 +877,9 @@ export default function Home() {
 
     try {
       await addFirebaseChatMessage({
-        sender: 'Rahul Kumar',
-        senderAvatar: 'R',
-        avatarBg: 'bg-blue-100 text-blue-700',
+        sender: senderName,
+        senderAvatar,
+        avatarBg: dashboardRole === 'admin' ? 'bg-[#011826] text-white' : 'bg-blue-100 text-blue-700',
         content,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         channel,
@@ -856,12 +888,14 @@ export default function Home() {
   };
 
   const handleAddCheckIn = async (question: string, answer: string) => {
+    const authorName = currentUser?.fullName || (dashboardRole === 'admin' ? 'Muni' : 'Team Member');
+    const authorAvatar = authorName[0]?.toUpperCase() || 'U';
     const newChk: CheckIn = {
       id: `chk-${Date.now()}`,
       question,
-      author: 'Rahul Kumar',
-      authorAvatar: 'R',
-      avatarBg: 'bg-blue-100 text-blue-700',
+      author: authorName,
+      authorAvatar,
+      avatarBg: dashboardRole === 'admin' ? 'bg-[#011826] text-white' : 'bg-blue-100 text-blue-700',
       answer,
       timeAgo: 'Just now',
       responsesCount: 1,
@@ -876,8 +910,11 @@ export default function Home() {
   };
 
   const handleUploadFile = async (newFile: FileItem) => {
+    const uploaderName = currentUser?.fullName || (dashboardRole === 'admin' ? 'Muni' : 'Team Member');
+    const uploaderAvatar = uploaderName[0]?.toUpperCase() || 'U';
     const fileWithTime: FileItem = {
       ...newFile,
+      uploadedBy: uploaderName,
       createdAt: newFile.createdAt || Date.now(),
       uploadedAt: getFileRelativeTime(newFile),
     };
@@ -892,8 +929,8 @@ export default function Home() {
 
     const newAct: Activity = {
       id: `act-${Date.now()}`,
-      userName: 'Rahul Kumar',
-      userAvatar: 'R',
+      userName: uploaderName,
+      userAvatar: uploaderAvatar,
       avatarBg: 'bg-purple-100 text-purple-700',
       action: 'uploaded file',
       target: newFile.name,
@@ -961,6 +998,7 @@ export default function Home() {
           chatCount={3}
           storageUsedGB={initialStats.storageUsedGB}
           storageTotalGB={initialStats.storageTotalGB}
+          isAdmin={dashboardRole === 'admin'}
         />
 
         {/* Right Main Content Area - Scrollable */}
@@ -1035,6 +1073,8 @@ export default function Home() {
                   tasks={tasks}
                   onToggleTask={handleToggleTask}
                   onOpenAddTask={() => setIsCreateModalOpen(true)}
+                  isAdmin={dashboardRole === 'admin'}
+                  currentUser={currentUser}
                 />
               )}
 
@@ -1044,6 +1084,8 @@ export default function Home() {
                   tasks={tasks}
                   files={files}
                   onOpenCreateProject={() => setIsCreateModalOpen(true)}
+                  isAdmin={dashboardRole === 'admin'}
+                  currentUser={currentUser}
                 />
               )}
 
@@ -1054,7 +1096,13 @@ export default function Home() {
               )}
 
               {activeTab === 'files' && (
-                <FilesView files={files} onUploadFile={handleUploadFile} />
+                <FilesView
+                  files={files}
+                  onUploadFile={handleUploadFile}
+                  isAdmin={dashboardRole === 'admin'}
+                  currentUser={currentUser}
+                  projects={projects}
+                />
               )}
 
               {activeTab === 'people' && (
@@ -1069,6 +1117,8 @@ export default function Home() {
                         }
                       : undefined
                   }
+                  onUpdateEmployee={handleUpdateEmployee}
+                  onDeleteEmployee={handleDeleteEmployee}
                 />
               )}
 

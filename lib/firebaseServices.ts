@@ -228,6 +228,30 @@ export const addFirebaseEmployee = async (person: Person) => {
   }
 };
 
+export const updateFirebaseEmployee = async (email: string, updates: Partial<Person>) => {
+  try {
+    const cleanEmail = email.toLowerCase().trim();
+    const docId = cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
+    const docRef = doc(db, 'employees', docId);
+    await setDoc(docRef, updates, { merge: true });
+  } catch (error) {
+    console.error('Error updating employee in Firebase:', error);
+  }
+};
+
+export const deleteFirebaseEmployee = async (email: string) => {
+  try {
+    const cleanEmail = email.toLowerCase().trim();
+    const docId = cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
+    await deleteDoc(doc(db, 'employees', docId));
+    try {
+      await deleteDoc(doc(db, 'user_accounts', docId));
+    } catch (e) {}
+  } catch (error) {
+    console.error('Error deleting employee from Firebase:', error);
+  }
+};
+
 export interface StoredUserAccount {
   email: string;
   password?: string;
@@ -241,7 +265,9 @@ export interface StoredUserAccount {
 export const addFirebaseUserAccount = async (account: StoredUserAccount) => {
   try {
     const docRef = doc(db, 'user_accounts', account.email.toLowerCase().replace(/[^a-zA-Z0-9]/g, '_'));
-    await setDoc(docRef, account, { merge: true });
+    // Secure: Never persist plaintext passwords to Firestore
+    const { password, ...safeAccount } = account;
+    await setDoc(docRef, safeAccount, { merge: true });
   } catch (error) {
     console.error('Error adding user account to Firebase:', error);
   }

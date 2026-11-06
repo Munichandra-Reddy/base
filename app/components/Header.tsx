@@ -25,6 +25,8 @@ export const Header: React.FC<HeaderProps> = ({
   currentRole = 'admin',
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isWorkspaceModalOpen, setIsWorkspaceModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
@@ -243,10 +245,34 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            <div className="p-1.5 text-xs font-semibold text-[#595959]">
+            <div className="p-1.5 text-xs font-semibold text-[#595959] space-y-0.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  setIsProfileModalOpen(true);
+                }}
+                className="w-full text-left px-3 py-2 rounded-lg text-[#111827] hover:bg-[#F4F6F8] flex items-center gap-2.5 transition-colors font-medium cursor-pointer"
+              >
+                <span>👤 Profile Settings</span>
+              </button>
+
+              {currentRole === 'admin' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsProfileOpen(false);
+                    setIsWorkspaceModalOpen(true);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-lg text-[#111827] hover:bg-[#F4F6F8] flex items-center gap-2.5 transition-colors font-medium cursor-pointer"
+                >
+                  <span>⚙️ Workspace Settings</span>
+                </button>
+              )}
+
               <button
                 onClick={handleLogoutClick}
-                className="w-full text-left px-3 py-2 rounded-xl text-[#EF4444] hover:bg-[#FEF2F2] flex items-center gap-2.5 transition-colors font-bold"
+                className="w-full text-left px-3 py-2 rounded-lg text-[#EF4444] hover:bg-[#FEF2F2] flex items-center gap-2.5 transition-colors font-bold cursor-pointer"
               >
                 <span>🚪 Log out</span>
               </button>
@@ -254,6 +280,156 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         )}
       </div>
+
+      {/* User Profile Settings Modal */}
+      {isProfileModalOpen && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsProfileModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans text-left"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-md p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <h3 className="text-base font-semibold text-[#111827]">Account & Profile</h3>
+                <p className="text-xs text-[#595959]">Manage your account details and security settings</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsProfileModalOpen(false)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3.5 text-xs">
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Full Name</label>
+                <input
+                  type="text"
+                  disabled
+                  value={userName}
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-[#E5E5E5] rounded-lg text-xs font-medium text-[#111827]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Email Address</label>
+                <input
+                  type="email"
+                  disabled
+                  value={userEmail}
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-[#E5E5E5] rounded-lg text-xs font-medium text-[#595959]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Assigned Role</label>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#F4F6F8] text-[#111827] border border-[#E5E5E5] uppercase">
+                    {currentRole === 'admin' ? 'Workspace Administrator' : 'Team Member / Employee'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-[#E5E5E5]">
+                <p className="text-[11px] text-[#595959]">
+                  To change your password, use the <strong>Forgot Password</strong> link on the sign-in screen to receive a secure single-use recovery code.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setIsProfileModalOpen(false)}
+                className="btn-primary"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Workspace Settings Modal (Admin Only) */}
+      {isWorkspaceModalOpen && currentRole === 'admin' && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsWorkspaceModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans text-left"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <h3 className="text-base font-semibold text-[#111827]">Workspace Settings</h3>
+                <p className="text-xs text-[#595959]">Organization-wide configuration & security controls</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsWorkspaceModalOpen(false)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-[#F4F6F8] rounded-lg border border-[#E5E5E5]">
+                  <span className="text-[11px] text-[#595959] block">Organization</span>
+                  <span className="font-bold text-sm text-[#111827]">GEONIXA</span>
+                </div>
+                <div className="p-3 bg-[#F4F6F8] rounded-lg border border-[#E5E5E5]">
+                  <span className="text-[11px] text-[#595959] block">Plan Tier</span>
+                  <span className="font-bold text-sm text-[#049FD9]">Pro Plan (Active)</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Workspace Domain</label>
+                <input
+                  type="text"
+                  disabled
+                  value="geonixa.workorbit.app"
+                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-[#E5E5E5] rounded-lg text-xs font-medium text-[#595959]"
+                />
+              </div>
+
+              <div className="space-y-2 pt-2 border-t border-[#E5E5E5]">
+                <h4 className="font-semibold text-xs text-[#111827]">Security & Role Policies</h4>
+                <div className="space-y-1.5 text-[11px] text-[#595959]">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#16A34A] font-bold">✓</span>
+                    <span>Strict role-based project creation (Admins only)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#16A34A] font-bold">✓</span>
+                    <span>Employee project and task scoping enabled</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#16A34A] font-bold">✓</span>
+                    <span>Firestore database security rules enforced</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setIsWorkspaceModalOpen(false)}
+                className="btn-primary"
+              >
+                Close Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

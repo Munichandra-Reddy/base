@@ -24,7 +24,9 @@ interface ProjectsViewProps {
   projects: Project[];
   tasks?: Task[];
   files?: FileItem[];
-  onOpenCreateProject: () => void;
+  onOpenCreateProject?: () => void;
+  isAdmin?: boolean;
+  currentUser?: { email: string; fullName: string; companyName: string; role?: string } | null;
 }
 
 export const ProjectsView: React.FC<ProjectsViewProps> = ({
@@ -32,9 +34,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   tasks = [],
   files = [],
   onOpenCreateProject,
+  isAdmin = false,
+  currentUser,
 }) => {
   const [viewMode, setViewMode] = useState<'list' | 'cards' | 'kanban'>('cards');
-  const [showFilter, setShowFilter] = useState('All Projects');
+  const [showFilter, setShowFilter] = useState(!isAdmin ? 'My Projects' : 'All Projects');
   const [sortFilter, setSortFilter] = useState('Create Date');
   const [groupFilter, setGroupFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -117,7 +121,18 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const processedProjects = useMemo(() => {
     let result = [...projects];
 
-    if (showFilter !== 'All Projects') {
+    if (showFilter === 'My Projects') {
+      const userIdentifier = (currentUser?.fullName || '').toLowerCase().trim();
+      const userEmail = (currentUser?.email || '').toLowerCase().trim();
+      result = result.filter((p) => {
+        const membersLower = (p.members || []).map((m) => m.toLowerCase());
+        const managerLower = (p.manager || '').toLowerCase();
+        return (
+          membersLower.some((m) => m.includes(userIdentifier) || (userEmail && m.includes(userEmail))) ||
+          managerLower.includes(userIdentifier)
+        );
+      });
+    } else if (showFilter !== 'All Projects') {
       result = result.filter((p) => {
         const s = (p.status || '').toLowerCase();
         const target = showFilter.toLowerCase();
@@ -300,16 +315,18 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-end sm:self-auto">
-            <button
-              type="button"
-              onClick={onOpenCreateProject}
-              className="btn-primary"
-            >
-              <PlusIcon className="w-4 h-4" />
-              <span>New Project</span>
-            </button>
-          </div>
+          {isAdmin && onOpenCreateProject && (
+            <div className="flex items-center gap-2 self-end sm:self-auto">
+              <button
+                type="button"
+                onClick={onOpenCreateProject}
+                className="btn-primary"
+              >
+                <PlusIcon className="w-4 h-4" />
+                <span>New Project</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 5 TOP SUB-TABS (Messages, Meetings, Tasks, Work Updates, Overview) */}
@@ -1134,15 +1151,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <span>Invite</span>
           </button>
 
-          {/* New Project Button */}
-          <button
-            type="button"
-            onClick={onOpenCreateProject}
-            className="btn-primary"
-          >
-            <PlusIcon className="w-4 h-4" />
-            <span>New Project</span>
-          </button>
+          {/* New Project Button (Admin Only) */}
+          {isAdmin && onOpenCreateProject && (
+            <button
+              type="button"
+              onClick={onOpenCreateProject}
+              className="btn-primary"
+            >
+              <PlusIcon className="w-4 h-4" />
+              <span>New Project</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -1200,6 +1219,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               onChange={(e) => setShowFilter(e.target.value)}
               className="bg-transparent font-bold text-[#0F172A] focus:outline-none cursor-pointer appearance-none pr-3"
             >
+              {!isAdmin && <option value="My Projects">My Assigned Projects</option>}
               <option value="All Projects">All Projects</option>
               <option value="Active">Active</option>
               <option value="Design">Design</option>

@@ -10,6 +10,13 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const userRole = request.headers.get('x-user-role');
+    if (userRole && userRole !== 'admin') {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Only Workspace Administrators can create projects.' },
+        { status: 403 }
+      );
+    }
     const body = await request.json();
     const newProject: Project = {
       id: `p-${Date.now()}`,

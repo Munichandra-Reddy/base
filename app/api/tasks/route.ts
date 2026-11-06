@@ -39,6 +39,13 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const userRole = request.headers.get('x-user-role');
+  if (userRole && userRole !== 'admin') {
+    return NextResponse.json(
+      { success: false, error: 'Forbidden: Only Workspace Administrators can delete tasks.' },
+      { status: 403 }
+    );
+  }
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
   if (id) {

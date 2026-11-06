@@ -9,10 +9,20 @@ import { getDirectFileBlobUrl, getFileRelativeTime } from '@/lib/fileUtils';
 interface FilesViewProps {
   files: FileItem[];
   onUploadFile: (file: FileItem) => void;
+  isAdmin?: boolean;
+  currentUser?: { email: string; fullName: string; companyName: string; role?: string } | null;
+  projects?: { name: string; members: string[]; manager?: string }[];
 }
 
-export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => {
+export const FilesView: React.FC<FilesViewProps> = ({
+  files,
+  onUploadFile,
+  isAdmin = false,
+  currentUser,
+  projects = [],
+}) => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [fileScope, setFileScope] = useState<'my' | 'all'>(!isAdmin ? 'my' : 'all');
 
   // Live timer so relative upload times automatically update (e.g. Just now -> 1 min ago)
   const [, setTick] = useState(0);
@@ -22,6 +32,28 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
     }, 15000); // Check and re-render every 15 seconds
     return () => clearInterval(timer);
   }, []);
+
+  const myProjectNames = React.useMemo(() => {
+    if (isAdmin || !currentUser) return [];
+    const nameLower = (currentUser.fullName || '').toLowerCase().trim();
+    const emailLower = (currentUser.email || '').toLowerCase().trim();
+    return (projects || [])
+      .filter((p) => {
+        const mems = (p.members || []).map((m) => m.toLowerCase());
+        const mgr = (p.manager || '').toLowerCase();
+        return mems.some((m) => m.includes(nameLower) || (emailLower && m.includes(emailLower))) || mgr.includes(nameLower);
+      })
+      .map((p) => p.name.toLowerCase().trim());
+  }, [isAdmin, currentUser, projects]);
+
+  const displayedFiles = React.useMemo(() => {
+    if (isAdmin || fileScope === 'all') return files;
+    if (myProjectNames.length === 0) return files;
+    return files.filter((f) => {
+      const proj = (f.project || '').toLowerCase().trim();
+      return myProjectNames.includes(proj);
+    });
+  }, [files, isAdmin, fileScope, myProjectNames]);
 
   const handleOpenFile = async (file: FileItem) => {
     try {
@@ -42,18 +74,46 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
           <h1 className="text-xl font-semibold text-[#111827]">Project Docs & Files</h1>
           <p className="text-[#595959] text-xs font-normal mt-0.5">Central repository for project assets, documents, and deliverables.</p>
         </div>
-        <button
-          onClick={() => setIsUploadModalOpen(true)}
-          className="btn-primary"
-        >
-          <PlusIcon className="w-4 h-4" />
-          <span>Upload File</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          {!isAdmin && (
+            <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg border border-[#E5E5E5] text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setFileScope('my')}
+                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
+                  fileScope === 'my'
+                    ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                    : 'text-[#595959] hover:text-[#111827]'
+                }`}
+              >
+                My Project Files
+              </button>
+              <button
+                type="button"
+                onClick={() => setFileScope('all')}
+                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
+                  fileScope === 'all'
+                    ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                    : 'text-[#595959] hover:text-[#111827]'
+                }`}
+              >
+                All Files
+              </button>
+            </div>
+          )}
+          <button
+            onClick={() => setIsUploadModalOpen(true)}
+            className="btn-primary"
+          >
+            <PlusIcon className="w-4 h-4" />
+            <span>Upload File</span>
+          </button>
+        </div>
       </div>
 
       {/* Files Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {files.map((file) => (
+        {displayedFiles.map((file) => (
           <div
             key={file.id}
             className="group bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all flex flex-col justify-between"

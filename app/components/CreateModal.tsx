@@ -65,7 +65,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
     if (isOpen) {
       if (initialType === 'employee' && isAdmin) {
         setActiveType('employee');
-      } else if (initialType === 'project') {
+      } else if (initialType === 'project' && isAdmin) {
         setActiveType('project');
       } else {
         setActiveType('task');
@@ -115,7 +115,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
 
   const handleProjectSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!projectName.trim()) return;
+    if (!isAdmin || !projectName.trim()) return;
 
     let finalDocs = [...requiredDocs];
     if (docInputText.trim() && !finalDocs.includes(docInputText.trim())) {
@@ -237,7 +237,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
         <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between bg-white shrink-0">
           <div>
             <h3 className="text-base font-semibold text-[#111827]">Create New</h3>
-            <p className="text-xs text-[#595959] font-normal">Add {isAdmin ? 'tasks, projects, or employees' : 'tasks or projects'} to your workspace</p>
+            <p className="text-xs text-[#595959] font-normal">Add {isAdmin ? 'tasks, projects, or employees' : 'tasks'} to your workspace</p>
           </div>
           <button
             type="button"
@@ -261,17 +261,19 @@ export const CreateModal: React.FC<CreateModalProps> = ({
           >
             New Task
           </button>
-          <button
-            type="button"
-            onClick={() => setActiveType('project')}
-            className={`flex-1 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
-              activeType === 'project'
-                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
-                : 'text-[#595959] hover:text-[#111827]'
-            }`}
-          >
-            New Project
-          </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setActiveType('project')}
+              className={`flex-1 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
+                activeType === 'project'
+                  ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                  : 'text-[#595959] hover:text-[#111827]'
+              }`}
+            >
+              New Project
+            </button>
+          )}
           {isAdmin && (
             <button
               type="button"

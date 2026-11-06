@@ -8,13 +8,42 @@ interface TasksViewProps {
   tasks: Task[];
   onToggleTask: (id: string) => void;
   onOpenAddTask: () => void;
+  isAdmin?: boolean;
+  currentUser?: { email: string; fullName: string; companyName: string; role?: string } | null;
 }
 
-export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpenAddTask }) => {
+export const TasksView: React.FC<TasksViewProps> = ({
+  tasks,
+  onToggleTask,
+  onOpenAddTask,
+  isAdmin = false,
+  currentUser,
+}) => {
+  const [scope, setScope] = useState<'my' | 'all'>(!isAdmin ? 'my' : 'all');
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const handleTaskClick = (task: Task) => {
+    if (!isAdmin && task.assignedTo && currentUser?.fullName) {
+      const isAssignedToMe =
+        task.assignedTo.toLowerCase().includes(currentUser.fullName.toLowerCase()) ||
+        currentUser.fullName.toLowerCase().includes(task.assignedTo.toLowerCase());
+      if (!isAssignedToMe) {
+        alert(`This task is assigned to ${task.assignedTo}. Only the assigned employee or an administrator can update its status.`);
+        return;
+      }
+    }
+    onToggleTask(task.id);
+  };
+
   const filteredTasks = tasks.filter((t) => {
+    if (!isAdmin && scope === 'my' && currentUser?.fullName) {
+      const isMine =
+        t.assignedTo &&
+        (t.assignedTo.toLowerCase().includes(currentUser.fullName.toLowerCase()) ||
+          currentUser.fullName.toLowerCase().includes(t.assignedTo.toLowerCase()));
+      if (!isMine) return false;
+    }
     if (filter === 'pending' && t.completed) return false;
     if (filter === 'completed' && !t.completed) return false;
     if (searchQuery.trim() !== '') {
@@ -47,20 +76,49 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
 
       {/* Filter Tabs & Search */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs">
-        <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg border border-[#E5E5E5] text-xs font-medium">
-          {(['all', 'pending', 'completed'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab)}
-              className={`px-3 py-1.5 rounded-md text-xs capitalize transition-all cursor-pointer ${
-                filter === tab
-                  ? 'bg-white text-[#111827] shadow-2xs font-semibold'
-                  : 'text-[#595959] hover:text-[#111827]'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 flex-wrap">
+          {!isAdmin && (
+            <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg border border-[#E5E5E5] text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setScope('my')}
+                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
+                  scope === 'my'
+                    ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                    : 'text-[#595959] hover:text-[#111827]'
+                }`}
+              >
+                Assigned to Me
+              </button>
+              <button
+                type="button"
+                onClick={() => setScope('all')}
+                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
+                  scope === 'all'
+                    ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                    : 'text-[#595959] hover:text-[#111827]'
+                }`}
+              >
+                All Tasks
+              </button>
+            </div>
+          )}
+
+          <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg border border-[#E5E5E5] text-xs font-medium">
+            {(['all', 'pending', 'completed'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setFilter(tab)}
+                className={`px-3 py-1.5 rounded-md text-xs capitalize transition-all cursor-pointer ${
+                  filter === tab
+                    ? 'bg-white text-[#111827] shadow-2xs font-semibold'
+                    : 'text-[#595959] hover:text-[#111827]'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </div>
 
         <input
@@ -84,7 +142,7 @@ export const TasksView: React.FC<TasksViewProps> = ({ tasks, onToggleTask, onOpe
             filteredTasks.map((task) => (
               <div
                 key={task.id}
-                onClick={() => onToggleTask(task.id)}
+                onClick={() => handleTaskClick(task)}
                 className="flex items-center justify-between p-4 hover:bg-[#F9FAFB] transition-colors cursor-pointer gap-4"
               >
                 <div className="flex items-center gap-3.5 min-w-0">
