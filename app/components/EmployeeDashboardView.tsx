@@ -284,7 +284,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                     <div
                       key={task.id}
                       onClick={() => onToggleTask(task.id)}
-                      className="p-3.5 rounded-xl border border-[#E5E5E5] bg-white hover:bg-[#F8FAFC] transition-all cursor-pointer flex items-center justify-between gap-3 group"
+                      className="py-2.5 px-2 rounded-lg hover:bg-[#F8FAFC] transition-all cursor-pointer flex items-center justify-between gap-3 group"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         {/* Checkbox */}
@@ -395,8 +395,8 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5] flex items-start gap-3">
-                <div className="w-10 h-10 rounded-md bg-white border border-[#E5E5E5] text-[#111827] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
+              <div className="py-1 px-1 flex items-start gap-3 rounded-lg hover:bg-[#F8FAFC] transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[#F4F6F8] text-[#111827] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
                   <span>10:00</span>
                   <span className="text-[8px] uppercase">AM</span>
                 </div>
@@ -406,8 +406,8 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5] flex items-start gap-3">
-                <div className="w-10 h-10 rounded-md bg-white border border-[#E5E5E5] text-[#111827] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
+              <div className="py-1 px-1 flex items-start gap-3 rounded-lg hover:bg-[#F8FAFC] transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[#F4F6F8] text-[#111827] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
                   <span>02:30</span>
                   <span className="text-[8px] uppercase">PM</span>
                 </div>
@@ -417,8 +417,8 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5] flex items-start gap-3">
-                <div className="w-10 h-10 rounded-md bg-white border border-[#E5E5E5] text-[#111827] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
+              <div className="py-1 px-1 flex items-start gap-3 rounded-lg hover:bg-[#F8FAFC] transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[#F4F6F8] text-[#111827] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
                   <span>05:00</span>
                   <span className="text-[8px] uppercase">PM</span>
                 </div>

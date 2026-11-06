@@ -298,9 +298,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               <div className="space-y-2.5">
                 {/* Deadline Item 1 */}
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F1F3F6]/70 border border-[#E2E8F0]">
+                <div className="flex items-center justify-between py-2 px-1 rounded-lg hover:bg-[#F4F6F8] transition-colors">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-[#EBF0F5] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 border border-[#E2E8F0]">
+                    <div className="w-9 h-9 rounded-xl bg-[#F4F6F8] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0">
                       <span>10</span>
                       <span className="text-[9px] uppercase mt-0.5">Oct</span>
                     </div>
@@ -315,9 +315,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
 
                 {/* Deadline Item 2 */}
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F1F3F6]/70 border border-[#E2E8F0]">
+                <div className="flex items-center justify-between py-2 px-1 rounded-lg hover:bg-[#F4F6F8] transition-colors">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-[#EBF0F5] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 border border-[#E2E8F0]">
+                    <div className="w-9 h-9 rounded-xl bg-[#F4F6F8] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0">
                       <span>12</span>
                       <span className="text-[9px] uppercase mt-0.5">Oct</span>
                     </div>
@@ -332,9 +332,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
 
                 {/* Deadline Item 3 */}
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F1F3F6]/70 border border-[#E2E8F0]">
+                <div className="flex items-center justify-between py-2 px-1 rounded-lg hover:bg-[#F4F6F8] transition-colors">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-[#EBF0F5] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 border border-[#E2E8F0]">
+                    <div className="w-9 h-9 rounded-xl bg-[#F4F6F8] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0">
                       <span>15</span>
                       <span className="text-[9px] uppercase mt-0.5">Oct</span>
                     </div>
@@ -349,9 +349,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </div>
 
                 {/* Deadline Item 4 */}
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F1F3F6]/70 border border-[#E2E8F0]">
+                <div className="flex items-center justify-between py-2 px-1 rounded-lg hover:bg-[#F4F6F8] transition-colors">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-[#EBF0F5] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 border border-[#E2E8F0]">
+                    <div className="w-9 h-9 rounded-xl bg-[#F4F6F8] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0">
                       <span>18</span>
                       <span className="text-[9px] uppercase mt-0.5">Oct</span>
                     </div>
@@ -689,7 +689,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div
                     key={task.id}
                     onClick={() => onToggleTask(task.id)}
-                    className="p-3 rounded-lg border border-[#E5E5E5] bg-white hover:bg-[#F4F6F8] transition-all cursor-pointer flex items-center justify-between gap-3 group"
+                    className="py-2.5 px-2 rounded-lg hover:bg-[#F4F6F8] transition-all cursor-pointer flex items-center justify-between gap-3 group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div
