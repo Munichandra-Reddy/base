@@ -423,8 +423,8 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   <span className="text-[8px] uppercase">PM</span>
                 </div>
                 <div>
-                  <h5 className="font-semibold text-[#111827]">Daily Check-in Due</h5>
-                  <p className="text-[10px] text-[#595959] font-normal mt-0.5">Automated prompt in #checkins</p>
+                  <h5 className="font-semibold text-[#111827]">Daily Sprint Wrap-up</h5>
+                  <p className="text-[10px] text-[#595959] font-normal mt-0.5">Team sync & milestone progress review</p>
                 </div>
               </div>
             </div>

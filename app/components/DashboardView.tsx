@@ -734,13 +734,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-[#222222] text-sm">Recent Activity</h3>
-              <button
-                type="button"
-                onClick={onViewActivity}
-                className="text-xs font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
-              >
-                View All
-              </button>
+              {onViewActivity && (
+                <button
+                  type="button"
+                  onClick={onViewActivity}
+                  className="text-xs font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
+                >
+                  View All
+                </button>
+              )}
             </div>
 
             <div className="space-y-3.5">

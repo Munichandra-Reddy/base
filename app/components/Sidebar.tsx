@@ -54,8 +54,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'chat' as NavTab, label: 'Campfire Chat', icon: ChatIcon, badge: chatCount },
     { id: 'files' as NavTab, label: 'Files', icon: FileIcon },
     { id: 'people' as NavTab, label: 'Employees', icon: UsersIcon },
-    { id: 'checkins' as NavTab, label: 'Check-ins', icon: CheckCircleIcon },
-    { id: 'reports' as NavTab, label: 'Reports', icon: ChartIcon },
   ];
 
   const storagePercentage = Math.min(100, Math.round((storageUsedGB / storageTotalGB) * 100));
@@ -236,7 +234,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-emerald-500 font-bold">✓</span>
-                    <span>Automated Daily Check-ins</span>
+                    <span>10 GB Secure Cloud Storage</span>
                   </div>
                 </div>
               </div>

@@ -457,8 +457,6 @@ export default function Home() {
           'chat',
           'files',
           'people',
-          'checkins',
-          'reports',
         ];
         if (validTabs.includes(hash as NavTab)) {
           setActiveTab(hash as NavTab);
@@ -1018,12 +1016,8 @@ export default function Home() {
               <ChatSkeleton />
             ) : activeTab === 'files' ? (
               <FilesSkeleton />
-            ) : activeTab === 'people' ? (
-              <PeopleSkeleton />
-            ) : activeTab === 'checkins' ? (
-              <CheckinsSkeleton />
             ) : (
-              <ReportsSkeleton />
+              <PeopleSkeleton />
             )
           ) : (
             <>
@@ -1045,7 +1039,6 @@ export default function Home() {
                   onViewEmployees={() => handleTabChange('people')}
                   onViewProjects={() => handleTabChange('projects')}
                   onViewCalendar={() => handleTabChange('calendar')}
-                  onViewActivity={() => handleTabChange('reports')}
                   currentUser={currentUser}
                 />
               )}
@@ -1063,7 +1056,6 @@ export default function Home() {
                   onViewTasks={() => handleTabChange('tasks')}
                   onViewChat={() => handleTabChange('chat')}
                   onViewCalendar={() => handleTabChange('calendar')}
-                  onViewCheckins={() => handleTabChange('checkins')}
                   onViewEmployees={() => handleTabChange('people')}
                 />
               )}
@@ -1121,12 +1113,6 @@ export default function Home() {
                   onDeleteEmployee={handleDeleteEmployee}
                 />
               )}
-
-              {activeTab === 'checkins' && (
-                <CheckinsView checkins={checkins} onAddCheckIn={handleAddCheckIn} />
-              )}
-
-              {activeTab === 'reports' && <ReportsView activities={activities} />}
             </>
           )}
         </main>
