@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { FileItem } from '@/lib/types';
 import { FileIcon, PlusIcon } from './Icons';
 import { UploadFileModal } from './UploadFileModal';
-import { FileViewerModal } from './FileViewerModal';
-import { getFileRelativeTime } from '@/lib/fileUtils';
+import { getDirectFileBlobUrl, getFileRelativeTime } from '@/lib/fileUtils';
 
 interface FilesViewProps {
   files: FileItem[];
@@ -14,7 +13,6 @@ interface FilesViewProps {
 
 export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [viewingFile, setViewingFile] = useState<FileItem | null>(null);
 
   // Live timer so relative upload times automatically update (e.g. Just now -> 1 min ago)
   const [, setTick] = useState(0);
@@ -24,6 +22,17 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
     }, 15000); // Check and re-render every 15 seconds
     return () => clearInterval(timer);
   }, []);
+
+  const handleOpenFile = async (file: FileItem) => {
+    try {
+      const targetBlobUrl = await getDirectFileBlobUrl(file.name, file.fileUrl, file.project);
+      window.open(targetBlobUrl, '_blank');
+    } catch (e) {
+      if (file.fileUrl) {
+        window.open(file.fileUrl, '_blank');
+      }
+    }
+  };
 
   return (
     <div className="space-y-6 font-sans w-full">
@@ -42,30 +51,46 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
         </button>
       </div>
 
-      {/* Files Grid - Clicking any file card opens FileViewerModal */}
+      {/* Files Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {files.map((file) => (
           <div
             key={file.id}
-            onClick={() => setViewingFile(file)}
-            className="group bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer flex flex-col justify-between"
+            className="group bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all flex flex-col justify-between"
           >
-            <div className="flex items-start justify-between mb-3">
-              <div className="w-10 h-10 rounded-lg bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center font-bold">
-                <FileIcon className="w-5 h-5" />
+            <div>
+              <div className="flex items-start justify-between mb-3">
+                <div className="w-10 h-10 rounded-lg bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center font-bold">
+                  <FileIcon className="w-5 h-5" />
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <h4
+                  onClick={() => handleOpenFile(file)}
+                  className="text-sm font-semibold text-[#111827] group-hover:text-[#049FD9] transition-colors truncate mb-0.5 cursor-pointer"
+                  title={file.name}
+                >
+                  {file.name}
+                </h4>
+                <p className="text-xs font-medium text-[#6B7280]">{file.project}</p>
               </div>
             </div>
 
-            <div className="mb-3">
-              <h4 className="text-sm font-semibold text-[#111827] group-hover:text-[#049FD9] transition-colors truncate mb-0.5" title={file.name}>
-                {file.name}
-              </h4>
-              <p className="text-xs font-medium text-[#6B7280]">{file.project}</p>
-            </div>
-
-            <div className="flex items-center justify-between pt-3 border-t border-[#E5E5E5] text-[11px] font-medium text-[#6B7280]">
-              <span>{file.size}</span>
-              <span className="text-[#111827] font-semibold">{getFileRelativeTime(file)}</span>
+            <div className="pt-3 border-t border-[#E5E5E5] space-y-2.5">
+              <div className="flex items-center justify-between text-[11px] font-medium text-[#6B7280]">
+                <span>{file.size}</span>
+                <span className="text-[#111827] font-semibold">{getFileRelativeTime(file)}</span>
+              </div>
+              <div className="flex items-center justify-start">
+                <button
+                  type="button"
+                  onClick={() => handleOpenFile(file)}
+                  className="btn-primary text-xs py-1.5 px-3"
+                >
+                  View File
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -76,12 +101,6 @@ export const FilesView: React.FC<FilesViewProps> = ({ files, onUploadFile }) => 
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         onUpload={(newFile) => onUploadFile(newFile)}
-      />
-
-      {/* File Viewer Modal on Click */}
-      <FileViewerModal
-        file={viewingFile}
-        onClose={() => setViewingFile(null)}
       />
     </div>
   );

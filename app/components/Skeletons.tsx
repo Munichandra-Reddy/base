@@ -439,9 +439,12 @@ export const FilesSkeleton: React.FC = () => {
               <div className="h-3.5 w-3/4 bg-[#CBD5E1] rounded" />
               <div className="h-2.5 w-1/2 bg-[#E2E8F0] rounded" />
             </div>
-            <div className="pt-2 border-t border-[#E5E5E5] flex justify-between">
-              <div className="h-2 w-16 bg-[#F1F5F9] rounded" />
-              <div className="h-2 w-10 bg-[#F1F5F9] rounded" />
+            <div className="pt-2 border-t border-[#E5E5E5] space-y-2.5">
+              <div className="flex justify-between">
+                <div className="h-2 w-16 bg-[#F1F5F9] rounded" />
+                <div className="h-2 w-10 bg-[#F1F5F9] rounded" />
+              </div>
+              <div className="h-7 w-20 bg-[#CBD5E1] rounded-lg" />
             </div>
           </div>
         ))}
