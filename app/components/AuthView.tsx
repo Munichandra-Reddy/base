@@ -881,7 +881,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] flex flex-col justify-center items-center p-4 sm:p-6 font-sans">
+    <div className="min-h-screen bg-[#F4F6F8] flex flex-col justify-center items-center p-4 sm:p-6 font-sans">
       <div className="w-full max-w-md bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-6 sm:p-8 space-y-5">
         
         {/* Logo Header */}

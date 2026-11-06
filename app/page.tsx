@@ -807,7 +807,7 @@ export default function Home() {
   const pendingTasksCount = tasks.filter((t) => !t.completed).length;
 
   return (
-    <div className="h-screen w-full overflow-hidden flex flex-col bg-[#FFFFFF]">
+    <div className="h-screen w-full overflow-hidden flex flex-col bg-[#F4F6F8]">
       {/* Top Header - Fixed at Top */}
       <Header
         onOpenCreateModal={() => {
@@ -843,7 +843,7 @@ export default function Home() {
         />
 
         {/* Right Main Content Area - Scrollable */}
-        <main className="flex-1 h-full overflow-y-auto p-4 sm:p-6 lg:p-8 w-full min-w-0">
+        <main className="flex-1 h-full overflow-y-auto p-4 sm:p-6 lg:p-8 w-full min-w-0 bg-[#F4F6F8]">
           {activeTab === 'dashboard' && dashboardRole === 'admin' && (
             <DashboardView
               stats={{
