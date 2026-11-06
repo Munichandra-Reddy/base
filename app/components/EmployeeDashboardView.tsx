@@ -396,7 +396,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
 
             <div className="space-y-3 text-xs">
               <div className="p-3 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5] flex items-start gap-3">
-                <div className="w-10 h-10 rounded-md bg-[#011826] text-white flex flex-col items-center justify-center font-bold text-[10px] shrink-0 shadow-2xs">
+                <div className="w-10 h-10 rounded-md bg-white border border-[#E5E5E5] text-[#111827] flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
                   <span>10:00</span>
                   <span className="text-[8px] uppercase">AM</span>
                 </div>
