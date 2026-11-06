@@ -298,69 +298,69 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
               <div className="space-y-2.5">
                 {/* Deadline Item 1 */}
-                <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-md bg-[#049FD9] text-white font-bold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 shadow-2xs">
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F1F3F6]/70 border border-[#E2E8F0]">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-[#EBF0F5] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 border border-[#E2E8F0]">
                       <span>10</span>
                       <span className="text-[9px] uppercase mt-0.5">Oct</span>
                     </div>
-                    <div>
-                      <div className="font-bold text-xs text-[#0F172A]">Mobile App v2</div>
-                      <div className="text-[11px] text-[#64748B] font-medium">UI Design Review</div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-xs text-[#0F172A] truncate">Mobile App v2</div>
+                      <div className="text-[11px] text-[#64748B] font-medium truncate">UI Design Review</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#EF4444] border border-[#EF4444]/20">
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#EF4444] border border-[#EF4444]/20 shrink-0 whitespace-nowrap">
                     Overdue
                   </span>
                 </div>
 
                 {/* Deadline Item 2 */}
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F1F3F6]/70 border border-[#E2E8F0]">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div className="w-9 h-9 rounded-xl bg-[#EBF0F5] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 border border-[#E2E8F0]">
                       <span>12</span>
                       <span className="text-[9px] uppercase mt-0.5">Oct</span>
                     </div>
-                    <div>
-                      <div className="font-bold text-xs text-[#0F172A]">Marketing Campaign Q4</div>
-                      <div className="text-[11px] text-[#64748B] font-medium">Content Finalization</div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-xs text-[#0F172A] truncate">Marketing Campaign Q4</div>
+                      <div className="text-[11px] text-[#64748B] font-medium truncate">Content Finalization</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/20">
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/20 shrink-0 whitespace-nowrap">
                     2 days left
                   </span>
                 </div>
 
                 {/* Deadline Item 3 */}
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F1F3F6]/70 border border-[#E2E8F0]">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div className="w-9 h-9 rounded-xl bg-[#EBF0F5] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 border border-[#E2E8F0]">
                       <span>15</span>
                       <span className="text-[9px] uppercase mt-0.5">Oct</span>
                     </div>
-                    <div>
-                      <div className="font-bold text-xs text-[#0F172A]">E-Commerce Website</div>
-                      <div className="text-[11px] text-[#64748B] font-medium">Backend Development</div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-xs text-[#0F172A] truncate">E-Commerce Website</div>
+                      <div className="text-[11px] text-[#64748B] font-medium truncate">Backend Development</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/20">
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/20 shrink-0 whitespace-nowrap">
                     5 days left
                   </span>
                 </div>
 
                 {/* Deadline Item 4 */}
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#F1F3F6]/70 border border-[#E2E8F0]">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div className="w-9 h-9 rounded-xl bg-[#EBF0F5] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0 border border-[#E2E8F0]">
                       <span>18</span>
                       <span className="text-[9px] uppercase mt-0.5">Oct</span>
                     </div>
-                    <div>
-                      <div className="font-bold text-xs text-[#0F172A]">Design homepage</div>
-                      <div className="text-[11px] text-[#64748B] font-medium">Client Presentation</div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-xs text-[#0F172A] truncate">Design homepage</div>
+                      <div className="text-[11px] text-[#64748B] font-medium truncate">Client Presentation</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/20">
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/20 shrink-0 whitespace-nowrap">
                     8 days left
                   </span>
                 </div>
