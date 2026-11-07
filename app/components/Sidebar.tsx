@@ -63,7 +63,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className="w-full group flex items-center justify-between px-3 py-2 text-sm transition-colors cursor-pointer text-[#222222] font-medium"
+                  className={`w-full group flex items-center justify-between px-3 py-2 text-sm transition-colors cursor-pointer text-[#222222] font-medium rounded-lg ${
+                    isActive ? 'bg-[#F4F6F8]' : ''
+                  }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <Icon
@@ -74,7 +76,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <span className="whitespace-nowrap truncate text-sm">{item.label}</span>
                   </div>
                   {item.badge !== undefined && item.badge > 0 && (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ml-2 bg-[#F4F6F8] text-[#595959]">
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ml-2 ${
+                        isActive ? 'bg-white text-[#595959]' : 'bg-[#F4F6F8] text-[#595959]'
+                      }`}
+                    >
                       {item.badge}
                     </span>
                   )}
