@@ -60,7 +60,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 1: Total Projects */}
         <div
           onClick={onViewProjects}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -83,7 +83,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 2: Total Tasks */}
         <div
           onClick={onViewAllTasks}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -106,7 +106,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 3: Due Soon */}
         <div
           onClick={onViewCalendar}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -129,7 +129,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 4: Team Online */}
         <div
           onClick={onViewEmployees}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -152,7 +152,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 5: Overdue Tasks */}
         <div
           onClick={onViewCalendar}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -173,7 +173,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Card 6: Total Employees */}
         <div
           onClick={onViewEmployees}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -201,7 +201,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* ROW 1 CARDS: Project Progress & Upcoming Deadlines */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
             {/* Card 1: Project Progress */}
-            <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs flex flex-col justify-between">
+            <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-[#222222] text-sm">Project Progress</h3>
                 <button
@@ -284,7 +284,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Card 2: Upcoming Deadlines */}
-            <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs flex flex-col justify-between">
+            <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold text-[#222222] text-sm">Upcoming Deadlines</h3>
                 <button
@@ -371,7 +371,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* ROW 2 CARDS: Top Projects & Task Status / Team Workload */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
             {/* Card 3: Top Projects Table */}
-            <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs">
+            <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-[#222222] text-sm">Top Projects</h3>
                 <button
@@ -503,7 +503,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Card 4: Task Status & Team Workload */}
-            <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-5">
+            <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-5">
               {/* Task Status */}
               <div>
                 <h3 className="font-extrabold text-[#0F172A] text-base mb-3">Task Status</h3>
@@ -626,7 +626,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* RIGHT COLUMN (1 SPAN): My Tasks & Recent Activity */}
         <div className="space-y-6">
           {/* Card 5: My Tasks Widget */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-[#222222] text-sm">My Tasks</h3>
               <button
@@ -731,7 +731,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* Card 6: Recent Activity Widget */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-[#222222] text-sm">Recent Activity</h3>
               {onViewActivity && (

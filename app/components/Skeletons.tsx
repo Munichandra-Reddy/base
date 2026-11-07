@@ -12,7 +12,7 @@ export const EmployeeDashboardSkeleton: React.FC = () => {
       {/* 6 KPI Cards Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 w-full">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs flex flex-col justify-between h-20">
+          <div key={i} className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs flex flex-col justify-between h-20">
             <div className="flex items-center justify-between mb-2">
               <div className="h-2.5 w-14 bg-[#E2E8F0] rounded" />
               <div className="w-7 h-7 rounded-lg bg-[#F1F5F9] border border-[#E5E5E5]" />
@@ -30,7 +30,7 @@ export const EmployeeDashboardSkeleton: React.FC = () => {
         {/* Left 2 Columns */}
         <div className="lg:col-span-2 space-y-4 lg:space-y-6">
           {/* Card 1: Focus & Tasks */}
-          <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E5E5]">
               <div className="h-4 w-44 bg-[#E2E8F0] rounded" />
               <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-xl">
@@ -57,7 +57,7 @@ export const EmployeeDashboardSkeleton: React.FC = () => {
           </div>
 
           {/* Card 2: Active Projects */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <div className="space-y-1">
                 <div className="h-4 w-32 bg-[#E2E8F0] rounded" />
@@ -95,7 +95,7 @@ export const EmployeeDashboardSkeleton: React.FC = () => {
         {/* Right 1 Column */}
         <div className="space-y-4 lg:space-y-6">
           {/* Card 3: Today's Schedule */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <div className="h-4 w-28 bg-[#E2E8F0] rounded" />
               <div className="h-3 w-12 bg-[#E2E8F0] rounded" />
@@ -115,7 +115,7 @@ export const EmployeeDashboardSkeleton: React.FC = () => {
           </div>
 
           {/* Card 4: Project Squad */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <div className="flex items-center gap-2">
                 <div className="h-4 w-24 bg-[#E2E8F0] rounded" />
@@ -155,7 +155,7 @@ export const DashboardSkeleton: React.FC = () => {
       {/* 6 Top Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 w-full">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs flex flex-col justify-between h-20">
+          <div key={i} className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs flex flex-col justify-between h-20">
             <div className="flex items-center justify-between mb-2">
               <div className="h-2.5 w-16 bg-[#E2E8F0] rounded" />
               <div className="w-7 h-7 rounded-lg bg-[#F1F5F9] border border-[#E5E5E5]" />
@@ -173,7 +173,7 @@ export const DashboardSkeleton: React.FC = () => {
         {/* Left 2 Cols */}
         <div className="lg:col-span-2 space-y-4 lg:space-y-6">
           {/* Quick Actions Bar */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-4 shadow-2xs flex items-center justify-between gap-3">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-4 shadow-2xs flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <div className="h-8 w-24 bg-[#CBD5E1] rounded-lg" />
               <div className="h-8 w-28 bg-[#E2E8F0] rounded-lg" />
@@ -182,7 +182,7 @@ export const DashboardSkeleton: React.FC = () => {
           </div>
 
           {/* Tasks & Milestones Card */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <div className="h-4 w-40 bg-[#E2E8F0] rounded" />
               <div className="h-6 w-32 bg-[#E2E8F0] rounded-lg" />
@@ -207,7 +207,7 @@ export const DashboardSkeleton: React.FC = () => {
         {/* Right 1 Col */}
         <div className="space-y-4 lg:space-y-6">
           {/* Campfire Card */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-3">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-3">
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <div className="h-4 w-28 bg-[#E2E8F0] rounded" />
               <div className="h-3 w-10 bg-[#E2E8F0] rounded" />
@@ -226,7 +226,7 @@ export const DashboardSkeleton: React.FC = () => {
           </div>
 
           {/* Activity Feed */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-3">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-3">
             <div className="h-4 w-24 bg-[#E2E8F0] rounded mb-2" />
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, aIdx) => (

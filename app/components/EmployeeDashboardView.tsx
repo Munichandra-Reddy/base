@@ -85,7 +85,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Card 1: My Open Tasks */}
         <div
           onClick={onViewTasks}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -108,7 +108,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Card 2: Due Soon / Today */}
         <div
           onClick={onViewCalendar}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -131,7 +131,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Card 3: Finished This Week */}
         <div
           onClick={onViewTasks}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -154,7 +154,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Card 4: My Active Projects */}
         <div
           onClick={onViewProjects}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -177,7 +177,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Card 5: Campfire Mentions */}
         <div
           onClick={onViewChat}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -200,7 +200,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* Card 6: Total Employees */}
         <div
           onClick={onViewEmployees}
-          className="bg-white p-3 rounded-xl border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
@@ -226,7 +226,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* LEFT 2 COLUMNS */}
         <div className="lg:col-span-2 space-y-4 lg:space-y-6">
           {/* Card 1: Today's Focus & Interactive To-Do Checklist */}
-          <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E5E5]">
               <div>
                 <h3 className="text-base font-bold text-[#222222]">My Focus Today & Tasks</h3>
@@ -331,7 +331,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           </div>
 
           {/* Card 2: My Projects & Active Sprint Deliverables */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <div>
                 <h3 className="text-sm font-semibold text-[#111827]">My Active Projects</h3>
@@ -350,7 +350,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                 <div
                   key={project.id}
                   onClick={onViewProjects}
-                  className="p-4 rounded-xl border border-[#E5E5E5] bg-white hover:border-[#049FD9] hover:shadow-xs transition-all cursor-pointer space-y-3 group"
+                  className="p-4 rounded-[4px] border border-[#E5E5E5] bg-white hover:border-[#049FD9] hover:shadow-xs transition-all cursor-pointer space-y-3 group"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <h4 className="font-extrabold text-xs text-[#222222] group-hover:underline">
@@ -386,7 +386,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         {/* RIGHT 1 COLUMN */}
         <div className="space-y-4 lg:space-y-6">
           {/* Card 3: Today's Schedule & Meetings */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <h3 className="font-semibold text-[#222222] text-sm">Today's Schedule</h3>
               <button onClick={onViewCalendar} className="text-xs font-medium text-[#049FD9] hover:underline cursor-pointer">
@@ -431,7 +431,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           </div>
 
           {/* Card 4: My Project Collaborators (Online) */}
-          <div className="bg-white rounded-xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-[#111827] text-sm">Project Squad</h3>
