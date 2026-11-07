@@ -233,7 +233,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
               </div>
 
               {/* Filter Tabs */}
-              <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-xl border border-[#E5E5E5] text-xs font-medium">
+              <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-xl text-xs font-medium">
                 <button
                   type="button"
                   onClick={() => setTaskFilter('pending')}

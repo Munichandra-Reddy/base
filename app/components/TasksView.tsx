@@ -78,7 +78,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs">
         <div className="flex items-center gap-2 flex-wrap">
           {!isAdmin && (
-            <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg border border-[#E5E5E5] text-xs font-medium">
+            <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg text-xs font-medium">
               <button
                 type="button"
                 onClick={() => setScope('my')}
@@ -104,7 +104,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
             </div>
           )}
 
-          <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg border border-[#E5E5E5] text-xs font-medium">
+          <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg text-xs font-medium">
             {(['all', 'pending', 'completed'] as const).map((tab) => (
               <button
                 key={tab}

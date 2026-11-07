@@ -638,7 +638,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Filter Pills */}
-            <div className="flex items-center gap-1 bg-[#F4F6F8] border border-[#E5E5E5] p-1 rounded-lg text-xs font-medium">
+            <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg text-xs font-medium">
               <button
                 onClick={() => setTaskFilter('all')}
                 className={`flex-1 py-1 rounded-md transition-all cursor-pointer ${

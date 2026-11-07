@@ -33,7 +33,7 @@ export const EmployeeDashboardSkeleton: React.FC = () => {
           <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E5E5]">
               <div className="h-4 w-44 bg-[#E2E8F0] rounded" />
-              <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-xl border border-[#E5E5E5]">
+              <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-xl">
                 <div className="h-6 w-20 bg-white rounded-lg shadow-2xs" />
                 <div className="h-6 w-16 bg-[#E2E8F0] rounded-lg" />
                 <div className="h-6 w-20 bg-[#E2E8F0] rounded-lg" />
@@ -263,7 +263,7 @@ export const TasksSkeleton: React.FC = () => {
 
       {/* Filter and Search Bar */}
       <div className="bg-white p-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="h-7 w-56 bg-[#F4F6F8] rounded-lg border border-[#E5E5E5]" />
+        <div className="h-7 w-56 bg-[#F4F6F8] rounded-lg" />
         <div className="h-7 w-48 bg-[#F4F6F8] rounded-md border border-[#E5E5E5]" />
       </div>
 
