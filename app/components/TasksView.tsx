@@ -19,7 +19,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
   isAdmin = false,
   currentUser,
 }) => {
-  const [scope, setScope] = useState<'my' | 'all'>(!isAdmin ? 'my' : 'all');
+  const [scope, setScope] = useState<'my' | 'all'>('all');
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
