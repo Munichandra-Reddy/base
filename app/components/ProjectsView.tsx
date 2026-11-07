@@ -1076,13 +1076,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         key={idx}
                         className="flex items-center justify-between p-3 rounded-xl bg-[#F1F3F6] border border-[#E2E8F0] text-xs"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="w-8 h-8 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center shrink-0">
                             {member[0]}
                           </div>
-                          <span className="font-bold text-[#0F172A]">{member}</span>
+                          <span className="font-bold text-[#0F172A] truncate" title={member}>{member}</span>
                         </div>
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-white text-[#334155] border border-[#E2E8F0] uppercase">
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-white text-[#334155] border border-[#E2E8F0] uppercase shrink-0">
                           {idx === 0 ? 'Lead' : 'Member'}
                         </span>
                       </div>

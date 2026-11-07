@@ -77,9 +77,9 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                 {person.avatar}
               </div>
               <div className="flex-1 min-w-0 space-y-0.5">
-                <h3 className="text-xs font-semibold text-[#111827] truncate">{person.name}</h3>
-                <p className="text-[11px] font-medium text-[#595959] truncate">{person.role}</p>
-                <p className="text-[10px] text-[#6B7280] truncate">{person.email}</p>
+                <h3 className="text-xs font-semibold text-[#111827] truncate" title={person.name}>{person.name}</h3>
+                <p className="text-[11px] font-medium text-[#595959] truncate" title={person.role}>{person.role}</p>
+                <p className="text-[10px] text-[#6B7280] truncate" title={person.email}>{person.email}</p>
                 <div className="pt-1 flex items-center gap-1.5">
                   <span className={`w-1.5 h-1.5 rounded-full ${person.status === 'offline' ? 'bg-[#94A3B8]' : 'bg-[#16A34A]'}`} />
                   <span className="text-[10px] font-medium text-[#595959]">{person.projectsCount || 1} active projects</span>

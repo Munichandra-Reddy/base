@@ -594,16 +594,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   {people && people.length > 0 ? (
                     people.map((member) => (
                       <div key={member.id} className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 min-w-[100px]">
-                          <div className={`w-6 h-6 rounded-full ${member.avatarBg || 'bg-[#049FD9] text-white'} font-bold text-[10px] flex items-center justify-center`}>
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <div className={`w-6 h-6 rounded-full ${member.avatarBg || 'bg-[#049FD9] text-white'} font-bold text-[10px] flex items-center justify-center shrink-0`}>
                             {member.avatar}
                           </div>
-                          <div>
-                            <div className="font-semibold text-[#111827] text-[11px] leading-tight truncate max-w-[110px] sm:max-w-[140px] xl:max-w-none">{member.name}</div>
-                            <div className="text-[9px] text-[#595959] font-normal truncate max-w-[110px] sm:max-w-[140px] xl:max-w-none">{member.role}</div>
+                          <div className="min-w-0 flex-1">
+                            <div
+                              className="font-semibold text-[#111827] text-[11px] leading-tight truncate cursor-default"
+                              title={member.name}
+                            >
+                              {member.name}
+                            </div>
+                            <div
+                              className="text-[9px] text-[#595959] font-normal truncate cursor-default"
+                              title={member.role}
+                            >
+                              {member.role}
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-1 max-w-[160px] sm:max-w-[190px]">
+                        <div className="flex items-center gap-2 flex-1 max-w-[160px] sm:max-w-[190px] shrink-0">
                           <span className="text-[10px] font-normal text-[#595959] whitespace-nowrap">{member.projectsCount || 1} tasks</span>
                           <div className="w-full bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden">
                             <div className="bg-[#049FD9] h-full rounded-full" style={{ width: `${Math.min(100, (member.projectsCount || 1) * 35)}%` }} />
