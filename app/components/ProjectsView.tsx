@@ -1266,7 +1266,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
           {/* Add Filter & Search Button */}
           {isSearchOpen ? (
-            <div className="flex items-center gap-2 bg-white border border-[#0B192C] rounded-lg px-2.5 py-1 text-xs shadow-micro">
+            <div className="flex items-center gap-2 bg-white border border-[#0B192C] rounded-[4px] px-2.5 py-1 text-xs shadow-micro">
               <SearchIcon className="w-3.5 h-3.5 text-[#64748B]" />
               <input
                 type="text"

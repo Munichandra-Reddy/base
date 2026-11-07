@@ -126,7 +126,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
           placeholder="Filter tasks by name or project..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="px-3 py-1.5 bg-white border border-[#E5E5E5] rounded-md text-xs text-[#111827] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] w-full sm:w-72"
+          className="px-3 py-1.5 bg-white border border-[#E5E5E5] rounded-[4px] text-xs text-[#111827] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] w-full sm:w-72"
         />
       </div>
 

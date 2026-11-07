@@ -98,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Middle section: Direct Global Search Bar with Live Dropdown */}
       <div className="flex-1 max-w-md xl:max-w-lg mx-2 sm:mx-6 min-w-0 relative" ref={searchRef}>
         <div
-          className={`w-full bg-[#F4F6F8] border transition-all rounded-full px-3 sm:px-4 py-2 flex items-center justify-between text-sm min-w-0 ${
+          className={`w-full bg-[#F4F6F8] border transition-all rounded-[4px] px-3 sm:px-4 py-2 flex items-center justify-between text-sm min-w-0 ${
             isSearchFocused
               ? 'border-[#049FD9] ring-2 ring-[#049FD9]/15 bg-white'
               : 'border-[#E5E5E5] hover:border-[#CCCCCC]'
@@ -146,7 +146,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Search Results Dropdown - Directly attached below search input */}
         {isSearchFocused && (
-          <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl border border-[#E5E5E5] shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150 font-sans">
+          <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-[4px] border border-[#E5E5E5] shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150 font-sans">
             <div className="p-2 max-h-80 overflow-y-auto space-y-1">
               {filteredResults.length > 0 ? (
                 filteredResults.map((item, idx) => (
