@@ -352,16 +352,19 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   onClick={onViewProjects}
                   className="p-4 rounded-[4px] border border-[#E5E5E5] bg-white hover:border-[#049FD9] hover:shadow-xs transition-all cursor-pointer space-y-3 group"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <h4 className="font-extrabold text-xs text-[#222222] group-hover:underline">
+                  <div className="flex items-start justify-between gap-2 min-w-0">
+                    <h4 className="font-extrabold text-xs text-[#222222] group-hover:underline truncate" title={project.name}>
                       {project.name}
                     </h4>
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#F0FDF4] text-[#238823] border border-[#238823]/20 uppercase">
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#F0FDF4] text-[#238823] border border-[#238823]/20 uppercase shrink-0">
                       {project.status}
                     </span>
                   </div>
 
-                  <p className="text-[11px] text-[#595959] font-medium line-clamp-2">
+                  <p
+                    className="text-[11px] text-[#595959] font-medium truncate cursor-default"
+                    title={project.description || 'Sprint deliverables and active milestone tracking.'}
+                  >
                     {project.description || 'Sprint deliverables and active milestone tracking.'}
                   </p>
 
