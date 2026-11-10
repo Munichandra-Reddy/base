@@ -27,6 +27,8 @@ interface ProjectsViewProps {
   onOpenCreateProject?: () => void;
   isAdmin?: boolean;
   currentUser?: { email: string; fullName: string; companyName: string; role?: string } | null;
+  selectedProjectId?: string | null;
+  onSelectProject?: (project: Project | null) => void;
 }
 
 export const ProjectsView: React.FC<ProjectsViewProps> = ({
@@ -36,6 +38,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   onOpenCreateProject,
   isAdmin = false,
   currentUser,
+  selectedProjectId,
+  onSelectProject,
 }) => {
   const [viewMode, setViewMode] = useState<'list' | 'cards' | 'kanban'>('cards');
   const [showFilter, setShowFilter] = useState('All Projects');
@@ -45,7 +49,26 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Selected project for Details Page navigation ("next page")
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(() => {
+    if (selectedProjectId) {
+      const found = projects.find(
+        (p) =>
+          p.id === selectedProjectId ||
+          p.name.toLowerCase().trim() === selectedProjectId.toLowerCase().trim()
+      );
+      if (found) return found;
+    }
+    if (typeof window !== 'undefined' && window.location.hash.includes('project-')) {
+      const hashId = window.location.hash.replace('#project-', '');
+      const found = projects.find(
+        (p) =>
+          p.id === hashId ||
+          p.name.toLowerCase().trim() === hashId.toLowerCase().trim()
+      );
+      if (found) return found;
+    }
+    return null;
+  });
 
   // Active sub-tab inside Project Details Page: 'messages' | 'meetings' | 'tasks' | 'updates' | 'overview'
   const [activeProjectTab, setActiveProjectTab] = useState<'messages' | 'meetings' | 'tasks' | 'updates' | 'overview'>('messages');
@@ -62,10 +85,29 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const [newUpdateText, setNewUpdateText] = useState('');
   const [customUpdates, setCustomUpdates] = useState<Array<{ id: string; project: string; author: string; role: string; timeAgo: string; text: string; category: string }>>([]);
 
+  // Sync selectedProject with selectedProjectId prop
+  useEffect(() => {
+    if (selectedProjectId) {
+      const found = projects.find(
+        (p) =>
+          p.id === selectedProjectId ||
+          p.name.toLowerCase().trim() === selectedProjectId.toLowerCase().trim()
+      );
+      if (found) {
+        setSelectedProject(found);
+      }
+    } else if (selectedProjectId === null && (!window.location.hash || !window.location.hash.includes('project-'))) {
+      setSelectedProject(null);
+    }
+  }, [selectedProjectId, projects]);
+
   // BROWSER BACK (←) AND FORWARD (→) BUTTON NAVIGATION HANDLING
   const handleSelectProject = (project: Project) => {
     setSelectedProject(project);
     setActiveProjectTab('messages');
+    if (onSelectProject) {
+      onSelectProject(project);
+    }
     if (typeof window !== 'undefined') {
       window.history.pushState({ tab: 'projects', projectId: project.id, view: 'project_details' }, '', `#project-${project.id}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -75,6 +117,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const handleBackToProjects = () => {
     setSelectedProject(null);
     setActiveProjectTab('messages');
+    if (onSelectProject) {
+      onSelectProject(null);
+    }
     if (typeof window !== 'undefined') {
       window.history.pushState({ tab: 'projects', view: 'projects_list' }, '', '#projects');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -84,23 +129,34 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
       if (e.state && e.state.projectId) {
-        const found = projects.find((p) => p.id === e.state.projectId);
+        const found = projects.find(
+          (p) =>
+            p.id === e.state.projectId ||
+            p.name.toLowerCase().trim() === e.state.projectId.toLowerCase().trim()
+        );
         if (found) {
           setSelectedProject(found);
+          if (onSelectProject) onSelectProject(found);
           return;
         }
       }
 
       if (typeof window !== 'undefined' && window.location.hash.includes('project-')) {
         const hashId = window.location.hash.replace('#project-', '');
-        const found = projects.find((p) => p.id === hashId);
+        const found = projects.find(
+          (p) =>
+            p.id === hashId ||
+            p.name.toLowerCase().trim() === hashId.toLowerCase().trim()
+        );
         if (found) {
           setSelectedProject(found);
+          if (onSelectProject) onSelectProject(found);
           return;
         }
       }
 
       setSelectedProject(null);
+      if (onSelectProject) onSelectProject(null);
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -108,9 +164,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     // Initial check on mount if URL has #project-id
     if (typeof window !== 'undefined' && window.location.hash.includes('project-')) {
       const hashId = window.location.hash.replace('#project-', '');
-      const found = projects.find((p) => p.id === hashId);
+      const found = projects.find(
+        (p) =>
+          p.id === hashId ||
+          p.name.toLowerCase().trim() === hashId.toLowerCase().trim()
+      );
       if (found) {
         setSelectedProject(found);
+        if (onSelectProject) onSelectProject(found);
       }
     }
 

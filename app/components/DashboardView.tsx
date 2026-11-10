@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Task, Activity, WorkspaceStats, Person } from '@/lib/types';
+import { Task, Activity, WorkspaceStats, Person, Project } from '@/lib/types';
 import {
   FolderIcon,
   CheckSquareIcon,
@@ -17,11 +17,13 @@ interface DashboardViewProps {
   tasks: Task[];
   activities: Activity[];
   people?: Person[];
+  projects?: Project[];
   onToggleTask: (id: string) => void;
   onOpenAddTask: () => void;
   onViewAllTasks: () => void;
   onViewEmployees?: () => void;
   onViewProjects?: () => void;
+  onSelectProject?: (projectId: string) => void;
   onViewCalendar?: () => void;
   onViewActivity?: () => void;
   currentUser?: { email: string; fullName: string; companyName: string } | null;
@@ -32,11 +34,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   tasks,
   activities,
   people,
+  projects = [],
   onToggleTask,
   onOpenAddTask,
   onViewAllTasks,
   onViewEmployees,
   onViewProjects,
+  onSelectProject,
   onViewCalendar,
   onViewActivity,
   currentUser,
@@ -393,110 +397,52 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E5E5E5] font-medium text-[#595959]">
-                    {/* Row 1 */}
-                    <tr className="hover:bg-[#F4F6F8] transition-colors">
-                      <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
-                        <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">E-Commerce Website</span>
-                      </td>
-                      <td className="py-2.5 whitespace-nowrap pr-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '68%' }} />
+                    {(projects && projects.length > 0
+                      ? projects.slice(0, 5)
+                      : [
+                          { id: 'p-1', name: 'E-Commerce Website', progress: 68, deadline: 'Oct 30, 2026', status: 'Active' },
+                          { id: 'p-2', name: 'Mobile App v2', progress: 45, deadline: 'Nov 15, 2026', status: 'Active' },
+                          { id: 'p-3', name: 'Marketing Campaign Q4', progress: 82, deadline: 'Oct 25, 2026', status: 'Active' },
+                          { id: 'p-4', name: 'Customer Portal', progress: 32, deadline: 'Nov 10, 2026', status: 'On Hold' },
+                          { id: 'p-5', name: 'Internal Ops & Automation', progress: 60, deadline: 'Dec 05, 2026', status: 'Active' },
+                        ]
+                    ).map((proj) => (
+                      <tr
+                        key={proj.id}
+                        onClick={() => {
+                          if (onSelectProject) {
+                            onSelectProject(proj.id);
+                          } else if (onViewProjects) {
+                            onViewProjects();
+                          }
+                        }}
+                        className="hover:bg-[#F4F6F8] transition-colors cursor-pointer group"
+                      >
+                        <td className="py-2.5 font-semibold text-[#111827] group-hover:text-[#049FD9] group-hover:underline whitespace-nowrap pr-3">
+                          <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">{proj.name}</span>
+                        </td>
+                        <td className="py-2.5 whitespace-nowrap pr-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
+                              <div className="bg-[#049FD9] h-full rounded-full" style={{ width: `${proj.progress}%` }} />
+                            </div>
+                            <span className="text-[10px] font-semibold text-[#595959]">{proj.progress}%</span>
                           </div>
-                          <span className="text-[10px] font-semibold text-[#595959]">68%</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">Oct 30, 2026</td>
-                      <td className="py-2.5 text-right whitespace-nowrap pl-2">
-                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
-                          Active
-                        </span>
-                      </td>
-                    </tr>
-
-                    {/* Row 2 */}
-                    <tr className="hover:bg-[#F4F6F8] transition-colors">
-                      <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
-                        <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">Mobile App v2</span>
-                      </td>
-                      <td className="py-2.5 whitespace-nowrap pr-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '45%' }} />
-                          </div>
-                          <span className="text-[10px] font-semibold text-[#595959]">45%</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">Nov 15, 2026</td>
-                      <td className="py-2.5 text-right whitespace-nowrap pl-2">
-                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
-                          Active
-                        </span>
-                      </td>
-                    </tr>
-
-                    {/* Row 3 */}
-                    <tr className="hover:bg-[#F4F6F8] transition-colors">
-                      <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
-                        <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">Marketing Campaign Q4</span>
-                      </td>
-                      <td className="py-2.5 whitespace-nowrap pr-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '82%' }} />
-                          </div>
-                          <span className="text-[10px] font-semibold text-[#595959]">82%</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">Oct 25, 2026</td>
-                      <td className="py-2.5 text-right whitespace-nowrap pl-2">
-                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
-                          Active
-                        </span>
-                      </td>
-                    </tr>
-
-                    {/* Row 4 */}
-                    <tr className="hover:bg-[#F4F6F8] transition-colors">
-                      <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
-                        <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">HR Management System</span>
-                      </td>
-                      <td className="py-2.5 whitespace-nowrap pr-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#CBD5E1] h-full rounded-full" style={{ width: '32%' }} />
-                          </div>
-                          <span className="text-[10px] font-semibold text-[#595959]">32%</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">Nov 10, 2026</td>
-                      <td className="py-2.5 text-right whitespace-nowrap pl-2">
-                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/20 whitespace-nowrap">
-                          On Hold
-                        </span>
-                      </td>
-                    </tr>
-
-                    {/* Row 5 */}
-                    <tr className="hover:bg-[#F4F6F8] transition-colors">
-                      <td className="py-2.5 font-semibold text-[#111827] whitespace-nowrap pr-3">
-                        <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">Cloud Migration</span>
-                      </td>
-                      <td className="py-2.5 whitespace-nowrap pr-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
-                            <div className="bg-[#049FD9] h-full rounded-full" style={{ width: '60%' }} />
-                          </div>
-                          <span className="text-[10px] font-semibold text-[#595959]">60%</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">Dec 05, 2026</td>
-                      <td className="py-2.5 text-right whitespace-nowrap pl-2">
-                        <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/20 whitespace-nowrap">
-                          Active
-                        </span>
-                      </td>
-                    </tr>
+                        </td>
+                        <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">{proj.deadline || 'Oct 30, 2026'}</td>
+                        <td className="py-2.5 text-right whitespace-nowrap pl-2">
+                          <span
+                            className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded border whitespace-nowrap ${
+                              (proj.status || '').toLowerCase().includes('hold')
+                                ? 'bg-[#FFFBEB] text-[#F59E0B] border-[#F59E0B]/20'
+                                : 'bg-[#ECFDF5] text-[#10B981] border-[#10B981]/20'
+                            }`}
+                          >
+                            {proj.status || 'Active'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

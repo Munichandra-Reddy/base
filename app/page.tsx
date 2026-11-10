@@ -98,6 +98,12 @@ export default function Home() {
   });
 
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(() => {
+    if (typeof window !== 'undefined' && window.location.hash.startsWith('#project-')) {
+      return window.location.hash.replace('#project-', '');
+    }
+    return null;
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   const [tasks, setTasks] = useState<Task[]>(() => {
@@ -401,12 +407,34 @@ export default function Home() {
 
   // BROWSER BACK (←) AND FORWARD (→) BUTTON NAVIGATION HANDLING FOR ALL MAIN TABS
   const handleTabChange = (tab: NavTab) => {
+    if (tab === 'projects') {
+      setSelectedProjectId(null);
+    }
     setActiveTab(tab);
     if (typeof window !== 'undefined') {
       const currentHash = window.location.hash.replace('#', '');
       if (currentHash !== tab) {
         window.history.pushState({ tab }, '', `#${tab}`);
       }
+    }
+  };
+
+  const handleOpenProject = (projectIdOrName: string) => {
+    const found = projects.find(
+      (p) =>
+        p.id === projectIdOrName ||
+        p.name.toLowerCase().trim() === projectIdOrName.toLowerCase().trim()
+    );
+    const targetId = found ? found.id : projectIdOrName;
+    setSelectedProjectId(targetId);
+    setActiveTab('projects');
+    if (typeof window !== 'undefined') {
+      window.history.pushState(
+        { tab: 'projects', projectId: targetId, view: 'project_details' },
+        '',
+        `#project-${targetId}`
+      );
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -427,13 +455,21 @@ export default function Home() {
         'reports',
       ];
 
-      if (e.state && e.state.tab && validTabs.includes(e.state.tab)) {
-        setActiveTab(e.state.tab);
-      } else if (hash.startsWith('project-')) {
+      if (e.state && e.state.projectId) {
+        setSelectedProjectId(e.state.projectId);
         setActiveTab('projects');
+      } else if (hash.startsWith('project-')) {
+        const pId = hash.replace('project-', '');
+        setSelectedProjectId(pId);
+        setActiveTab('projects');
+      } else if (e.state && e.state.tab && validTabs.includes(e.state.tab)) {
+        if (e.state.tab === 'projects') setSelectedProjectId(null);
+        setActiveTab(e.state.tab);
       } else if (validTabs.includes(hash as NavTab)) {
+        if (hash === 'projects') setSelectedProjectId(null);
         setActiveTab(hash as NavTab);
       } else {
+        setSelectedProjectId(null);
         setActiveTab('dashboard');
       }
     };
@@ -443,6 +479,8 @@ export default function Home() {
     if (typeof window !== 'undefined' && window.location.hash) {
       const hash = window.location.hash.replace('#', '');
       if (hash.startsWith('project-')) {
+        const pId = hash.replace('project-', '');
+        setSelectedProjectId(pId);
         setActiveTab('projects');
       } else {
         const validTabs: NavTab[] = [
@@ -1029,11 +1067,16 @@ export default function Home() {
                   tasks={tasks}
                   activities={activities}
                   people={people}
+                  projects={projects}
                   onToggleTask={handleToggleTask}
                   onOpenAddTask={() => setIsCreateModalOpen(true)}
                   onViewAllTasks={() => handleTabChange('tasks')}
                   onViewEmployees={() => handleTabChange('people')}
-                  onViewProjects={() => handleTabChange('projects')}
+                  onViewProjects={() => {
+                    setSelectedProjectId(null);
+                    handleTabChange('projects');
+                  }}
+                  onSelectProject={handleOpenProject}
                   onViewCalendar={() => handleTabChange('calendar')}
                   currentUser={currentUser}
                 />
@@ -1048,7 +1091,11 @@ export default function Home() {
                   currentUser={currentUser}
                   onToggleTask={handleToggleTask}
                   onAddTask={handleAddTask}
-                  onViewProjects={() => handleTabChange('projects')}
+                  onViewProjects={() => {
+                    setSelectedProjectId(null);
+                    handleTabChange('projects');
+                  }}
+                  onSelectProject={handleOpenProject}
                   onViewTasks={() => handleTabChange('tasks')}
                   onViewChat={() => handleTabChange('chat')}
                   onViewCalendar={() => handleTabChange('calendar')}
@@ -1074,6 +1121,8 @@ export default function Home() {
                   onOpenCreateProject={() => setIsCreateModalOpen(true)}
                   isAdmin={dashboardRole === 'admin'}
                   currentUser={currentUser}
+                  selectedProjectId={selectedProjectId}
+                  onSelectProject={(proj) => setSelectedProjectId(proj ? proj.id : null)}
                 />
               )}
 

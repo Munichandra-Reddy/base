@@ -20,6 +20,7 @@ interface EmployeeDashboardViewProps {
   onToggleTask: (id: string) => void;
   onAddTask: (taskData: { title: string; project: string; assignedTo?: string; priority?: 'low' | 'medium' | 'high'; dueDate?: string }) => void;
   onViewProjects: () => void;
+  onSelectProject?: (projectId: string) => void;
   onViewTasks: () => void;
   onViewChat: () => void;
   onViewCalendar: () => void;
@@ -36,6 +37,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
   onToggleTask,
   onAddTask,
   onViewProjects,
+  onSelectProject,
   onViewTasks,
   onViewChat,
   onViewCalendar,
@@ -313,7 +315,23 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                           <div className="flex items-center gap-2 text-[10px] font-semibold text-[#64748B] mt-0.5">
                             <span>Due {task.dueDate || 'Today'}</span>
                             <span>•</span>
-                            <span>{task.project}</span>
+                            <span
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (onSelectProject) {
+                                  const p = projects.find(
+                                    (proj) => proj.name.toLowerCase().trim() === task.project.toLowerCase().trim()
+                                  );
+                                  onSelectProject(p ? p.id : task.project);
+                                } else {
+                                  onViewProjects();
+                                }
+                              }}
+                              className="hover:underline hover:text-[#049FD9] cursor-pointer"
+                              title={`View ${task.project}`}
+                            >
+                              {task.project}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -349,7 +367,13 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
               {displayedProjects.map((project) => (
                 <div
                   key={project.id}
-                  onClick={onViewProjects}
+                  onClick={() => {
+                    if (onSelectProject) {
+                      onSelectProject(project.id);
+                    } else {
+                      onViewProjects();
+                    }
+                  }}
                   className="p-4 rounded-[4px] border border-[#E5E5E5] bg-white hover:border-[#049FD9] hover:shadow-xs transition-all cursor-pointer space-y-3 group"
                 >
                   <div className="flex items-start justify-between gap-2 min-w-0">
