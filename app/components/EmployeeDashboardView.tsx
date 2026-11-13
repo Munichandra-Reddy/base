@@ -427,9 +427,9 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   <span>10:00</span>
                   <span className="text-[8px] uppercase">AM</span>
                 </div>
-                <div>
-                  <h5 className="font-semibold text-[#111827]">Sprint Daily Standup</h5>
-                  <p className="text-[10px] text-[#595959] font-normal mt-0.5">Campfire Audio & Video Room</p>
+                <div className="min-w-0 flex-1">
+                  <h5 className="font-semibold text-[#111827] truncate" title="Sprint Daily Standup">Sprint Daily Standup</h5>
+                  <p className="text-[10px] text-[#595959] font-normal mt-0.5 truncate" title="Campfire Audio & Video Room">Campfire Audio & Video Room</p>
                 </div>
               </div>
 
@@ -438,9 +438,9 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   <span>02:30</span>
                   <span className="text-[8px] uppercase">PM</span>
                 </div>
-                <div>
-                  <h5 className="font-semibold text-[#111827]">UI / UX Design Review</h5>
-                  <p className="text-[10px] text-[#595959] font-normal mt-0.5">E-Commerce Website wireframes</p>
+                <div className="min-w-0 flex-1">
+                  <h5 className="font-semibold text-[#111827] truncate" title="UI / UX Design Review">UI / UX Design Review</h5>
+                  <p className="text-[10px] text-[#595959] font-normal mt-0.5 truncate" title="E-Commerce Website wireframes">E-Commerce Website wireframes</p>
                 </div>
               </div>
 
@@ -449,9 +449,9 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   <span>05:00</span>
                   <span className="text-[8px] uppercase">PM</span>
                 </div>
-                <div>
-                  <h5 className="font-semibold text-[#111827]">Daily Sprint Wrap-up</h5>
-                  <p className="text-[10px] text-[#595959] font-normal mt-0.5">Team sync & milestone progress review</p>
+                <div className="min-w-0 flex-1">
+                  <h5 className="font-semibold text-[#111827] truncate" title="Daily Sprint Wrap-up">Daily Sprint Wrap-up</h5>
+                  <p className="text-[10px] text-[#595959] font-normal mt-0.5 truncate" title="Team sync & milestone progress review">Team sync & milestone progress review</p>
                 </div>
               </div>
             </div>
