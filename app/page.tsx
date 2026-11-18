@@ -1036,6 +1036,9 @@ export default function Home() {
           isAdmin={dashboardRole === 'admin'}
           isMobileOpen={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
+          currentUser={currentUser}
+          currentRole={dashboardRole}
+          onLogout={handleLogout}
         />
 
         {/* Right Main Content Area - Scrollable */}

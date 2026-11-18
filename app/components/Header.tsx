@@ -26,13 +26,9 @@ export const Header: React.FC<HeaderProps> = ({
   currentRole = 'admin',
   onToggleMobileSidebar,
 }) => {
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isWorkspaceModalOpen, setIsWorkspaceModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  const profileRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,15 +46,8 @@ export const Header: React.FC<HeaderProps> = ({
       l.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const userName = currentUser?.fullName || (currentRole === 'employee' ? 'Employee' : 'Muni');
-  const userEmail = currentUser?.email || (currentRole === 'employee' ? 'employee@company.com' : 'cr7156816@gmail.com');
-  const userAvatar = (userName[0] || (currentRole === 'employee' ? 'E' : 'M')).toUpperCase();
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
-        setIsProfileOpen(false);
-      }
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsSearchFocused(false);
       }
@@ -78,15 +67,6 @@ export const Header: React.FC<HeaderProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  const handleLogoutClick = () => {
-    setIsProfileOpen(false);
-    if (onLogout) {
-      onLogout();
-    } else {
-      alert('You have logged out of WorkOrbit.');
-    }
-  };
 
   return (
     <header className="h-[72px] w-full bg-white border-b border-[#E5E5E5] px-3 sm:px-6 flex items-center justify-between shrink-0 z-30 shadow-xs text-[#222222]">
@@ -200,8 +180,8 @@ export const Header: React.FC<HeaderProps> = ({
         )}
       </div>
 
-      {/* Right section: Create New + Notifications + User Avatar */}
-      <div className="flex items-center gap-1.5 sm:gap-3 relative shrink-0" ref={profileRef}>
+      {/* Right section: Create New + Notifications */}
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         <button
           onClick={onOpenCreateModal}
           className="btn-primary px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-[0.8125rem]"
@@ -222,231 +202,7 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
           )}
         </button>
-
-        {/* User Profile Trigger */}
-        <div
-          onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className="flex items-center gap-1.5 sm:gap-2 pl-1.5 sm:pl-2 border-l border-[#E5E5E5] cursor-pointer hover:opacity-90 select-none py-1 min-w-0"
-        >
-          <div className="w-8 h-8 rounded-full bg-[#049FD9] text-white font-extrabold flex items-center justify-center text-sm shadow-xs border border-[#E5E5E5] shrink-0">
-            {userAvatar}
-          </div>
-          <div className="hidden md:block text-left leading-tight min-w-0 max-w-[140px] xl:max-w-none">
-            <div className="font-bold text-xs text-[#222222] truncate">{userName}</div>
-            <div className="text-[11px] text-[#595959] font-medium truncate">
-              {currentRole === 'employee' ? 'Product Designer' : 'Workspace Admin'}
-            </div>
-          </div>
-          <svg className={`w-3.5 h-3.5 text-[#595959] transition-transform shrink-0 ${isProfileOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
-
-        {/* Profile Dropdown Menu */}
-        {isProfileOpen && (
-          <div className="absolute right-0 top-14 w-56 sm:w-60 max-w-[calc(100vw-1.5rem)] bg-white rounded-xl border border-[#E5E5E5] shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-[#222222]">
-            <div className="p-4 border-b border-[#E5E5E5] bg-[#F4F6F8]">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#049FD9] text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
-                  {userAvatar}
-                </div>
-                <div className="min-w-0">
-                  <div className="font-bold text-sm text-[#222222] truncate">{userName}</div>
-                  <div className="text-xs text-[#595959] truncate">{userEmail}</div>
-                </div>
-              </div>
-              <div className="mt-2">
-                <span className="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded bg-[#FFFFFF] text-[#222222] uppercase border border-[#CCCCCC]">
-                  {currentRole === 'employee' ? 'Employee Mode' : 'Workspace Admin'}
-                </span>
-              </div>
-            </div>
-
-            <div className="p-1.5 text-xs font-semibold text-[#595959] space-y-0.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsProfileOpen(false);
-                  setIsProfileModalOpen(true);
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg text-[#111827] hover:bg-[#F4F6F8] flex items-center gap-2.5 transition-colors font-medium cursor-pointer"
-              >
-                <span>👤 Profile Settings</span>
-              </button>
-
-              {currentRole === 'admin' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsProfileOpen(false);
-                    setIsWorkspaceModalOpen(true);
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-lg text-[#111827] hover:bg-[#F4F6F8] flex items-center gap-2.5 transition-colors font-medium cursor-pointer"
-                >
-                  <span>⚙️ Workspace Settings</span>
-                </button>
-              )}
-
-              <button
-                onClick={handleLogoutClick}
-                className="w-full text-left px-3 py-2 rounded-lg text-[#EF4444] hover:bg-[#FEF2F2] flex items-center gap-2.5 transition-colors font-bold cursor-pointer"
-              >
-                <span>🚪 Log out</span>
-              </button>
-            </div>
-          </div>
-        )}
       </div>
-
-      {/* User Profile Settings Modal */}
-      {isProfileModalOpen && (
-        <div
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsProfileModalOpen(false);
-          }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4 font-sans text-left overflow-y-auto"
-        >
-          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto p-4 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 my-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
-              <div>
-                <h3 className="text-base font-semibold text-[#111827]">Account & Profile</h3>
-                <p className="text-xs text-[#595959]">Manage your account details and security settings</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsProfileModalOpen(false)}
-                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-3.5 text-xs">
-              <div>
-                <label className="block text-xs font-semibold text-[#111827] mb-1">Full Name</label>
-                <input
-                  type="text"
-                  disabled
-                  value={userName}
-                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-[#E5E5E5] rounded-lg text-xs font-medium text-[#111827]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-[#111827] mb-1">Email Address</label>
-                <input
-                  type="email"
-                  disabled
-                  value={userEmail}
-                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-[#E5E5E5] rounded-lg text-xs font-medium text-[#595959]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-[#111827] mb-1">Assigned Role</label>
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#F4F6F8] text-[#111827] border border-[#E5E5E5] uppercase">
-                    {currentRole === 'admin' ? 'Workspace Administrator' : 'Team Member / Employee'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-[#E5E5E5]">
-                <p className="text-[11px] text-[#595959]">
-                  To change your password, use the <strong>Forgot Password</strong> link on the sign-in screen to receive a secure single-use recovery code.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                onClick={() => setIsProfileModalOpen(false)}
-                className="btn-primary"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Workspace Settings Modal (Admin Only) */}
-      {isWorkspaceModalOpen && currentRole === 'admin' && (
-        <div
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsWorkspaceModalOpen(false);
-          }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4 font-sans text-left overflow-y-auto"
-        >
-          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 my-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
-              <div>
-                <h3 className="text-base font-semibold text-[#111827]">Workspace Settings</h3>
-                <p className="text-xs text-[#595959]">Organization-wide configuration & security controls</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsWorkspaceModalOpen(false)}
-                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-[#F4F6F8] rounded-lg border border-[#E5E5E5]">
-                  <span className="text-[11px] text-[#595959] block">Organization</span>
-                  <span className="font-bold text-sm text-[#111827]">GEONIXA</span>
-                </div>
-                <div className="p-3 bg-[#F4F6F8] rounded-lg border border-[#E5E5E5]">
-                  <span className="text-[11px] text-[#595959] block">Plan Tier</span>
-                  <span className="font-bold text-sm text-[#049FD9]">Pro Plan (Active)</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-[#111827] mb-1">Workspace Domain</label>
-                <input
-                  type="text"
-                  disabled
-                  value="geonixa.workorbit.app"
-                  className="w-full px-3 py-2 bg-[#F9FAFB] border border-[#E5E5E5] rounded-lg text-xs font-medium text-[#595959]"
-                />
-              </div>
-
-              <div className="space-y-2 pt-2 border-t border-[#E5E5E5]">
-                <h4 className="font-semibold text-xs text-[#111827]">Security & Role Policies</h4>
-                <div className="space-y-1.5 text-[11px] text-[#595959]">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[#16A34A] font-bold">✓</span>
-                    <span>Strict role-based project creation (Admins only)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[#16A34A] font-bold">✓</span>
-                    <span>Employee project and task scoping enabled</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[#16A34A] font-bold">✓</span>
-                    <span>Firestore database security rules enforced</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                onClick={() => setIsWorkspaceModalOpen(false)}
-                className="btn-primary"
-              >
-                Close Settings
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 };
