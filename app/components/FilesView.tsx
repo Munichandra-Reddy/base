@@ -62,18 +62,18 @@ export const FilesView: React.FC<FilesViewProps> = ({
   return (
     <div className="space-y-6 font-sans w-full">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs">
         <div>
           <h1 className="text-xl font-semibold text-[#111827]">Project Docs & Files</h1>
           <p className="text-[#595959] text-xs font-normal mt-0.5">Central repository for project assets, documents, and deliverables.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {!isAdmin && (
-            <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg border border-[#E5E5E5] text-xs font-medium">
+            <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg border border-[#E5E5E5] text-xs font-medium overflow-x-auto scrollbar-none whitespace-nowrap">
               <button
                 type="button"
                 onClick={() => setFileScope('my')}
-                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer whitespace-nowrap ${
                   fileScope === 'my'
                     ? 'bg-white text-[#111827] shadow-2xs font-semibold'
                     : 'text-[#595959] hover:text-[#111827]'
@@ -84,7 +84,7 @@ export const FilesView: React.FC<FilesViewProps> = ({
               <button
                 type="button"
                 onClick={() => setFileScope('all')}
-                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer whitespace-nowrap ${
                   fileScope === 'all'
                     ? 'bg-white text-[#111827] shadow-2xs font-semibold'
                     : 'text-[#595959] hover:text-[#111827]'
@@ -96,7 +96,7 @@ export const FilesView: React.FC<FilesViewProps> = ({
           )}
           <button
             onClick={() => setIsUploadModalOpen(true)}
-            className="btn-primary"
+            className="btn-primary shrink-0 self-start sm:self-auto"
           >
             <PlusIcon className="w-4 h-4" />
             <span>Upload File</span>
@@ -105,7 +105,7 @@ export const FilesView: React.FC<FilesViewProps> = ({
       </div>
 
       {/* Files Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {displayedFiles.map((file) => (
           <div
             key={file.id}

@@ -58,7 +58,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
   return (
     <div className="space-y-6 font-sans w-full">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs">
         <div>
           <h1 className="text-xl font-semibold text-[#111827]">My Tasks & To-Dos</h1>
           <p className="text-[#595959] text-xs font-normal mt-0.5">
@@ -67,7 +67,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
         </div>
         <button
           onClick={onOpenAddTask}
-          className="btn-primary"
+          className="btn-primary shrink-0 self-start sm:self-auto"
         >
           <PlusIcon className="w-4 h-4" />
           <span>New Task</span>
@@ -75,14 +75,14 @@ export const TasksView: React.FC<TasksViewProps> = ({
       </div>
 
       {/* Filter Tabs & Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white p-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs">
         <div className="flex items-center gap-2 flex-wrap">
           {!isAdmin && (
-            <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg text-xs font-medium">
+            <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg text-xs font-medium overflow-x-auto scrollbar-none whitespace-nowrap">
               <button
                 type="button"
                 onClick={() => setScope('my')}
-                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer whitespace-nowrap ${
                   scope === 'my'
                     ? 'bg-white text-[#111827] shadow-2xs font-semibold'
                     : 'text-[#595959] hover:text-[#111827]'
@@ -93,7 +93,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               <button
                 type="button"
                 onClick={() => setScope('all')}
-                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-md text-xs transition-all cursor-pointer whitespace-nowrap ${
                   scope === 'all'
                     ? 'bg-white text-[#111827] shadow-2xs font-semibold'
                     : 'text-[#595959] hover:text-[#111827]'
@@ -104,12 +104,12 @@ export const TasksView: React.FC<TasksViewProps> = ({
             </div>
           )}
 
-          <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg text-xs font-medium">
+          <div className="flex items-center gap-1 bg-[#F4F6F8] p-1 rounded-lg text-xs font-medium overflow-x-auto scrollbar-none whitespace-nowrap">
             {(['all', 'pending', 'completed'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setFilter(tab)}
-                className={`px-3 py-1.5 rounded-md text-xs capitalize transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-md text-xs capitalize transition-all cursor-pointer whitespace-nowrap ${
                   filter === tab
                     ? 'bg-white text-[#111827] shadow-2xs font-semibold'
                     : 'text-[#595959] hover:text-[#111827]'
@@ -143,9 +143,9 @@ export const TasksView: React.FC<TasksViewProps> = ({
               <div
                 key={task.id}
                 onClick={() => handleTaskClick(task)}
-                className="flex items-center justify-between p-4 hover:bg-[#F9FAFB] transition-colors cursor-pointer gap-4"
+                className="flex items-center justify-between p-3.5 sm:p-4 hover:bg-[#F9FAFB] transition-colors cursor-pointer gap-2.5 sm:gap-4"
               >
-                <div className="flex items-center gap-3.5 min-w-0">
+                <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                   <div
                     className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
                       task.completed
@@ -159,25 +159,25 @@ export const TasksView: React.FC<TasksViewProps> = ({
                       </svg>
                     )}
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <h4
-                      className={`text-sm font-semibold transition-colors truncate ${
+                      className={`text-xs sm:text-sm font-semibold transition-colors truncate ${
                         task.completed ? 'line-through text-[#9CA3AF]' : 'text-[#111827]'
                       }`}
                     >
                       {task.title}
                     </h4>
-                    <div className="flex items-center gap-2 text-[11px] font-medium text-[#6B7280] mt-0.5">
-                      <span>Due {task.dueDate || 'Soon'}</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-medium text-[#6B7280] mt-0.5 flex-wrap">
+                      <span className="whitespace-nowrap">Due {task.dueDate || 'Soon'}</span>
                       <span>•</span>
-                      <span>Assigned to {task.assignedTo}</span>
+                      <span className="truncate max-w-[140px] sm:max-w-none">Assigned to {task.assignedTo}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                   <span
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium border inline-flex items-center justify-center text-center truncate ${
+                    className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] font-medium border inline-flex items-center justify-center text-center truncate max-w-[120px] sm:max-w-none ${
                       task.priority === 'high'
                         ? 'bg-[#FEF2F2] text-[#DC2626] border-[#FCA5A5]'
                         : task.priority === 'medium'

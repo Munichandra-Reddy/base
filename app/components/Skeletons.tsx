@@ -10,7 +10,7 @@ export const EmployeeDashboardSkeleton: React.FC = () => {
   return (
     <div className="space-y-6 font-sans w-full animate-pulse">
       {/* 6 KPI Cards Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 w-full">
+      <div className="grid grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3 lg:gap-4 w-full">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs flex flex-col justify-between h-20">
             <div className="flex items-center justify-between mb-2">
@@ -153,7 +153,7 @@ export const DashboardSkeleton: React.FC = () => {
   return (
     <div className="space-y-6 font-sans w-full animate-pulse">
       {/* 6 Top Metric Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 w-full">
+      <div className="grid grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3 lg:gap-4 w-full">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs flex flex-col justify-between h-20">
             <div className="flex items-center justify-between mb-2">

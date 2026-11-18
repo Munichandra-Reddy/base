@@ -48,7 +48,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
 
   return (
     <div className="space-y-6 font-sans w-full">
-      <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <h1 className="text-xl font-semibold text-[#111827]">Workspace Employees Directory</h1>
           <p className="text-[#595959] text-xs font-normal mt-0.5">Employees, administrators, and team members in your workspace.</p>
@@ -56,7 +56,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
         {isAdmin && onOpenAddEmployee && (
           <button
             onClick={onOpenAddEmployee}
-            className="btn-primary shrink-0 self-start md:self-auto"
+            className="btn-primary shrink-0 self-start sm:self-auto"
           >
             <PlusIcon className="w-4 h-4" />
             <span>Add Employee</span>
@@ -65,7 +65,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
       </div>
 
       {displayPeople && displayPeople.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {displayPeople.map((person) => (
             <div
               key={person.id || person.email}

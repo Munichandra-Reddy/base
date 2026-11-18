@@ -881,8 +881,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F6F8] flex flex-col justify-center items-center p-4 sm:p-6 font-sans">
-      <div className="w-full max-w-md bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-6 sm:p-8 space-y-5">
+    <div className="min-h-screen bg-[#F4F6F8] flex flex-col justify-center items-center p-3 sm:p-6 font-sans">
+      <div className="w-full max-w-md bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-4 sm:p-8 space-y-5">
         
         {/* Logo Header */}
         <div className="text-center space-y-1">
@@ -1119,7 +1119,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2.5">
                   <div>
                     <label className="block text-sm font-semibold text-[#222222] mb-1">Role / Title *</label>
                     <input

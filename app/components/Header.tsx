@@ -12,6 +12,7 @@ interface HeaderProps {
   onLogout?: () => void;
   currentUser?: { email: string; fullName: string; companyName: string } | null;
   currentRole?: 'admin' | 'employee';
+  onToggleMobileSidebar?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   currentUser,
   currentRole = 'admin',
+  onToggleMobileSidebar,
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -87,26 +89,40 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="h-[72px] w-full bg-white border-b border-[#E5E5E5] px-4 sm:px-6 flex items-center justify-between shrink-0 z-30 shadow-xs text-[#222222]">
-      {/* Left section: Clean Title */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center font-black text-2xl text-[#011826] tracking-tight cursor-pointer">
+    <header className="h-[72px] w-full bg-white border-b border-[#E5E5E5] px-3 sm:px-6 flex items-center justify-between shrink-0 z-30 shadow-xs text-[#222222]">
+      {/* Left section: Hamburger (Mobile) + Title */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <button
+          type="button"
+          onClick={onToggleMobileSidebar}
+          className="lg:hidden p-2 -ml-1 text-[#595959] hover:text-[#011826] hover:bg-[#F4F6F8] rounded-lg transition-colors cursor-pointer"
+          aria-label="Open navigation menu"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
+        <div
+          onClick={() => onNavigate && onNavigate('dashboard')}
+          className="flex items-center font-black text-xl sm:text-2xl text-[#011826] tracking-tight cursor-pointer select-none"
+        >
           <span className="text-[#011826]">WorkOrbit</span>
         </div>
       </div>
 
       {/* Middle section: Direct Global Search Bar with Live Dropdown */}
-      <div className="flex-1 max-w-md xl:max-w-lg mx-2 sm:mx-6 min-w-0 relative" ref={searchRef}>
+      <div className="flex-1 max-w-[130px] min-[400px]:max-w-[180px] sm:max-w-md xl:max-w-lg mx-1.5 sm:mx-6 min-w-0 relative" ref={searchRef}>
         <div
-          className={`w-full bg-[#F4F6F8] border transition-all rounded-[4px] px-3 sm:px-4 py-2 flex items-center justify-between text-sm min-w-0 ${
+          className={`w-full bg-[#F4F6F8] border transition-all rounded-[4px] px-2 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between text-xs sm:text-sm min-w-0 ${
             isSearchFocused
               ? 'border-[#049FD9] ring-2 ring-[#049FD9]/15 bg-white'
               : 'border-[#E5E5E5] hover:border-[#CCCCCC]'
           }`}
         >
-          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1">
             <SearchIcon
-              className={`w-4 h-4 shrink-0 transition-colors ${
+              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 transition-colors ${
                 isSearchFocused ? 'text-[#049FD9]' : 'text-[#595959]'
               }`}
             />
@@ -125,7 +141,7 @@ export const Header: React.FC<HeaderProps> = ({
                   searchInputRef.current?.blur();
                 }
               }}
-              placeholder="Search projects, tasks, employees, files..."
+              placeholder="Search..."
               className="w-full bg-transparent text-xs sm:text-sm text-[#222222] font-medium placeholder-[#8C8C8C] focus:outline-none"
             />
           </div>
@@ -137,16 +153,16 @@ export const Header: React.FC<HeaderProps> = ({
                 setSearchQuery('');
                 searchInputRef.current?.focus();
               }}
-              className="text-[#8C8C8C] hover:text-[#222222] text-xs font-bold px-1.5 py-0.5 shrink-0 transition-colors cursor-pointer"
+              className="text-[#8C8C8C] hover:text-[#222222] text-xs font-bold px-1 py-0.5 shrink-0 transition-colors cursor-pointer"
             >
               ✕
             </button>
           )}
         </div>
 
-        {/* Search Results Dropdown - Directly attached below search input */}
+        {/* Search Results Dropdown - Full width on mobile, attached on desktop */}
         {isSearchFocused && (
-          <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-[4px] border border-[#E5E5E5] shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150 font-sans">
+          <div className="fixed left-3 right-3 sm:absolute sm:left-0 sm:right-0 top-[68px] sm:top-full sm:mt-2 bg-white rounded-[4px] border border-[#E5E5E5] shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150 font-sans">
             <div className="p-2 max-h-80 overflow-y-auto space-y-1">
               {filteredResults.length > 0 ? (
                 filteredResults.map((item, idx) => (
@@ -185,18 +201,19 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Right section: Create New + Notifications + User Avatar */}
-      <div className="flex items-center gap-2 sm:gap-3 relative shrink-0" ref={profileRef}>
+      <div className="flex items-center gap-1.5 sm:gap-3 relative shrink-0" ref={profileRef}>
         <button
           onClick={onOpenCreateModal}
-          className="btn-primary"
+          className="btn-primary px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-[0.8125rem]"
         >
-          <span>Create New</span>
+          <span className="hidden sm:inline">Create New</span>
+          <span className="sm:hidden font-bold">+ New</span>
         </button>
 
         {/* Bell Notifications */}
         <button
           onClick={onToggleNotifications}
-          className="relative p-2 text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8] rounded-full transition-colors shrink-0"
+          className="relative p-1.5 sm:p-2 text-[#595959] hover:text-[#222222] hover:bg-[#F4F6F8] rounded-full transition-colors shrink-0"
         >
           <BellIcon className="w-5 h-5" />
           {unreadNotifications > 0 && (
@@ -209,7 +226,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* User Profile Trigger */}
         <div
           onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className="flex items-center gap-2 pl-2 border-l border-[#E5E5E5] cursor-pointer hover:opacity-90 select-none py-1 min-w-0"
+          className="flex items-center gap-1.5 sm:gap-2 pl-1.5 sm:pl-2 border-l border-[#E5E5E5] cursor-pointer hover:opacity-90 select-none py-1 min-w-0"
         >
           <div className="w-8 h-8 rounded-full bg-[#049FD9] text-white font-extrabold flex items-center justify-center text-sm shadow-xs border border-[#E5E5E5] shrink-0">
             {userAvatar}
@@ -227,7 +244,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Profile Dropdown Menu */}
         {isProfileOpen && (
-          <div className="absolute right-0 top-14 w-60 bg-white rounded-xl border border-[#E5E5E5] shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-[#222222]">
+          <div className="absolute right-0 top-14 w-56 sm:w-60 max-w-[calc(100vw-1.5rem)] bg-white rounded-xl border border-[#E5E5E5] shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-[#222222]">
             <div className="p-4 border-b border-[#E5E5E5] bg-[#F4F6F8]">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-[#049FD9] text-white font-extrabold flex items-center justify-center text-sm shadow-xs">
@@ -287,9 +304,9 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsProfileModalOpen(false);
           }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans text-left"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4 font-sans text-left overflow-y-auto"
         >
-          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-md p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto p-4 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 my-auto">
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <div>
                 <h3 className="text-base font-semibold text-[#111827]">Account & Profile</h3>
@@ -360,9 +377,9 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsWorkspaceModalOpen(false);
           }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans text-left"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4 font-sans text-left overflow-y-auto"
         >
-          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 my-auto">
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <div>
                 <h3 className="text-base font-semibold text-[#111827]">Workspace Settings</h3>

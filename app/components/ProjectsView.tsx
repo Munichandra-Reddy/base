@@ -390,11 +390,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </div>
 
         {/* 5 TOP SUB-TABS (Messages, Meetings, Tasks, Work Updates, Overview) */}
-        <div className="bg-[#F4F6F8] rounded-lg p-1 flex flex-wrap items-center gap-1 text-xs font-medium border border-[#E5E5E5]">
+        <div className="bg-[#F4F6F8] rounded-lg p-1 flex items-center gap-1 text-xs font-medium border border-[#E5E5E5] overflow-x-auto scrollbar-none whitespace-nowrap">
           <button
             type="button"
             onClick={() => setActiveProjectTab('messages')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeProjectTab === 'messages'
                 ? 'bg-white text-[#111827] shadow-2xs font-semibold'
                 : 'text-[#595959] hover:text-[#111827]'
@@ -407,7 +407,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setActiveProjectTab('meetings')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeProjectTab === 'meetings'
                 ? 'bg-white text-[#111827] shadow-2xs font-semibold'
                 : 'text-[#595959] hover:text-[#111827]'
@@ -420,7 +420,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setActiveProjectTab('tasks')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeProjectTab === 'tasks'
                 ? 'bg-white text-[#111827] shadow-2xs font-semibold'
                 : 'text-[#595959] hover:text-[#111827]'
@@ -433,7 +433,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setActiveProjectTab('updates')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeProjectTab === 'updates'
                 ? 'bg-white text-[#111827] shadow-2xs font-semibold'
                 : 'text-[#595959] hover:text-[#111827]'
@@ -446,7 +446,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setActiveProjectTab('overview')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeProjectTab === 'overview'
                 ? 'bg-white text-[#111827] shadow-2xs font-semibold'
                 : 'text-[#595959] hover:text-[#111827]'
@@ -495,7 +495,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             {messagesTab === 'chats' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[380px]">
                 {/* Left: Members List */}
-                <div className="space-y-2 border-r border-[#E2E8F0] pr-4">
+                <div className="space-y-2 md:border-r border-b md:border-b-0 border-[#E2E8F0] md:pr-4 pb-4 md:pb-0">
                   <h4 className="font-extrabold text-xs text-[#64748B] uppercase tracking-wider mb-3">
                     Project Members ({otherMembers.length > 0 ? otherMembers.length : projectMembers.length})
                   </h4>
@@ -591,11 +591,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       placeholder={`Message ${memberForPersonalChat}...`}
                       value={chatInputText}
                       onChange={(e) => setChatInputText(e.target.value)}
-                      className="flex-1 px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#6CC04A]"
+                      className="flex-1 min-w-0 px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#6CC04A]"
                     />
                     <button
                       type="submit"
-                      className="btn-primary"
+                      className="btn-primary shrink-0 text-xs px-3 py-2 sm:px-4"
                     >
                       Send
                     </button>
@@ -660,13 +660,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     placeholder={`Message ${selectedProject.name} group...`}
                     value={chatInputText}
                     onChange={(e) => setChatInputText(e.target.value)}
-                    className="flex-1 px-4 py-2.5 bg-white border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#6CC04A]"
+                    className="flex-1 min-w-0 px-3 sm:px-4 py-2 sm:py-2.5 bg-white border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#6CC04A]"
                   />
                   <button
                     type="submit"
-                    className="btn-primary"
+                    className="btn-primary shrink-0 text-xs px-3 py-2 sm:px-4 sm:py-2.5"
                   >
-                    Send Group Message
+                    <span className="hidden sm:inline">Send Group Message</span>
+                    <span className="sm:hidden">Send</span>
                   </button>
                 </form>
               </div>
@@ -677,7 +678,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         {/* TAB 2: MEETINGS */}
         {activeProjectTab === 'meetings' && (
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-5 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
               <div>
                 <h3 className="text-lg font-black text-[#0F172A]">Upcoming Team Syncs</h3>
                 <p className="text-xs text-[#64748B] font-semibold">Scheduled virtual meetings for {selectedProject.name}</p>
@@ -793,7 +794,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         {/* TAB 3: TASKS */}
         {activeProjectTab === 'tasks' && (
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-5 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
               <div>
                 <h3 className="text-lg font-black text-[#0F172A]">Work Posting & Sprints</h3>
                 <p className="text-xs text-[#64748B] font-semibold">Active tasks & sprint metrics for {selectedProject.name}</p>
@@ -887,7 +888,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         {/* TAB 4: WORK UPDATES */}
         {activeProjectTab === 'updates' && (
           <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-5 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
               <div>
                 <h3 className="text-lg font-black text-[#0F172A]">Daily Work Updates</h3>
                 <p className="text-xs text-[#64748B] font-semibold">Recent progress submissions from {selectedProject.name} team</p>
@@ -1074,14 +1075,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   ) : (
                     <div className="divide-y divide-[#E2E8F0] border border-[#E2E8F0] rounded-xl overflow-hidden">
                       {projectTasks.map((t) => (
-                        <div key={t.id} className="p-3.5 bg-white hover:bg-[#EBF0F5] flex items-center justify-between gap-3 text-xs transition-colors">
-                          <div className="flex items-center gap-3">
-                            <span className={`w-2 h-2 rounded-full ${t.completed ? 'bg-[#10B981]' : 'bg-[#0B192C]'}`} />
-                            <span className={`font-bold text-[#0F172A] ${t.completed ? 'line-through opacity-60' : ''}`}>
+                        <div key={t.id} className="p-3.5 bg-white hover:bg-[#EBF0F5] flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 text-xs transition-colors">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${t.completed ? 'bg-[#10B981]' : 'bg-[#0B192C]'}`} />
+                            <span className={`font-bold text-[#0F172A] truncate ${t.completed ? 'line-through opacity-60' : ''}`}>
                               {t.title}
                             </span>
                           </div>
-                          <div className="flex items-center gap-4 text-[11px] text-[#64748B] font-semibold">
+                          <div className="flex items-center gap-3 text-[11px] text-[#64748B] font-semibold shrink-0">
                             <span>Assigned: <strong className="text-[#0F172A]">{t.assignedTo || 'Unassigned'}</strong></span>
                             <span>Due: {t.dueDate || 'Soon'}</span>
                           </div>
@@ -1182,12 +1183,12 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   return (
     <div className="space-y-6 font-sans w-full">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <h1 className="text-xl font-semibold text-[#111827]">
           All Projects
         </h1>
 
-        <div className="flex items-center gap-3 self-end sm:self-auto">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           {/* Team Member Avatars Stack */}
           <div className="flex -space-x-2 mr-1">
             <div className="w-8 h-8 rounded-full bg-[#049FD9] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
@@ -1226,9 +1227,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       </div>
 
       {/* Navigation Sub-Bar & Dropdown Filters */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-[#E2E8F0]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 pb-2 border-b border-[#E2E8F0]">
         {/* Left View Tabs */}
-        <div className="flex items-center gap-6 text-xs font-bold text-[#64748B] overflow-x-auto">
+        <div className="flex items-center gap-4 sm:gap-6 text-xs font-bold text-[#64748B] overflow-x-auto scrollbar-none whitespace-nowrap">
           <button
             type="button"
             onClick={() => setViewMode('list')}

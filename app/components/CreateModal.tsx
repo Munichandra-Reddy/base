@@ -229,9 +229,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4 overflow-y-auto font-sans"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4 overflow-y-auto font-sans"
     >
-      <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg overflow-hidden my-6 relative flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg overflow-hidden my-auto relative flex flex-col max-h-[92vh] animate-in fade-in zoom-in-95 duration-150">
         
         {/* Header */}
         <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between bg-white shrink-0">
@@ -403,7 +403,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
               </div>
 
               {/* 5. Priority & 6. Deadline (Grid) */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] mb-1">Priority</label>
                   <select

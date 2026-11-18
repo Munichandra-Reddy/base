@@ -145,84 +145,88 @@ export const CalendarView: React.FC = () => {
 
       {viewMode === 'month' ? (
         /* Month View Grid */
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden shadow-micro">
-          <div className="grid grid-cols-7 border-b border-[#E2E8F0] bg-[#F1F3F6] text-center text-sm font-bold text-[#334155] py-3.5">
-            {days.map((day) => (
-              <div key={day}>{day}</div>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-[#E2E8F0]">
-            {currentMonthDays.map((day) => (
-              <div
-                key={day}
-                onClick={() => setSelectedDay(day)}
-                className="min-h-[110px] p-2.5 bg-white hover:bg-[#EBF0F5] transition-colors cursor-pointer group"
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-sm font-bold text-[#334155] group-hover:text-[#0F172A]">{day}</span>
-                  {events[day] && events[day].length > 0 && (
-                    <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-[#6CC04A] text-white">
-                      {events[day].length}
-                    </span>
-                  )}
+        <div className="overflow-x-auto w-full pb-2">
+          <div className="min-w-[580px] sm:min-w-0 bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden shadow-micro">
+            <div className="grid grid-cols-7 border-b border-[#E2E8F0] bg-[#F1F3F6] text-center text-xs sm:text-sm font-bold text-[#334155] py-3 sm:py-3.5">
+              {days.map((day) => (
+                <div key={day}>{day}</div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-[#E2E8F0]">
+              {currentMonthDays.map((day) => (
+                <div
+                  key={day}
+                  onClick={() => setSelectedDay(day)}
+                  className="min-h-[90px] sm:min-h-[110px] p-2 sm:p-2.5 bg-white hover:bg-[#EBF0F5] transition-colors cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs sm:text-sm font-bold text-[#334155] group-hover:text-[#0F172A]">{day}</span>
+                    {events[day] && events[day].length > 0 && (
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-[#6CC04A] text-white">
+                        {events[day].length}
+                      </span>
+                    )}
+                  </div>
+                  {events[day] &&
+                    events[day].map((evt, idx) => (
+                      <div
+                        key={idx}
+                        title={evt.title}
+                        onClick={() => setSelectedDay(day)}
+                        className="text-xs font-bold p-1.5 sm:p-2 rounded-lg mb-1 truncate shadow-2xs transition-all duration-150 cursor-pointer bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black"
+                      >
+                        {evt.title}
+                      </div>
+                    ))}
                 </div>
-                {events[day] &&
-                  events[day].map((evt, idx) => (
-                    <div
-                      key={idx}
-                      title={evt.title}
-                      onClick={() => setSelectedDay(day)}
-                      className="text-xs font-bold p-2 rounded-lg mb-1 truncate shadow-2xs transition-all duration-150 cursor-pointer bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black"
-                    >
-                      {evt.title}
-                    </div>
-                  ))}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       ) : (
         /* Week View Grid */
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden shadow-micro">
-          <div className="grid grid-cols-7 border-b border-[#E2E8F0] bg-[#F1F3F6] text-center text-sm font-bold text-[#334155] py-3.5">
-            {currentWeekDays.map((wDay) => (
-              <div key={wDay.dayNumber} className="flex flex-col items-center">
-                <span>{wDay.dayName}</span>
-                <span className="text-xs font-semibold text-[#64748B] mt-0.5">{wDay.dateStr}</span>
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 divide-x divide-[#E2E8F0] bg-white min-h-[360px]">
-            {currentWeekDays.map((wDay) => (
-              <div
-                key={wDay.dayNumber}
-                onClick={() => setSelectedDay(wDay.dayNumber)}
-                className="p-3 bg-white hover:bg-[#EBF0F5] transition-colors cursor-pointer space-y-2 group"
-              >
-                <div className="text-xs font-extrabold text-[#64748B] group-hover:text-[#0F172A] mb-2">
-                  {wDay.dayName}, {wDay.dateStr}
+        <div className="overflow-x-auto w-full pb-2">
+          <div className="min-w-[580px] sm:min-w-0 bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden shadow-micro">
+            <div className="grid grid-cols-7 border-b border-[#E2E8F0] bg-[#F1F3F6] text-center text-xs sm:text-sm font-bold text-[#334155] py-3 sm:py-3.5">
+              {currentWeekDays.map((wDay) => (
+                <div key={wDay.dayNumber} className="flex flex-col items-center">
+                  <span>{wDay.dayName}</span>
+                  <span className="text-[10px] sm:text-xs font-semibold text-[#64748B] mt-0.5">{wDay.dateStr}</span>
                 </div>
-                {events[wDay.dayNumber] && events[wDay.dayNumber].length > 0 ? (
-                  events[wDay.dayNumber].map((evt, idx) => (
-                    <div
-                      key={idx}
-                      title={evt.title}
-                      onClick={() => setSelectedDay(wDay.dayNumber)}
-                      className="p-2.5 rounded-xl space-y-1 shadow-2xs transition-all duration-150 cursor-pointer group/weekEvt bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black"
-                    >
-                      {evt.time && (
-                        <div className="text-[10px] font-extrabold opacity-75 text-[#64748B] group-hover/weekEvt:text-white/80 transition-colors">
-                          {evt.time}
-                        </div>
-                      )}
-                      <div className="text-xs font-bold leading-tight">{evt.title}</div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-[11px] font-medium text-[#CBD5E1] italic pt-4 text-center">No events</div>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="grid grid-cols-7 divide-x divide-[#E2E8F0] bg-white min-h-[340px] sm:min-h-[360px]">
+              {currentWeekDays.map((wDay) => (
+                <div
+                  key={wDay.dayNumber}
+                  onClick={() => setSelectedDay(wDay.dayNumber)}
+                  className="p-2 sm:p-3 bg-white hover:bg-[#EBF0F5] transition-colors cursor-pointer space-y-2 group"
+                >
+                  <div className="text-xs font-extrabold text-[#64748B] group-hover:text-[#0F172A] mb-2 truncate">
+                    {wDay.dayName}, {wDay.dateStr}
+                  </div>
+                  {events[wDay.dayNumber] && events[wDay.dayNumber].length > 0 ? (
+                    events[wDay.dayNumber].map((evt, idx) => (
+                      <div
+                        key={idx}
+                        title={evt.title}
+                        onClick={() => setSelectedDay(wDay.dayNumber)}
+                        className="p-2 sm:p-2.5 rounded-xl space-y-1 shadow-2xs transition-all duration-150 cursor-pointer group/weekEvt bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black"
+                      >
+                        {evt.time && (
+                          <div className="text-[10px] font-extrabold opacity-75 text-[#64748B] group-hover/weekEvt:text-white/80 transition-colors">
+                            {evt.time}
+                          </div>
+                        )}
+                        <div className="text-xs font-bold leading-tight">{evt.title}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-[11px] font-medium text-[#CBD5E1] italic pt-4 text-center">No events</div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -233,13 +237,13 @@ export const CalendarView: React.FC = () => {
           onClick={(e) => {
             if (e.target === e.currentTarget) setSelectedDay(null);
           }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4 overflow-y-auto font-sans"
         >
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-auto">
             {/* Modal Header */}
-            <div className="p-5 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
+            <div className="p-4 sm:p-5 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
               <div>
-                <h3 className="text-lg font-extrabold text-[#0F172A]">
+                <h3 className="text-base sm:text-lg font-extrabold text-[#0F172A]">
                   October {selectedDay}, 2026 Schedule
                 </h3>
                 <p className="text-xs font-semibold text-[#64748B] mt-0.5">
@@ -248,14 +252,14 @@ export const CalendarView: React.FC = () => {
               </div>
               <button
                 onClick={() => setSelectedDay(null)}
-                className="w-8 h-8 rounded-full bg-[#EBF0F5] hover:bg-[#CBD5E1]/40 text-[#334155] font-bold flex items-center justify-center text-sm transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-full bg-[#EBF0F5] hover:bg-[#CBD5E1]/40 text-[#334155] font-bold flex items-center justify-center text-sm transition-colors cursor-pointer shrink-0"
               >
                 ✕
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-5 max-h-96 overflow-y-auto">
+            <div className="p-4 sm:p-6 space-y-5 max-h-[75vh] overflow-y-auto">
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[#64748B] mb-3">
                   Scheduled Events ({selectedDayEvents.length})
@@ -265,11 +269,11 @@ export const CalendarView: React.FC = () => {
                     {selectedDayEvents.map((evt, i) => (
                       <div
                         key={i}
-                        className="p-3.5 rounded-xl flex items-center justify-between shadow-2xs transition-all duration-150 cursor-pointer group/modalEvt bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white"
+                        className="p-3 sm:p-3.5 rounded-xl flex items-center justify-between shadow-2xs transition-all duration-150 cursor-pointer group/modalEvt bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white"
                       >
-                        <div className="font-bold text-sm">{evt.title}</div>
+                        <div className="font-bold text-xs sm:text-sm">{evt.title}</div>
                         {evt.time && (
-                          <div className="text-xs font-extrabold px-2 py-1 bg-[#F1F3F6] text-[#334155] group-hover/modalEvt:bg-white/20 group-hover/modalEvt:text-white rounded-md shrink-0 ml-3 transition-colors">
+                          <div className="text-[10px] sm:text-xs font-extrabold px-2 py-1 bg-[#F1F3F6] text-[#334155] group-hover/modalEvt:bg-white/20 group-hover/modalEvt:text-white rounded-md shrink-0 ml-3 transition-colors">
                             {evt.time}
                           </div>
                         )}
@@ -277,8 +281,8 @@ export const CalendarView: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="p-6 text-center bg-[#F1F3F6] border border-dashed border-[#CBD5E1] rounded-xl">
-                    <p className="text-sm font-semibold text-[#64748B]">
+                  <div className="p-5 text-center bg-[#F1F3F6] border border-dashed border-[#CBD5E1] rounded-xl">
+                    <p className="text-xs sm:text-sm font-semibold text-[#64748B]">
                       No events or deliverables scheduled for October {selectedDay}.
                     </p>
                   </div>
@@ -290,7 +294,7 @@ export const CalendarView: React.FC = () => {
                 <h4 className="text-xs font-semibold text-[#111827]">
                   + Add Event for Oct {selectedDay}
                 </h4>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     required
@@ -304,7 +308,7 @@ export const CalendarView: React.FC = () => {
                     placeholder="10:00 AM"
                     value={newEventTime}
                     onChange={(e) => setNewEventTime(e.target.value)}
-                    className="w-28 px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
+                    className="w-full sm:w-28 px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-1">
@@ -334,9 +338,9 @@ export const CalendarView: React.FC = () => {
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsAddModalOpen(false);
           }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4 font-sans"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4 font-sans overflow-y-auto"
         >
-          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-auto">
             <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between bg-white">
               <div>
                 <h3 className="text-sm font-semibold text-[#111827]">Add New Calendar Event</h3>

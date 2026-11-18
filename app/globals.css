@@ -292,3 +292,12 @@ code, pre, .font-mono {
 [class*="focus:ring-[#0B192C]"]:focus {
   --tw-ring-color: #049FD9 !important;
 }
+
+/* Horizontal tab scrolling without visual scrollbar clutter */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

@@ -203,6 +203,7 @@ export default function Home() {
   const [createModalType, setCreateModalType] = useState<'task' | 'project' | 'employee'>('task');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Load persisted state from localStorage on mount so page refreshes don't lose data!
   useEffect(() => {
@@ -407,6 +408,7 @@ export default function Home() {
 
   // BROWSER BACK (←) AND FORWARD (→) BUTTON NAVIGATION HANDLING FOR ALL MAIN TABS
   const handleTabChange = (tab: NavTab) => {
+    setIsMobileSidebarOpen(false);
     if (tab === 'projects') {
       setSelectedProjectId(null);
     }
@@ -1010,6 +1012,7 @@ export default function Home() {
         onLogout={handleLogout}
         currentUser={currentUser}
         currentRole={dashboardRole}
+        onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
       />
 
       {/* Popover Notifications */}
@@ -1022,7 +1025,7 @@ export default function Home() {
 
       {/* Main Container */}
       <div className="flex flex-1 min-h-0 w-full overflow-hidden">
-        {/* Left Sidebar - Fixed */}
+        {/* Left Sidebar - Fixed on desktop, Drawer on mobile/tablet */}
         <Sidebar
           activeTab={activeTab}
           setActiveTab={handleTabChange}
@@ -1031,10 +1034,12 @@ export default function Home() {
           storageUsedGB={initialStats.storageUsedGB}
           storageTotalGB={initialStats.storageTotalGB}
           isAdmin={dashboardRole === 'admin'}
+          isMobileOpen={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
 
         {/* Right Main Content Area - Scrollable */}
-        <main className="flex-1 h-full overflow-y-auto p-4 sm:p-6 lg:p-8 w-full min-w-0 bg-[#F4F6F8]">
+        <main className="flex-1 h-full overflow-y-auto p-3 sm:p-5 lg:p-8 w-full min-w-0 bg-[#F4F6F8]">
           {isLoading ? (
             activeTab === 'dashboard' && dashboardRole === 'employee' ? (
               <EmployeeDashboardSkeleton />
