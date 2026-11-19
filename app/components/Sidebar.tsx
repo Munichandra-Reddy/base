@@ -248,7 +248,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* 3. Mobile / Tablet Slide-out Drawer with Profile at bottom */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-white border-r border-[#E5E5E5] p-4 flex flex-col justify-between h-full select-none transform transition-transform duration-300 ease-in-out lg:hidden shadow-2xl relative ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-white border-r border-[#E5E5E5] p-4 flex flex-col justify-between h-full select-none transform transition-transform duration-300 ease-in-out lg:hidden shadow-2xl ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
