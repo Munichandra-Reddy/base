@@ -1,52 +1,228 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { Person, EmployeeStatus, AccessRole } from '@/lib/types';
-import { deduplicateEmployees } from '@/lib/firebaseServices';
-import { UsersIcon, PlusIcon } from './Icons';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Person, EmployeeStatus, AccessRole, Project, Task, EmployeeActivityLog } from '@/lib/types';
+import { deduplicateEmployees, DEFAULT_DEPARTMENTS, DEFAULT_DESIGNATIONS } from '@/lib/firebaseServices';
+import {
+  UsersIcon,
+  UserPlusIcon,
+  CheckCircleIcon,
+  FolderIcon,
+  ClockIcon,
+  PlusIcon,
+  SearchIcon,
+  FilterIcon,
+  RefreshCwIcon,
+  AlertCircleIcon,
+  CheckSquareIcon,
+  ExternalLinkIcon,
+  ShieldCheckIcon,
+} from './Icons';
 
 interface PeopleViewProps {
   people: Person[];
+  projects?: Project[];
+  tasks?: Task[];
   onOpenAddEmployee?: () => void;
   isAdmin?: boolean;
   onUpdateEmployee?: (email: string, updates: Partial<Person>) => Promise<any> | void;
   onDeleteEmployee?: (email: string) => Promise<any> | void;
+  onNavigateToProjects?: () => void;
 }
 
 export const PeopleView: React.FC<PeopleViewProps> = ({
   people,
+  projects = [],
+  tasks = [],
   onOpenAddEmployee,
   isAdmin = false,
   onUpdateEmployee,
   onDeleteEmployee,
+  onNavigateToProjects,
 }) => {
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
 
-  // Modals state
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
+  const [designationFilter, setDesignationFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [joiningDateFilter, setJoiningDateFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'name_asc' | 'name_desc' | 'date_desc' | 'date_asc'>('name_asc');
+
+  // Modals State
   const [viewingPerson, setViewingPerson] = useState<Person | null>(null);
+  const [profileActiveTab, setProfileActiveTab] = useState<'overview' | 'projects' | 'tasks' | 'activity'>('overview');
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const [deactivatingPerson, setDeactivatingPerson] = useState<Person | null>(null);
+  const [isDeptModalOpen, setIsDeptModalOpen] = useState(false);
+  const [deptModalTab, setDeptModalTab] = useState<'departments' | 'designations'>('departments');
 
-  // Edit form state
+  // Edit Form State
   const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
   const [editDesignation, setEditDesignation] = useState('');
   const [editDepartment, setEditDepartment] = useState('Engineering');
   const [editPhone, setEditPhone] = useState('');
+  const [editJoiningDate, setEditJoiningDate] = useState('');
   const [editAccessRole, setEditAccessRole] = useState<AccessRole>('employee');
 
-  // Action status feedback
+  // Department & Designation Management State
+  const [departmentList, setDepartmentList] = useState<Array<{ id: string; name: string; employeeCount?: number }>>([]);
+  const [designationList, setDesignationList] = useState<Array<{ id: string; name: string }>>([]);
+  const [newDeptName, setNewDeptName] = useState('');
+  const [newDesigName, setNewDesigName] = useState('');
+  const [editingDeptId, setEditingDeptId] = useState<string | null>(null);
+  const [editingDeptName, setEditingDeptName] = useState('');
+
+  // Activity Logs for Dossier
+  const [employeeActivities, setEmployeeActivities] = useState<EmployeeActivityLog[]>([]);
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false);
+
+  // Notice & Processing
   const [actionNotice, setActionNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const displayPeople = useMemo(() => {
-    let list = deduplicateEmployees(people || []);
+  // Load Departments and Designations from Backend/Firestore
+  const fetchDepartmentsAndDesignations = async () => {
+    try {
+      const [deptRes, desigRes] = await Promise.all([
+        fetch('/api/departments'),
+        fetch('/api/designations'),
+      ]);
+      const deptData = await deptRes.json();
+      const desigData = await desigRes.json();
 
+      if (deptData.success && Array.isArray(deptData.departments)) {
+        setDepartmentList(deptData.departments);
+      } else {
+        setDepartmentList(DEFAULT_DEPARTMENTS.map((d) => ({ id: d.toLowerCase(), name: d })));
+      }
+
+      if (desigData.success && Array.isArray(desigData.designations)) {
+        setDesignationList(desigData.designations);
+      } else {
+        setDesignationList(DEFAULT_DESIGNATIONS.map((d) => ({ id: d.toLowerCase(), name: d })));
+      }
+    } catch (e) {
+      setDepartmentList(DEFAULT_DEPARTMENTS.map((d) => ({ id: d.toLowerCase(), name: d })));
+      setDesignationList(DEFAULT_DESIGNATIONS.map((d) => ({ id: d.toLowerCase(), name: d })));
+    }
+  };
+
+  useEffect(() => {
+    fetchDepartmentsAndDesignations();
+  }, []);
+
+  // Fetch Activity Logs when Viewing an Employee
+  useEffect(() => {
+    if (!viewingPerson?.email) {
+      setEmployeeActivities([]);
+      return;
+    }
+    setIsLoadingActivities(true);
+    fetch(`/api/activity?email=${encodeURIComponent(viewingPerson.email)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setIsLoadingActivities(false);
+        if (data.success && Array.isArray(data.activities)) {
+          setEmployeeActivities(data.activities);
+        } else {
+          setEmployeeActivities([]);
+        }
+      })
+      .catch(() => {
+        setIsLoadingActivities(false);
+        setEmployeeActivities([]);
+      });
+  }, [viewingPerson?.email]);
+
+  // Clean deduplicated list of all real employees
+  const deduplicatedList = useMemo(() => {
+    return deduplicateEmployees(people || []);
+  }, [people]);
+
+  // Dynamic Summary Cards Metrics
+  const summaryMetrics = useMemo(() => {
+    const total = deduplicatedList.length;
+    const active = deduplicatedList.filter((p) => (p.status || 'active').toLowerCase() === 'active').length;
+    const inactive = deduplicatedList.filter((p) => {
+      const s = (p.status || '').toLowerCase();
+      return s === 'inactive' || s === 'suspended';
+    }).length;
+
+    // Distinct departments count
+    const distinctDepts = new Set(
+      deduplicatedList.map((p) => (p.department || 'General').trim().toLowerCase())
+    ).size;
+
+    // New Employees: Joined or invited within last 30 days or status is 'invited'
+    const now = Date.now();
+    const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+    const newEmployees = deduplicatedList.filter((p) => {
+      if ((p.status || '').toLowerCase() === 'invited') return true;
+      if (p.joiningDate) {
+        const jd = new Date(p.joiningDate).getTime();
+        if (!isNaN(jd) && jd >= thirtyDaysAgo) return true;
+      }
+      if (p.createdAt) {
+        const cd = new Date(p.createdAt).getTime();
+        if (!isNaN(cd) && cd >= thirtyDaysAgo) return true;
+      }
+      return false;
+    }).length;
+
+    return { total, active, inactive, departments: distinctDepts, newEmployees };
+  }, [deduplicatedList]);
+
+  // Filtered & Sorted Employees
+  const displayPeople = useMemo(() => {
+    let list = [...deduplicatedList];
+
+    // Status Filter
     if (statusFilter !== 'all') {
       list = list.filter((p) => (p.status || 'active').toLowerCase() === statusFilter.toLowerCase());
     }
 
+    // Department Filter
+    if (departmentFilter !== 'all') {
+      list = list.filter(
+        (p) => (p.department || 'General').toLowerCase().trim() === departmentFilter.toLowerCase().trim()
+      );
+    }
+
+    // Designation Filter
+    if (designationFilter !== 'all') {
+      list = list.filter((p) => {
+        const d = (p.role || p.designation || 'Team Member').toLowerCase().trim();
+        return d === designationFilter.toLowerCase().trim();
+      });
+    }
+
+    // Joining Date Filter
+    if (joiningDateFilter !== 'all') {
+      const now = Date.now();
+      list = list.filter((p) => {
+        const dateStr = p.joiningDate || p.createdAt;
+        if (!dateStr) return false;
+        const dTime = new Date(dateStr).getTime();
+        if (isNaN(dTime)) return false;
+
+        if (joiningDateFilter === '30days') {
+          return dTime >= now - 30 * 24 * 60 * 60 * 1000;
+        }
+        if (joiningDateFilter === '90days') {
+          return dTime >= now - 90 * 24 * 60 * 60 * 1000;
+        }
+        if (joiningDateFilter === 'this_year') {
+          const currentYear = new Date().getFullYear();
+          return new Date(dateStr).getFullYear() === currentYear;
+        }
+        return true;
+      });
+    }
+
+    // Search Query (Name, Email, Employee ID, Department, Role)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       list = list.filter(
@@ -55,12 +231,44 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
           p.email.toLowerCase().includes(q) ||
           (p.employeeId && p.employeeId.toLowerCase().includes(q)) ||
           (p.role && p.role.toLowerCase().includes(q)) ||
+          (p.designation && p.designation.toLowerCase().includes(q)) ||
           (p.department && p.department.toLowerCase().includes(q))
       );
     }
 
+    // Sorting
+    list.sort((a, b) => {
+      if (sortBy === 'name_asc') {
+        return a.name.localeCompare(b.name);
+      }
+      if (sortBy === 'name_desc') {
+        return b.name.localeCompare(a.name);
+      }
+      if (sortBy === 'date_desc') {
+        const da = new Date(a.joiningDate || a.createdAt || 0).getTime();
+        const db = new Date(b.joiningDate || b.createdAt || 0).getTime();
+        return db - da;
+      }
+      if (sortBy === 'date_asc') {
+        const da = new Date(a.joiningDate || a.createdAt || 0).getTime();
+        const db = new Date(b.joiningDate || b.createdAt || 0).getTime();
+        return da - db;
+      }
+      return 0;
+    });
+
     return list;
-  }, [people, statusFilter, searchQuery]);
+  }, [deduplicatedList, statusFilter, departmentFilter, designationFilter, joiningDateFilter, searchQuery, sortBy]);
+
+  // Reset all filters helper
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setDepartmentFilter('all');
+    setDesignationFilter('all');
+    setStatusFilter('all');
+    setJoiningDateFilter('all');
+    setSortBy('name_asc');
+  };
 
   // Status badge styling helper
   const renderStatusBadge = (status?: EmployeeStatus | string) => {
@@ -110,7 +318,8 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
     const r = (role || 'employee').toLowerCase();
     if (r === 'admin') {
       return (
-        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE]">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE]">
+          <ShieldCheckIcon className="w-3 h-3" />
           Admin
         </span>
       );
@@ -122,39 +331,58 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
     );
   };
 
-  // Open Edit Modal
+  // Open Edit Modal with existing data
   const handleOpenEdit = (person: Person) => {
     setEditingPerson(person);
     setEditName(person.name);
-    setEditDesignation(person.role || person.designation || 'Team Member');
+    setEditEmail(person.email);
+    setEditDesignation(person.role || person.designation || 'Software Developer');
     setEditDepartment(person.department || 'Engineering');
     setEditPhone(person.phone || '');
+    setEditJoiningDate(person.joiningDate || (person.createdAt ? person.createdAt.split('T')[0] : '2026-11-20'));
     setEditAccessRole((person.accessRole || 'employee') as AccessRole);
   };
 
-  // Save Edit
+  // Save Edit (calls /api/employees/update)
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPerson) return;
     setIsProcessing(true);
-
-    const updates: Partial<Person> = {
-      name: editName.trim(),
-      role: editDesignation.trim(),
-      designation: editDesignation.trim(),
-      department: editDepartment.trim(),
-      phone: editPhone.trim(),
-      accessRole: editAccessRole,
-    };
+    setActionNotice(null);
 
     try {
-      if (onUpdateEmployee) {
-        await onUpdateEmployee(editingPerson.email, updates);
+      const res = await fetch('/api/employees/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: editingPerson.email,
+          newEmail: editEmail.trim(),
+          name: editName.trim(),
+          designation: editDesignation.trim(),
+          department: editDepartment.trim(),
+          phone: editPhone.trim(),
+          joiningDate: editJoiningDate.trim(),
+          accessRole: editAccessRole,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.employee) {
+        if (onUpdateEmployee) {
+          await onUpdateEmployee(editingPerson.email, data.employee);
+        }
+        setActionNotice({
+          type: 'success',
+          message: `Profile for "${editName}" updated successfully in Firestore database!`,
+        });
+        setEditingPerson(null);
+        fetchDepartmentsAndDesignations();
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to update employee.' });
       }
-      setActionNotice({ type: 'success', message: `Profile for ${editName} updated successfully.` });
-      setEditingPerson(null);
     } catch (err: any) {
-      setActionNotice({ type: 'error', message: err?.message || 'Failed to update employee.' });
+      setActionNotice({ type: 'error', message: err?.message || 'Network error updating employee profile.' });
     } finally {
       setIsProcessing(false);
     }
@@ -206,7 +434,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
       if (data.success) {
         setActionNotice({
           type: 'success',
-          message: `Employee "${deactivatingPerson.name}" deactivated. Account access is revoked; task/project history is preserved.`,
+          message: `Employee "${deactivatingPerson.name}" deactivated. Account access is revoked; task and project history are preserved.`,
         });
         if (onUpdateEmployee) {
           onUpdateEmployee(deactivatingPerson.email, { status: 'inactive' });
@@ -277,24 +505,233 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
     }
   };
 
+  // Add Department handler
+  const handleAddDepartment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDeptName.trim()) return;
+    try {
+      const res = await fetch('/api/departments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newDeptName.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNewDeptName('');
+        fetchDepartmentsAndDesignations();
+        setActionNotice({ type: 'success', message: data.message });
+      } else {
+        setActionNotice({ type: 'error', message: data.error });
+      }
+    } catch (e: any) {
+      setActionNotice({ type: 'error', message: 'Failed to add department.' });
+    }
+  };
+
+  // Delete Department handler
+  const handleDeleteDepartment = async (dept: { id: string; name: string }) => {
+    if (!confirm(`Are you sure you want to delete department "${dept.name}"?`)) return;
+    try {
+      const res = await fetch(`/api/departments?id=${encodeURIComponent(dept.id)}&name=${encodeURIComponent(dept.name)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchDepartmentsAndDesignations();
+        setActionNotice({ type: 'success', message: data.message });
+      } else {
+        setActionNotice({ type: 'error', message: data.error });
+      }
+    } catch (e: any) {
+      setActionNotice({ type: 'error', message: 'Failed to delete department.' });
+    }
+  };
+
+  // Add Designation handler
+  const handleAddDesignation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDesigName.trim()) return;
+    try {
+      const res = await fetch('/api/designations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newDesigName.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNewDesigName('');
+        fetchDepartmentsAndDesignations();
+        setActionNotice({ type: 'success', message: data.message });
+      } else {
+        setActionNotice({ type: 'error', message: data.error });
+      }
+    } catch (e: any) {
+      setActionNotice({ type: 'error', message: 'Failed to add designation.' });
+    }
+  };
+
+  // Delete Designation handler
+  const handleDeleteDesignation = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete designation "${name}"?`)) return;
+    try {
+      const res = await fetch(`/api/designations?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchDepartmentsAndDesignations();
+        setActionNotice({ type: 'success', message: data.message });
+      } else {
+        setActionNotice({ type: 'error', message: data.error });
+      }
+    } catch (e: any) {
+      setActionNotice({ type: 'error', message: 'Failed to delete designation.' });
+    }
+  };
+
+  // Calculate dynamic tasks and projects for viewingPerson
+  const personWorkData = useMemo(() => {
+    if (!viewingPerson) {
+      return {
+        assignedProjects: [],
+        assignedTasks: [],
+        totalTasks: 0,
+        completedTasks: 0,
+        pendingTasks: 0,
+        inProgressTasks: 0,
+        overdueTasks: 0,
+        completionRate: 100,
+      };
+    }
+
+    const pName = (viewingPerson.name || '').toLowerCase().trim();
+    const pEmail = (viewingPerson.email || '').toLowerCase().trim();
+    const pId = (viewingPerson.employeeId || viewingPerson.id || '').toLowerCase().trim();
+
+    // Assigned Projects: Employee is a member or manager or has tasks in the project
+    const assignedProjects = (projects || []).filter((pr) => {
+      const members = Array.isArray(pr.members) ? pr.members.map((m) => String(m).toLowerCase().trim()) : [];
+      const manager = String(pr.manager || '').toLowerCase().trim();
+      const hasMemberMatch = members.some((m) => m === pName || m === pEmail || m === pId);
+      const isManager = manager === pName || manager === pEmail;
+      return hasMemberMatch || isManager;
+    });
+
+    // Assigned Tasks
+    const assignedTasks = (tasks || []).filter((t) => {
+      const assignee = String(t.assignedTo || '').toLowerCase().trim();
+      return assignee === pName || assignee === pEmail || assignee === pId;
+    });
+
+    const totalTasks = assignedTasks.length;
+    const completedTasks = assignedTasks.filter((t) => t.completed).length;
+    const pendingTasks = assignedTasks.filter((t) => !t.completed).length;
+
+    const now = new Date();
+    const overdueTasks = assignedTasks.filter((t) => {
+      if (t.completed || !t.dueDate) return false;
+      const d = new Date(t.dueDate);
+      return !isNaN(d.getTime()) && d < now;
+    }).length;
+
+    const inProgressTasks = Math.max(0, pendingTasks - overdueTasks);
+    const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 100;
+
+    return {
+      assignedProjects,
+      assignedTasks,
+      totalTasks,
+      completedTasks,
+      pendingTasks,
+      inProgressTasks,
+      overdueTasks,
+      completionRate,
+    };
+  }, [viewingPerson, projects, tasks]);
+
   return (
     <div className="space-y-5 font-sans w-full">
-      {/* Top Banner */}
+      {/* 1. TOP SUMMARY METRIC CARDS (Dynamic Database Counts) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        {/* Card 1: Total Employees */}
+        <div className="bg-white rounded-lg p-4 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Total Employees</div>
+            <div className="text-2xl font-bold text-[#111827] mt-1">{summaryMetrics.total}</div>
+            <div className="text-[10px] text-[#049FD9] font-medium mt-0.5">Workspace team</div>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-[#E0F2FE] text-[#049FD9] flex items-center justify-center shrink-0">
+            <UsersIcon className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* Card 2: Active Employees */}
+        <div className="bg-white rounded-lg p-4 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Active Employees</div>
+            <div className="text-2xl font-bold text-[#10B981] mt-1">{summaryMetrics.active}</div>
+            <div className="text-[10px] text-[#64748B] font-medium mt-0.5">Full access</div>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-[#DCFCE7] text-[#10B981] flex items-center justify-center shrink-0">
+            <CheckCircleIcon className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* Card 3: Inactive / Suspended */}
+        <div className="bg-white rounded-lg p-4 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Inactive Employees</div>
+            <div className="text-2xl font-bold text-[#64748B] mt-1">{summaryMetrics.inactive}</div>
+            <div className="text-[10px] text-[#94A3B8] font-medium mt-0.5">Access disabled</div>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-[#F1F5F9] text-[#64748B] flex items-center justify-center shrink-0">
+            <ClockIcon className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* Card 4: Departments */}
+        <div className="bg-white rounded-lg p-4 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Departments</div>
+            <div className="text-2xl font-bold text-[#4F46E5] mt-1">
+              {departmentList.length > 0 ? departmentList.length : summaryMetrics.departments}
+            </div>
+            <div className="text-[10px] text-[#6366F1] font-medium mt-0.5">Active divisions</div>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-[#EEF2FF] text-[#4F46E5] flex items-center justify-center shrink-0">
+            <FolderIcon className="w-5 h-5" />
+          </div>
+        </div>
+
+        {/* Card 5: New Employees */}
+        <div className="bg-white rounded-lg p-4 border border-[#E5E5E5] shadow-2xs flex items-center justify-between col-span-2 sm:col-span-1">
+          <div>
+            <div className="text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">New Employees</div>
+            <div className="text-2xl font-bold text-[#D97706] mt-1">{summaryMetrics.newEmployees}</div>
+            <div className="text-[10px] text-[#F59E0B] font-medium mt-0.5">Invited / 30d</div>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0">
+            <UserPlusIcon className="w-5 h-5" />
+          </div>
+        </div>
+      </div>
+
+      {/* 2. TOP ACTION BAR (Header & Mode Toggle) */}
       <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-[#111827]">Workspace Employees Directory</h1>
+            <h1 className="text-xl font-bold text-[#111827]">Employee Directory & Operations</h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5]">
-              {displayPeople.length} {displayPeople.length === 1 ? 'member' : 'members'}
+              {displayPeople.length} {displayPeople.length === 1 ? 'employee' : 'employees'}
             </span>
           </div>
           <p className="text-[#595959] text-xs font-normal mt-1">
-            Manage employee accounts, access roles, account invitations, and workspace permissions.
+            Manage onboarding, employee assignments, departments, designations, and account lifecycle.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start md:self-auto">
-          {/* View Mode Toggle */}
+        <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
+          {/* Table / Cards Toggle */}
           <div className="flex items-center bg-[#F4F6F8] border border-[#E5E5E5] rounded-md p-0.5">
             <button
               type="button"
@@ -316,10 +753,26 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
             </button>
           </div>
 
+          {/* Manage Departments Button (Admin Only) */}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsDeptModalOpen(true);
+                fetchDepartmentsAndDesignations();
+              }}
+              className="px-3 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E5E5E5] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <FolderIcon className="w-3.5 h-3.5 text-[#64748B]" />
+              <span>Departments & Roles</span>
+            </button>
+          )}
+
+          {/* Add Employee Button (Admin Only) */}
           {isAdmin && onOpenAddEmployee && (
             <button
               onClick={onOpenAddEmployee}
-              className="btn-primary shrink-0 flex items-center gap-1.5 text-xs py-2 px-3.5"
+              className="btn-primary shrink-0 flex items-center gap-1.5 text-xs py-2 px-3.5 cursor-pointer"
             >
               <PlusIcon className="w-4 h-4" />
               <span>Add Employee</span>
@@ -351,47 +804,132 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
         </div>
       )}
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white p-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
-        {/* Search */}
-        <div className="relative w-full sm:w-72">
-          <input
-            type="text"
-            placeholder="Search by name, email, ID, department..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] focus:bg-white transition-all"
-          />
-          <svg
-            className="w-4 h-4 text-[#94A3B8] absolute left-2.5 top-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
+      {/* 3. SEARCH, FILTERS & CONTROLS BAR */}
+      <div className="bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+          {/* Search Box */}
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="Search by name, work email, Employee ID, designation..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] focus:bg-white transition-all"
+            />
+            <SearchIcon className="w-4 h-4 text-[#94A3B8] absolute left-3 top-2.5" />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-2.5 text-[#94A3B8] hover:text-[#111827] text-xs font-bold"
+              >
+                ✕
+              </button>
+            )}
+          </div>
 
-        {/* Status Filter Pills */}
-        <div className="flex items-center gap-1 overflow-x-auto w-full sm:w-auto text-xs">
-          {['all', 'active', 'invited', 'inactive', 'suspended'].map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setStatusFilter(tab)}
-              className={`px-3 py-1 rounded-md capitalize transition-all cursor-pointer whitespace-nowrap ${
-                statusFilter === tab
-                  ? 'bg-[#011826] text-white font-bold shadow-2xs'
-                  : 'bg-[#F4F6F8] text-[#595959] hover:text-[#111827] font-medium'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+          {/* Quick Filters Grid */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Department Dropdown */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-semibold text-[#64748B] hidden xl:inline">Dept:</span>
+              <select
+                value={departmentFilter}
+                onChange={(e) => setDepartmentFilter(e.target.value)}
+                className="px-2.5 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+              >
+                <option value="all">All Departments</option>
+                {departmentList.map((d) => (
+                  <option key={d.id} value={d.name}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Designation Dropdown */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-semibold text-[#64748B] hidden xl:inline">Role:</span>
+              <select
+                value={designationFilter}
+                onChange={(e) => setDesignationFilter(e.target.value)}
+                className="px-2.5 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+              >
+                <option value="all">All Designations</option>
+                {designationList.map((des) => (
+                  <option key={des.id} value={des.name}>
+                    {des.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Account Status Dropdown */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-semibold text-[#64748B] hidden xl:inline">Status:</span>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-2.5 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+              >
+                <option value="all">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="invited">Invited</option>
+                <option value="inactive">Inactive</option>
+                <option value="suspended">Suspended</option>
+              </select>
+            </div>
+
+            {/* Joining Date Filter */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-semibold text-[#64748B] hidden xl:inline">Joined:</span>
+              <select
+                value={joiningDateFilter}
+                onChange={(e) => setJoiningDateFilter(e.target.value)}
+                className="px-2.5 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+              >
+                <option value="all">All Time</option>
+                <option value="30days">Last 30 Days</option>
+                <option value="90days">Last 90 Days</option>
+                <option value="this_year">This Year (2026)</option>
+              </select>
+            </div>
+
+            {/* Sort Dropdown */}
+            <div className="flex items-center gap-1.5">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="px-2.5 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+              >
+                <option value="name_asc">Name (A → Z)</option>
+                <option value="name_desc">Name (Z → A)</option>
+                <option value="date_desc">Joining Date (Newest)</option>
+                <option value="date_asc">Joining Date (Oldest)</option>
+              </select>
+            </div>
+
+            {/* Reset Filters Button */}
+            {(searchQuery ||
+              departmentFilter !== 'all' ||
+              designationFilter !== 'all' ||
+              statusFilter !== 'all' ||
+              joiningDateFilter !== 'all' ||
+              sortBy !== 'name_asc') && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="px-2.5 py-1.5 rounded-md bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#EF4444] text-xs font-semibold cursor-pointer transition-colors"
+                title="Reset all filters"
+              >
+                Reset
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* TABLE VIEW (Standard Enterprise Display) */}
+      {/* 4. TABLE VIEW (Standard Enterprise Display) */}
       {viewMode === 'table' && displayPeople && displayPeople.length > 0 && (
         <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
@@ -400,12 +938,12 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                 <tr className="bg-[#F8FAFC] border-b border-[#E5E5E5] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
                   <th className="py-3 px-4">Employee ID</th>
                   <th className="py-3 px-4">Employee Name</th>
-                  <th className="py-3 px-4">Email</th>
+                  <th className="py-3 px-4">Email Address</th>
                   <th className="py-3 px-4">Department</th>
                   <th className="py-3 px-4">Designation</th>
-                  <th className="py-3 px-4">Access Role</th>
-                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Role</th>
                   <th className="py-3 px-4">Joining Date</th>
+                  <th className="py-3 px-4">Account Status</th>
                   {isAdmin && <th className="py-3 px-4 text-right">Actions</th>}
                 </tr>
               </thead>
@@ -420,73 +958,81 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                   return (
                     <tr key={person.id || person.email} className="hover:bg-[#F8FAFC] transition-colors">
                       {/* 1. Employee ID */}
-                      <td className="py-3 px-4 font-mono font-bold text-[#049FD9] whitespace-nowrap">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#049FD9] whitespace-nowrap">
                         {empId}
                       </td>
 
                       {/* 2. Employee Name */}
-                      <td className="py-3 px-4 whitespace-nowrap">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-2.5">
                           <div
                             className={`w-7 h-7 rounded-full ${person.avatarBg || 'bg-[#049FD9] text-white'} font-bold text-xs flex items-center justify-center shrink-0`}
                           >
                             {person.avatar}
                           </div>
-                          <span className="font-bold text-[#111827]">{person.name}</span>
+                          <div>
+                            <span className="font-bold text-[#111827] block">{person.name}</span>
+                            {person.phone && (
+                              <span className="text-[10px] text-[#94A3B8] font-normal">{person.phone}</span>
+                            )}
+                          </div>
                         </div>
                       </td>
 
                       {/* 3. Email */}
-                      <td className="py-3 px-4 text-[#64748B] font-mono text-[11px] whitespace-nowrap">
+                      <td className="py-3.5 px-4 text-[#64748B] font-mono text-[11px] whitespace-nowrap">
                         {person.email}
                       </td>
 
                       {/* 4. Department */}
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span className="px-2 py-0.5 rounded bg-[#F1F5F9] text-[#475569] font-semibold text-[11px]">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#F1F5F9] text-[#475569] font-semibold text-[11px] border border-[#E2E8F0]">
                           {dept}
                         </span>
                       </td>
 
                       {/* 5. Designation */}
-                      <td className="py-3 px-4 whitespace-nowrap text-[#111827] font-semibold">
+                      <td className="py-3.5 px-4 whitespace-nowrap text-[#111827] font-semibold">
                         {designation}
                       </td>
 
                       {/* 6. Access Role */}
-                      <td className="py-3 px-4 whitespace-nowrap">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         {renderRoleBadge(person.accessRole || (person.role === 'admin' ? 'admin' : 'employee'))}
                       </td>
 
-                      {/* 7. Account Status */}
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        {renderStatusBadge(status)}
+                      {/* 7. Joining Date */}
+                      <td className="py-3.5 px-4 whitespace-nowrap text-[#64748B]">
+                        {joining}
                       </td>
 
-                      {/* 8. Joining Date */}
-                      <td className="py-3 px-4 whitespace-nowrap text-[#64748B]">
-                        {joining}
+                      {/* 8. Account Status */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        {renderStatusBadge(status)}
                       </td>
 
                       {/* 9. Actions Menu (Admin Only) */}
                       {isAdmin && (
-                        <td className="py-3 px-4 text-right whitespace-nowrap">
+                        <td className="py-3.5 px-4 text-right whitespace-nowrap">
                           <div className="flex items-center justify-end gap-1.5">
-                            {/* View Dossier */}
+                            {/* View Profile */}
                             <button
                               type="button"
-                              onClick={() => setViewingPerson(person)}
-                              className="px-2 py-1 rounded bg-[#F4F6F8] hover:bg-[#E5E5E5] text-[#111827] text-[11px] font-semibold cursor-pointer transition-colors"
-                              title="View Employee Dossier"
+                              onClick={() => {
+                                setViewingPerson(person);
+                                setProfileActiveTab('overview');
+                              }}
+                              className="px-2.5 py-1 rounded bg-[#F4F6F8] hover:bg-[#E5E5E5] text-[#111827] text-[11px] font-semibold cursor-pointer transition-colors"
+                              title="View Employee Profile & Statistics"
                             >
-                              View
+                              View Profile
                             </button>
 
                             {/* Edit */}
                             <button
                               type="button"
                               onClick={() => handleOpenEdit(person)}
-                              className="px-2 py-1 rounded bg-[#F0F9FF] hover:bg-[#E0F2FE] text-[#0284C7] text-[11px] font-semibold cursor-pointer transition-colors"
+                              className="px-2.5 py-1 rounded bg-[#F0F9FF] hover:bg-[#E0F2FE] text-[#0284C7] text-[11px] font-semibold cursor-pointer transition-colors"
                               title="Edit Employee Information"
                             >
                               Edit
@@ -518,12 +1064,12 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                               </button>
                             )}
 
-                            {/* Deactivate / Reactivate */}
+                            {/* Activate / Deactivate Toggle */}
                             {status === 'active' || status === 'invited' ? (
                               <button
                                 type="button"
                                 onClick={() => setDeactivatingPerson(person)}
-                                className="px-2 py-1 rounded bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#EF4444] text-[11px] font-semibold cursor-pointer transition-colors"
+                                className="px-2.5 py-1 rounded bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#EF4444] text-[11px] font-semibold cursor-pointer transition-colors"
                                 title="Deactivate Employee Account"
                               >
                                 Deactivate
@@ -533,10 +1079,10 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                                 type="button"
                                 disabled={isProcessing}
                                 onClick={() => handleReactivate(person)}
-                                className="px-2 py-1 rounded bg-[#ECFDF5] hover:bg-[#D1FAE5] text-[#10B981] text-[11px] font-semibold cursor-pointer transition-colors"
+                                className="px-2.5 py-1 rounded bg-[#ECFDF5] hover:bg-[#D1FAE5] text-[#10B981] text-[11px] font-semibold cursor-pointer transition-colors"
                                 title="Reactivate Employee Account"
                               >
-                                Reactivate
+                                Activate
                               </button>
                             )}
                           </div>
@@ -551,7 +1097,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
         </div>
       )}
 
-      {/* GRID / CARD VIEW */}
+      {/* 5. GRID / CARD VIEW */}
       {viewMode === 'grid' && displayPeople && displayPeople.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {displayPeople.map((person) => {
@@ -588,7 +1134,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                   <div className="text-[#111827] font-semibold truncate" title={designation}>
                     {designation}
                   </div>
-                  <div className="text-[#64748B] text-[10px] truncate" title={person.email}>
+                  <div className="text-[#64748B] text-[10px] truncate font-mono" title={person.email}>
                     {person.email}
                   </div>
                   <div className="flex items-center justify-between pt-1">
@@ -603,10 +1149,13 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                   <div className="pt-2 border-t border-[#E5E5E5] flex items-center justify-between text-[11px]">
                     <button
                       type="button"
-                      onClick={() => setViewingPerson(person)}
+                      onClick={() => {
+                        setViewingPerson(person);
+                        setProfileActiveTab('overview');
+                      }}
                       className="text-[#049FD9] hover:underline font-semibold cursor-pointer"
                     >
-                      View
+                      View Profile
                     </button>
                     <button
                       type="button"
@@ -637,7 +1186,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                         onClick={() => handleReactivate(person)}
                         className="text-[#10B981] hover:underline font-semibold cursor-pointer"
                       >
-                        Reactivate
+                        Activate
                       </button>
                     )}
                   </div>
@@ -650,101 +1199,478 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
 
       {/* Empty State */}
       {(!displayPeople || displayPeople.length === 0) && (
-        <div className="bg-white rounded-lg border border-[#E5E5E5] p-10 text-center space-y-2 shadow-2xs">
-          <div className="w-10 h-10 rounded-lg bg-[#F4F6F8] text-[#595959] flex items-center justify-center mx-auto">
-            <UsersIcon className="w-5 h-5" />
+        <div className="bg-white rounded-lg border border-[#E5E5E5] p-10 text-center space-y-3 shadow-2xs">
+          <div className="w-12 h-12 rounded-lg bg-[#F4F6F8] text-[#595959] flex items-center justify-center mx-auto">
+            <UsersIcon className="w-6 h-6" />
           </div>
-          <h3 className="text-sm font-semibold text-[#111827]">No employees match your filter</h3>
+          <h3 className="text-sm font-semibold text-[#111827]">No employees match your filter criteria</h3>
           <p className="text-xs text-[#6B7280] max-w-md mx-auto">
-            Try adjusting your search query or status filter to see other workspace members.
+            Try adjusting your search query, department, designation, or status filter to see other members.
           </p>
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="px-3.5 py-1.5 rounded-md bg-[#011826] text-white text-xs font-semibold cursor-pointer hover:bg-black transition-colors"
+          >
+            Clear All Filters
+          </button>
         </div>
       )}
 
-      {/* MODAL 1: VIEW EMPLOYEE DOSSIER */}
+      {/* ======================================================== */}
+      {/* MODAL 1: VIEW EMPLOYEE PROFILE & DOSSIER (COMPLETE)       */}
+      {/* ======================================================== */}
       {viewingPerson && (
         <div
           onClick={(e) => {
             if (e.target === e.currentTarget) setViewingPerson(null);
           }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 font-sans overflow-y-auto"
         >
-          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full ${viewingPerson.avatarBg || 'bg-[#049FD9] text-white'} font-bold flex items-center justify-center text-sm`}>
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-2xl w-full max-w-3xl my-8 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="bg-[#011826] p-6 text-white flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div
+                  className={`w-14 h-14 rounded-full ${viewingPerson.avatarBg || 'bg-[#049FD9] text-white'} font-bold flex items-center justify-center text-xl shrink-0 border-2 border-white/20`}
+                >
                   {viewingPerson.avatar}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#111827]">{viewingPerson.name}</h3>
-                  <p className="text-xs text-[#049FD9] font-mono font-bold">{viewingPerson.employeeId || viewingPerson.id}</p>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-white">{viewingPerson.name}</h2>
+                    {renderRoleBadge(viewingPerson.accessRole || (viewingPerson.role === 'admin' ? 'admin' : 'employee'))}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-[#94A3B8] font-mono mt-0.5">
+                    <span className="text-[#38BDF8] font-bold">{viewingPerson.employeeId || viewingPerson.id}</span>
+                    <span>•</span>
+                    <span>{viewingPerson.email}</span>
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    {renderStatusBadge(viewingPerson.status)}
+                    <span className="text-[11px] text-[#CBD5E1]">
+                      {viewingPerson.department || 'Engineering'} • {viewingPerson.role || viewingPerson.designation}
+                    </span>
+                  </div>
                 </div>
               </div>
+
               <button
                 type="button"
                 onClick={() => setViewingPerson(null)}
-                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm transition-colors cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-3 p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
-                <div>
-                  <span className="text-[#64748B] block text-[10px]">Account Status</span>
-                  <div className="mt-1">{renderStatusBadge(viewingPerson.status)}</div>
-                </div>
-                <div>
-                  <span className="text-[#64748B] block text-[10px]">Access Role</span>
-                  <div className="mt-1">{renderRoleBadge(viewingPerson.accessRole || (viewingPerson.role === 'admin' ? 'admin' : 'employee'))}</div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between py-1.5 border-b border-[#F1F5F9]">
-                  <span className="text-[#64748B]">Work Email:</span>
-                  <span className="font-semibold text-[#111827]">{viewingPerson.email}</span>
-                </div>
-                <div className="flex justify-between py-1.5 border-b border-[#F1F5F9]">
-                  <span className="text-[#64748B]">Designation:</span>
-                  <span className="font-semibold text-[#111827]">{viewingPerson.role || viewingPerson.designation || 'Team Member'}</span>
-                </div>
-                <div className="flex justify-between py-1.5 border-b border-[#F1F5F9]">
-                  <span className="text-[#64748B]">Department:</span>
-                  <span className="font-semibold text-[#111827]">{viewingPerson.department || 'Engineering'}</span>
-                </div>
-                {viewingPerson.phone && (
-                  <div className="flex justify-between py-1.5 border-b border-[#F1F5F9]">
-                    <span className="text-[#64748B]">Phone Number:</span>
-                    <span className="font-semibold text-[#111827]">{viewingPerson.phone}</span>
-                  </div>
-                )}
-                <div className="flex justify-between py-1.5 border-b border-[#F1F5F9]">
-                  <span className="text-[#64748B]">Joining Date:</span>
-                  <span className="font-semibold text-[#111827]">{viewingPerson.joiningDate || (viewingPerson.createdAt ? viewingPerson.createdAt.split('T')[0] : '2026-11-20')}</span>
-                </div>
-                <div className="flex justify-between py-1.5">
-                  <span className="text-[#64748B]">Active Projects Assigned:</span>
-                  <span className="font-semibold text-[#111827]">{viewingPerson.projectsCount || 1}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#E5E5E5]">
+            {/* Navigation Tabs */}
+            <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-6 flex items-center gap-2 overflow-x-auto text-xs font-semibold">
               <button
                 type="button"
-                onClick={() => setViewingPerson(null)}
-                className="btn-primary py-2 px-4 text-xs font-semibold"
+                onClick={() => setProfileActiveTab('overview')}
+                className={`py-3 px-3 border-b-2 transition-colors cursor-pointer ${
+                  profileActiveTab === 'overview'
+                    ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                    : 'border-transparent text-[#64748B] hover:text-[#111827]'
+                }`}
               >
-                Close
+                Overview & Metrics
               </button>
+              <button
+                type="button"
+                onClick={() => setProfileActiveTab('projects')}
+                className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  profileActiveTab === 'projects'
+                    ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                    : 'border-transparent text-[#64748B] hover:text-[#111827]'
+                }`}
+              >
+                <span>Assigned Projects</span>
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#E2E8F0] text-[#475569]">
+                  {personWorkData.assignedProjects.length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setProfileActiveTab('tasks')}
+                className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  profileActiveTab === 'tasks'
+                    ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                    : 'border-transparent text-[#64748B] hover:text-[#111827]'
+                }`}
+              >
+                <span>Assigned Tasks</span>
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#E2E8F0] text-[#475569]">
+                  {personWorkData.assignedTasks.length}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setProfileActiveTab('activity')}
+                className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  profileActiveTab === 'activity'
+                    ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                    : 'border-transparent text-[#64748B] hover:text-[#111827]'
+                }`}
+              >
+                <span>Activity History</span>
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#E2E8F0] text-[#475569]">
+                  {employeeActivities.length}
+                </span>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 max-h-[65vh] overflow-y-auto space-y-6">
+              {/* TAB 1: OVERVIEW */}
+              {profileActiveTab === 'overview' && (
+                <div className="space-y-6">
+                  {/* Personal & Professional Info Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Personal Information */}
+                    <div className="bg-[#F8FAFC] p-4 rounded-lg border border-[#E2E8F0] space-y-2.5 text-xs">
+                      <h4 className="font-bold text-[#111827] uppercase tracking-wider text-[11px] border-b border-[#E2E8F0] pb-2">
+                        Personal Information
+                      </h4>
+                      <div className="flex justify-between py-1 border-b border-[#F1F5F9]">
+                        <span className="text-[#64748B]">Full Name:</span>
+                        <span className="font-semibold text-[#111827]">{viewingPerson.name}</span>
+                      </div>
+                      <div className="flex justify-between py-1 border-b border-[#F1F5F9]">
+                        <span className="text-[#64748B]">Employee ID:</span>
+                        <span className="font-mono font-bold text-[#049FD9]">
+                          {viewingPerson.employeeId || viewingPerson.id}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-1 border-b border-[#F1F5F9]">
+                        <span className="text-[#64748B]">Work Email:</span>
+                        <span className="font-mono font-semibold text-[#111827]">{viewingPerson.email}</span>
+                      </div>
+                      <div className="flex justify-between py-1 border-b border-[#F1F5F9]">
+                        <span className="text-[#64748B]">Phone Number:</span>
+                        <span className="font-semibold text-[#111827]">
+                          {viewingPerson.phone || 'Not provided'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-1">
+                        <span className="text-[#64748B]">Joining Date:</span>
+                        <span className="font-semibold text-[#111827]">
+                          {viewingPerson.joiningDate || (viewingPerson.createdAt ? viewingPerson.createdAt.split('T')[0] : '2026-11-20')}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Professional Information */}
+                    <div className="bg-[#F8FAFC] p-4 rounded-lg border border-[#E2E8F0] space-y-2.5 text-xs">
+                      <h4 className="font-bold text-[#111827] uppercase tracking-wider text-[11px] border-b border-[#E2E8F0] pb-2">
+                        Professional Information
+                      </h4>
+                      <div className="flex justify-between py-1 border-b border-[#F1F5F9]">
+                        <span className="text-[#64748B]">Department:</span>
+                        <span className="font-semibold text-[#111827]">
+                          {viewingPerson.department || 'Engineering'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-1 border-b border-[#F1F5F9]">
+                        <span className="text-[#64748B]">Designation:</span>
+                        <span className="font-semibold text-[#111827]">
+                          {viewingPerson.role || viewingPerson.designation || 'Team Member'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-1 border-b border-[#F1F5F9]">
+                        <span className="text-[#64748B]">Access Role:</span>
+                        <div>{renderRoleBadge(viewingPerson.accessRole || (viewingPerson.role === 'admin' ? 'admin' : 'employee'))}</div>
+                      </div>
+                      <div className="flex justify-between py-1 border-b border-[#F1F5F9]">
+                        <span className="text-[#64748B]">Account Status:</span>
+                        <div>{renderStatusBadge(viewingPerson.status)}</div>
+                      </div>
+                      <div className="flex justify-between py-1">
+                        <span className="text-[#64748B]">Organization:</span>
+                        <span className="font-semibold text-[#111827]">Basecamp Workspace</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Work Overview Metrics (Dynamic From Database) */}
+                  <div className="space-y-3">
+                    <h4 className="font-bold text-[#111827] text-xs uppercase tracking-wider">
+                      Work Overview & Task Metrics
+                    </h4>
+
+                    {/* 6 Metric Cards */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-center">
+                      <div className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                        <span className="text-[10px] text-[#64748B] block font-semibold">Assigned Projects</span>
+                        <span className="text-xl font-bold text-[#111827] block mt-1">
+                          {personWorkData.assignedProjects.length}
+                        </span>
+                      </div>
+                      <div className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                        <span className="text-[10px] text-[#64748B] block font-semibold">Total Tasks</span>
+                        <span className="text-xl font-bold text-[#111827] block mt-1">
+                          {personWorkData.totalTasks}
+                        </span>
+                      </div>
+                      <div className="p-3 bg-[#ECFDF5] rounded-lg border border-[#A7F3D0]">
+                        <span className="text-[10px] text-[#065F46] block font-semibold">Completed</span>
+                        <span className="text-xl font-bold text-[#10B981] block mt-1">
+                          {personWorkData.completedTasks}
+                        </span>
+                      </div>
+                      <div className="p-3 bg-[#EFF6FF] rounded-lg border border-[#BFDBFE]">
+                        <span className="text-[10px] text-[#1E40AF] block font-semibold">In Progress</span>
+                        <span className="text-xl font-bold text-[#3B82F6] block mt-1">
+                          {personWorkData.inProgressTasks}
+                        </span>
+                      </div>
+                      <div className="p-3 bg-[#FFFBEB] rounded-lg border border-[#FDE68A]">
+                        <span className="text-[10px] text-[#92400E] block font-semibold">Pending</span>
+                        <span className="text-xl font-bold text-[#F59E0B] block mt-1">
+                          {personWorkData.pendingTasks}
+                        </span>
+                      </div>
+                      <div className="p-3 bg-[#FEF2F2] rounded-lg border border-[#FECACA]">
+                        <span className="text-[10px] text-[#991B1B] block font-semibold">Overdue</span>
+                        <span className="text-xl font-bold text-[#EF4444] block mt-1">
+                          {personWorkData.overdueTasks}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="bg-[#F8FAFC] p-4 rounded-lg border border-[#E2E8F0] space-y-2">
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span className="text-[#475569]">Task Completion Rate:</span>
+                        <span className="text-[#049FD9] font-bold">{personWorkData.completionRate}%</span>
+                      </div>
+                      <div className="w-full h-2.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#10B981] transition-all duration-300 rounded-full"
+                          style={{ width: `${personWorkData.completionRate}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: ASSIGNED PROJECTS */}
+              {profileActiveTab === 'projects' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-xs text-[#111827]">
+                      Projects Assigned to {viewingPerson.name} ({personWorkData.assignedProjects.length})
+                    </h4>
+                    {onNavigateToProjects && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setViewingPerson(null);
+                          onNavigateToProjects();
+                        }}
+                        className="text-xs font-semibold text-[#049FD9] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Open Projects Workspace</span>
+                        <ExternalLinkIcon className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {personWorkData.assignedProjects.length === 0 ? (
+                    <div className="p-8 text-center text-xs text-[#64748B] bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                      No active projects are currently assigned to this employee.
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {personWorkData.assignedProjects.map((proj) => (
+                        <div
+                          key={proj.id}
+                          className="p-4 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] hover:border-[#049FD9] transition-all space-y-2.5 text-xs"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <h5 className="font-bold text-sm text-[#111827]">{proj.name}</h5>
+                              <p className="text-[#64748B] text-[11px] mt-0.5 line-clamp-1">{proj.description}</p>
+                            </div>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#DCFCE7] text-[#166534]">
+                              {proj.status || 'Active'}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-[#475569] pt-2 border-t border-[#E2E8F0]">
+                            <div>
+                              <span className="text-[#94A3B8] block text-[10px]">Manager / Lead</span>
+                              <span className="font-semibold text-[#111827]">{proj.manager || 'Workspace Admin'}</span>
+                            </div>
+                            <div>
+                              <span className="text-[#94A3B8] block text-[10px]">Start Date</span>
+                              <span>{proj.startDate || '2026-11-01'}</span>
+                            </div>
+                            <div>
+                              <span className="text-[#94A3B8] block text-[10px]">Deadline</span>
+                              <span className="font-semibold text-[#111827]">{proj.deadline || '2026-12-15'}</span>
+                            </div>
+                            <div>
+                              <span className="text-[#94A3B8] block text-[10px]">Progress</span>
+                              <span className="font-bold text-[#049FD9]">{proj.progress || 0}%</span>
+                            </div>
+                          </div>
+
+                          <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-[#049FD9] rounded-full"
+                              style={{ width: `${proj.progress || 0}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 3: ASSIGNED TASKS */}
+              {profileActiveTab === 'tasks' && (
+                <div className="space-y-4">
+                  <h4 className="font-bold text-xs text-[#111827]">
+                    Tasks Assigned to {viewingPerson.name} ({personWorkData.assignedTasks.length})
+                  </h4>
+
+                  {personWorkData.assignedTasks.length === 0 ? (
+                    <div className="p-8 text-center text-xs text-[#64748B] bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                      No individual tasks are assigned to this employee.
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-[#E2E8F0] border border-[#E2E8F0] rounded-lg bg-white overflow-hidden text-xs">
+                      {personWorkData.assignedTasks.map((t) => (
+                        <div key={t.id} className="p-3.5 flex items-center justify-between gap-3 hover:bg-[#F8FAFC]">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span
+                              className={`w-4 h-4 rounded flex items-center justify-center shrink-0 text-white text-[10px] ${
+                                t.completed ? 'bg-[#10B981]' : 'border border-[#CBD5E1] bg-white'
+                              }`}
+                            >
+                              {t.completed ? '✓' : ''}
+                            </span>
+                            <div className="min-w-0">
+                              <span
+                                className={`font-semibold block truncate ${
+                                  t.completed ? 'line-through text-[#94A3B8]' : 'text-[#111827]'
+                                }`}
+                              >
+                                {t.title}
+                              </span>
+                              <span className="text-[11px] text-[#64748B]">{t.project}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            {t.dueDate && (
+                              <span className="text-[11px] text-[#64748B] flex items-center gap-1">
+                                <ClockIcon className="w-3 h-3 text-[#94A3B8]" />
+                                <span>{t.dueDate}</span>
+                              </span>
+                            )}
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                t.completed
+                                  ? 'bg-[#DCFCE7] text-[#166534]'
+                                  : 'bg-[#FEF3C7] text-[#B45309]'
+                              }`}
+                            >
+                              {t.completed ? 'Completed' : 'Pending'}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 4: ACTIVITY HISTORY */}
+              {profileActiveTab === 'activity' && (
+                <div className="space-y-4">
+                  <h4 className="font-bold text-xs text-[#111827]">
+                    Recent Activity History for {viewingPerson.name}
+                  </h4>
+
+                  {isLoadingActivities ? (
+                    <div className="p-8 text-center text-xs text-[#64748B] flex items-center justify-center gap-2">
+                      <RefreshCwIcon className="w-4 h-4 animate-spin text-[#049FD9]" />
+                      <span>Loading employee activity logs...</span>
+                    </div>
+                  ) : employeeActivities.length === 0 ? (
+                    <div className="p-8 text-center text-xs text-[#64748B] bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                      No audit events recorded yet for this employee account.
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {employeeActivities.map((log) => (
+                        <div
+                          key={log.id}
+                          className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] flex items-start gap-3 text-xs"
+                        >
+                          <div className="w-7 h-7 rounded-full bg-[#E0F2FE] text-[#049FD9] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                            ⚡
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-[#111827]">{log.description}</p>
+                            <div className="flex items-center gap-2 text-[10px] text-[#64748B] mt-1">
+                              <span>By: {log.performedBy || 'Admin'}</span>
+                              <span>•</span>
+                              <span>
+                                {log.timestamp
+                                  ? new Date(log.timestamp).toLocaleString()
+                                  : 'Recent'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-[#F8FAFC] px-6 py-3.5 border-t border-[#E2E8F0] flex items-center justify-between">
+              <span className="text-[11px] text-[#64748B]">
+                ID: <span className="font-mono font-bold">{viewingPerson.employeeId || viewingPerson.id}</span>
+              </span>
+              <div className="flex items-center gap-2">
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const p = viewingPerson;
+                      setViewingPerson(null);
+                      handleOpenEdit(p);
+                    }}
+                    className="px-3 py-1.5 rounded-md bg-[#0284C7] text-white hover:bg-[#0369A1] text-xs font-semibold cursor-pointer transition-colors"
+                  >
+                    Edit Profile
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setViewingPerson(null)}
+                  className="btn-primary py-1.5 px-4 text-xs font-semibold cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL 2: EDIT EMPLOYEE */}
+      {/* ======================================================== */}
+      {/* MODAL 2: EDIT EMPLOYEE PROFILE (CONNECTED TO DATABASE)   */}
+      {/* ======================================================== */}
       {editingPerson && (
         <div
           onClick={(e) => {
@@ -752,24 +1678,29 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
           }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans"
         >
-          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-md p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <div>
-                <h3 className="text-base font-bold text-[#111827]">Edit Employee Profile</h3>
-                <p className="text-xs text-[#595959]">{editingPerson.email}</p>
+                <h3 className="text-base font-bold text-[#111827]">Edit Employee Information</h3>
+                <p className="text-xs text-[#595959] font-mono">
+                  {editingPerson.employeeId || editingPerson.id} • {editingPerson.email}
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingPerson(null)}
-                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs"
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             <form onSubmit={handleSaveEdit} className="space-y-3.5">
+              {/* Full Name */}
               <div>
-                <label className="block text-xs font-semibold text-[#111827] mb-1">Full Name</label>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Full Name <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   required
@@ -779,17 +1710,21 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                 />
               </div>
 
+              {/* Email Address */}
               <div>
-                <label className="block text-xs font-semibold text-[#111827] mb-1">Designation / Job Title</label>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Work Email Address <span className="text-red-500">*</span>
+                </label>
                 <input
-                  type="text"
+                  type="email"
                   required
-                  value={editDesignation}
-                  onChange={(e) => setEditDesignation(e.target.value)}
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
                   className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
                 />
               </div>
 
+              {/* Department & Designation */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Department</label>
@@ -798,43 +1733,72 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                     onChange={(e) => setEditDepartment(e.target.value)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
                   >
-                    <option value="Engineering">Engineering</option>
-                    <option value="Design">Design</option>
-                    <option value="Product">Product</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Sales">Sales</option>
-                    <option value="Human Resources">Human Resources</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Operations">Operations</option>
-                    <option value="Customer Support">Customer Support</option>
+                    {departmentList.map((d) => (
+                      <option key={d.id} value={d.name}>
+                        {d.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#111827] mb-1">Access Role</label>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Designation</label>
+                  <select
+                    value={editDesignation}
+                    onChange={(e) => setEditDesignation(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    {designationList.map((des) => (
+                      <option key={des.id} value={des.name}>
+                        {des.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Phone Number & Joining Date */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    placeholder="+91 98765 43210"
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Joining Date</label>
+                  <input
+                    type="date"
+                    value={editJoiningDate}
+                    onChange={(e) => setEditJoiningDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  />
+                </div>
+              </div>
+
+              {/* Access Role (Admin Only) */}
+              {isAdmin && (
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">
+                    Access Role (Permissions)
+                  </label>
                   <select
                     value={editAccessRole}
                     onChange={(e) => setEditAccessRole(e.target.value as AccessRole)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
                   >
-                    <option value="employee">Employee</option>
-                    <option value="admin">Admin</option>
+                    <option value="employee">Employee (Workspace Member)</option>
+                    <option value="admin">Admin (Workspace Administrator)</option>
                   </select>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <label className="block text-xs font-semibold text-[#111827] mb-1">Phone Number</label>
-                <input
-                  type="tel"
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  placeholder="e.g. +1 (555) 000-0000"
-                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2 border-t border-[#E5E5E5]">
+              <div className="flex justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
                 <button
                   type="button"
                   onClick={() => setEditingPerson(null)}
@@ -847,7 +1811,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                   disabled={isProcessing}
                   className="btn-primary text-xs"
                 >
-                  {isProcessing ? 'Saving...' : 'Save Changes'}
+                  {isProcessing ? 'Saving Changes...' : 'Save Changes'}
                 </button>
               </div>
             </form>
@@ -855,7 +1819,150 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
         </div>
       )}
 
-      {/* MODAL 3: DEACTIVATE EMPLOYEE CONFIRMATION */}
+      {/* ======================================================== */}
+      {/* MODAL 3: MANAGE DEPARTMENTS & DESIGNATIONS                */}
+      {/* ======================================================== */}
+      {isDeptModalOpen && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsDeptModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <h3 className="text-base font-bold text-[#111827]">Departments & Designations Management</h3>
+                <p className="text-xs text-[#595959]">Add, rename, or organize workspace divisions</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDeptModalOpen(false)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Tab switch */}
+            <div className="flex border-b border-[#E5E5E5] text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setDeptModalTab('departments')}
+                className={`py-2 px-4 border-b-2 cursor-pointer ${
+                  deptModalTab === 'departments'
+                    ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                    : 'border-transparent text-[#64748B] hover:text-[#111827]'
+                }`}
+              >
+                Departments ({departmentList.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeptModalTab('designations')}
+                className={`py-2 px-4 border-b-2 cursor-pointer ${
+                  deptModalTab === 'designations'
+                    ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                    : 'border-transparent text-[#64748B] hover:text-[#111827]'
+                }`}
+              >
+                Designations ({designationList.length})
+              </button>
+            </div>
+
+            {/* TAB 1: DEPARTMENTS */}
+            {deptModalTab === 'departments' && (
+              <div className="space-y-4 text-xs">
+                {/* Add new department form */}
+                <form onSubmit={handleAddDepartment} className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="New department name..."
+                    value={newDeptName}
+                    onChange={(e) => setNewDeptName(e.target.value)}
+                    className="flex-1 px-3 py-1.5 border border-[#CCCCCC] rounded-md text-xs font-medium focus:outline-none focus:border-[#049FD9]"
+                  />
+                  <button type="submit" className="btn-primary text-xs py-1.5 px-3">
+                    Add Dept
+                  </button>
+                </form>
+
+                {/* List of departments */}
+                <div className="max-h-60 overflow-y-auto divide-y divide-[#F1F5F9] border border-[#E5E5E5] rounded-md">
+                  {departmentList.map((dept) => (
+                    <div key={dept.id} className="p-2.5 flex items-center justify-between hover:bg-[#F8FAFC]">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-[#111827]">{dept.name}</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-[#F1F5F9] text-[#64748B] font-mono">
+                          {dept.employeeCount || 0} employees
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteDepartment(dept)}
+                        className="text-[11px] text-[#EF4444] hover:underline font-semibold cursor-pointer"
+                        title="Delete Department"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: DESIGNATIONS */}
+            {deptModalTab === 'designations' && (
+              <div className="space-y-4 text-xs">
+                {/* Add new designation form */}
+                <form onSubmit={handleAddDesignation} className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="New designation / job title..."
+                    value={newDesigName}
+                    onChange={(e) => setNewDesigName(e.target.value)}
+                    className="flex-1 px-3 py-1.5 border border-[#CCCCCC] rounded-md text-xs font-medium focus:outline-none focus:border-[#049FD9]"
+                  />
+                  <button type="submit" className="btn-primary text-xs py-1.5 px-3">
+                    Add Role
+                  </button>
+                </form>
+
+                {/* List of designations */}
+                <div className="max-h-60 overflow-y-auto divide-y divide-[#F1F5F9] border border-[#E5E5E5] rounded-md">
+                  {designationList.map((desig) => (
+                    <div key={desig.id} className="p-2.5 flex items-center justify-between hover:bg-[#F8FAFC]">
+                      <span className="font-semibold text-[#111827]">{desig.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteDesignation(desig.id, desig.name)}
+                        className="text-[11px] text-[#EF4444] hover:underline font-semibold cursor-pointer"
+                        title="Delete Designation"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end pt-3 border-t border-[#E5E5E5]">
+              <button
+                type="button"
+                onClick={() => setIsDeptModalOpen(false)}
+                className="btn-primary text-xs"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 4: DEACTIVATE EMPLOYEE CONFIRMATION                 */}
+      {/* ======================================================== */}
       {deactivatingPerson && (
         <div
           onClick={(e) => {
@@ -867,7 +1974,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
             <div className="pb-2 border-b border-[#E5E5E5]">
               <h3 className="text-base font-bold text-[#EF4444]">Deactivate Employee Account</h3>
               <p className="text-xs text-[#595959] mt-0.5">
-                Revoke access to the workspace without deleting project records.
+                Revoke access to the workspace without deleting task and project records.
               </p>
             </div>
 
@@ -887,7 +1994,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
               <button
                 type="button"
                 onClick={() => setDeactivatingPerson(null)}
-                className="btn-secondary text-xs"
+                className="btn-secondary text-xs cursor-pointer"
               >
                 Cancel
               </button>

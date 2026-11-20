@@ -1164,6 +1164,8 @@ export default function Home() {
               {activeTab === 'people' && (
                 <PeopleView
                   people={people}
+                  projects={projects}
+                  tasks={tasks}
                   isAdmin={dashboardRole === 'admin'}
                   onOpenAddEmployee={
                     dashboardRole === 'admin'
@@ -1175,6 +1177,7 @@ export default function Home() {
                   }
                   onUpdateEmployee={handleUpdateEmployee}
                   onDeleteEmployee={handleDeleteEmployee}
+                  onNavigateToProjects={() => handleTabChange('projects')}
                 />
               )}
             </>

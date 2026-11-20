@@ -118,6 +118,48 @@ export interface WorkspaceStats {
   storageTotalGB: number;
 }
 
+export interface DepartmentRecord {
+  id: string;
+  name: string;
+  description?: string;
+  employeeCount?: number;
+  createdAt?: string;
+}
+
+export interface DesignationRecord {
+  id: string;
+  name: string;
+  departmentId?: string;
+  department?: string;
+  createdAt?: string;
+}
+
+export interface EmployeeActivityLog {
+  id: string;
+  employeeId?: string;
+  employeeEmail?: string;
+  employeeName?: string;
+  type:
+    | 'account_created'
+    | 'invitation_sent'
+    | 'invitation_resent'
+    | 'activated'
+    | 'deactivated'
+    | 'reactivated'
+    | 'profile_updated'
+    | 'department_changed'
+    | 'designation_changed'
+    | 'role_changed'
+    | 'project_assigned'
+    | 'project_removed'
+    | 'task_assigned'
+    | 'task_completed';
+  description: string;
+  performedBy: string;
+  timestamp: string;
+  createdAt: number;
+}
+
 export type WhatsAppConnectionStatus = 'connected' | 'demo' | 'disconnected' | 'error';
 
 export interface WhatsAppPreferences {

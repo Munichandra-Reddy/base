@@ -61,6 +61,25 @@ export async function POST(request: Request) {
     const userRef = doc(db, 'user_accounts', docId);
     await setDoc(userRef, updates, { merge: true });
 
+    // Record Activity Log
+    try {
+      const actId = `act_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+      const empData = empSnap.data();
+      await setDoc(doc(db, 'activityLogs', actId), {
+        id: actId,
+        employeeId: empData.employeeId || docId,
+        employeeEmail: email,
+        employeeName: empData.name || empData.fullName || email,
+        type: newStatus === 'active' ? 'reactivated' : 'deactivated',
+        description: `Employee account for ${empData.name || email} was ${newStatus === 'active' ? 'reactivated' : 'deactivated'}.`,
+        performedBy: 'Admin',
+        timestamp: new Date().toISOString(),
+        createdAt: Date.now(),
+      });
+    } catch (actErr) {
+      console.warn('Activity log record warning:', actErr);
+    }
+
     const statusActionText =
       newStatus === 'inactive'
         ? 'deactivated'

@@ -453,3 +453,103 @@ export const addFirebaseFile = async (file: FileItem) => {
     console.error('Error adding file to Firebase:', error);
   }
 };
+
+// ==========================================
+// 6. DEPARTMENTS & DESIGNATIONS (REAL-TIME SYNC)
+// ==========================================
+export const DEFAULT_DEPARTMENTS = [
+  'Engineering',
+  'Design',
+  'Product',
+  'Marketing',
+  'Sales',
+  'Human Resources',
+  'Finance',
+  'Operations',
+  'Customer Support',
+  'General',
+];
+
+export const DEFAULT_DESIGNATIONS = [
+  'Software Developer',
+  'Frontend Developer',
+  'Backend Developer',
+  'Full Stack Engineer',
+  'UI/UX Designer',
+  'Product Manager',
+  'Project Manager',
+  'Business Analyst',
+  'HR Executive',
+  'Marketing Executive',
+  'Team Lead',
+  'QA Engineer',
+];
+
+export const subscribeToDepartments = (callback: (depts: string[]) => void) => {
+  if (typeof window === 'undefined') return () => {};
+  try {
+    return onSnapshot(
+      collection(db, 'departments'),
+      (snapshot) => {
+        if (snapshot.empty) {
+          callback(DEFAULT_DEPARTMENTS);
+        } else {
+          const names = snapshot.docs.map((d) => d.data().name || d.id).filter(Boolean);
+          callback(names.length > 0 ? names : DEFAULT_DEPARTMENTS);
+        }
+      },
+      () => {
+        callback(DEFAULT_DEPARTMENTS);
+      }
+    );
+  } catch (e) {
+    callback(DEFAULT_DEPARTMENTS);
+    return () => {};
+  }
+};
+
+export const subscribeToDesignations = (callback: (desigs: string[]) => void) => {
+  if (typeof window === 'undefined') return () => {};
+  try {
+    return onSnapshot(
+      collection(db, 'designations'),
+      (snapshot) => {
+        if (snapshot.empty) {
+          callback(DEFAULT_DESIGNATIONS);
+        } else {
+          const names = snapshot.docs.map((d) => d.data().name || d.id).filter(Boolean);
+          callback(names.length > 0 ? names : DEFAULT_DESIGNATIONS);
+        }
+      },
+      () => {
+        callback(DEFAULT_DESIGNATIONS);
+      }
+    );
+  } catch (e) {
+    callback(DEFAULT_DESIGNATIONS);
+    return () => {};
+  }
+};
+
+export const recordEmployeeActivity = async (entry: {
+  employeeId?: string;
+  employeeEmail?: string;
+  employeeName?: string;
+  type: string;
+  description: string;
+  performedBy?: string;
+}) => {
+  try {
+    const actId = `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const actRef = doc(db, 'activityLogs', actId);
+    await setDoc(actRef, {
+      id: actId,
+      ...entry,
+      performedBy: entry.performedBy || 'Admin',
+      timestamp: new Date().toISOString(),
+      createdAt: Date.now(),
+    });
+  } catch (e) {
+    console.error('Error logging activity:', e);
+  }
+};
