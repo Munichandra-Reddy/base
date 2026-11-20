@@ -159,6 +159,7 @@ export function sendSmtpEmail(options: SmtpOptions): Promise<{ success: boolean;
             const emailHeaders = [
               `Date: ${dateHeader}`,
               `From: ${fromHeader}`,
+              `Sender: <${cleanUser}>`,
               `To: <${cleanTo}>`,
               `Reply-To: ${fromHeader}`,
               `Subject: ${encodedSubject}`,

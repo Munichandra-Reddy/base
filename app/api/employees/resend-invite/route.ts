@@ -100,14 +100,12 @@ export async function POST(request: Request) {
     const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
     const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
 
-    // Clean ASCII subject with verification code for 100% Primary / Normal Inbox deliverability
-    const emailSubject = `${actionCode} is your Basecamp verification code`;
+    // Professional, authentic invitation subject (RFC 5322 clean ASCII)
+    const emailSubject = `Welcome to Basecamp - Your Employee Account Invitation (Resent)`;
 
     const plainTextContent = `Hello ${fullName},
 
-Your Basecamp employee verification code is: ${actionCode}
-
-Your workspace administrator has resent your employee invitation link for Basecamp.
+Your workspace administrator has refreshed your employee account invitation for Basecamp.
 
 Account details:
 - Full Name: ${fullName}
@@ -117,10 +115,10 @@ Account details:
 - Department: ${department}
 - Designation: ${designation}
 
-Please set your permanent password using this secure link:
+To activate your account and choose your personal password, please visit the link below:
 ${setupPasswordLink}
 
-This invitation is valid for 48 hours.
+This invitation link is valid for 48 hours.
 
 Best regards,
 Basecamp Workspace Team`;
@@ -130,7 +128,7 @@ Basecamp Workspace Team`;
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Basecamp Employee Account Verification</title>
+  <title>Welcome to Basecamp</title>
 </head>
 <body style="margin: 0; padding: 24px 0; background-color: #F4F6F8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1F2937;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F4F6F8; margin: 0; padding: 0;">
@@ -161,25 +159,8 @@ Basecamp Workspace Team`;
                 Employee Account Invitation (Resent)
               </h1>
               <p style="font-size: 14px; line-height: 1.6; color: #4B5563; margin: 0 0 20px 0;">
-                Hello <strong>${fullName}</strong>, your workspace administrator has resent your employee invitation link for Basecamp. Use the verification code or the button below to set your confidential password.
+                Hello <strong>${fullName}</strong>, your workspace administrator has resent your employee invitation link for Basecamp. Please click the button below to set your confidential password.
               </p>
-
-              <!-- Verification Code Card -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; margin: 0 0 20px 0; text-align: center;">
-                <tr>
-                  <td style="padding: 18px 16px;">
-                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748B; margin-bottom: 6px;">
-                      Your Verification Code
-                    </div>
-                    <div style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #0F172A; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
-                      ${actionCode}
-                    </div>
-                    <div style="font-size: 11px; color: #64748B; margin-top: 6px;">
-                      Valid for 48 hours
-                    </div>
-                  </td>
-                </tr>
-              </table>
             </td>
           </tr>
 
@@ -210,8 +191,8 @@ Basecamp Workspace Team`;
           <!-- Action Button -->
           <tr>
             <td style="padding: 0 32px 24px 32px; text-align: center;">
-              <a href="${setupPasswordLink}" style="display: inline-block; background-color: #049FD9; color: #FFFFFF; font-weight: 600; font-size: 14px; text-decoration: none; padding: 12px 32px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
-                Set Your Password
+              <a href="${setupPasswordLink}" style="display: inline-block; background-color: #049FD9; color: #FFFFFF; font-weight: 600; font-size: 14px; text-decoration: none; padding: 13px 34px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                Activate Account & Set Password
               </a>
               <div style="font-size: 11px; color: #9CA3AF; margin-top: 10px;">
                 Link valid for 48 hours
