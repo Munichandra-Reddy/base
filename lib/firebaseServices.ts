@@ -387,9 +387,27 @@ export const subscribeToProjects = (callback: (projects: Project[]) => void) => 
 export const addFirebaseProject = async (project: Project) => {
   try {
     const docRef = doc(db, 'projects', project.id);
-    await setDoc(docRef, project);
+    await setDoc(docRef, project, { merge: true });
   } catch (error) {
     console.error('Error adding project to Firebase:', error);
+  }
+};
+
+export const updateFirebaseProject = async (id: string, updates: Partial<Project>) => {
+  try {
+    const docRef = doc(db, 'projects', id);
+    await setDoc(docRef, { ...updates, updatedAt: new Date().toISOString() }, { merge: true });
+  } catch (error) {
+    console.error('Error updating project in Firebase:', error);
+  }
+};
+
+export const deleteFirebaseProject = async (id: string) => {
+  try {
+    const docRef = doc(db, 'projects', id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error deleting project in Firebase:', error);
   }
 };
 

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { Project, Task, FileItem } from '@/lib/types';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Project, Task, FileItem, Person, ProjectStatus, ProjectPriority, EmployeeActivityLog } from '@/lib/types';
 import {
   FolderIcon,
   FileIcon,
@@ -17,75 +17,224 @@ import {
   ClockIcon,
   SearchIcon,
   PlusIcon,
+  ShieldCheckIcon,
+  ExternalLinkIcon,
+  RefreshCwIcon,
+  AlertCircleIcon,
 } from './Icons';
 import { getDirectFileBlobUrl, openProtectedDocument } from '@/lib/fileUtils';
+import { deduplicateEmployees } from '@/lib/firebaseServices';
 
+// ==========================================
+// 1. CUSTOM FILTER DROPDOWN (Strictly Opens Below)
+// ==========================================
+interface FilterDropdownProps {
+  label?: string;
+  value: string;
+  onChange: (val: string) => void;
+  options: Array<{ value: string; label: string }>;
+  align?: 'left' | 'right';
+  className?: string;
+}
+
+const FilterDropdown: React.FC<FilterDropdownProps> = ({
+  label,
+  value,
+  onChange,
+  options,
+  align = 'left',
+  className = '',
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  const selectedOption =
+    options.find((o) => o.value.toLowerCase() === value.toLowerCase()) || options[0];
+  const isSelected = value !== 'all' && value !== 'name_asc';
+
+  return (
+    <div className={`relative inline-block text-left ${className}`} ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border transition-all cursor-pointer whitespace-nowrap select-none ${
+          isSelected
+            ? 'bg-[#E0F2FE] border-[#049FD9] text-[#0284C7] font-semibold shadow-2xs'
+            : 'bg-[#F8FAFC] hover:bg-white border-[#E2E8F0] hover:border-[#CBD5E1] text-[#334155]'
+        }`}
+      >
+        {label && <span className="text-[#64748B] font-semibold">{label}:</span>}
+        <span className="truncate max-w-[130px] sm:max-w-[160px]">{selectedOption?.label || value}</span>
+        <svg
+          className={`w-3.5 h-3.5 text-[#64748B] transition-transform duration-150 shrink-0 ${
+            isOpen ? 'rotate-180 text-[#049FD9]' : ''
+          }`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div
+          className={`absolute top-full mt-1.5 w-max min-w-[190px] max-w-[320px] max-h-60 overflow-y-auto bg-white border border-[#E2E8F0] rounded-lg shadow-xl z-50 py-1 font-sans animate-in fade-in zoom-in-95 duration-100 ${
+            align === 'right' ? 'right-0' : 'left-0'
+          }`}
+          style={{ top: '100%' }}
+        >
+          {options.map((opt) => {
+            const active = opt.value.toLowerCase() === value.toLowerCase();
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between gap-3 transition-colors cursor-pointer ${
+                  active
+                    ? 'bg-[#F0F9FF] text-[#0284C7] font-bold'
+                    : 'text-[#1F2937] hover:bg-[#F8FAFC]'
+                }`}
+              >
+                <span className="truncate">{opt.label}</span>
+                {active && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ==========================================
+// 2. MAIN COMPONENT PROPS
+// ==========================================
 interface ProjectsViewProps {
   projects: Project[];
   tasks?: Task[];
   files?: FileItem[];
+  people?: Person[];
   onOpenCreateProject?: () => void;
   isAdmin?: boolean;
   currentUser?: { email: string; fullName: string; companyName: string; role?: string } | null;
   selectedProjectId?: string | null;
   onSelectProject?: (project: Project | null) => void;
+  onUpdateProject?: (project: Project) => void;
+  onDeleteProject?: (id: string) => void;
+  onNavigateToEmployee?: (email: string) => void;
 }
 
 export const ProjectsView: React.FC<ProjectsViewProps> = ({
   projects,
   tasks = [],
   files = [],
+  people = [],
   onOpenCreateProject,
   isAdmin = false,
   currentUser,
   selectedProjectId,
   onSelectProject,
+  onUpdateProject,
+  onDeleteProject,
+  onNavigateToEmployee,
 }) => {
-  const [viewMode, setViewMode] = useState<'list' | 'cards' | 'kanban'>('cards');
-  const [showFilter, setShowFilter] = useState('All Projects');
-  const [sortFilter, setSortFilter] = useState('Create Date');
-  const [groupFilter, setGroupFilter] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  // View mode: 'table' | 'cards' | 'kanban'
+  const [viewMode, setViewMode] = useState<'table' | 'cards' | 'kanban'>('table');
 
-  // Selected project for Details Page navigation ("next page")
+  // Search & Filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [managerFilter, setManagerFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'name_asc' | 'name_desc' | 'date_desc' | 'date_asc' | 'priority' | 'progress'>('date_desc');
+
+  // Selected project for details view
   const [selectedProject, setSelectedProject] = useState<Project | null>(() => {
     if (selectedProjectId) {
-      const found = projects.find(
-        (p) =>
-          p.id === selectedProjectId ||
-          p.name.toLowerCase().trim() === selectedProjectId.toLowerCase().trim()
+      return (
+        projects.find(
+          (p) =>
+            p.id === selectedProjectId ||
+            p.name.toLowerCase().trim() === selectedProjectId.toLowerCase().trim()
+        ) || null
       );
-      if (found) return found;
-    }
-    if (typeof window !== 'undefined' && window.location.hash.includes('project-')) {
-      const hashId = window.location.hash.replace('#project-', '');
-      const found = projects.find(
-        (p) =>
-          p.id === hashId ||
-          p.name.toLowerCase().trim() === hashId.toLowerCase().trim()
-      );
-      if (found) return found;
     }
     return null;
   });
 
-  // Active sub-tab inside Project Details Page: 'messages' | 'meetings' | 'tasks' | 'updates' | 'overview'
-  const [activeProjectTab, setActiveProjectTab] = useState<'messages' | 'meetings' | 'tasks' | 'updates' | 'overview'>('messages');
+  // Project Details sub-tab: 'overview' | 'team' | 'tasks' | 'messages' | 'meetings' | 'updates'
+  const [detailsTab, setDetailsTab] = useState<'overview' | 'team' | 'tasks' | 'messages' | 'meetings' | 'updates'>('overview');
 
-  // Messages sub-tabs: 'chats' (Personal) | 'groups' (Group Chat)
-  const [messagesTab, setMessagesTab] = useState<'chats' | 'groups'>('chats');
-  const [activeChatMember, setActiveChatMember] = useState<string | null>(null);
+  // Modals state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [managingTeamProject, setManagingTeamProject] = useState<Project | null>(null);
+  const [statusChangeProject, setStatusChangeProject] = useState<Project | null>(null);
+  const [archivingProject, setArchivingProject] = useState<Project | null>(null);
+
+  // Form states for Create / Edit
+  const [formName, setFormName] = useState('');
+  const [formDescription, setFormDescription] = useState('');
+  const [formCategory, setFormCategory] = useState('Web Development');
+  const [formManager, setFormManager] = useState('');
+  const [formManagerEmail, setFormManagerEmail] = useState('');
+  const [formMembers, setFormMembers] = useState<string[]>([]);
+  const [formStartDate, setFormStartDate] = useState('');
+  const [formEndDate, setFormEndDate] = useState('');
+  const [formPriority, setFormPriority] = useState<ProjectPriority>('medium');
+  const [formStatus, setFormStatus] = useState<ProjectStatus>('planning');
+  const [formNotes, setFormNotes] = useState('');
+
+  // Team management modal state
+  const [selectedNewMember, setSelectedNewMember] = useState('');
+  const [selectedNewPM, setSelectedNewPM] = useState('');
+
+  // Project activity logs
+  const [projectActivities, setProjectActivities] = useState<EmployeeActivityLog[]>([]);
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false);
+
+  // Notification Banner
+  const [actionNotice, setActionNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Collaboration state (Campfire & Updates)
   const [chatInputText, setChatInputText] = useState('');
-  
-  // Custom message logs per project & thread
   const [customMessages, setCustomMessages] = useState<Record<string, Array<{ id: string; sender: string; text: string; time: string }>>>({});
-
-  // Work Updates post input state
   const [newUpdateText, setNewUpdateText] = useState('');
   const [customUpdates, setCustomUpdates] = useState<Array<{ id: string; project: string; author: string; role: string; timeAgo: string; text: string; category: string }>>([]);
 
-  // Sync selectedProject with selectedProjectId prop
+  // Deduplicated real active employees from Employee Management
+  const activeEmployees = useMemo(() => {
+    const list = deduplicateEmployees(people || []);
+    return list.filter((p) => (p.status || 'active').toLowerCase() === 'active');
+  }, [people]);
+
+  // Sync selectedProject with prop
   useEffect(() => {
     if (selectedProjectId) {
       const found = projects.find(
@@ -93,1398 +242,1762 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           p.id === selectedProjectId ||
           p.name.toLowerCase().trim() === selectedProjectId.toLowerCase().trim()
       );
-      if (found) {
-        setSelectedProject(found);
-      }
-    } else if (selectedProjectId === null && (!window.location.hash || !window.location.hash.includes('project-'))) {
+      if (found) setSelectedProject(found);
+    } else if (selectedProjectId === null) {
       setSelectedProject(null);
     }
   }, [selectedProjectId, projects]);
 
-  // BROWSER BACK (←) AND FORWARD (→) BUTTON NAVIGATION HANDLING
-  const handleSelectProject = (project: Project) => {
-    setSelectedProject(project);
-    setActiveProjectTab('messages');
-    if (onSelectProject) {
-      onSelectProject(project);
-    }
-    if (typeof window !== 'undefined') {
-      window.history.pushState({ tab: 'projects', projectId: project.id, view: 'project_details' }, '', `#project-${project.id}`);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const handleBackToProjects = () => {
-    setSelectedProject(null);
-    setActiveProjectTab('messages');
-    if (onSelectProject) {
-      onSelectProject(null);
-    }
-    if (typeof window !== 'undefined') {
-      window.history.pushState({ tab: 'projects', view: 'projects_list' }, '', '#projects');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
+  // Keep internal selectedProject updated when `projects` prop changes
   useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
-      if (e.state && e.state.projectId) {
-        const found = projects.find(
-          (p) =>
-            p.id === e.state.projectId ||
-            p.name.toLowerCase().trim() === e.state.projectId.toLowerCase().trim()
-        );
-        if (found) {
-          setSelectedProject(found);
-          if (onSelectProject) onSelectProject(found);
-          return;
-        }
-      }
-
-      if (typeof window !== 'undefined' && window.location.hash.includes('project-')) {
-        const hashId = window.location.hash.replace('#project-', '');
-        const found = projects.find(
-          (p) =>
-            p.id === hashId ||
-            p.name.toLowerCase().trim() === hashId.toLowerCase().trim()
-        );
-        if (found) {
-          setSelectedProject(found);
-          if (onSelectProject) onSelectProject(found);
-          return;
-        }
-      }
-
-      setSelectedProject(null);
-      if (onSelectProject) onSelectProject(null);
-    };
-
-    window.addEventListener('popstate', handlePopState);
-
-    // Initial check on mount if URL has #project-id
-    if (typeof window !== 'undefined' && window.location.hash.includes('project-')) {
-      const hashId = window.location.hash.replace('#project-', '');
-      const found = projects.find(
-        (p) =>
-          p.id === hashId ||
-          p.name.toLowerCase().trim() === hashId.toLowerCase().trim()
-      );
-      if (found) {
-        setSelectedProject(found);
-        if (onSelectProject) onSelectProject(found);
-      }
+    if (selectedProject) {
+      const updated = projects.find((p) => p.id === selectedProject.id);
+      if (updated) setSelectedProject(updated);
     }
-
-    return () => window.removeEventListener('popstate', handlePopState);
   }, [projects]);
 
-  // Dynamically filter & sort projects
-  const processedProjects = useMemo(() => {
-    let result = [...projects];
-
-    if (showFilter === 'My Projects') {
-      const userIdentifier = (currentUser?.fullName || '').toLowerCase().trim();
-      const userEmail = (currentUser?.email || '').toLowerCase().trim();
-      result = result.filter((p) => {
-        const membersLower = (p.members || []).map((m) => m.toLowerCase());
-        const managerLower = (p.manager || '').toLowerCase();
-        return (
-          membersLower.some((m) => m.includes(userIdentifier) || (userEmail && m.includes(userEmail))) ||
-          managerLower.includes(userIdentifier)
-        );
+  // Fetch project activity logs when viewing project details
+  useEffect(() => {
+    if (!selectedProject) {
+      setProjectActivities([]);
+      return;
+    }
+    setIsLoadingActivities(true);
+    fetch(`/api/activity?projectId=${encodeURIComponent(selectedProject.id)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setIsLoadingActivities(false);
+        if (data.success && Array.isArray(data.activities)) {
+          setProjectActivities(data.activities);
+        } else {
+          setProjectActivities([]);
+        }
+      })
+      .catch(() => {
+        setIsLoadingActivities(false);
+        setProjectActivities([]);
       });
-    } else if (showFilter !== 'All Projects') {
-      result = result.filter((p) => {
+  }, [selectedProject?.id]);
+
+  // Employee Role-Based Access: Non-admin employees see ONLY assigned projects
+  const accessibleProjects = useMemo(() => {
+    if (isAdmin) return projects;
+
+    const userEmail = (currentUser?.email || '').toLowerCase().trim();
+    const userName = (currentUser?.fullName || '').toLowerCase().trim();
+
+    return projects.filter((p) => {
+      const isPM =
+        (p.managerEmail && p.managerEmail.toLowerCase() === userEmail) ||
+        (p.manager && p.manager.toLowerCase().includes(userName));
+      const isMember = (p.members || []).some((m) => {
+        const ml = m.toLowerCase();
+        return ml.includes(userEmail) || ml.includes(userName);
+      });
+      return isPM || isMember;
+    });
+  }, [projects, isAdmin, currentUser]);
+
+  // Dynamic Summary Metrics (from actual database projects)
+  const summaryMetrics = useMemo(() => {
+    const total = accessibleProjects.length;
+    const active = accessibleProjects.filter((p) => (p.status || '').toLowerCase() === 'active').length;
+    const planning = accessibleProjects.filter((p) => (p.status || '').toLowerCase() === 'planning').length;
+    const onHold = accessibleProjects.filter((p) => {
+      const s = (p.status || '').toLowerCase();
+      return s === 'on_hold' || s === 'on hold';
+    }).length;
+    const completed = accessibleProjects.filter((p) => (p.status || '').toLowerCase() === 'completed').length;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const overdue = accessibleProjects.filter((p) => {
+      const deadline = p.endDate || p.deadline;
+      if (!deadline) return false;
+      const s = (p.status || '').toLowerCase();
+      return deadline < todayStr && s !== 'completed' && s !== 'cancelled';
+    }).length;
+
+    return { total, active, planning, onHold, completed, overdue };
+  }, [accessibleProjects]);
+
+  // Filtered & Sorted Projects List
+  const displayedProjects = useMemo(() => {
+    let list = [...accessibleProjects];
+
+    // Status Filter
+    if (statusFilter !== 'all') {
+      list = list.filter((p) => {
         const s = (p.status || '').toLowerCase();
-        const target = showFilter.toLowerCase();
-        if (target === 'active') return s.includes('active');
-        if (target === 'design') return s.includes('design');
-        if (target === 'brief') return s.includes('brief') || s.includes('hold');
-        if (target === 'completed') return s.includes('completed');
+        if (statusFilter === 'on_hold') return s === 'on_hold' || s === 'on hold';
+        return s === statusFilter.toLowerCase();
+      });
+    }
+
+    // Priority Filter
+    if (priorityFilter !== 'all') {
+      list = list.filter((p) => (p.priority || 'medium').toLowerCase() === priorityFilter.toLowerCase());
+    }
+
+    // Manager Filter
+    if (managerFilter !== 'all') {
+      list = list.filter((p) => (p.manager || '').toLowerCase().trim() === managerFilter.toLowerCase().trim());
+    }
+
+    // Date Filter
+    if (dateFilter !== 'all') {
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const currentYearMonth = todayStr.substring(0, 7);
+
+      list = list.filter((p) => {
+        const d = p.endDate || p.deadline;
+        if (!d) return false;
+        if (dateFilter === 'overdue') {
+          return d < todayStr && p.status !== 'completed' && p.status !== 'cancelled';
+        }
+        if (dateFilter === 'this_month') {
+          return d.startsWith(currentYearMonth);
+        }
+        if (dateFilter === 'recent') {
+          return d >= thirtyDaysAgo;
+        }
         return true;
       });
     }
 
-    if (groupFilter !== 'All') {
-      result = result.filter((p) => {
-        const s = (p.status || '').toLowerCase();
-        const prio = (p.priority || '').toLowerCase();
-        const target = groupFilter.toLowerCase();
-
-        if (target === 'design') return s.includes('design');
-        if (target === 'active') return s.includes('active');
-        if (target === 'brief') return s.includes('brief') || s.includes('hold');
-        if (target === 'high priority') return prio === 'high';
-        if (target === 'medium priority') return prio === 'medium';
-        if (target === 'low priority') return prio === 'low';
-        return true;
-      });
-    }
-
+    // Search Query (Project Name, ID, Manager, Category)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      result = result.filter(
-        (p) =>
+      list = list.filter((p) => {
+        return (
           p.name.toLowerCase().includes(q) ||
-          (p.status || '').toLowerCase().includes(q) ||
-          (p.priority || '').toLowerCase().includes(q) ||
-          p.members.some((m) => m.toLowerCase().includes(q))
-      );
+          (p.projectId && p.projectId.toLowerCase().includes(q)) ||
+          p.id.toLowerCase().includes(q) ||
+          (p.manager && p.manager.toLowerCase().includes(q)) ||
+          (p.category && p.category.toLowerCase().includes(q)) ||
+          p.description.toLowerCase().includes(q)
+        );
+      });
     }
 
-    result.sort((a, b) => {
-      if (sortFilter === 'Name') {
-        return a.name.localeCompare(b.name);
+    // Sorting
+    list.sort((a, b) => {
+      if (sortBy === 'name_asc') return a.name.localeCompare(b.name);
+      if (sortBy === 'name_desc') return b.name.localeCompare(a.name);
+      if (sortBy === 'date_desc') {
+        const da = a.endDate || a.deadline || '';
+        const db = b.endDate || b.deadline || '';
+        return db.localeCompare(da);
       }
-      if (sortFilter === 'Progress') {
-        return b.progress - a.progress;
+      if (sortBy === 'date_asc') {
+        const da = a.endDate || a.deadline || '';
+        const db = b.endDate || b.deadline || '';
+        return da.localeCompare(db);
       }
-      if (sortFilter === 'Priority') {
-        const weight: Record<string, number> = { high: 3, medium: 2, low: 1 };
-        const wA = weight[a.priority || 'low'] || 1;
-        const wB = weight[b.priority || 'low'] || 1;
-        return wB - wA;
+      if (sortBy === 'progress') {
+        return (b.progress || 0) - (a.progress || 0);
       }
-      if (sortFilter === 'Deadline') {
-        return (a.deadline || '').localeCompare(b.deadline || '');
+      if (sortBy === 'priority') {
+        const pOrder: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+        const pa = pOrder[(a.priority || 'medium').toLowerCase()] || 0;
+        const pb = pOrder[(b.priority || 'medium').toLowerCase()] || 0;
+        return pb - pa;
       }
       return 0;
     });
 
-    return result;
-  }, [projects, showFilter, groupFilter, searchQuery, sortFilter]);
+    return list;
+  }, [accessibleProjects, statusFilter, priorityFilter, managerFilter, dateFilter, searchQuery, sortBy]);
 
-  // Dynamic documents for the selected project
-  const projectDocs = useMemo(() => {
-    if (!selectedProject) return [];
-    const fromProject = selectedProject.requiredDocuments || [];
-    const fromFiles = (files || [])
-      .filter((f) => f.project.toLowerCase().trim() === selectedProject.name.toLowerCase().trim())
-      .map((f) => f.name);
-    return Array.from(new Set([...fromProject, ...fromFiles]));
-  }, [selectedProject, files]);
+  // Reset Filters
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('all');
+    setPriorityFilter('all');
+    setManagerFilter('all');
+    setDateFilter('all');
+    setSortBy('date_desc');
+  };
 
-  const handleViewDocument = async (docName: string) => {
-    let fileUrl: string | undefined;
+  // Distinct Project Managers for Dropdown
+  const projectManagerOptions = useMemo(() => {
+    const managers = new Set<string>();
+    projects.forEach((p) => {
+      if (p.manager) managers.add(p.manager.trim());
+    });
+    return Array.from(managers).sort();
+  }, [projects]);
 
-    const existingFile = (files || []).find(
-      (f) => f.name.toLowerCase().trim() === docName.toLowerCase().trim()
+  // Status Badge Helper
+  const renderStatusBadge = (status?: ProjectStatus | string) => {
+    const s = (status || 'planning').toLowerCase();
+    if (s === 'active') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+          Active
+        </span>
+      );
+    }
+    if (s === 'planning') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#EFF6FF] text-[#3B82F6] border border-[#3B82F6]/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]" />
+          Planning
+        </span>
+      );
+    }
+    if (s === 'on_hold' || s === 'on hold') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FEF3C7] text-[#D97706] border border-[#D97706]/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#D97706]" />
+          On Hold
+        </span>
+      );
+    }
+    if (s === 'completed') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#F0FDF4] text-[#16A34A] border border-[#16A34A]/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
+          Completed
+        </span>
+      );
+    }
+    if (s === 'cancelled') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FEF2F2] text-[#EF4444] border border-[#EF4444]/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" />
+          Cancelled
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#F1F5F9] text-[#64748B] border border-[#CBD5E1]">
+        {status}
+      </span>
     );
-    if (existingFile && existingFile.fileUrl) {
-      fileUrl = existingFile.fileUrl;
+  };
+
+  // Priority Badge Helper
+  const renderPriorityBadge = (priority?: ProjectPriority | string) => {
+    const p = (priority || 'medium').toLowerCase();
+    if (p === 'critical') {
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#FEF2F2] text-[#991B1B] border border-[#F87171]">
+          Critical
+        </span>
+      );
+    }
+    if (p === 'high') {
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#FFF1F2] text-[#E11D48] border border-[#FDA4AF]">
+          High
+        </span>
+      );
+    }
+    if (p === 'medium') {
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-[#FEF3C7] text-[#B45309] border border-[#FCD34D]">
+          Medium
+        </span>
+      );
+    }
+    return (
+      <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-[#F1F5F9] text-[#475569] border border-[#CBD5E1]">
+        Low
+      </span>
+    );
+  };
+
+  // Open Create Project Modal
+  const handleOpenCreate = () => {
+    const now = new Date();
+    const start = now.toISOString().split('T')[0];
+    const end = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    setFormName('');
+    setFormDescription('');
+    setFormCategory('Web Development');
+    const defaultPM = activeEmployees[0]?.name || currentUser?.fullName || 'Workspace Admin';
+    const defaultPMEmail = activeEmployees[0]?.email || currentUser?.email || '';
+    setFormManager(defaultPM);
+    setFormManagerEmail(defaultPMEmail);
+    setFormMembers([defaultPM]);
+    setFormStartDate(start);
+    setFormEndDate(end);
+    setFormPriority('medium');
+    setFormStatus('planning');
+    setFormNotes('');
+    setIsCreateModalOpen(true);
+  };
+
+  // Submit Create Project Form
+  const handleSaveCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formName.trim() || !formDescription.trim()) return;
+    if (new Date(formEndDate).getTime() < new Date(formStartDate).getTime()) {
+      setActionNotice({ type: 'error', message: 'Project End Date must be after the Start Date.' });
+      return;
     }
 
-    openProtectedDocument(docName, fileUrl, selectedProject?.name || 'Workspace');
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          name: formName.trim(),
+          description: formDescription.trim(),
+          category: formCategory.trim(),
+          manager: formManager.trim(),
+          managerEmail: formManagerEmail.trim(),
+          members: formMembers,
+          startDate: formStartDate,
+          endDate: formEndDate,
+          priority: formPriority,
+          status: formStatus,
+          notes: formNotes.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.project) {
+        setIsCreateModalOpen(false);
+        setActionNotice({
+          type: 'success',
+          message: data.message || `Project "${formName}" has been created successfully.`,
+        });
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to create project.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Network error creating project.' });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const hasActiveFilters =
-    showFilter !== 'All Projects' ||
-    groupFilter !== 'All' ||
-    sortFilter !== 'Create Date' ||
-    searchQuery !== '';
-
-  const handleResetFilters = () => {
-    setShowFilter('All Projects');
-    setGroupFilter('All');
-    setSortFilter('Create Date');
-    setSearchQuery('');
-    setIsSearchOpen(false);
+  // Open Edit Project Modal
+  const handleOpenEdit = (project: Project) => {
+    setEditingProject(project);
+    setFormName(project.name);
+    setFormDescription(project.description || '');
+    setFormCategory(project.category || 'General');
+    setFormManager(project.manager || '');
+    setFormManagerEmail(project.managerEmail || '');
+    setFormMembers(project.members || []);
+    setFormStartDate(project.startDate || new Date().toISOString().split('T')[0]);
+    setFormEndDate(project.endDate || project.deadline || '');
+    setFormPriority((project.priority as ProjectPriority) || 'medium');
+    setFormStatus((project.status as ProjectStatus) || 'planning');
+    setFormNotes(project.notes || '');
   };
 
-  const handleSendMessage = (threadKey: string) => {
-    if (!chatInputText.trim()) return;
-    const newMsg = {
-      id: `msg-${Date.now()}`,
-      sender: selectedProject?.members[0] || 'Rahul Kumar',
-      text: chatInputText.trim(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
+  // Save Edit Project
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProject) return;
 
-    setCustomMessages((prev) => ({
-      ...prev,
-      [threadKey]: [...(prev[threadKey] || []), newMsg],
-    }));
+    if (formStartDate && formEndDate && new Date(formEndDate).getTime() < new Date(formStartDate).getTime()) {
+      setActionNotice({ type: 'error', message: 'Project End Date must be after the Start Date.' });
+      return;
+    }
 
-    setChatInputText('');
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    try {
+      const res = await fetch('/api/projects/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          id: editingProject.id,
+          name: formName.trim(),
+          description: formDescription.trim(),
+          category: formCategory.trim(),
+          manager: formManager.trim(),
+          managerEmail: formManagerEmail.trim(),
+          members: formMembers,
+          startDate: formStartDate,
+          endDate: formEndDate,
+          priority: formPriority,
+          status: formStatus,
+          notes: formNotes.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.project) {
+        if (onUpdateProject) onUpdateProject(data.project);
+        setEditingProject(null);
+        setActionNotice({
+          type: 'success',
+          message: `Project "${formName}" updated successfully in database.`,
+        });
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to update project.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Network error updating project.' });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handlePostWorkUpdate = () => {
-    if (!newUpdateText.trim() || !selectedProject) return;
-    const author = selectedProject.members[0] || 'Rahul Kumar';
-    const newUpdate = {
-      id: `upd-${Date.now()}`,
-      project: selectedProject.name,
-      author,
-      role: 'Project Lead',
-      timeAgo: 'Just now',
-      text: newUpdateText.trim(),
-      category: 'Verified Submission',
-    };
+  // Quick Change Status
+  const handleSaveStatusChange = async (newStatus: ProjectStatus) => {
+    if (!statusChangeProject) return;
+    setIsProcessing(true);
+    setActionNotice(null);
 
-    setCustomUpdates((prev) => [newUpdate, ...prev]);
-    setNewUpdateText('');
+    try {
+      const res = await fetch('/api/projects/status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          id: statusChangeProject.id,
+          status: newStatus,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setStatusChangeProject(null);
+        setActionNotice({
+          type: 'success',
+          message: `Project status changed to "${newStatus}".`,
+        });
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to update status.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Network error updating status.' });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  // IF A PROJECT IS CLICKED, RENDER DEDICATED PROJECT DETAILS PAGE ("NEXT PAGE")
+  // Add Member via Manage Team Modal
+  const handleAddTeamMember = async () => {
+    if (!managingTeamProject || !selectedNewMember) return;
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    try {
+      const targetEmp = activeEmployees.find((e) => e.name === selectedNewMember || e.email === selectedNewMember);
+      const res = await fetch('/api/projects/team', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          projectId: managingTeamProject.id,
+          action: 'add_member',
+          memberName: targetEmp?.name || selectedNewMember,
+          memberEmail: targetEmp?.email || '',
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.members) {
+        const updated = { ...managingTeamProject, members: data.members };
+        setManagingTeamProject(updated);
+        if (selectedProject?.id === updated.id) setSelectedProject(updated);
+        setSelectedNewMember('');
+        setActionNotice({ type: 'success', message: data.message });
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to add member.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Network error adding member.' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Remove Member via Manage Team Modal
+  const handleRemoveTeamMember = async (memberIdentifier: string) => {
+    if (!managingTeamProject) return;
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    try {
+      const res = await fetch('/api/projects/team', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          projectId: managingTeamProject.id,
+          action: 'remove_member',
+          member: memberIdentifier,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.members) {
+        const updated = { ...managingTeamProject, members: data.members };
+        setManagingTeamProject(updated);
+        if (selectedProject?.id === updated.id) setSelectedProject(updated);
+        setActionNotice({ type: 'success', message: data.message });
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to remove member.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Network error removing member.' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Change PM via Manage Team Modal
+  const handleChangePM = async () => {
+    if (!managingTeamProject || !selectedNewPM) return;
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    try {
+      const targetEmp = activeEmployees.find((e) => e.name === selectedNewPM || e.email === selectedNewPM);
+      const res = await fetch('/api/projects/team', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          projectId: managingTeamProject.id,
+          action: 'change_manager',
+          newManagerName: targetEmp?.name || selectedNewPM,
+          newManagerEmail: targetEmp?.email || '',
+          newManagerId: targetEmp?.employeeId || targetEmp?.id || '',
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        const updated = {
+          ...managingTeamProject,
+          manager: data.manager,
+          members: data.members,
+        };
+        setManagingTeamProject(updated);
+        if (selectedProject?.id === updated.id) setSelectedProject(updated);
+        setSelectedNewPM('');
+        setActionNotice({ type: 'success', message: data.message });
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to change Project Manager.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Network error changing Project Manager.' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Archive or Delete Project
+  const handleConfirmArchive = async (action: 'archive' | 'delete') => {
+    if (!archivingProject) return;
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    try {
+      const res = await fetch('/api/projects/archive', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          id: archivingProject.id,
+          action,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        if (action === 'delete' && onDeleteProject) {
+          onDeleteProject(archivingProject.id);
+        }
+        if (selectedProject?.id === archivingProject.id) {
+          setSelectedProject(null);
+          if (onSelectProject) onSelectProject(null);
+        }
+        setArchivingProject(null);
+        setActionNotice({ type: 'success', message: data.message });
+      } else {
+        setActionNotice({ type: 'error', message: data.error || `Failed to ${action} project.` });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || `Network error during ${action}.` });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Member toggle for multi-select inside forms
+  const toggleFormMember = (empName: string) => {
+    if (formMembers.includes(empName)) {
+      if (empName === formManager) {
+        // PM cannot be unselected from team members
+        setActionNotice({
+          type: 'error',
+          message: 'The Project Manager must remain a member of the project team.',
+        });
+        return;
+      }
+      setFormMembers(formMembers.filter((m) => m !== empName));
+    } else {
+      setFormMembers([...formMembers, empName]);
+    }
+  };
+
+  // Member details helper: links members to actual `people` profile
+  const getMemberProfile = (memberStr: string): Person | undefined => {
+    const clean = memberStr.toLowerCase().trim();
+    return people.find((p) => {
+      return (
+        p.name.toLowerCase().trim() === clean ||
+        p.email.toLowerCase().trim() === clean ||
+        (p.employeeId && p.employeeId.toLowerCase().trim() === clean)
+      );
+    });
+  };
+
+  // Calculate task metrics for a project
+  const getProjectTaskMetrics = (proj: Project) => {
+    const pTasks = (tasks || []).filter(
+      (t) =>
+        (t.project && t.project.toLowerCase().trim() === proj.name.toLowerCase().trim()) ||
+        (t as any).projectId === proj.id
+    );
+    const total = pTasks.length;
+    const completed = pTasks.filter((t) => t.completed).length;
+    const inProgress = pTasks.filter((t) => !t.completed && (t.status === 'in_progress' || (t as any).inProgress)).length;
+    const pending = total - completed - inProgress;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const overdue = pTasks.filter((t) => !t.completed && t.dueDate && t.dueDate < todayStr).length;
+    const completionRate = total > 0 ? Math.round((completed / total) * 100) : proj.progress || 0;
+
+    return { total, completed, inProgress, pending, overdue, completionRate, pTasks };
+  };
+
+  // ==========================================
+  // VIEW 1: DEDICATED PROJECT DETAILS PAGE ("Next Page")
+  // ==========================================
   if (selectedProject) {
-    const projectMembers = selectedProject.members || ['Rahul Kumar'];
-    const projectLead = projectMembers[0] || 'Rahul Kumar';
-    const otherMembers = projectMembers.filter((m) => m !== projectLead);
-    const memberForPersonalChat = activeChatMember || (otherMembers[0] || projectMembers[0]);
+    const taskMetrics = getProjectTaskMetrics(selectedProject);
+    const pmProfile = getMemberProfile(selectedProject.manager || selectedProject.managerEmail || '');
+    const todayStr = new Date().toISOString().split('T')[0];
+    const isOverdue =
+      Boolean(selectedProject.endDate && selectedProject.endDate < todayStr) &&
+      selectedProject.status !== 'completed' &&
+      selectedProject.status !== 'cancelled';
 
-    const projectTasks = (tasks || []).filter(
-      (t) => t.project.toLowerCase().trim() === selectedProject.name.toLowerCase().trim()
-    );
-
-    const projectWorkUpdates = customUpdates.filter(
-      (u) => u.project.toLowerCase().trim() === selectedProject.name.toLowerCase().trim()
-    );
+    // Days remaining calculation
+    let daysRemainingText = 'On schedule';
+    if (selectedProject.endDate) {
+      const diffMs = new Date(selectedProject.endDate).getTime() - new Date().getTime();
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) {
+        daysRemainingText = `${Math.abs(diffDays)} days overdue`;
+      } else if (diffDays === 0) {
+        daysRemainingText = 'Due today';
+      } else {
+        daysRemainingText = `${diffDays} days remaining`;
+      }
+    }
 
     return (
-      <div className="space-y-6 font-sans animate-in fade-in duration-150 text-[#0F172A] w-full">
-        
-        {/* Navigation Top Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-[#E2E8F0] shadow-micro">
-          <div className="flex items-center gap-4 flex-wrap">
+      <div className="space-y-5 font-sans w-full">
+        {/* Top Breadcrumb & Action Header */}
+        <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={handleBackToProjects}
-              className="btn-secondary"
+              onClick={() => {
+                setSelectedProject(null);
+                if (onSelectProject) onSelectProject(null);
+              }}
+              className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
             >
-              <span className="text-sm font-extrabold">←</span>
-              <span>Back to Projects</span>
+              <span>← Back to Projects</span>
             </button>
-
-            <div className="hidden sm:block h-6 w-px bg-[#E2E8F0]" />
-
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#011826] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center">
-                <FolderIcon className="w-4 h-4 text-[#049FD9]" />
+            <div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-xl font-bold text-[#111827]">{selectedProject.name}</h1>
+                <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-[#E0F2FE] text-[#0284C7] border border-[#BAE6FD]">
+                  {selectedProject.projectId || selectedProject.id}
+                </span>
+                {renderStatusBadge(selectedProject.status)}
+                {renderPriorityBadge(selectedProject.priority)}
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-bold text-[#111827] tracking-tight">{selectedProject.name}</h2>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0] uppercase tracking-wider">
-                    {selectedProject.status || 'Active'}
-                  </span>
-                </div>
-                <p className="text-xs text-[#595959] font-normal mt-0.5">
-                  Updated {selectedProject.updatedAt || 'Recently'}
-                </p>
-              </div>
+              <p className="text-xs text-[#64748B] mt-0.5">
+                Category: <span className="font-semibold text-[#111827]">{selectedProject.category || 'General'}</span> • PM:{' '}
+                <span className="font-semibold text-[#111827]">{selectedProject.manager || 'Workspace Admin'}</span>
+              </p>
             </div>
           </div>
 
-          {isAdmin && onOpenCreateProject && (
-            <div className="flex items-center gap-2 self-end sm:self-auto">
-              <button
-                type="button"
-                onClick={onOpenCreateProject}
-                className="btn-primary"
-              >
-                <PlusIcon className="w-4 h-4" />
-                <span>New Project</span>
-              </button>
-            </div>
-          )}
+          {/* Quick Actions (Admin only) */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {isAdmin && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setManagingTeamProject(selectedProject)}
+                  className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <UserPlusIcon className="w-3.5 h-3.5 text-[#64748B]" />
+                  <span>Manage Team</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatusChangeProject(selectedProject)}
+                  className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <RefreshCwIcon className="w-3.5 h-3.5 text-[#64748B]" />
+                  <span>Change Status</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOpenEdit(selectedProject)}
+                  className="btn-primary py-1.5 px-3.5 text-xs font-semibold cursor-pointer"
+                >
+                  Edit Project
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
-        {/* 5 TOP SUB-TABS (Messages, Meetings, Tasks, Work Updates, Overview) */}
-        <div className="bg-[#F4F6F8] rounded-lg p-1 flex items-center gap-1 text-xs font-medium border border-[#E5E5E5] overflow-x-auto scrollbar-none whitespace-nowrap">
-          <button
-            type="button"
-            onClick={() => setActiveProjectTab('messages')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              activeProjectTab === 'messages'
-                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
-                : 'text-[#595959] hover:text-[#111827]'
+        {/* Action Notice Alert */}
+        {actionNotice && (
+          <div
+            className={`p-3.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-150 ${
+              actionNotice.type === 'success'
+                ? 'bg-[#F0FDF4] border border-[#16A34A]/30 text-[#16A34A]'
+                : 'bg-[#FEF2F2] border border-[#EF4444]/30 text-[#EF4444]'
             }`}
           >
-            <ChatIcon className={`w-4 h-4 ${activeProjectTab === 'messages' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
+            <div className="flex items-center gap-2">
+              <span>{actionNotice.type === 'success' ? '✓' : '⚠️'}</span>
+              <span>{actionNotice.message}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActionNotice(null)}
+              className="text-xs opacity-70 hover:opacity-100 font-bold ml-2 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* Sub-tabs Navigation */}
+        <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs px-4 flex items-center gap-2 overflow-x-auto text-xs font-semibold">
+          <button
+            type="button"
+            onClick={() => setDetailsTab('overview')}
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer ${
+              detailsTab === 'overview'
+                ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                : 'border-transparent text-[#64748B] hover:text-[#111827]'
+            }`}
+          >
+            Overview & Metrics
+          </button>
+          <button
+            type="button"
+            onClick={() => setDetailsTab('team')}
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+              detailsTab === 'team'
+                ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                : 'border-transparent text-[#64748B] hover:text-[#111827]'
+            }`}
+          >
+            <span>Project Team</span>
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#E2E8F0] text-[#475569]">
+              {(selectedProject.members || []).length}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setDetailsTab('tasks')}
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+              detailsTab === 'tasks'
+                ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                : 'border-transparent text-[#64748B] hover:text-[#111827]'
+            }`}
+          >
+            <span>Tasks</span>
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#E2E8F0] text-[#475569]">
+              {taskMetrics.total}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setDetailsTab('messages')}
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+              detailsTab === 'messages'
+                ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                : 'border-transparent text-[#64748B] hover:text-[#111827]'
+            }`}
+          >
+            <ChatIcon className="w-3.5 h-3.5" />
             <span>Messages</span>
           </button>
-
           <button
             type="button"
-            onClick={() => setActiveProjectTab('meetings')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              activeProjectTab === 'meetings'
-                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
-                : 'text-[#595959] hover:text-[#111827]'
+            onClick={() => setDetailsTab('meetings')}
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+              detailsTab === 'meetings'
+                ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                : 'border-transparent text-[#64748B] hover:text-[#111827]'
             }`}
           >
-            <VideoIcon className={`w-4 h-4 ${activeProjectTab === 'meetings' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
+            <VideoIcon className="w-3.5 h-3.5" />
             <span>Meetings</span>
           </button>
-
           <button
             type="button"
-            onClick={() => setActiveProjectTab('tasks')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              activeProjectTab === 'tasks'
-                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
-                : 'text-[#595959] hover:text-[#111827]'
+            onClick={() => setDetailsTab('updates')}
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+              detailsTab === 'updates'
+                ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                : 'border-transparent text-[#64748B] hover:text-[#111827]'
             }`}
           >
-            <CheckSquareIcon className={`w-4 h-4 ${activeProjectTab === 'tasks' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
-            <span>Tasks</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveProjectTab('updates')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              activeProjectTab === 'updates'
-                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
-                : 'text-[#595959] hover:text-[#111827]'
-            }`}
-          >
-            <FileIcon className={`w-4 h-4 ${activeProjectTab === 'updates' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
+            <ClockIcon className="w-3.5 h-3.5" />
             <span>Work Updates</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveProjectTab('overview')}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              activeProjectTab === 'overview'
-                ? 'bg-white text-[#111827] shadow-2xs font-semibold'
-                : 'text-[#595959] hover:text-[#111827]'
-            }`}
-          >
-            <FolderIcon className={`w-4 h-4 ${activeProjectTab === 'overview' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
-            <span>Overview & Docs</span>
           </button>
         </div>
 
-        {/* TAB CONTENT AREA */}
-        
-        {/* TAB 1: MESSAGES (PERSONAL & GROUP CHATS FOR PROJECT MEMBERS ONLY) */}
-        {activeProjectTab === 'messages' && (
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-5 animate-in fade-in duration-150">
-            {/* Sub-Switch: Chats / Groups */}
-            <div className="flex items-center gap-3 pb-3 border-b border-[#E2E8F0]">
-              <button
-                type="button"
-                onClick={() => setMessagesTab('chats')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  messagesTab === 'chats'
-                    ? 'bg-[#6CC04A] text-white shadow-micro'
-                    : 'bg-[#EBF0F5] text-[#334155] hover:bg-slate-200'
-                }`}
-              >
-                Chats
-              </button>
-              <button
-                type="button"
-                onClick={() => setMessagesTab('groups')}
-                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  messagesTab === 'groups'
-                    ? 'bg-[#6CC04A] text-white shadow-micro'
-                    : 'bg-[#EBF0F5] text-[#334155] hover:bg-slate-200'
-                }`}
-              >
-                <span>Groups</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${messagesTab === 'groups' ? 'bg-[#5bb33b] text-white' : 'bg-white text-[#0F172A]'}`}>
-                  {projectMembers.length}
-                </span>
-              </button>
-            </div>
+        {/* TAB 1: OVERVIEW & METRICS */}
+        {detailsTab === 'overview' && (
+          <div className="space-y-5">
+            {/* 4 Overview Grid Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Section A: Project Overview */}
+              <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3 text-xs">
+                <h3 className="font-bold text-[#111827] uppercase tracking-wider text-[11px] border-b border-[#F1F5F9] pb-2 flex items-center justify-between">
+                  <span>Project Overview</span>
+                  <span className="text-[#049FD9] font-mono font-bold">{selectedProject.projectId || selectedProject.id}</span>
+                </h3>
+                <p className="text-[#4B5563] text-xs leading-relaxed">
+                  {selectedProject.description || 'No description provided for this project.'}
+                </p>
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#F1F5F9]">
+                  <div>
+                    <span className="text-[#94A3B8] block text-[10px]">Category</span>
+                    <span className="font-semibold text-[#111827]">{selectedProject.category || 'General'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#94A3B8] block text-[10px]">Project Manager</span>
+                    <span className="font-semibold text-[#111827]">{selectedProject.manager || 'Workspace Admin'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#94A3B8] block text-[10px]">Priority</span>
+                    <div>{renderPriorityBadge(selectedProject.priority)}</div>
+                  </div>
+                  <div>
+                    <span className="text-[#94A3B8] block text-[10px]">Status</span>
+                    <div>{renderStatusBadge(selectedProject.status)}</div>
+                  </div>
+                  <div>
+                    <span className="text-[#94A3B8] block text-[10px]">Start Date</span>
+                    <span className="font-medium text-[#111827]">{selectedProject.startDate || 'Not specified'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#94A3B8] block text-[10px]">End Date / Deadline</span>
+                    <span className="font-medium text-[#111827]">{selectedProject.endDate || selectedProject.deadline || 'Not specified'}</span>
+                  </div>
+                </div>
+              </div>
 
-            {/* 1A: PERSONAL CHATS (ONLY PROJECT TEAM MEMBERS) */}
-            {messagesTab === 'chats' && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[380px]">
-                {/* Left: Members List */}
-                <div className="space-y-2 md:border-r border-b md:border-b-0 border-[#E2E8F0] md:pr-4 pb-4 md:pb-0">
-                  <h4 className="font-extrabold text-xs text-[#64748B] uppercase tracking-wider mb-3">
-                    Project Members ({otherMembers.length > 0 ? otherMembers.length : projectMembers.length})
-                  </h4>
-                  {(otherMembers.length > 0 ? otherMembers : projectMembers).map((memberName, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => setActiveChatMember(memberName)}
-                      className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                        memberForPersonalChat === memberName
-                          ? 'bg-white border-2 border-[#6CC04A] shadow-micro text-[#0F172A]'
-                          : 'bg-[#F1F3F6] hover:bg-[#EBF0F5] border-[#E2E8F0] text-[#0F172A]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-xs bg-[#6CC04A] text-white">
-                          {memberName[0]}
-                        </div>
-                        <div>
-                          <div className="font-bold text-xs leading-snug text-[#0F172A]">{memberName}</div>
-                          <span className="text-[10px] font-semibold block text-[#64748B]">
-                            {idx === 0 ? 'Lead Dev' : 'Team Member'}
-                          </span>
-                        </div>
-                      </div>
-                      <span
-                        className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
-                          memberForPersonalChat === memberName
-                            ? 'bg-[#ECFDF5] text-[#10B981] border border-emerald-200'
-                            : 'bg-white text-[#334155] border border-[#E2E8F0]'
-                        }`}
-                      >
-                        02 ›
-                      </span>
-                    </div>
-                  ))}
+              {/* Section D: Timeline & Milestones */}
+              <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3 text-xs">
+                <h3 className="font-bold text-[#111827] uppercase tracking-wider text-[11px] border-b border-[#F1F5F9] pb-2">
+                  Project Timeline & Milestones
+                </h3>
+
+                <div className={`p-3 rounded-lg border ${isOverdue ? 'bg-[#FEF2F2] border-[#EF4444]/30 text-[#991B1B]' : 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'}`}>
+                  <div className="flex items-center justify-between font-bold text-xs">
+                    <span>{isOverdue ? '⚠️ Project Overdue' : '✓ Timeline Status'}</span>
+                    <span>{daysRemainingText}</span>
+                  </div>
+                  <p className="text-[11px] mt-1 opacity-90">
+                    {isOverdue
+                      ? `This project was due on ${selectedProject.endDate || selectedProject.deadline}. Work is currently pending completion.`
+                      : `Deadline is set for ${selectedProject.endDate || selectedProject.deadline || 'upcoming'}. Work is actively progressing.`}
+                  </p>
                 </div>
 
-                {/* Right: Active Chat Conversation Box */}
-                <div className="md:col-span-2 flex flex-col justify-between bg-[#F1F3F6] rounded-xl p-4 border border-[#E2E8F0]">
-                  <div className="pb-3 border-b border-[#E2E8F0] flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center">
-                        {memberForPersonalChat[0]}
-                      </div>
-                      <div>
-                        <h4 className="font-extrabold text-xs text-[#0F172A]">{memberForPersonalChat}</h4>
-                        <span className="text-[10px] text-[#64748B] font-semibold block">Direct Project Message</span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-[#ECFDF5] text-[#10B981] border border-emerald-200">
-                      Verified Member
+                <div className="space-y-2 pt-2 text-xs">
+                  <div className="flex justify-between py-1 border-b border-[#F1F5F9]">
+                    <span className="text-[#64748B]">Project Created:</span>
+                    <span className="font-semibold text-[#111827]">
+                      {selectedProject.createdAt ? new Date(selectedProject.createdAt).toLocaleDateString() : 'Active workspace'}
                     </span>
                   </div>
-
-                  {/* Messages Feed */}
-                  <div className="py-4 space-y-3 overflow-y-auto max-h-[260px] text-xs">
-                    <div className="bg-white p-3 rounded-xl border border-[#E2E8F0] text-[#334155] max-w-sm shadow-micro">
-                      <p className="font-bold text-[#0F172A] text-[11px] mb-1">{memberForPersonalChat}</p>
-                      <p>Reviewing milestone deliverables for <strong>{selectedProject.name}</strong>. Let me know when ready for review.</p>
-                      <span className="text-[9px] text-[#64748B] block mt-1">9:41 AM</span>
-                    </div>
-
-                    <div className="bg-white text-[#334155] border border-[#E2E8F0] p-3 rounded-xl ml-auto max-w-sm shadow-micro">
-                      <p className="font-bold text-[#0F172A] text-[11px] mb-1">You ({projectLead})</p>
-                      <p>Will push the updated benchmark & deliverables right away!</p>
-                      <span className="text-[9px] text-[#64748B] block mt-1">9:45 AM</span>
-                    </div>
-
-                    {(customMessages[`personal-${selectedProject.id}-${memberForPersonalChat}`] || []).map((m) => (
-                      <div
-                        key={m.id}
-                        className={`p-3 rounded-xl max-w-sm shadow-micro bg-white text-[#334155] border border-[#E2E8F0] ${
-                          m.sender === projectLead ? 'ml-auto' : ''
-                        }`}
-                      >
-                        <p className="font-bold text-[#0F172A] text-[11px] mb-1">{m.sender}</p>
-                        <p>{m.text}</p>
-                        <span className="text-[9px] text-[#64748B] block mt-1">{m.time}</span>
-                      </div>
-                    ))}
+                  <div className="flex justify-between py-1 border-b border-[#F1F5F9]">
+                    <span className="text-[#64748B]">Last Updated:</span>
+                    <span className="font-semibold text-[#111827]">
+                      {selectedProject.updatedAt ? new Date(selectedProject.updatedAt).toLocaleDateString() : 'Recently'}
+                    </span>
                   </div>
-
-                  {/* Chat Input */}
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      handleSendMessage(`personal-${selectedProject.id}-${memberForPersonalChat}`);
-                    }}
-                    className="flex gap-2 pt-2 border-t border-[#E2E8F0]"
-                  >
-                    <input
-                      type="text"
-                      placeholder={`Message ${memberForPersonalChat}...`}
-                      value={chatInputText}
-                      onChange={(e) => setChatInputText(e.target.value)}
-                      className="flex-1 min-w-0 px-3 py-2 bg-white border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#6CC04A]"
-                    />
-                    <button
-                      type="submit"
-                      className="btn-primary shrink-0 text-xs px-3 py-2 sm:px-4"
-                    >
-                      Send
-                    </button>
-                  </form>
-                </div>
-              </div>
-            )}
-
-            {/* 1B: GROUP CHAT (PROJECT TEAM MEMBERS GROUP) */}
-            {messagesTab === 'groups' && (
-              <div className="flex flex-col justify-between bg-[#F1F3F6] rounded-xl p-5 border border-[#E2E8F0] min-h-[360px]">
-                <div className="pb-3 border-b border-[#E2E8F0] flex items-center justify-between">
-                  <div>
-                    <h4 className="font-extrabold text-sm text-[#0F172A]">{selectedProject.name} Team Group</h4>
-                    <p className="text-xs text-[#64748B] font-semibold mt-0.5">
-                      Members: <strong>{projectMembers.join(', ')}</strong>
-                    </p>
+                  <div className="flex justify-between py-1">
+                    <span className="text-[#64748B]">Team Size:</span>
+                    <span className="font-bold text-[#049FD9]">{(selectedProject.members || []).length} assigned members</span>
                   </div>
-                  <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-[#6CC04A] text-white shadow-micro">
-                    {projectMembers.length} Members Active
-                  </span>
-                </div>
-
-                {/* Group Feed */}
-                <div className="py-4 space-y-3 overflow-y-auto max-h-[260px] text-xs">
-                  <div className="bg-white p-3.5 rounded-xl border border-[#E2E8F0] text-[#334155] max-w-md shadow-micro">
-                    <p className="font-bold text-[#0F172A] text-xs mb-1">{projectMembers[1] || 'Priya Sharma'}</p>
-                    <p>Updated base components and uploaded specs to the project workspace.</p>
-                    <span className="text-[9px] text-[#64748B] block mt-1">10:15 AM</span>
-                  </div>
-
-                  <div className="bg-white text-[#334155] border border-[#E2E8F0] p-3.5 rounded-xl ml-auto max-w-md shadow-micro">
-                    <p className="font-bold text-[#0F172A] text-xs mb-1">{projectLead}</p>
-                    <p>Great work! All deliverables confirmed for <strong>{selectedProject.name}</strong>.</p>
-                    <span className="text-[9px] text-[#64748B] block mt-1">10:20 AM</span>
-                  </div>
-
-                  {(customMessages[`group-${selectedProject.id}`] || []).map((m) => (
-                    <div
-                      key={m.id}
-                      className={`p-3.5 rounded-xl max-w-md shadow-micro bg-white text-[#334155] border border-[#E2E8F0] ${
-                        m.sender === projectLead ? 'ml-auto' : ''
-                      }`}
-                    >
-                      <p className="font-bold text-[#0F172A] text-xs mb-1">{m.sender}</p>
-                      <p>{m.text}</p>
-                      <span className="text-[9px] text-[#64748B] block mt-1">{m.time}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Group Input */}
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSendMessage(`group-${selectedProject.id}`);
-                  }}
-                  className="flex gap-2 pt-3 border-t border-[#E2E8F0]"
-                >
-                  <input
-                    type="text"
-                    placeholder={`Message ${selectedProject.name} group...`}
-                    value={chatInputText}
-                    onChange={(e) => setChatInputText(e.target.value)}
-                    className="flex-1 min-w-0 px-3 sm:px-4 py-2 sm:py-2.5 bg-white border border-[#E2E8F0] rounded-lg text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#6CC04A]"
-                  />
-                  <button
-                    type="submit"
-                    className="btn-primary shrink-0 text-xs px-3 py-2 sm:px-4 sm:py-2.5"
-                  >
-                    <span className="hidden sm:inline">Send Group Message</span>
-                    <span className="sm:hidden">Send</span>
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* TAB 2: MEETINGS */}
-        {activeProjectTab === 'meetings' && (
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-5 animate-in fade-in duration-150">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
-              <div>
-                <h3 className="text-lg font-black text-[#0F172A]">Upcoming Team Syncs</h3>
-                <p className="text-xs text-[#64748B] font-semibold">Scheduled virtual meetings for {selectedProject.name}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => alert(`Launching virtual meeting room for ${selectedProject.name}...`)}
-                className="btn-primary"
-              >
-                <VideoIcon className="w-4 h-4" />
-                <span>Schedule New Sync</span>
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {/* Meeting Card 1 */}
-              <div className="bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <h4 className="text-base font-extrabold text-[#0F172A]">
-                    Weekly {selectedProject.name} Strategy & Sprint Sync
-                  </h4>
-                  <span className="text-xs font-bold text-[#334155] bg-white border border-[#E2E8F0] px-3 py-1 rounded-full self-start sm:self-auto shadow-micro">
-                    {projectMembers.length} Attendees ({projectMembers.join(', ')})
-                  </span>
-                </div>
-
-                <div className="text-xs text-[#64748B] font-semibold">
-                  Host: <strong className="text-[#0F172A]">{projectLead}</strong>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-[#0F172A]">
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-[#E2E8F0] shadow-micro">
-                    <CalendarIcon className="w-3.5 h-3.5 text-[#64748B]" /> Today
-                  </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-[#E2E8F0] shadow-micro">
-                    <ClockIcon className="w-3.5 h-3.5 text-[#64748B]" /> Today 2:00PM - 2:45PM
-                  </div>
-                </div>
-
-                <div className="bg-white p-3.5 rounded-xl border border-[#E2E8F0] text-xs text-[#334155] leading-relaxed font-medium shadow-micro">
-                  <strong>Meeting Agenda:</strong> To discuss weekly schedule deliverables, code reviews, and product strategy for <strong>{selectedProject.name}</strong>.
-                </div>
-
-                <div className="flex items-center gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => alert(`Joining Virtual Sync Room for ${selectedProject.name}!`)}
-                    className="btn-primary"
-                  >
-                    <span>Join Virtual Room</span>
-                    <span>→</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => alert('Meeting link copied to clipboard!')}
-                    className="btn-secondary"
-                  >
-                    <span>Copy Link</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Meeting Card 2 */}
-              <div className="bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <h4 className="text-base font-extrabold text-[#0F172A]">
-                    Product Roadmap & Technical Deliverables Review
-                  </h4>
-                  <span className="text-xs font-bold text-[#334155] bg-white border border-[#E2E8F0] px-3 py-1 rounded-full self-start sm:self-auto shadow-micro">
-                    {projectMembers.length} Attendees
-                  </span>
-                </div>
-
-                <div className="text-xs text-[#64748B] font-semibold">
-                  Host: <strong className="text-[#0F172A]">{projectMembers[1] || 'Priya Sharma'}</strong>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-[#0F172A]">
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-[#E2E8F0] shadow-micro">
-                    <CalendarIcon className="w-3.5 h-3.5 text-[#64748B]" /> Tomorrow
-                  </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg border border-[#E2E8F0] shadow-micro">
-                    <ClockIcon className="w-3.5 h-3.5 text-[#64748B]" /> Tomorrow 10:30AM - 11:15AM
-                  </div>
-                </div>
-
-                <div className="bg-white p-3.5 rounded-xl border border-[#E2E8F0] text-xs text-[#334155] leading-relaxed font-medium shadow-micro">
-                  <strong>Meeting Agenda:</strong> Finalize architecture specifications, API contracts, and team member sprint assignments.
-                </div>
-
-                <div className="flex items-center gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => alert('Joining Virtual Sync Room!')}
-                    className="btn-primary"
-                  >
-                    <span>Join Virtual Room</span>
-                    <span>→</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => alert('Meeting link copied!')}
-                    className="btn-secondary"
-                  >
-                    <span>Copy Link</span>
-                  </button>
                 </div>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* TAB 3: TASKS */}
-        {activeProjectTab === 'tasks' && (
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-5 animate-in fade-in duration-150">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
-              <div>
-                <h3 className="text-lg font-black text-[#0F172A]">Work Posting & Sprints</h3>
-                <p className="text-xs text-[#64748B] font-semibold">Active tasks & sprint metrics for {selectedProject.name}</p>
+            {/* Section C: Project Progress & Task Metrics */}
+            <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-xs text-[#111827] uppercase tracking-wider">
+                  Project Progress & Work Metrics
+                </h3>
+                <span className="text-xs font-bold text-[#049FD9]">{taskMetrics.completionRate}% Completed</span>
               </div>
-              <button
-                type="button"
-                onClick={onOpenCreateProject}
-                className="btn-primary"
-              >
-                <PlusIcon className="w-4 h-4" />
-                <span>Post New Sprint Task</span>
-              </button>
+
+              {/* Progress Bar */}
+              <div className="w-full h-2.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#10B981] transition-all duration-300 rounded-full"
+                  style={{ width: `${taskMetrics.completionRate}%` }}
+                />
+              </div>
+
+              {/* 5 Metrics Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center pt-2">
+                <div className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                  <span className="text-[10px] text-[#64748B] block font-semibold">Total Tasks</span>
+                  <span className="text-xl font-bold text-[#111827] block mt-1">{taskMetrics.total}</span>
+                </div>
+                <div className="p-3 bg-[#ECFDF5] rounded-lg border border-[#A7F3D0]">
+                  <span className="text-[10px] text-[#065F46] block font-semibold">Completed</span>
+                  <span className="text-xl font-bold text-[#10B981] block mt-1">{taskMetrics.completed}</span>
+                </div>
+                <div className="p-3 bg-[#EFF6FF] rounded-lg border border-[#BFDBFE]">
+                  <span className="text-[10px] text-[#1E40AF] block font-semibold">In Progress</span>
+                  <span className="text-xl font-bold text-[#3B82F6] block mt-1">{taskMetrics.inProgress}</span>
+                </div>
+                <div className="p-3 bg-[#FFFBEB] rounded-lg border border-[#FDE68A]">
+                  <span className="text-[10px] text-[#92400E] block font-semibold">Pending</span>
+                  <span className="text-xl font-bold text-[#F59E0B] block mt-1">{taskMetrics.pending}</span>
+                </div>
+                <div className="p-3 bg-[#FEF2F2] rounded-lg border border-[#FECACA] col-span-2 sm:col-span-1">
+                  <span className="text-[10px] text-[#991B1B] block font-semibold">Overdue</span>
+                  <span className="text-xl font-bold text-[#EF4444] block mt-1">{taskMetrics.overdue}</span>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-4">
-              {projectTasks.length === 0 ? (
-                <div className="p-8 text-center bg-[#F1F3F6] rounded-2xl border border-[#E2E8F0] space-y-3">
-                  <p className="text-xs text-[#64748B] font-medium">No custom tasks posted for this project yet.</p>
+            {/* Section E: Project Activity History */}
+            <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3">
+              <h3 className="font-bold text-xs text-[#111827] uppercase tracking-wider">
+                Recent Project Activity
+              </h3>
+
+              {isLoadingActivities ? (
+                <div className="p-6 text-center text-xs text-[#64748B] flex items-center justify-center gap-2">
+                  <RefreshCwIcon className="w-4 h-4 animate-spin text-[#049FD9]" />
+                  <span>Loading project activity history...</span>
+                </div>
+              ) : projectActivities.length === 0 ? (
+                <div className="p-6 text-center text-xs text-[#64748B] bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                  No audit events recorded yet for this project.
                 </div>
               ) : (
-                projectTasks.map((t) => (
-                  <div key={t.id} className="bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <h4 className="text-base font-extrabold text-[#0F172A] leading-snug">
-                        {t.title}
-                      </h4>
+                <div className="space-y-2.5 max-h-60 overflow-y-auto">
+                  {projectActivities.map((act) => (
+                    <div key={act.id} className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] flex items-start gap-3 text-xs">
+                      <div className="w-6 h-6 rounded-full bg-[#E0F2FE] text-[#049FD9] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                        ⚡
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-[#111827]">{act.description}</p>
+                        <div className="flex items-center gap-2 text-[10px] text-[#64748B] mt-0.5">
+                          <span>By: {act.performedBy || 'Admin'}</span>
+                          <span>•</span>
+                          <span>{act.timestamp ? new Date(act.timestamp).toLocaleString() : 'Recent'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: PROJECT TEAM MANAGEMENT */}
+        {detailsTab === 'team' && (
+          <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <h3 className="font-bold text-base text-[#111827]">Project Team & Roles</h3>
+                <p className="text-xs text-[#64748B] mt-0.5">
+                  {(selectedProject.members || []).length} assigned workspace members
+                </p>
+              </div>
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => setManagingTeamProject(selectedProject)}
+                  className="btn-primary py-1.5 px-3.5 text-xs font-semibold cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
+                >
+                  <UserPlusIcon className="w-3.5 h-3.5" />
+                  <span>Manage Team</span>
+                </button>
+              )}
+            </div>
+
+            <div className="divide-y divide-[#F1F5F9]">
+              {(selectedProject.members || []).map((memberStr) => {
+                const profile = getMemberProfile(memberStr);
+                const isPM =
+                  memberStr.toLowerCase() === (selectedProject.manager || '').toLowerCase() ||
+                  (selectedProject.managerEmail && memberStr.toLowerCase() === selectedProject.managerEmail.toLowerCase());
+
+                return (
+                  <div key={memberStr} className="py-3 flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={`w-9 h-9 rounded-full ${profile?.avatarBg || 'bg-[#049FD9] text-white'} font-bold flex items-center justify-center text-xs shrink-0`}
+                      >
+                        {profile?.avatar || memberStr[0]?.toUpperCase() || 'M'}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-[#111827] truncate">
+                            {profile?.name || memberStr}
+                          </span>
+                          {isPM && (
+                            <span className="px-2 py-0.2 rounded text-[10px] font-bold bg-[#E0F2FE] text-[#0284C7] border border-[#BAE6FD]">
+                              Project Manager
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-[#64748B] truncate">
+                          {profile?.department || 'Engineering'} • {profile?.role || profile?.designation || 'Team Member'}
+                          {profile?.email && ` • ${profile.email}`}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {profile?.email && onNavigateToEmployee && (
+                        <button
+                          type="button"
+                          onClick={() => onNavigateToEmployee(profile.email)}
+                          className="px-2.5 py-1 text-xs text-[#049FD9] hover:underline cursor-pointer"
+                        >
+                          View Profile
+                        </button>
+                      )}
+                      {isAdmin && !isPM && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setManagingTeamProject(selectedProject);
+                            handleRemoveTeamMember(memberStr);
+                          }}
+                          className="px-2 py-1 text-xs text-[#EF4444] hover:bg-[#FEF2F2] rounded cursor-pointer"
+                          title="Remove from project"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: TASKS LIST */}
+        {detailsTab === 'tasks' && (
+          <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <h3 className="font-bold text-base text-[#111827]">
+                Project Tasks ({taskMetrics.total})
+              </h3>
+              <span className="text-xs font-bold text-[#10B981]">{taskMetrics.completed} Completed</span>
+            </div>
+
+            {taskMetrics.pTasks.length === 0 ? (
+              <div className="p-8 text-center text-xs text-[#64748B] bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                No individual tasks are assigned to this project yet. Use "New Task" from the top menu to add project tasks.
+              </div>
+            ) : (
+              <div className="divide-y divide-[#E2E8F0] border border-[#E2E8F0] rounded-lg overflow-hidden text-xs">
+                {taskMetrics.pTasks.map((t) => (
+                  <div key={t.id} className="p-3.5 flex items-center justify-between gap-3 hover:bg-[#F8FAFC]">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <span
-                        className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider ${
-                          t.completed
-                            ? 'bg-[#ECFDF5] text-[#10B981] border border-emerald-200'
-                            : 'bg-[#6CC04A] text-white shadow-micro'
+                        className={`w-4 h-4 rounded flex items-center justify-center shrink-0 text-white text-[10px] ${
+                          t.completed ? 'bg-[#10B981]' : 'border border-[#CBD5E1] bg-white'
                         }`}
                       >
-                        {t.completed ? 'COMPLETED' : 'IN PROGRESS'}
+                        {t.completed ? '✓' : ''}
+                      </span>
+                      <div className="min-w-0">
+                        <span className={`font-semibold block truncate ${t.completed ? 'line-through text-[#94A3B8]' : 'text-[#111827]'}`}>
+                          {t.title}
+                        </span>
+                        <span className="text-[11px] text-[#64748B]">Assigned to: {t.assignedTo || 'Unassigned'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {t.dueDate && (
+                        <span className="text-[11px] text-[#64748B] flex items-center gap-1">
+                          <ClockIcon className="w-3 h-3 text-[#94A3B8]" />
+                          <span>{t.dueDate}</span>
+                        </span>
+                      )}
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                          t.completed ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FEF3C7] text-[#B45309]'
+                        }`}
+                      >
+                        {t.completed ? 'Completed' : 'Pending'}
                       </span>
                     </div>
-
-                    <div className="text-xs font-semibold text-[#64748B]">
-                      Assignee: <strong className="text-[#0F172A]">{t.assignedTo || projectLead}</strong>
-                    </div>
-
-                    <div className="bg-white p-3.5 rounded-xl border border-[#E2E8F0] text-xs text-[#334155] font-semibold shadow-micro">
-                      Metric: Scope deliverable target assigned for {selectedProject.name}
-                    </div>
                   </div>
-                ))
-              )}
-
-              {/* Default Sprint Items */}
-              <div className="bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <h4 className="text-base font-extrabold text-[#0F172A] leading-snug">
-                    Implement dynamic memory fallback & node benchmarks for {selectedProject.name}
-                  </h4>
-                  <span className="text-[10px] font-black px-3 py-1 rounded-full bg-[#6CC04A] text-white uppercase tracking-wider shadow-micro">
-                    IN PROGRESS
-                  </span>
-                </div>
-
-                <div className="text-xs font-semibold text-[#64748B]">
-                  Assignee: <strong className="text-[#0F172A]">{projectLead}</strong>
-                </div>
-
-                <div className="bg-white p-3.5 rounded-xl border border-[#E2E8F0] text-xs text-[#334155] font-semibold shadow-micro">
-                  Metric: OOM error rate &lt; 0.05% across 200 nodes
-                </div>
+                ))}
               </div>
-
-              <div className="bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <h4 className="text-base font-extrabold text-[#0F172A] leading-snug">
-                    Finalize Master Service Agreement (MSA) & scope specifications
-                  </h4>
-                  <span className="text-[10px] font-black px-3 py-1 rounded-full bg-[#ECFDF5] text-[#10B981] border border-emerald-200 uppercase tracking-wider">
-                    COMPLETED
-                  </span>
-                </div>
-
-                <div className="text-xs font-semibold text-[#64748B]">
-                  Assignee: <strong className="text-[#0F172A]">{projectMembers[1] || 'Priya Sharma'}</strong>
-                </div>
-
-                <div className="bg-white p-3.5 rounded-xl border border-[#E2E8F0] text-xs text-[#334155] font-semibold shadow-micro">
-                  Metric: 3 Signed MSAs & deliverable docs verified
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         )}
 
-        {/* TAB 4: WORK UPDATES */}
-        {activeProjectTab === 'updates' && (
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-micro space-y-5 animate-in fade-in duration-150">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
-              <div>
-                <h3 className="text-lg font-black text-[#0F172A]">Daily Work Updates</h3>
-                <p className="text-xs text-[#64748B] font-semibold">Recent progress submissions from {selectedProject.name} team</p>
-              </div>
-            </div>
-
-            {/* Post New Update Form */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handlePostWorkUpdate();
-              }}
-              className="p-4 bg-[#F1F3F6] rounded-2xl border border-[#E2E8F0] space-y-3"
-            >
-              <label className="block text-xs font-extrabold text-[#0F172A]">Post Daily Progress Update</label>
-              <textarea
-                rows={2}
-                placeholder={`Share your daily work progress update for ${selectedProject.name}...`}
-                value={newUpdateText}
-                onChange={(e) => setNewUpdateText(e.target.value)}
-                className="w-full p-3 bg-white border border-[#E2E8F0] rounded-xl text-xs font-medium text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#6CC04A] resize-none"
-              />
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="btn-primary"
-                >
-                  Post Work Update
-                </button>
-              </div>
-            </form>
-
-            {/* Updates Feed */}
-            <div className="space-y-4">
-              {projectWorkUpdates.map((u) => (
-                <div key={u.id} className="bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center">
-                        {u.author[0]}
-                      </div>
-                      <div>
-                        <h4 className="font-extrabold text-sm text-[#0F172A]">{u.author}</h4>
-                        <p className="text-[11px] text-[#64748B] font-semibold">{u.role}</p>
-                      </div>
-                    </div>
-                    <span className="text-xs text-[#64748B] font-semibold">{u.timeAgo}</span>
+        {/* TAB 4: CAMPFIRE MESSAGES */}
+        {detailsTab === 'messages' && (
+          <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-4">
+            <h3 className="font-bold text-base text-[#111827]">Campfire Project Chat</h3>
+            <div className="h-64 border border-[#E2E8F0] rounded-lg p-4 overflow-y-auto space-y-3 bg-[#F8FAFC] text-xs">
+              {(customMessages[selectedProject.id] || [
+                {
+                  id: 'init-1',
+                  sender: selectedProject.manager || 'Workspace Admin',
+                  text: `Welcome to the ${selectedProject.name} workspace! Use this channel to coordinate objectives and milestones.`,
+                  time: '10:00 AM',
+                },
+              ]).map((msg) => (
+                <div key={msg.id} className="p-3 bg-white rounded-lg border border-[#E2E8F0] shadow-2xs">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-[#111827] mb-1">
+                    <span>{msg.sender}</span>
+                    <span className="text-[#94A3B8] font-normal">{msg.time}</span>
                   </div>
-
-                  <p className="text-xs text-[#334155] leading-relaxed font-medium bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-micro">
-                    {u.text}
-                  </p>
-
-                  <div className="flex items-center justify-between pt-1 text-xs">
-                    <span className="text-[#64748B] font-semibold">Assignee: <strong className="text-[#0F172A]">{selectedProject.name} Team</strong></span>
-                    <span className="px-3 py-1 rounded-full bg-[#6CC04A] text-white font-extrabold text-[10px] uppercase tracking-wider shadow-micro">
-                      {u.category}
-                    </span>
-                  </div>
+                  <p className="text-xs text-[#334155]">{msg.text}</p>
                 </div>
               ))}
+            </div>
 
-              <div className="bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center">
-                      {(projectMembers[1] || 'Priya Sharma')[0]}
-                    </div>
-                    <div>
-                      <h4 className="font-extrabold text-sm text-[#0F172A]">{projectMembers[1] || 'Priya Sharma'}</h4>
-                      <p className="text-[11px] text-[#64748B] font-semibold">Lead Designer & Developer</p>
-                    </div>
-                  </div>
-                  <span className="text-xs text-[#64748B] font-semibold">1 hr ago</span>
-                </div>
-
-                <p className="text-xs text-[#334155] leading-relaxed font-medium bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-micro">
-                  Completed high-fidelity components, responsive grid architecture, and asset verification for <strong>{selectedProject.name}</strong>. All tests passing cleanly.
-                </p>
-
-                <div className="flex items-center justify-between pt-1 text-xs">
-                  <span className="text-[#64748B] font-semibold">Assignee: <strong className="text-[#0F172A]">Enterprise Scope & LOIs</strong></span>
-                  <span className="px-3 py-1 rounded-full bg-[#6CC04A] text-white font-extrabold text-[10px] uppercase tracking-wider shadow-micro">
-                    Verified Submission
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-[#F1F3F6] p-5 rounded-2xl border border-[#E2E8F0] space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center">
-                      {projectLead[0]}
-                    </div>
-                    <div>
-                      <h4 className="font-extrabold text-sm text-[#0F172A]">{projectLead}</h4>
-                      <p className="text-[11px] text-[#64748B] font-semibold">Project Lead & Manager</p>
-                    </div>
-                  </div>
-                  <span className="text-xs text-[#64748B] font-semibold">3 hrs ago</span>
-                </div>
-
-                <p className="text-xs text-[#334155] leading-relaxed font-medium bg-white p-4 rounded-xl border border-[#E2E8F0] shadow-micro">
-                  Configured API integrations, indexed storage subsystems, and data url blob handlers for project document streams.
-                </p>
-
-                <div className="flex items-center justify-between pt-1 text-xs">
-                  <span className="text-[#64748B] font-semibold">Assignee: <strong className="text-[#0F172A]">Core Infrastructure</strong></span>
-                  <span className="px-3 py-1 rounded-full bg-[#6CC04A] text-white font-extrabold text-[10px] uppercase tracking-wider shadow-micro">
-                    Verified Submission
-                  </span>
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Type a message to project team..."
+                value={chatInputText}
+                onChange={(e) => setChatInputText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    if (!chatInputText.trim()) return;
+                    const newMsg = {
+                      id: `msg-${Date.now()}`,
+                      sender: currentUser?.fullName || 'Admin',
+                      text: chatInputText.trim(),
+                      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    };
+                    setCustomMessages((prev) => ({
+                      ...prev,
+                      [selectedProject.id]: [...(prev[selectedProject.id] || []), newMsg],
+                    }));
+                    setChatInputText('');
+                  }
+                }}
+                className="flex-1 px-3 py-2 border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (!chatInputText.trim()) return;
+                  const newMsg = {
+                    id: `msg-${Date.now()}`,
+                    sender: currentUser?.fullName || 'Admin',
+                    text: chatInputText.trim(),
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                  };
+                  setCustomMessages((prev) => ({
+                    ...prev,
+                    [selectedProject.id]: [...(prev[selectedProject.id] || []), newMsg],
+                  }));
+                  setChatInputText('');
+                }}
+                className="btn-primary py-2 px-4 text-xs font-semibold cursor-pointer"
+              >
+                Send
+              </button>
             </div>
           </div>
         )}
 
-        {/* TAB 5 OVERVIEW & REQUIRED DOCUMENTS */}
-        {(activeProjectTab === 'overview' || activeProjectTab === 'messages' || activeProjectTab === 'meetings' || activeProjectTab === 'tasks' || activeProjectTab === 'updates') && (
-          <div className="space-y-6 pt-2 border-t border-[#E2E8F0]">
-            <h3 className="font-black text-sm text-[#0F172A] uppercase tracking-wider pt-2">
-              Project Overview & Required Documents
-            </h3>
-            
-            {/* Project Details Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
-              {/* Main Content Area */}
-              <div className="lg:col-span-2 space-y-6">
-                
-                {/* 1. Progress & Key Metrics Box */}
-                <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-micro space-y-4">
-                  <div className="flex items-center justify-between font-bold text-xs">
-                    <span className="text-[#334155]">Overall Project Progress</span>
-                    <span className="text-[#0F172A] text-base font-black">{selectedProject.progress}%</span>
-                  </div>
-                  <div className="w-full bg-[#EBF0F5] rounded-full h-2.5 overflow-hidden">
-                    <div
-                      className="bg-[#6CC04A] h-full rounded-full transition-all duration-500"
-                      style={{ width: `${selectedProject.progress}%` }}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-[#E2E8F0] text-xs">
-                    <div>
-                      <span className="text-[#64748B] block font-medium">Open To-Dos</span>
-                      <span className="font-extrabold text-[#0F172A] text-sm">{selectedProject.openToDos} Tasks</span>
-                    </div>
-                    <div>
-                      <span className="text-[#64748B] block font-medium">Project Manager</span>
-                      <span className="font-bold text-[#0F172A] text-xs">{selectedProject.manager || selectedProject.members[0] || 'Rahul Kumar'}</span>
-                    </div>
-                    <div>
-                      <span className="text-[#64748B] block font-medium">Start Date</span>
-                      <span className="font-semibold text-[#334155]">{selectedProject.startDate || '16/07/2024'}</span>
-                    </div>
-                    <div>
-                      <span className="text-[#64748B] block font-medium">Deadline</span>
-                      <span className="font-semibold text-[#334155]">{selectedProject.deadline || '24/10/2024'}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. Project Description */}
-                <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-micro space-y-3">
-                  <h3 className="font-extrabold text-xs text-[#0F172A] uppercase tracking-wider">Project Description</h3>
-                  <p className="text-[#334155] leading-relaxed text-xs bg-[#F1F3F6] p-4 rounded-xl border border-[#E2E8F0] font-medium">
-                    {selectedProject.description || 'Comprehensive project scope and key milestones tracked for workspace optimization and delivery.'}
-                  </p>
-                </div>
-
-                {/* 3. Project Tasks List */}
-                <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-micro space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-extrabold text-xs text-[#0F172A] uppercase tracking-wider">
-                      Project Tasks ({projectTasks.length})
-                    </h3>
-                  </div>
-
-                  {projectTasks.length === 0 ? (
-                    <div className="p-6 text-center bg-[#F1F3F6] rounded-xl border border-[#E2E8F0] text-[#64748B] font-medium text-xs">
-                      No specific tasks assigned to this project yet.
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-[#E2E8F0] border border-[#E2E8F0] rounded-xl overflow-hidden">
-                      {projectTasks.map((t) => (
-                        <div key={t.id} className="p-3.5 bg-white hover:bg-[#EBF0F5] flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 text-xs transition-colors">
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <span className={`w-2 h-2 rounded-full shrink-0 ${t.completed ? 'bg-[#10B981]' : 'bg-[#0B192C]'}`} />
-                            <span className={`font-bold text-[#0F172A] truncate ${t.completed ? 'line-through opacity-60' : ''}`}>
-                              {t.title}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 text-[11px] text-[#64748B] font-semibold shrink-0">
-                            <span>Assigned: <strong className="text-[#0F172A]">{t.assignedTo || 'Unassigned'}</strong></span>
-                            <span>Due: {t.dueDate || 'Soon'}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* 4. Required Documents & Files */}
-                <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-micro space-y-4">
-                  <h3 className="font-extrabold text-xs text-[#0F172A] uppercase tracking-wider">
-                    Required Documents & Files ({projectDocs.length})
-                  </h3>
-                  {projectDocs.length === 0 ? (
-                    <div className="p-6 text-center bg-[#F1F3F6] rounded-xl border border-[#E2E8F0] text-[#64748B] font-medium text-xs">
-                      No documents attached to this project.
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap gap-2.5">
-                      {projectDocs.map((doc, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => handleViewDocument(doc)}
-                          className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#EBF0F5] hover:bg-slate-200 border border-[#E2E8F0] text-[#0F172A] font-bold text-xs shadow-micro transition-all cursor-pointer group"
-                          title={`Click to open and view ${doc}`}
-                        >
-                          <FileIcon className="w-4 h-4 text-[#334155]" />
-                          <span className="group-hover:underline truncate max-w-xs">{doc}</span>
-                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#6CC04A] text-white ml-1 shrink-0">
-                            View / Open ↗
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
+        {/* TAB 5: MEETINGS */}
+        {detailsTab === 'meetings' && (
+          <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-4 text-xs">
+            <h3 className="font-bold text-base text-[#111827]">Scheduled Project Syncs</h3>
+            <div className="p-4 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] flex items-center justify-between">
+              <div>
+                <h4 className="font-bold text-sm text-[#111827]">Weekly Sprint Standup</h4>
+                <p className="text-[11px] text-[#64748B] mt-0.5">Every Monday & Thursday • 10:00 AM IST</p>
               </div>
-
-              {/* Right Sidebar */}
-              <div className="space-y-6">
-                
-                {/* Team Members List */}
-                <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-micro space-y-4">
-                  <h3 className="font-extrabold text-xs text-[#0F172A] uppercase tracking-wider">
-                    Team Members ({selectedProject.members.length})
-                  </h3>
-                  <div className="space-y-2">
-                    {selectedProject.members.map((member, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-3 rounded-xl bg-[#F1F3F6] border border-[#E2E8F0] text-xs"
-                      >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <div className="w-8 h-8 rounded-full bg-[#6CC04A] text-white font-extrabold text-xs flex items-center justify-center shrink-0">
-                            {member[0]}
-                          </div>
-                          <span className="font-bold text-[#0F172A] truncate" title={member}>{member}</span>
-                        </div>
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-white text-[#334155] border border-[#E2E8F0] uppercase shrink-0">
-                          {idx === 0 ? 'Lead' : 'Member'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Project Specifications */}
-                <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-micro space-y-3 text-xs font-medium text-[#334155]">
-                  <h3 className="font-extrabold text-xs text-[#0F172A] uppercase tracking-wider mb-2">Project Overview</h3>
-                  <div className="flex justify-between py-2 border-b border-[#E2E8F0]">
-                    <span>Priority Level:</span>
-                    <span className="font-bold uppercase text-[#0F172A]">{selectedProject.priority || 'Medium'}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-[#E2E8F0]">
-                    <span>Currency:</span>
-                    <span className="font-bold text-[#0F172A]">{selectedProject.currency || 'USD ($)'}</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <span>Status:</span>
-                    <span className="font-extrabold text-[#0F172A] uppercase">{selectedProject.status || 'Active'}</span>
-                  </div>
-                </div>
-
-              </div>
-
+              <button
+                type="button"
+                onClick={() => alert('Starting video room for ' + selectedProject.name)}
+                className="btn-primary py-1.5 px-3.5 text-xs font-semibold cursor-pointer flex items-center gap-1.5"
+              >
+                <VideoIcon className="w-3.5 h-3.5" />
+                <span>Join Sync</span>
+              </button>
             </div>
           </div>
         )}
 
+        {/* TAB 6: WORK UPDATES */}
+        {detailsTab === 'updates' && (
+          <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-4 text-xs">
+            <h3 className="font-bold text-base text-[#111827]">Work Updates & Check-ins</h3>
+            <div className="space-y-2">
+              <textarea
+                rows={2}
+                placeholder="Share a project progress update with the team..."
+                value={newUpdateText}
+                onChange={(e) => setNewUpdateText(e.target.value)}
+                className="w-full p-2.5 border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (!newUpdateText.trim()) return;
+                  const newUpd = {
+                    id: `upd-${Date.now()}`,
+                    project: selectedProject.name,
+                    author: currentUser?.fullName || 'Admin',
+                    role: 'Team Lead',
+                    timeAgo: 'Just now',
+                    text: newUpdateText.trim(),
+                    category: 'Verified Submission',
+                  };
+                  setCustomUpdates((prev) => [newUpd, ...prev]);
+                  setNewUpdateText('');
+                }}
+                className="btn-primary py-1.5 px-3.5 text-xs font-semibold cursor-pointer"
+              >
+                Post Update
+              </button>
+            </div>
+
+            <div className="space-y-3 pt-3 border-t border-[#E5E5E5]">
+              {customUpdates.map((upd) => (
+                <div key={upd.id} className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                  <div className="flex items-center justify-between font-semibold text-[#111827] text-xs">
+                    <span>{upd.author}</span>
+                    <span className="text-[10px] text-[#94A3B8]">{upd.timeAgo}</span>
+                  </div>
+                  <p className="text-xs text-[#475569] mt-1">{upd.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
-  // STANDARD ALL PROJECTS GRID / CARDS / KANBAN VIEW
+  // ==========================================
+  // VIEW 2: STANDARD PROJECT MANAGEMENT DASHBOARD
+  // ==========================================
   return (
-    <div className="space-y-6 font-sans w-full">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-        <h1 className="text-xl font-semibold text-[#111827]">
-          All Projects
+    <div className="space-y-5 font-sans w-full">
+      {/* 1. TOP SUMMARY METRIC CARDS (Dynamic From Firestore) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {/* Total Projects */}
+        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
+          <div>
+            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Total Projects</div>
+            <div className="text-xl sm:text-2xl font-bold text-[#111827] mt-0.5">{summaryMetrics.total}</div>
+            <div className="text-[10px] text-[#049FD9] font-medium">All recorded</div>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-[#E0F2FE] text-[#049FD9] flex items-center justify-center shrink-0">
+            <FolderIcon className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* Active Projects */}
+        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
+          <div>
+            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Active</div>
+            <div className="text-xl sm:text-2xl font-bold text-[#10B981] mt-0.5">{summaryMetrics.active}</div>
+            <div className="text-[10px] text-[#10B981] font-medium">In progress</div>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-[#DCFCE7] text-[#10B981] flex items-center justify-center shrink-0">
+            <FolderIcon className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* Planning Projects */}
+        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
+          <div>
+            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Planning</div>
+            <div className="text-xl sm:text-2xl font-bold text-[#3B82F6] mt-0.5">{summaryMetrics.planning}</div>
+            <div className="text-[10px] text-[#3B82F6] font-medium">Pre-kickoff</div>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] text-[#3B82F6] flex items-center justify-center shrink-0">
+            <ClockIcon className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* On Hold Projects */}
+        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
+          <div>
+            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">On Hold</div>
+            <div className="text-xl sm:text-2xl font-bold text-[#D97706] mt-0.5">{summaryMetrics.onHold}</div>
+            <div className="text-[10px] text-[#F59E0B] font-medium">Paused</div>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0">
+            <ClockIcon className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* Completed Projects */}
+        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
+          <div>
+            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Completed</div>
+            <div className="text-xl sm:text-2xl font-bold text-[#16A34A] mt-0.5">{summaryMetrics.completed}</div>
+            <div className="text-[10px] text-[#16A34A] font-medium">Delivered</div>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center shrink-0">
+            <CheckSquareIcon className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* Overdue Projects */}
+        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
+          <div>
+            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Overdue</div>
+            <div className="text-xl sm:text-2xl font-bold text-[#EF4444] mt-0.5">{summaryMetrics.overdue}</div>
+            <div className="text-[10px] text-[#EF4444] font-medium">Past deadline</div>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-[#FEF2F2] text-[#EF4444] flex items-center justify-center shrink-0">
+            <AlertCircleIcon className="w-4 h-4" />
+          </div>
+        </div>
+      </div>
+
+      {/* 2. TOP ACTION HEADER */}
+      <div className="bg-white px-4 py-3 sm:px-5 sm:py-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <h1 className="text-lg sm:text-xl font-bold text-[#111827] tracking-tight shrink-0">
+          Project Management Directory
         </h1>
 
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-          {/* Team Member Avatars Stack */}
-          <div className="flex -space-x-2 mr-1">
-            <div className="w-8 h-8 rounded-full bg-[#049FD9] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
-              H
-            </div>
-            <div className="w-8 h-8 rounded-full bg-[#15293F] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
-              M
-            </div>
-            <div className="w-8 h-8 rounded-full bg-slate-400 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-micro">
-              R
-            </div>
-          </div>
-
-          {/* Invite Button */}
-          <button
-            type="button"
-            onClick={() => alert('Invite feature active — workspace members updated!')}
-            className="btn-secondary"
-          >
-            <UserPlusIcon className="w-4 h-4 text-[#334155]" />
-            <span>Invite</span>
-          </button>
-
-          {/* New Project Button (Admin Only) */}
-          {isAdmin && onOpenCreateProject && (
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
+          {/* View Mode Toggle: Table / Cards / Kanban */}
+          <div className="flex items-center bg-[#F4F6F8] border border-[#E5E5E5] rounded-md p-0.5 shrink-0">
             <button
               type="button"
-              onClick={onOpenCreateProject}
-              className="btn-primary"
-            >
-              <PlusIcon className="w-4 h-4" />
-              <span>New Project</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Navigation Sub-Bar & Dropdown Filters */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 pb-2 border-b border-[#E2E8F0]">
-        {/* Left View Tabs */}
-        <div className="flex items-center gap-4 sm:gap-6 text-xs font-bold text-[#64748B] overflow-x-auto scrollbar-none whitespace-nowrap">
-          <button
-            type="button"
-            onClick={() => setViewMode('list')}
-            className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 text-xs font-semibold ${
-              viewMode === 'list'
-                ? 'text-[#222222] border-[#049FD9]'
-                : 'text-[#595959] border-transparent hover:text-[#222222]'
-            }`}
-          >
-            <ListIcon className={`w-4 h-4 ${viewMode === 'list' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
-            <span>List</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setViewMode('cards')}
-            className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 text-xs font-semibold ${
-              viewMode === 'cards'
-                ? 'text-[#222222] border-[#049FD9]'
-                : 'text-[#595959] border-transparent hover:text-[#222222]'
-            }`}
-          >
-            <GridIcon className={`w-4 h-4 ${viewMode === 'cards' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
-            <span>Cards</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setViewMode('kanban')}
-            className={`flex items-center gap-1.5 py-2 cursor-pointer transition-colors border-b-2 text-xs font-semibold ${
-              viewMode === 'kanban'
-                ? 'text-[#222222] border-[#049FD9]'
-                : 'text-[#595959] border-transparent hover:text-[#222222]'
-            }`}
-          >
-            <KanbanIcon className={`w-4 h-4 ${viewMode === 'kanban' ? 'text-[#049FD9]' : 'text-[#595959]'}`} />
-            <span>Kanban</span>
-          </button>
-        </div>
-
-        {/* Right Dropdowns & Filter Controls */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Show Filter Dropdown */}
-          <div className="flex items-center gap-1 px-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg text-xs text-[#334155] relative hover:bg-slate-50 transition-colors shadow-2xs">
-            <span className="text-[#64748B] font-normal">Show:</span>
-            <select
-              value={showFilter}
-              onChange={(e) => setShowFilter(e.target.value)}
-              className="bg-transparent font-bold text-[#0F172A] focus:outline-none cursor-pointer appearance-none pr-3"
-            >
-              <option value="All Projects">All Projects</option>
-              {!isAdmin && <option value="My Projects">My Assigned Projects</option>}
-              <option value="Active">Active</option>
-              <option value="Design">Design</option>
-              <option value="Brief">Brief</option>
-              <option value="Completed">Completed</option>
-            </select>
-            <span className="text-[9px] text-[#64748B] pointer-events-none absolute right-2.5">▼</span>
-          </div>
-
-          {/* Sort Filter Dropdown */}
-          <div className="flex items-center gap-1 px-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg text-xs text-[#334155] relative hover:bg-slate-50 transition-colors shadow-2xs">
-            <span className="text-[#64748B] font-normal">Sort:</span>
-            <select
-              value={sortFilter}
-              onChange={(e) => setSortFilter(e.target.value)}
-              className="bg-transparent font-bold text-[#0F172A] focus:outline-none cursor-pointer appearance-none pr-3"
-            >
-              <option value="Create Date">Create Date</option>
-              <option value="Name">Name (A-Z)</option>
-              <option value="Progress">Progress %</option>
-              <option value="Priority">Priority</option>
-              <option value="Deadline">Deadline</option>
-            </select>
-            <span className="text-[9px] text-[#64748B] pointer-events-none absolute right-2.5">▼</span>
-          </div>
-
-          {/* Group Filter Dropdown */}
-          <div className="flex items-center gap-1 px-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg text-xs text-[#334155] relative hover:bg-slate-50 transition-colors shadow-2xs">
-            <span className="text-[#64748B] font-normal">Group:</span>
-            <select
-              value={groupFilter}
-              onChange={(e) => setGroupFilter(e.target.value)}
-              className="bg-transparent font-bold text-[#0F172A] focus:outline-none cursor-pointer appearance-none pr-3"
-            >
-              <option value="All">All Groups</option>
-              <option value="Design">Design</option>
-              <option value="Active">Active</option>
-              <option value="Brief">Brief</option>
-              <option value="High Priority">High Priority</option>
-              <option value="Medium Priority">Medium Priority</option>
-              <option value="Low Priority">Low Priority</option>
-            </select>
-            <span className="text-[9px] text-[#64748B] pointer-events-none absolute right-2.5">▼</span>
-          </div>
-
-          {/* Add Filter & Search Button */}
-          {isSearchOpen ? (
-            <div className="flex items-center gap-2 bg-white border border-[#0B192C] rounded-[4px] px-2.5 py-1 text-xs shadow-micro">
-              <SearchIcon className="w-3.5 h-3.5 text-[#64748B]" />
-              <input
-                type="text"
-                autoFocus
-                placeholder="Filter name or member..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent text-[#0F172A] text-xs focus:outline-none w-36 sm:w-44"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="text-[#64748B] hover:text-[#0F172A] font-bold text-xs"
-                >
-                  ✕
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setIsSearchOpen(false)}
-                className="text-[#0F172A] hover:text-[#64748B] text-xs font-bold ml-1 cursor-pointer"
-              >
-                Done
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIsSearchOpen(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-lg text-xs font-bold shadow-micro transition-colors cursor-pointer ${
-                searchQuery
-                  ? 'bg-[#EBF0F5] text-[#0F172A] border-[#CBD5E1]'
-                  : 'bg-white hover:bg-[#EBF0F5] text-[#334155] border-[#E2E8F0]'
+              onClick={() => setViewMode('table')}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors cursor-pointer ${
+                viewMode === 'table' ? 'bg-white text-[#111827] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#111827]'
               }`}
             >
-              <FilterIcon className="w-3.5 h-3.5 text-[#334155]" />
-              <span>{searchQuery ? `Filter: "${searchQuery}"` : 'Add Filter'}</span>
+              Table View
             </button>
-          )}
-
-          {/* Reset Filters Option if any filter is active */}
-          {hasActiveFilters && (
             <button
               type="button"
-              onClick={handleResetFilters}
-              className="text-[11px] font-bold text-[#64748B] hover:text-[#0F172A] underline px-1 transition-colors cursor-pointer ml-1"
+              onClick={() => setViewMode('cards')}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors cursor-pointer ${
+                viewMode === 'cards' ? 'bg-white text-[#111827] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#111827]'
+              }`}
             >
-              Reset
+              Cards
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('kanban')}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors cursor-pointer ${
+                viewMode === 'kanban' ? 'bg-white text-[#111827] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#111827]'
+              }`}
+            >
+              Kanban
+            </button>
+          </div>
+
+          {/* Create Project Button (Admin Only) */}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={handleOpenCreate}
+              className="btn-primary shrink-0 flex items-center gap-1.5 text-xs py-1.5 px-3.5 cursor-pointer whitespace-nowrap shadow-2xs"
+            >
+              <PlusIcon className="w-4 h-4" />
+              <span>Create Project</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* LIST VIEW TABLE */}
-      {viewMode === 'list' && (
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-micro overflow-hidden">
+      {/* Action Notification Alert */}
+      {actionNotice && (
+        <div
+          className={`p-3.5 rounded-lg text-xs font-semibold flex items-center justify-between animate-in fade-in duration-150 ${
+            actionNotice.type === 'success'
+              ? 'bg-[#F0FDF4] border border-[#16A34A]/30 text-[#16A34A]'
+              : 'bg-[#FEF2F2] border border-[#EF4444]/30 text-[#EF4444]'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <span>{actionNotice.type === 'success' ? '✓' : '⚠️'}</span>
+            <span>{actionNotice.message}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActionNotice(null)}
+            className="text-xs opacity-70 hover:opacity-100 font-bold ml-2 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* 3. SEARCH, FILTERS & CONTROLS BAR (All Dropdowns Strictly Open Below) */}
+      <div className="bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3">
+        {/* Full-Width Search Input */}
+        <div className="relative w-full">
+          <input
+            type="text"
+            placeholder="Search projects by name, Project ID, manager, or category..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-9 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] focus:bg-white transition-all shadow-2xs"
+          />
+          <SearchIcon className="w-4 h-4 text-[#94A3B8] absolute left-3 top-2.5 pointer-events-none" />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-2 text-[#94A3B8] hover:text-[#111827] text-xs font-bold p-1 cursor-pointer"
+              title="Clear search"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* Filter Controls Row */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 pt-2 border-t border-[#F1F5F9]">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider flex items-center gap-1 mr-0.5">
+              <FilterIcon className="w-3.5 h-3.5 text-[#64748B]" />
+              <span>Filters:</span>
+            </span>
+
+            {/* Status Filter */}
+            <FilterDropdown
+              label="Status"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                { value: 'all', label: 'All Statuses' },
+                { value: 'planning', label: 'Planning' },
+                { value: 'active', label: 'Active' },
+                { value: 'on_hold', label: 'On Hold' },
+                { value: 'completed', label: 'Completed' },
+                { value: 'cancelled', label: 'Cancelled' },
+              ]}
+            />
+
+            {/* Priority Filter */}
+            <FilterDropdown
+              label="Priority"
+              value={priorityFilter}
+              onChange={setPriorityFilter}
+              options={[
+                { value: 'all', label: 'All Priorities' },
+                { value: 'critical', label: 'Critical' },
+                { value: 'high', label: 'High' },
+                { value: 'medium', label: 'Medium' },
+                { value: 'low', label: 'Low' },
+              ]}
+            />
+
+            {/* Project Manager Filter */}
+            <FilterDropdown
+              label="Manager"
+              value={managerFilter}
+              onChange={setManagerFilter}
+              options={[
+                { value: 'all', label: 'All Managers' },
+                ...projectManagerOptions.map((pm) => ({ value: pm, label: pm })),
+              ]}
+            />
+
+            {/* Date Range Filter */}
+            <FilterDropdown
+              label="Timeline"
+              value={dateFilter}
+              onChange={setDateFilter}
+              options={[
+                { value: 'all', label: 'All Timelines' },
+                { value: 'overdue', label: 'Overdue Only' },
+                { value: 'this_month', label: 'Due This Month' },
+                { value: 'recent', label: 'Last 30 Days' },
+              ]}
+            />
+          </div>
+
+          {/* Right Sort & Reset Controls */}
+          <div className="flex items-center gap-2 self-start lg:self-auto shrink-0 flex-wrap">
+            <span className="text-[11px] font-semibold text-[#64748B]">Sort:</span>
+            <FilterDropdown
+              align="right"
+              value={sortBy}
+              onChange={(val) => setSortBy(val as any)}
+              options={[
+                { value: 'date_desc', label: 'Deadline (Newest)' },
+                { value: 'date_asc', label: 'Deadline (Oldest)' },
+                { value: 'name_asc', label: 'Name (A → Z)' },
+                { value: 'name_desc', label: 'Name (Z → A)' },
+                { value: 'priority', label: 'Priority (High → Low)' },
+                { value: 'progress', label: 'Progress (%)' },
+              ]}
+            />
+
+            {(searchQuery ||
+              statusFilter !== 'all' ||
+              priorityFilter !== 'all' ||
+              managerFilter !== 'all' ||
+              dateFilter !== 'all' ||
+              sortBy !== 'date_desc') && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="px-2.5 py-1.5 rounded-md bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#EF4444] text-xs font-semibold cursor-pointer transition-colors border border-[#EF4444]/20 flex items-center gap-1"
+                title="Reset all filters"
+              >
+                <span>✕</span>
+                <span>Reset</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 4. PROFESSIONAL 10-COLUMN ENTERPRISE TABLE VIEW */}
+      {viewMode === 'table' && (
+        <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[900px]">
+            <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-[#E2E8F0] bg-[#F1F3F6] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
-                  <th className="py-3.5 px-4 font-bold text-[#64748B] whitespace-nowrap">PROJECT NAME</th>
-                  <th className="py-3.5 px-4 font-bold text-[#64748B] whitespace-nowrap">START DATE</th>
-                  <th className="py-3.5 px-4 font-bold text-[#64748B] whitespace-nowrap">DEADLINE</th>
-                  <th className="py-3.5 px-4 font-bold text-[#64748B] whitespace-nowrap">CURRENCY</th>
-                  <th className="py-3.5 px-4 font-bold text-[#64748B] whitespace-nowrap">STATUS</th>
-                  <th className="py-3.5 px-4 font-bold text-[#64748B] whitespace-nowrap">PEOPLE</th>
-                  <th className="py-3.5 px-4 font-bold text-[#64748B] whitespace-nowrap">PRIORITY</th>
+                <tr className="bg-[#F8FAFC] border-b border-[#E5E5E5] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
+                  <th className="py-3 px-3.5 whitespace-nowrap">Project ID</th>
+                  <th className="py-3 px-3.5 whitespace-nowrap">Project Name</th>
+                  <th className="py-3 px-3.5 whitespace-nowrap">Project Manager</th>
+                  <th className="py-3 px-3.5 whitespace-nowrap">Assigned Employees</th>
+                  <th className="py-3 px-3.5 whitespace-nowrap">Start Date</th>
+                  <th className="py-3 px-3.5 whitespace-nowrap">End Date</th>
+                  <th className="py-3 px-3.5 whitespace-nowrap">Priority</th>
+                  <th className="py-3 px-3.5 whitespace-nowrap">Status</th>
+                  <th className="py-3 px-3.5 whitespace-nowrap">Progress</th>
+                  <th className="py-3 px-3.5 text-right whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E2E8F0] text-xs font-medium text-[#334155]">
-                {processedProjects.length === 0 ? (
+              <tbody className="divide-y divide-[#E5E5E5] font-medium text-[#334155]">
+                {displayedProjects.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-10 text-center text-[#64748B] font-medium">
-                      No projects match your selected filter criteria.
+                    <td colSpan={10} className="py-12 text-center text-[#64748B]">
+                      <p className="font-semibold text-sm text-[#111827]">No projects found</p>
+                      <p className="text-xs text-[#94A3B8] mt-1">Try adjusting your search criteria or filters.</p>
                       <button
                         type="button"
                         onClick={handleResetFilters}
-                        className="block mx-auto mt-2 px-3 py-1 bg-[#EBF0F5] text-[#0F172A] font-bold rounded-lg border border-[#E2E8F0] hover:bg-slate-200 transition-colors cursor-pointer text-xs"
+                        className="mt-3 px-3 py-1.5 bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] font-semibold text-xs rounded-md border border-[#E5E5E5] cursor-pointer"
                       >
                         Reset All Filters
                       </button>
                     </td>
                   </tr>
                 ) : (
-                  processedProjects.map((project, idx) => {
-                    const startDate = project.startDate || '16/07/2024';
-                    const deadline = project.deadline || '24/10/2024';
-                    const currency = project.currency || (idx % 2 === 0 ? '$$$' : '---');
-
-                    const rawStatus = project.status || 'Active';
-                    let statusLabel = 'Active';
-                    let statusStyle = 'bg-[#ECFDF5] text-[#10B981] border border-emerald-200';
-
-                    if (rawStatus.toLowerCase().includes('design')) {
-                      statusLabel = 'Design';
-                      statusStyle = 'bg-[#EFF6FF] text-[#2563EB] border border-blue-200';
-                    } else if (rawStatus.toLowerCase().includes('brief') || rawStatus.toLowerCase().includes('hold')) {
-                      statusLabel = 'Brief';
-                      statusStyle = 'bg-[#FFFBEB] text-[#F59E0B] border border-amber-200';
-                    } else {
-                      statusLabel = 'Active';
-                      statusStyle = 'bg-[#ECFDF5] text-[#10B981] border border-emerald-200';
-                    }
-
-                    const priority = project.priority || (idx % 3 === 0 ? 'high' : idx % 3 === 1 ? 'medium' : 'low');
-                    let prioStyle = 'bg-[#EBF0F5] text-[#334155] border border-[#E2E8F0]';
-                    let prioDot = 'bg-slate-400';
-                    let prioLabel = 'Low';
-
-                    if (priority === 'high') {
-                      prioStyle = 'bg-[#FEF2F2] text-[#EF4444] border border-rose-200';
-                      prioDot = 'bg-[#EF4444]';
-                      prioLabel = 'High';
-                    } else if (priority === 'medium') {
-                      prioStyle = 'bg-[#FFFBEB] text-[#F59E0B] border border-amber-200';
-                      prioDot = 'bg-[#F59E0B]';
-                      prioLabel = 'Medium';
-                    }
+                  displayedProjects.map((proj) => {
+                    const taskMetrics = getProjectTaskMetrics(proj);
+                    const membersList = proj.members || [];
+                    const pmName = proj.manager || 'Workspace Admin';
 
                     return (
-                      <tr
-                        key={project.id}
-                        onClick={() => handleSelectProject(project)}
-                        className="hover:bg-[#EBF0F5] transition-colors cursor-pointer"
-                        title="Click to view full project details"
-                      >
-                        <td className="py-3.5 px-4 font-bold text-[#0F172A] text-sm whitespace-nowrap">
-                          {project.name}
+                      <tr key={proj.id} className="hover:bg-[#F8FAFC] transition-colors">
+                        {/* Project ID */}
+                        <td className="py-3 px-3.5 font-mono font-bold text-[#049FD9] whitespace-nowrap">
+                          {proj.projectId || proj.id}
                         </td>
-                        <td className="py-3.5 px-4 text-[#334155] font-semibold whitespace-nowrap">{startDate}</td>
-                        <td className="py-3.5 px-4 text-[#334155] font-semibold whitespace-nowrap">{deadline}</td>
-                        <td className="py-3.5 px-4 font-medium text-[#64748B] whitespace-nowrap">{currency}</td>
-                        <td className="py-3.5 px-4 whitespace-nowrap">
-                          <span className={`inline-block px-3 py-1 rounded-lg font-bold text-[11px] whitespace-nowrap ${statusStyle}`}>
-                            {statusLabel}
-                          </span>
+
+                        {/* Project Name */}
+                        <td className="py-3 px-3.5 font-bold text-[#111827]">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedProject(proj);
+                              if (onSelectProject) onSelectProject(proj);
+                            }}
+                            className="text-left hover:text-[#049FD9] hover:underline cursor-pointer flex flex-col"
+                          >
+                            <span className="truncate max-w-[200px]">{proj.name}</span>
+                            <span className="text-[10px] text-[#94A3B8] font-normal truncate max-w-[200px]">
+                              {proj.category || 'General'}
+                            </span>
+                          </button>
                         </td>
-                        <td className="py-3.5 px-4 whitespace-nowrap">
-                          <div className="flex -space-x-1.5">
-                            {project.members.map((m, mIdx) => (
-                              <div
-                                key={mIdx}
-                                className="w-7 h-7 rounded-full bg-[#EBF0F5] border-2 border-white text-[#0F172A] font-extrabold text-[10px] flex items-center justify-center shadow-micro"
-                                title={m}
-                              >
-                                {m[0]}
-                              </div>
-                            ))}
+
+                        {/* Project Manager */}
+                        <td className="py-3 px-3.5 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-[#E0F2FE] text-[#049FD9] font-bold text-[10px] flex items-center justify-center shrink-0">
+                              {pmName[0]?.toUpperCase() || 'M'}
+                            </div>
+                            <span className="font-semibold text-[#111827]">{pmName}</span>
                           </div>
                         </td>
-                        <td className="py-3.5 px-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${prioStyle}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${prioDot}`} />
-                            <span>{prioLabel}</span>
-                          </span>
+
+                        {/* Assigned Employees */}
+                        <td className="py-3 px-3.5 whitespace-nowrap">
+                          <div className="flex items-center -space-x-1.5 overflow-hidden">
+                            {membersList.slice(0, 4).map((m, idx) => {
+                              const emp = getMemberProfile(m);
+                              return (
+                                <div
+                                  key={idx}
+                                  title={emp?.name || m}
+                                  className={`w-6 h-6 rounded-full border border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs ${
+                                    emp?.avatarBg || 'bg-[#049FD9]'
+                                  }`}
+                                >
+                                  {emp?.avatar || m[0]?.toUpperCase() || 'E'}
+                                </div>
+                              );
+                            })}
+                            {membersList.length > 4 && (
+                              <div className="w-6 h-6 rounded-full bg-[#E2E8F0] border border-white flex items-center justify-center text-[9px] font-bold text-[#475569]">
+                                +{membersList.length - 4}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Start Date */}
+                        <td className="py-3 px-3.5 text-[#64748B] whitespace-nowrap">
+                          {proj.startDate || '—'}
+                        </td>
+
+                        {/* End Date */}
+                        <td className="py-3 px-3.5 text-[#64748B] whitespace-nowrap">
+                          {proj.endDate || proj.deadline || '—'}
+                        </td>
+
+                        {/* Priority */}
+                        <td className="py-3 px-3.5 whitespace-nowrap">
+                          {renderPriorityBadge(proj.priority)}
+                        </td>
+
+                        {/* Project Status */}
+                        <td className="py-3 px-3.5 whitespace-nowrap">
+                          {renderStatusBadge(proj.status)}
+                        </td>
+
+                        {/* Progress */}
+                        <td className="py-3 px-3.5 whitespace-nowrap">
+                          <div className="w-24">
+                            <div className="flex items-center justify-between text-[10px] font-semibold text-[#475569] mb-1">
+                              <span>{taskMetrics.completionRate}%</span>
+                              <span className="text-[9px] text-[#94A3B8]">({taskMetrics.completed}/{taskMetrics.total})</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-[#10B981] rounded-full"
+                                style={{ width: `${taskMetrics.completionRate}%` }}
+                              />
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-3 px-3.5 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedProject(proj);
+                                if (onSelectProject) onSelectProject(proj);
+                              }}
+                              className="px-2.5 py-1 rounded bg-[#E0F2FE] hover:bg-[#BAE6FD] text-[#0284C7] font-semibold text-[11px] cursor-pointer transition-colors"
+                              title="View full project details"
+                            >
+                              View
+                            </button>
+
+                            {isAdmin && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenEdit(proj)}
+                                  className="px-2.5 py-1 rounded bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-semibold text-[11px] cursor-pointer transition-colors"
+                                  title="Edit project"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setManagingTeamProject(proj)}
+                                  className="px-2.5 py-1 rounded bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-semibold text-[11px] cursor-pointer transition-colors"
+                                  title="Manage team members"
+                                >
+                                  Team
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setStatusChangeProject(proj)}
+                                  className="px-2.5 py-1 rounded bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-semibold text-[11px] cursor-pointer transition-colors"
+                                  title="Change status"
+                                >
+                                  Status
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setArchivingProject(proj)}
+                                  className="px-2 py-1 rounded text-[#94A3B8] hover:text-[#EF4444] hover:bg-[#FEF2F2] text-[11px] cursor-pointer transition-colors"
+                                  title="Archive project"
+                                >
+                                  ✕
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -1493,116 +2006,121 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               </tbody>
             </table>
           </div>
-
-          <div className="p-4 bg-[#F1F3F6] border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-semibold text-[#64748B]">
-            <div className="flex items-center gap-2">
-              <select className="px-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg text-xs font-bold text-[#0F172A] focus:outline-none cursor-pointer">
-                <option>{processedProjects.length} Documents</option>
-                <option>10 Documents</option>
-                <option>25 Documents</option>
-              </select>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button
-                disabled
-                className="px-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg text-[#64748B] font-bold opacity-60 cursor-not-allowed"
-              >
-                ‹ Previous
-              </button>
-              <button className="w-8 h-8 bg-[#011826] text-white font-medium rounded-md border border-[#011826] flex items-center justify-center text-xs">
-                1
-              </button>
-              <button
-                disabled
-                className="px-3 py-1.5 bg-white border border-[#E2E8F0] rounded-lg text-[#64748B] font-bold opacity-60 cursor-not-allowed"
-              >
-                Next ›
-              </button>
-            </div>
-          </div>
         </div>
       )}
 
-      {/* CARDS VIEW GRID */}
+      {/* 5. CARDS VIEW */}
       {viewMode === 'cards' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {processedProjects.length === 0 ? (
-            <div className="p-10 text-center bg-white rounded-2xl border border-[#E2E8F0] shadow-micro space-y-3 col-span-full">
-              <p className="text-[#64748B] font-medium">No projects match your selected filter criteria.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {displayedProjects.length === 0 ? (
+            <div className="col-span-full py-12 text-center text-[#64748B] bg-white rounded-lg border border-[#E5E5E5]">
+              <p className="font-semibold text-sm text-[#111827]">No projects match your filters.</p>
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="px-4 py-2 bg-[#EBF0F5] text-[#0F172A] font-bold rounded-lg border border-[#E2E8F0] hover:bg-slate-200 transition-colors cursor-pointer text-xs"
+                className="mt-2 px-3 py-1.5 bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] font-semibold text-xs rounded-md border border-[#E5E5E5] cursor-pointer"
               >
                 Reset All Filters
               </button>
             </div>
           ) : (
-            processedProjects.map((project) => {
-              const rawStatus = project.status || 'Active';
-              let statusStyle = 'bg-[#ECFDF5] text-[#10B981] border-emerald-200';
-              if (rawStatus.toLowerCase().includes('design')) {
-                statusStyle = 'bg-[#EFF6FF] text-[#2563EB] border-blue-200';
-              } else if (
-                rawStatus.toLowerCase().includes('brief') ||
-                rawStatus.toLowerCase().includes('hold')
-              ) {
-                statusStyle = 'bg-[#FFFBEB] text-[#F59E0B] border-amber-200';
-              }
+            displayedProjects.map((proj) => {
+              const taskMetrics = getProjectTaskMetrics(proj);
+              const membersList = proj.members || [];
 
               return (
                 <div
-                  key={project.id}
-                  onClick={() => handleSelectProject(project)}
-                  className="bg-white rounded-xl border border-[#E2E8F0] p-3.5 shadow-micro hover:shadow-card hover:border-[#CBD5E1] transition-all flex flex-col justify-between space-y-3 cursor-pointer group"
-                  title="Click card to view details"
+                  key={proj.id}
+                  className="bg-white rounded-lg border border-[#E5E5E5] p-5 shadow-2xs hover:border-[#049FD9] transition-all flex flex-col justify-between space-y-4"
                 >
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="w-7 h-7 rounded-md bg-[#F0F9FF] text-[#049FD9] flex items-center justify-center font-bold transition-colors">
-                        <FolderIcon className="w-3.5 h-3.5" />
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="font-mono text-[10px] font-bold text-[#049FD9] block">
+                          {proj.projectId || proj.id}
+                        </span>
+                        <h3 className="font-bold text-base text-[#111827] mt-0.5 line-clamp-1">{proj.name}</h3>
                       </div>
-                      <span
-                        className={`text-[9px] font-extrabold px-2 py-0.5 rounded border uppercase tracking-wider ${statusStyle}`}
-                      >
-                        {rawStatus.toUpperCase()}
-                      </span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {renderPriorityBadge(proj.priority)}
+                        {renderStatusBadge(proj.status)}
+                      </div>
                     </div>
-                    <h3 className="text-sm font-semibold text-[#0F172A] leading-snug group-hover:text-[#049FD9] transition-colors">
-                      {project.name}
-                    </h3>
-                  </div>
 
-                  <div className="space-y-2 pt-2 border-t border-[#E2E8F0]">
-                    <div>
-                      <div className="flex justify-between text-[10px] font-semibold text-[#334155] mb-1">
-                        <span>Progress</span>
-                        <span>{project.progress}%</span>
+                    <p className="text-xs text-[#64748B] line-clamp-2 leading-relaxed">
+                      {proj.description || 'No description provided.'}
+                    </p>
+
+                    <div className="pt-2 border-t border-[#F1F5F9] space-y-1.5 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-[#94A3B8]">Manager:</span>
+                        <span className="font-semibold text-[#111827]">{proj.manager || 'Workspace Admin'}</span>
                       </div>
-                      <div className="w-full bg-[#EBF0F5] rounded-full h-1.5 overflow-hidden">
+                      <div className="flex justify-between">
+                        <span className="text-[#94A3B8]">Deadline:</span>
+                        <span className="font-semibold text-[#111827]">{proj.endDate || proj.deadline || '—'}</span>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div>
+                      <div className="flex justify-between text-xs font-semibold text-[#475569] mb-1">
+                        <span>Progress</span>
+                        <span className="text-[#049FD9]">{taskMetrics.completionRate}%</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
                         <div
-                          className="bg-[#049FD9] h-full rounded-full transition-all duration-500"
-                          style={{ width: `${project.progress}%` }}
+                          className="h-full bg-[#10B981] rounded-full"
+                          style={{ width: `${taskMetrics.completionRate}%` }}
                         />
                       </div>
                     </div>
+                  </div>
 
-                    <div className="flex items-center justify-between pt-0.5 text-[10px] font-semibold text-[#64748B]">
-                      <div>
-                        <span className="font-extrabold text-[#0F172A]">{project.openToDos}</span> open to-dos
-                      </div>
-                      <div className="flex -space-x-1">
-                        {project.members.map((m, idx) => (
+                  {/* Card Footer */}
+                  <div className="pt-3 border-t border-[#F1F5F9] flex items-center justify-between">
+                    <div className="flex items-center -space-x-1.5">
+                      {membersList.slice(0, 3).map((m, idx) => {
+                        const emp = getMemberProfile(m);
+                        return (
                           <div
                             key={idx}
-                            className="w-5.5 h-5.5 rounded-full bg-[#EBF0F5] border border-white text-[#0F172A] font-extrabold text-[8px] flex items-center justify-center shadow-micro"
-                            title={m}
+                            title={emp?.name || m}
+                            className={`w-6 h-6 rounded-full border border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs ${
+                              emp?.avatarBg || 'bg-[#049FD9]'
+                            }`}
                           >
-                            {m[0]}
+                            {emp?.avatar || m[0]?.toUpperCase() || 'E'}
                           </div>
-                        ))}
-                      </div>
+                        );
+                      })}
+                      {membersList.length > 3 && (
+                        <div className="w-6 h-6 rounded-full bg-[#E2E8F0] border border-white flex items-center justify-center text-[9px] font-bold text-[#475569]">
+                          +{membersList.length - 3}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProject(proj);
+                          if (onSelectProject) onSelectProject(proj);
+                        }}
+                        className="px-3 py-1 rounded bg-[#E0F2FE] hover:bg-[#BAE6FD] text-[#0284C7] font-semibold text-xs cursor-pointer transition-colors"
+                      >
+                        View Project
+                      </button>
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(proj)}
+                          className="px-2.5 py-1 rounded bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-semibold text-xs cursor-pointer transition-colors"
+                        >
+                          Edit
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1612,39 +2130,60 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </div>
       )}
 
-      {/* KANBAN VIEW GRID */}
+      {/* 6. KANBAN VIEW */}
       {viewMode === 'kanban' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {['Active', 'Design', 'Brief'].map((columnStatus) => {
-            const colProjects = processedProjects.filter((p) => {
-              const s = (p.status || '').toLowerCase();
-              if (columnStatus === 'Active') return s.includes('active');
-              if (columnStatus === 'Design') return s.includes('design');
-              return s.includes('brief') || s.includes('hold');
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {(['planning', 'active', 'on_hold', 'completed'] as ProjectStatus[]).map((colStatus) => {
+            const colProjects = displayedProjects.filter((p) => {
+              const s = (p.status || 'planning').toLowerCase();
+              if (colStatus === 'on_hold') return s === 'on_hold' || s === 'on hold';
+              return s === colStatus;
             });
 
+            const colTitles: Record<string, string> = {
+              planning: 'Planning',
+              active: 'In Progress / Active',
+              on_hold: 'On Hold',
+              completed: 'Completed',
+            };
+
             return (
-              <div key={columnStatus} className="bg-[#F1F3F6] rounded-2xl p-4 border border-[#E2E8F0] space-y-3">
-                <div className="flex items-center justify-between font-extrabold text-xs text-[#0F172A] uppercase tracking-wider pb-1 border-b border-[#E2E8F0]">
-                  <span>{columnStatus} ({colProjects.length})</span>
+              <div key={colStatus} className="bg-[#F8FAFC] p-3.5 rounded-lg border border-[#E2E8F0] space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
+                  <h4 className="font-bold text-xs text-[#111827] uppercase tracking-wider">
+                    {colTitles[colStatus]}
+                  </h4>
+                  <span className="px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#E2E8F0] text-[#475569]">
+                    {colProjects.length}
+                  </span>
                 </div>
 
                 <div className="space-y-2.5">
                   {colProjects.length === 0 ? (
-                    <div className="p-4 text-center text-[#64748B] text-xs font-medium bg-white/50 rounded-xl border border-dashed border-[#E2E8F0]">
-                      No {columnStatus} projects
+                    <div className="py-6 text-center text-[11px] text-[#94A3B8]">
+                      No projects
                     </div>
                   ) : (
-                    colProjects.map((project) => (
+                    colProjects.map((proj) => (
                       <div
-                        key={project.id}
-                        onClick={() => handleSelectProject(project)}
-                        className="bg-white rounded-xl p-3 border border-[#E2E8F0] shadow-micro hover:shadow-card hover:border-[#CBD5E1] transition-all cursor-pointer space-y-2 group"
+                        key={proj.id}
+                        onClick={() => {
+                          setSelectedProject(proj);
+                          if (onSelectProject) onSelectProject(proj);
+                        }}
+                        className="bg-white p-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer space-y-2"
                       >
-                        <h4 className="font-bold text-xs text-[#0F172A] group-hover:underline">{project.name}</h4>
-                        <div className="flex justify-between items-center text-[10px] font-semibold text-[#64748B]">
-                          <span>{project.progress}% completed</span>
-                          <span className="font-bold text-[#0F172A]">{project.openToDos} to-dos</span>
+                        <div className="flex items-start justify-between gap-1">
+                          <span className="font-mono text-[9px] font-bold text-[#049FD9]">
+                            {proj.projectId || proj.id}
+                          </span>
+                          {renderPriorityBadge(proj.priority)}
+                        </div>
+                        <h5 className="font-bold text-xs text-[#111827] line-clamp-1">{proj.name}</h5>
+                        <p className="text-[11px] text-[#64748B] line-clamp-1">{proj.description}</p>
+                        <div className="flex items-center justify-between pt-1 border-t border-[#F1F5F9] text-[10px] text-[#94A3B8]">
+                          <span>PM: {proj.manager}</span>
+                          <span>{proj.progress || 0}%</span>
                         </div>
                       </div>
                     ))
@@ -1653,6 +2192,695 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 1: CREATE PROJECT (CONNECTED TO FIRESTORE)         */}
+      {/* ======================================================== */}
+      {isCreateModalOpen && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsCreateModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans overflow-y-auto"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <h3 className="text-base font-bold text-[#111827]">Create New Project</h3>
+                <p className="text-xs text-[#64748B]">Set up project scope, manager, team, timeline, and priorities.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(false)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCreate} className="space-y-3.5">
+              {/* Project Name */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Project Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Mobile Banking App v2"
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                />
+              </div>
+
+              {/* Project Description */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Project Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  rows={2}
+                  required
+                  placeholder="Key deliverables, business goals, requirements..."
+                  value={formDescription}
+                  onChange={(e) => setFormDescription(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              {/* Category & Priority */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Category</label>
+                  <select
+                    value={formCategory}
+                    onChange={(e) => setFormCategory(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    <option value="Web Development">Web Development</option>
+                    <option value="Mobile Apps">Mobile Apps</option>
+                    <option value="UI/UX Design">UI/UX Design</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="DevOps & Cloud">DevOps & Cloud</option>
+                    <option value="Internal Operations">Internal Operations</option>
+                    <option value="General">General</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Priority <span className="text-red-500">*</span></label>
+                  <select
+                    value={formPriority}
+                    onChange={(e) => setFormPriority(e.target.value as ProjectPriority)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Project Manager Selection */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Project Manager <span className="text-red-500">*</span>
+                </label>
+                <select
+                  required
+                  value={formManager}
+                  onChange={(e) => {
+                    const chosen = e.target.value;
+                    setFormManager(chosen);
+                    const emp = activeEmployees.find((p) => p.name === chosen);
+                    setFormManagerEmail(emp?.email || '');
+                    if (!formMembers.includes(chosen)) {
+                      setFormMembers([...formMembers, chosen]);
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                >
+                  <option value="">Select Project Manager...</option>
+                  {activeEmployees.map((emp) => (
+                    <option key={emp.id} value={emp.name}>
+                      {emp.name} ({emp.role || emp.designation} - {emp.department})
+                    </option>
+                  ))}
+                </select>
+                <span className="text-[10px] text-[#64748B] mt-0.5 block">
+                  Only active employees from Employee Management can lead projects.
+                </span>
+              </div>
+
+              {/* Team Members Multi-Select */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Assign Team Members ({formMembers.length} selected)
+                </label>
+                <div className="p-2.5 bg-[#F8FAFC] border border-[#CCCCCC] rounded-md max-h-36 overflow-y-auto space-y-1 text-xs">
+                  {activeEmployees.map((emp) => {
+                    const isChecked = formMembers.includes(emp.name);
+                    const isPM = emp.name === formManager;
+
+                    return (
+                      <label
+                        key={emp.id}
+                        className={`p-1.5 rounded flex items-center justify-between cursor-pointer transition-colors ${
+                          isChecked ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold' : 'hover:bg-white text-[#475569]'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            disabled={isPM}
+                            onChange={() => toggleFormMember(emp.name)}
+                            className="w-3.5 h-3.5 text-[#049FD9] rounded"
+                          />
+                          <span>{emp.name}</span>
+                          <span className="text-[10px] text-[#94A3B8]">({emp.role || emp.designation})</span>
+                        </div>
+                        {isPM && <span className="text-[10px] font-bold text-[#0284C7]">PM</span>}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Start Date & End Date */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">
+                    Start Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formStartDate}
+                    onChange={(e) => setFormStartDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">
+                    End Date / Deadline <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formEndDate}
+                    onChange={(e) => setFormEndDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  />
+                </div>
+              </div>
+
+              {/* Initial Status */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Initial Status</label>
+                <select
+                  value={formStatus}
+                  onChange={(e) => setFormStatus(e.target.value as ProjectStatus)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                >
+                  <option value="planning">Planning (Default)</option>
+                  <option value="active">Active</option>
+                </select>
+              </div>
+
+              {/* Project Notes */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Project Notes (Optional)</label>
+                <textarea
+                  rows={2}
+                  placeholder="Confidential notes, special client considerations..."
+                  value={formNotes}
+                  onChange={(e) => setFormNotes(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              {/* Modal Buttons */}
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="px-4 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="btn-primary py-2 px-5 text-xs font-semibold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {isProcessing ? (
+                    <>
+                      <RefreshCwIcon className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>Save Project</span>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 2: EDIT PROJECT                                    */}
+      {/* ======================================================== */}
+      {editingProject && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingProject(null);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans overflow-y-auto"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <h3 className="text-base font-bold text-[#111827]">Edit Project Information</h3>
+                <p className="text-xs text-[#64748B] font-mono">
+                  {editingProject.projectId || editingProject.id} • {editingProject.name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingProject(null)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-3.5">
+              {/* Project Name */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Project Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Project Description</label>
+                <textarea
+                  rows={2}
+                  value={formDescription}
+                  onChange={(e) => setFormDescription(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              {/* Category & Priority */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Category</label>
+                  <select
+                    value={formCategory}
+                    onChange={(e) => setFormCategory(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    <option value="Web Development">Web Development</option>
+                    <option value="Mobile Apps">Mobile Apps</option>
+                    <option value="UI/UX Design">UI/UX Design</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="DevOps & Cloud">DevOps & Cloud</option>
+                    <option value="Internal Operations">Internal Operations</option>
+                    <option value="General">General</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Priority</label>
+                  <select
+                    value={formPriority}
+                    onChange={(e) => setFormPriority(e.target.value as ProjectPriority)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Project Status</label>
+                <select
+                  value={formStatus}
+                  onChange={(e) => setFormStatus(e.target.value as ProjectStatus)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                >
+                  <option value="planning">Planning</option>
+                  <option value="active">Active</option>
+                  <option value="on_hold">On Hold</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+
+              {/* Project Manager */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Project Manager</label>
+                <select
+                  value={formManager}
+                  onChange={(e) => {
+                    const chosen = e.target.value;
+                    setFormManager(chosen);
+                    const emp = activeEmployees.find((p) => p.name === chosen);
+                    setFormManagerEmail(emp?.email || '');
+                    if (!formMembers.includes(chosen)) {
+                      setFormMembers([...formMembers, chosen]);
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                >
+                  {activeEmployees.map((emp) => (
+                    <option key={emp.id} value={emp.name}>
+                      {emp.name} ({emp.role || emp.designation})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Start Date & End Date */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    value={formStartDate}
+                    onChange={(e) => setFormStartDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">End Date / Deadline</label>
+                  <input
+                    type="date"
+                    value={formEndDate}
+                    onChange={(e) => setFormEndDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  />
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Project Notes</label>
+                <textarea
+                  rows={2}
+                  value={formNotes}
+                  onChange={(e) => setFormNotes(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+                <button
+                  type="button"
+                  onClick={() => setEditingProject(null)}
+                  className="px-4 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="btn-primary py-2 px-5 text-xs font-semibold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {isProcessing ? (
+                    <>
+                      <RefreshCwIcon className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>Save Changes</span>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 3: MANAGE TEAM MEMBERS                             */}
+      {/* ======================================================== */}
+      {managingTeamProject && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setManagingTeamProject(null);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <h3 className="text-base font-bold text-[#111827]">Manage Project Team</h3>
+                <p className="text-xs text-[#64748B] font-mono">
+                  {managingTeamProject.name} ({managingTeamProject.projectId || managingTeamProject.id})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setManagingTeamProject(null)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Current Project Manager */}
+            <div className="p-3 bg-[#E0F2FE] rounded-lg border border-[#BAE6FD] flex items-center justify-between text-xs">
+              <div>
+                <span className="text-[10px] text-[#0284C7] font-bold uppercase block">Current Project Manager</span>
+                <span className="font-bold text-[#111827] text-sm">{managingTeamProject.manager}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedNewPM}
+                  onChange={(e) => setSelectedNewPM(e.target.value)}
+                  className="px-2 py-1 text-xs bg-white border border-[#BAE6FD] rounded-md font-medium text-[#111827]"
+                >
+                  <option value="">Change PM to...</option>
+                  {activeEmployees.map((e) => (
+                    <option key={e.id} value={e.name}>
+                      {e.name}
+                    </option>
+                  ))}
+                </select>
+                {selectedNewPM && (
+                  <button
+                    type="button"
+                    onClick={handleChangePM}
+                    className="px-2.5 py-1 bg-[#0284C7] text-white rounded text-xs font-semibold cursor-pointer"
+                  >
+                    Update
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Add New Member Section */}
+            <div className="space-y-1.5 pt-2">
+              <label className="block text-xs font-semibold text-[#111827]">Add Active Employee to Team</label>
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedNewMember}
+                  onChange={(e) => setSelectedNewMember(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                >
+                  <option value="">Select active employee...</option>
+                  {activeEmployees
+                    .filter((e) => !(managingTeamProject.members || []).includes(e.name))
+                    .map((emp) => (
+                      <option key={emp.id} value={emp.name}>
+                        {emp.name} ({emp.role || emp.designation} - {emp.department})
+                      </option>
+                    ))}
+                </select>
+                <button
+                  type="button"
+                  disabled={!selectedNewMember || isProcessing}
+                  onClick={handleAddTeamMember}
+                  className="btn-primary py-2 px-4 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0"
+                >
+                  Add Member
+                </button>
+              </div>
+            </div>
+
+            {/* Members List */}
+            <div className="space-y-2 pt-2 border-t border-[#E5E5E5]">
+              <span className="text-xs font-semibold text-[#111827] block">
+                Current Members ({(managingTeamProject.members || []).length})
+              </span>
+              <div className="max-h-48 overflow-y-auto divide-y divide-[#F1F5F9] border border-[#E5E5E5] rounded-md p-1">
+                {(managingTeamProject.members || []).map((mStr) => {
+                  const emp = getMemberProfile(mStr);
+                  const isPM = mStr.toLowerCase() === (managingTeamProject.manager || '').toLowerCase();
+
+                  return (
+                    <div key={mStr} className="p-2 flex items-center justify-between gap-2 text-xs">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-[#111827]">{emp?.name || mStr}</span>
+                          {isPM && (
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#E0F2FE] text-[#0284C7]">
+                              PM
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-[#64748B] block">
+                          {emp?.department || 'General'} • {emp?.role || emp?.designation || 'Team Member'}
+                        </span>
+                      </div>
+
+                      {!isPM && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTeamMember(mStr)}
+                          className="text-xs text-[#EF4444] hover:underline cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setManagingTeamProject(null)}
+                className="btn-primary py-1.5 px-4 text-xs font-semibold cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 4: QUICK CHANGE STATUS                             */}
+      {/* ======================================================== */}
+      {statusChangeProject && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setStatusChangeProject(null);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-sm p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
+              <h3 className="text-sm font-bold text-[#111827]">Change Project Status</h3>
+              <button
+                type="button"
+                onClick={() => setStatusChangeProject(null)}
+                className="text-xs text-[#64748B] hover:text-[#111827]"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-[#64748B]">
+              Update the active lifecycle status for <strong>{statusChangeProject.name}</strong>.
+            </p>
+
+            <div className="space-y-2">
+              {(
+                [
+                  { s: 'planning', label: 'Planning', desc: 'Work has not started yet' },
+                  { s: 'active', label: 'Active', desc: 'Work is currently in progress' },
+                  { s: 'on_hold', label: 'On Hold', desc: 'Work is temporarily paused' },
+                  { s: 'completed', label: 'Completed', desc: 'Project successfully finished' },
+                  { s: 'cancelled', label: 'Cancelled', desc: 'Project has been terminated' },
+                ] as Array<{ s: ProjectStatus; label: string; desc: string }>
+              ).map(({ s, label, desc }) => {
+                const isSelected = (statusChangeProject.status || '').toLowerCase() === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => handleSaveStatusChange(s)}
+                    className={`w-full p-2.5 rounded-lg border text-left text-xs transition-all flex items-center justify-between cursor-pointer ${
+                      isSelected
+                        ? 'border-[#049FD9] bg-[#E0F2FE] text-[#0284C7] font-bold'
+                        : 'border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#334155]'
+                    }`}
+                  >
+                    <div>
+                      <span className="block font-semibold">{label}</span>
+                      <span className="text-[10px] text-[#64748B] block mt-0.5">{desc}</span>
+                    </div>
+                    {isSelected && <span className="text-[#0284C7] font-bold">✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="pt-2 border-t border-[#E5E5E5] flex justify-end">
+              <button
+                type="button"
+                onClick={() => setStatusChangeProject(null)}
+                className="px-3 py-1.5 rounded-md bg-[#F4F6F8] text-[#111827] text-xs font-semibold cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 5: ARCHIVE / DELETE CONFIRMATION                   */}
+      {/* ======================================================== */}
+      {archivingProject && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setArchivingProject(null);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-sm p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="w-10 h-10 rounded-full bg-[#FEF2F2] text-[#EF4444] flex items-center justify-center font-bold text-lg mx-auto">
+              ⚠️
+            </div>
+            <div className="text-center space-y-1">
+              <h3 className="font-bold text-base text-[#111827]">Archive or Delete Project</h3>
+              <p className="text-xs text-[#64748B]">
+                Are you sure you want to manage <strong>{archivingProject.name}</strong>?
+              </p>
+            </div>
+
+            <div className="space-y-2 pt-2">
+              <button
+                type="button"
+                onClick={() => handleConfirmArchive('archive')}
+                className="w-full py-2 px-3 rounded-md bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#B45309] font-bold text-xs cursor-pointer transition-colors"
+              >
+                Archive Project (Hide from view)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleConfirmArchive('delete')}
+                className="w-full py-2 px-3 rounded-md bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#DC2626] font-bold text-xs cursor-pointer transition-colors"
+              >
+                Permanently Delete Project
+              </button>
+              <button
+                type="button"
+                onClick={() => setArchivingProject(null)}
+                className="w-full py-2 px-3 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] font-semibold text-xs cursor-pointer transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

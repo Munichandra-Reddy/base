@@ -801,15 +801,22 @@ export default function Home() {
     } catch (e) {}
   };
 
-  // Add Project with localStorage & Firebase Persistence
+  // Add Project with Firestore & Backend Persistence
   const handleAddProject = async (
     projectData:
       | {
           name: string;
           description: string;
           manager?: string;
+          managerEmail?: string;
           members?: string[];
+          startDate?: string;
+          endDate?: string;
           deadline?: string;
+          priority?: 'low' | 'medium' | 'high' | 'critical';
+          status?: 'planning' | 'active' | 'on_hold' | 'completed' | 'cancelled';
+          category?: string;
+          notes?: string;
           requiredDocuments?: string[];
         }
       | string,
@@ -817,68 +824,66 @@ export default function Home() {
   ) => {
     let name = '';
     let description = '';
-    let manager = currentUser?.fullName || 'Rahul Kumar';
+    let manager = currentUser?.fullName || 'Workspace Admin';
+    let managerEmail = currentUser?.email || '';
     let members: string[] = [manager];
-    let deadline = '2026-11-30';
+    const nowStr = new Date().toISOString().split('T')[0];
+    const defaultEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    let startDate = nowStr;
+    let endDate = defaultEnd;
+    let priority = 'medium';
+    let status = 'planning';
+    let category = 'Web Development';
+    let notes = '';
     let requiredDocuments: string[] = [];
 
     if (typeof projectData === 'object') {
       name = projectData.name;
       description = projectData.description || 'New project workspace.';
       manager = projectData.manager || manager;
+      managerEmail = projectData.managerEmail || managerEmail;
       members = projectData.members && projectData.members.length > 0 ? projectData.members : [manager];
-      deadline = projectData.deadline || deadline;
+      startDate = projectData.startDate || startDate;
+      endDate = projectData.endDate || projectData.deadline || endDate;
+      priority = projectData.priority || priority;
+      status = projectData.status || status;
+      category = projectData.category || category;
+      notes = projectData.notes || notes;
       requiredDocuments = projectData.requiredDocuments || [];
     } else {
       name = projectData;
       description = descArg || 'New project workspace.';
     }
 
-    const newProj: Project = {
-      id: `p-${Date.now()}`,
-      name,
-      status: 'active',
-      progress: 0,
-      openToDos: 5,
-      members,
-      description,
-      updatedAt: 'Just now',
-      deadline,
-      manager,
-      requiredDocuments,
-    };
-
-    setProjects((prev) => {
-      const updated = [newProj, ...prev];
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('workorbit_projects', JSON.stringify(updated));
-      }
-      return updated;
-    });
-
-    // Record activity for new project creation
-    const newAct: Activity = {
-      id: `act-${Date.now()}`,
-      userName: manager,
-      userAvatar: manager[0]?.toUpperCase() || 'R',
-      avatarBg: 'bg-[#6CC04A] text-white',
-      action: 'created project',
-      target: name,
-      timeAgo: 'Just now',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    setActivities((prev) => {
-      const updated = [newAct, ...prev];
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('workorbit_activities', JSON.stringify(updated));
-      }
-      return updated;
-    });
-
     try {
-      await addFirebaseProject(newProj);
-    } catch (err) {}
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          name,
+          description,
+          manager,
+          managerEmail,
+          members,
+          startDate,
+          endDate,
+          priority,
+          status,
+          category,
+          notes,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.project) {
+        setProjects((prev) => [data.project, ...prev.filter((p) => p.id !== data.project.id)]);
+      }
+    } catch (e) {
+      console.error('Error creating project via backend:', e);
+    }
   };
 
   const handleSendMessage = async (content: string, channel: string) => {
@@ -1137,11 +1142,26 @@ export default function Home() {
                   projects={projects}
                   tasks={tasks}
                   files={files}
-                  onOpenCreateProject={() => setIsCreateModalOpen(true)}
+                  people={people}
+                  onOpenCreateProject={() => {
+                    setCreateModalType('project');
+                    setIsCreateModalOpen(true);
+                  }}
                   isAdmin={dashboardRole === 'admin'}
                   currentUser={currentUser}
                   selectedProjectId={selectedProjectId}
                   onSelectProject={(proj) => setSelectedProjectId(proj ? proj.id : null)}
+                  onUpdateProject={(updatedProj) => {
+                    setProjects((prev) =>
+                      prev.map((p) => (p.id === updatedProj.id ? updatedProj : p))
+                    );
+                  }}
+                  onDeleteProject={(projId) => {
+                    setProjects((prev) => prev.filter((p) => p.id !== projId));
+                  }}
+                  onNavigateToEmployee={(email) => {
+                    handleTabChange('people');
+                  }}
                 />
               )}
 

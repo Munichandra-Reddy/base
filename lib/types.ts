@@ -7,23 +7,50 @@ export interface Task {
   assignedTo?: string;
   priority?: 'low' | 'medium' | 'high';
   description?: string;
+  status?: 'pending' | 'in_progress' | 'completed';
+}
+
+export type ProjectStatus = 'planning' | 'active' | 'on_hold' | 'completed' | 'cancelled';
+export type ProjectPriority = 'low' | 'medium' | 'high' | 'critical';
+
+export interface ProjectMember {
+  id?: string;
+  employeeId?: string;
+  name: string;
+  email: string;
+  designation?: string;
+  department?: string;
+  role?: 'manager' | 'member';
+  avatar?: string;
+  avatarBg?: string;
+  addedAt?: string;
 }
 
 export interface Project {
   id: string;
+  projectId?: string;
   name: string;
-  status: 'active' | 'completed' | 'on_hold' | string;
+  status: ProjectStatus | string;
   progress: number;
-  openToDos: number;
+  openToDos?: number;
   members: string[];
+  memberDetails?: ProjectMember[];
   description: string;
   updatedAt: string;
   startDate?: string;
+  endDate?: string;
   deadline?: string;
+  category?: string;
   currency?: string;
-  priority?: 'high' | 'medium' | 'low';
+  priority?: ProjectPriority | string;
   manager?: string;
+  managerEmail?: string;
+  managerId?: string;
+  notes?: string;
+  attachments?: string[];
   requiredDocuments?: string[];
+  createdAt?: string;
+  archived?: boolean;
 }
 
 export interface Activity {

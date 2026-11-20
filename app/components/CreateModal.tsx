@@ -20,8 +20,15 @@ interface CreateModalProps {
     name: string;
     description: string;
     manager?: string;
+    managerEmail?: string;
     members?: string[];
     deadline?: string;
+    startDate?: string;
+    endDate?: string;
+    priority?: 'low' | 'medium' | 'high' | 'critical';
+    status?: 'planning' | 'active' | 'on_hold' | 'completed' | 'cancelled';
+    category?: string;
+    notes?: string;
     requiredDocuments?: string[];
   } | string, descArg?: string) => void;
   people?: Person[];
@@ -118,9 +125,14 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   // Project Form State (Initially Empty)
   const [projectName, setProjectName] = useState('');
   const [projectDesc, setProjectDesc] = useState('');
+  const [projectCategory, setFormProjectCategory] = useState('Web Development');
   const [projectManager, setProjectManager] = useState('');
   const [projectMembers, setProjectMembers] = useState<string[]>([]);
+  const [projectStartDate, setProjectStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [projectDeadline, setProjectDeadline] = useState('');
+  const [projectPriority, setProjectPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
+  const [projectStatus, setProjectStatus] = useState<'planning' | 'active'>('planning');
+  const [projectNotes, setProjectNotes] = useState('');
   const [docInputText, setDocInputText] = useState('');
   const [requiredDocs, setRequiredDocs] = useState<string[]>([]);
 
@@ -155,12 +167,23 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       finalDocs.push(docInputText.trim());
     }
 
+    // Ensure PM is included in project members
+    const membersSet = new Set<string>();
+    if (projectManager.trim()) membersSet.add(projectManager.trim());
+    projectMembers.forEach((m) => membersSet.add(m));
+
     onAddProject({
       name: projectName.trim(),
       description: projectDesc.trim(),
+      category: projectCategory,
       manager: projectManager.trim() || undefined,
-      members: projectMembers,
+      members: Array.from(membersSet),
+      startDate: projectStartDate,
+      endDate: projectDeadline || undefined,
       deadline: projectDeadline || undefined,
+      priority: projectPriority,
+      status: projectStatus,
+      notes: projectNotes,
       requiredDocuments: finalDocs,
     });
 
@@ -169,6 +192,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
     setProjectManager('');
     setProjectMembers([]);
     setProjectDeadline('');
+    setProjectNotes('');
     setDocInputText('');
     setRequiredDocs([]);
     onClose();
@@ -659,18 +683,53 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 />
               </div>
 
+              {/* Category & Priority */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#222222] mb-1">Category</label>
+                  <select
+                    value={projectCategory}
+                    onChange={(e) => setFormProjectCategory(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#222222] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    <option value="Web Development">Web Development</option>
+                    <option value="Mobile Apps">Mobile Apps</option>
+                    <option value="UI/UX Design">UI/UX Design</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="DevOps & Cloud">DevOps & Cloud</option>
+                    <option value="Internal Operations">Internal Operations</option>
+                    <option value="General">General</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#222222] mb-1">Priority</label>
+                  <select
+                    value={projectPriority}
+                    onChange={(e) => setProjectPriority(e.target.value as any)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#222222] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+              </div>
+
               {/* 3. Project Manager - Direct Dropdown, Initially Empty */}
               <div>
-                <label className="block text-xs font-semibold text-[#222222] mb-1">Manager</label>
+                <label className="block text-xs font-semibold text-[#222222] mb-1">Project Manager <span className="text-red-500">*</span></label>
                 <select
+                  required
                   value={projectManager}
                   onChange={(e) => setProjectManager(e.target.value)}
-                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all cursor-pointer"
+                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all cursor-pointer"
                 >
                   <option value="">Select Manager...</option>
                   {employeeList.map((emp) => (
                     <option key={emp.id} value={emp.name}>
-                      {emp.name} ({emp.role})
+                      {emp.name} ({emp.role || emp.designation} - {emp.department})
                     </option>
                   ))}
                 </select>
@@ -697,7 +756,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                             className="w-4 h-4 rounded text-[#049FD9] focus:ring-[#049FD9] accent-[#049FD9] cursor-pointer"
                           />
                           <span className="text-xs font-semibold">{emp.name}</span>
-                          <span className="text-[10px] text-[#595959]">({emp.role})</span>
+                          <span className="text-[10px] text-[#595959]">({emp.role || emp.designation})</span>
                         </div>
                       </label>
                     );
@@ -705,15 +764,55 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 </div>
               </div>
 
-              {/* 5. Deadline */}
-              <div>
-                <label className="block text-xs font-semibold text-[#222222] mb-1">Deadline</label>
-                <input
-                  type="date"
-                  value={projectDeadline}
-                  onChange={(e) => setProjectDeadline(e.target.value)}
-                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] cursor-pointer"
-                />
+              {/* 5. Start Date & Deadline */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#222222] mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={projectStartDate}
+                    onChange={(e) => setProjectStartDate(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#222222] mb-1">End Date / Deadline</label>
+                  <input
+                    type="date"
+                    required
+                    value={projectDeadline}
+                    onChange={(e) => setProjectDeadline(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              {/* Status & Notes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#222222] mb-1">Initial Status</label>
+                  <select
+                    value={projectStatus}
+                    onChange={(e) => setProjectStatus(e.target.value as any)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#222222] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    <option value="planning">Planning (Default)</option>
+                    <option value="active">Active</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#222222] mb-1">Project Notes</label>
+                  <input
+                    type="text"
+                    placeholder="Confidential notes or details..."
+                    value={projectNotes}
+                    onChange={(e) => setProjectNotes(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#222222] focus:outline-none focus:border-[#049FD9]"
+                  />
+                </div>
               </div>
 
               {/* 6. Required Documents */}
