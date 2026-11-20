@@ -86,7 +86,7 @@ export function sendSmtpEmail(options: SmtpOptions): Promise<{ success: boolean;
         case 0: // 220 Initial server greeting
           if (code === 220) {
             step = 1;
-            send('EHLO mail.gmail.com');
+            send('EHLO localhost');
           }
           break;
 
@@ -153,9 +153,8 @@ export function sendSmtpEmail(options: SmtpOptions): Promise<{ success: boolean;
               .toString('base64')
               .replace(/(.{76})/g, '$1\r\n');
 
-            const fromHeader = options.from || `"Basecamp" <${cleanUser}>`;
-            const dateHeader = new Date().toUTCString();
-            const messageId = `<${Date.now()}.${Math.random().toString(36).substring(2, 10)}@gmail.com>`;
+            const fromHeader = options.from || `"Basecamp Workspace" <${cleanUser}>`;
+            const dateHeader = new Date().toUTCString().replace('GMT', '+0000');
 
             const emailHeaders = [
               `Date: ${dateHeader}`,
@@ -163,7 +162,6 @@ export function sendSmtpEmail(options: SmtpOptions): Promise<{ success: boolean;
               `To: <${cleanTo}>`,
               `Reply-To: ${fromHeader}`,
               `Subject: ${encodedSubject}`,
-              `Message-ID: ${messageId}`,
               'MIME-Version: 1.0',
               `Content-Type: multipart/alternative; boundary="${boundary}"`,
             ];

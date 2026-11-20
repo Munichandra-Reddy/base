@@ -91,8 +91,7 @@ export async function POST(request: Request) {
       }
     } catch (e) {}
 
-    const setupPasswordLink = `${baseUrl}/setup-password?token=${invitationToken}&email=${encodeURIComponent(email)}`;
-    const fallbackLink = `${baseUrl}/?inviteToken=${invitationToken}&email=${encodeURIComponent(email)}#setup-password`;
+    const setupPasswordLink = `${baseUrl}/setup-password?token=${invitationToken}`;
     const loginLink = `${baseUrl}/`;
 
     // Email dispatch
@@ -102,7 +101,7 @@ export async function POST(request: Request) {
     const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
 
     // Clean ASCII subject with verification code for 100% Primary / Normal Inbox deliverability
-    const emailSubject = `${actionCode} is your Basecamp verification code: Welcome to Basecamp - Your Employee Account Invitation (Resent)`;
+    const emailSubject = `${actionCode} is your Basecamp verification code`;
 
     const plainTextContent = `Hello ${fullName},
 
@@ -121,12 +120,10 @@ Account details:
 Please set your permanent password using this secure link:
 ${setupPasswordLink}
 
-(Alternative link: ${fallbackLink})
-
 This invitation is valid for 48 hours.
 
-Welcome to the team!
-- Basecamp Workspace`;
+Best regards,
+Basecamp Workspace Team`;
 
     const htmlContent = `<!DOCTYPE html>
 <html lang="en">
@@ -247,7 +244,7 @@ Welcome to the team!
       port: smtpPort,
       user: smtpUser,
       pass: smtpPass,
-      from: `"Basecamp" <${smtpUser}>`,
+      from: `"Basecamp Workspace" <${smtpUser}>`,
       to: email,
       subject: emailSubject,
       html: htmlContent,
