@@ -19,6 +19,109 @@ import {
   ShieldCheckIcon,
 } from './Icons';
 
+interface FilterDropdownProps {
+  label?: string;
+  value: string;
+  onChange: (val: string) => void;
+  options: Array<{ value: string; label: string }>;
+  align?: 'left' | 'right';
+  className?: string;
+}
+
+const FilterDropdown: React.FC<FilterDropdownProps> = ({
+  label,
+  value,
+  onChange,
+  options,
+  align = 'left',
+  className = '',
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  const selectedOption =
+    options.find((o) => o.value.toLowerCase() === value.toLowerCase()) || options[0];
+  const isSelected = value !== 'all' && value !== 'name_asc';
+
+  return (
+    <div className={`relative inline-block text-left ${className}`} ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border transition-all cursor-pointer whitespace-nowrap select-none ${
+          isSelected
+            ? 'bg-[#E0F2FE] border-[#049FD9] text-[#0284C7] font-semibold shadow-2xs'
+            : 'bg-[#F8FAFC] hover:bg-white border-[#E2E8F0] hover:border-[#CBD5E1] text-[#334155]'
+        }`}
+      >
+        {label && <span className="text-[#64748B] font-semibold">{label}:</span>}
+        <span className="truncate max-w-[130px] sm:max-w-[160px]">{selectedOption?.label || value}</span>
+        <svg
+          className={`w-3.5 h-3.5 text-[#64748B] transition-transform duration-150 shrink-0 ${
+            isOpen ? 'rotate-180 text-[#049FD9]' : ''
+          }`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* DROPDOWN MENU - STRICTLY POSITIONED BELOW WITH top-full mt-1.5 */}
+      {isOpen && (
+        <div
+          className={`absolute top-full mt-1.5 w-max min-w-[190px] max-w-[320px] max-h-60 overflow-y-auto bg-white border border-[#E2E8F0] rounded-lg shadow-xl z-50 py-1 font-sans animate-in fade-in zoom-in-95 duration-100 ${
+            align === 'right' ? 'right-0' : 'left-0'
+          }`}
+          style={{ top: '100%' }}
+        >
+          {options.map((opt) => {
+            const active = opt.value.toLowerCase() === value.toLowerCase();
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between gap-3 transition-colors cursor-pointer ${
+                  active
+                    ? 'bg-[#F0F9FF] text-[#0284C7] font-bold'
+                    : 'text-[#1F2937] hover:bg-[#F8FAFC]'
+                }`}
+              >
+                <span className="truncate">{opt.label}</span>
+                {active && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 interface PeopleViewProps {
   people: Person[];
   projects?: Project[];
@@ -716,12 +819,12 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
         </div>
       </div>
 
-      {/* 2. TOP ACTION BAR (Header & Mode Toggle) */}
-      <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
+      {/* 2. TOP ACTION BAR (Header & Mode Toggle - Perfectly Responsive) */}
+      <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-xl font-bold text-[#111827]">Employee Directory & Operations</h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5]">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#F0F9FF] text-[#0284C7] border border-[#BAE6FD]">
               {displayPeople.length} {displayPeople.length === 1 ? 'employee' : 'employees'}
             </span>
           </div>
@@ -730,13 +833,13 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0 self-start xl:self-auto">
           {/* Table / Cards Toggle */}
-          <div className="flex items-center bg-[#F4F6F8] border border-[#E5E5E5] rounded-md p-0.5">
+          <div className="flex items-center bg-[#F4F6F8] border border-[#E5E5E5] rounded-md p-0.5 shrink-0">
             <button
               type="button"
               onClick={() => setViewMode('table')}
-              className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors cursor-pointer ${
                 viewMode === 'table' ? 'bg-white text-[#111827] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#111827]'
               }`}
             >
@@ -745,7 +848,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
             <button
               type="button"
               onClick={() => setViewMode('grid')}
-              className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors cursor-pointer ${
                 viewMode === 'grid' ? 'bg-white text-[#111827] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#111827]'
               }`}
             >
@@ -761,7 +864,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                 setIsDeptModalOpen(true);
                 fetchDepartmentsAndDesignations();
               }}
-              className="px-3 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E5E5E5] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap"
             >
               <FolderIcon className="w-3.5 h-3.5 text-[#64748B]" />
               <span>Departments & Roles</span>
@@ -772,7 +875,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
           {isAdmin && onOpenAddEmployee && (
             <button
               onClick={onOpenAddEmployee}
-              className="btn-primary shrink-0 flex items-center gap-1.5 text-xs py-2 px-3.5 cursor-pointer"
+              className="btn-primary shrink-0 flex items-center gap-1.5 text-xs py-2 px-4 cursor-pointer whitespace-nowrap shadow-2xs"
             >
               <PlusIcon className="w-4 h-4" />
               <span>Add Employee</span>
@@ -804,110 +907,103 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
         </div>
       )}
 
-      {/* 3. SEARCH, FILTERS & CONTROLS BAR */}
+      {/* 3. SEARCH, FILTERS & CONTROLS BAR (PERFECT RESPONSIVE ALIGNMENT & BELOW-DROPDOWNS) */}
       <div className="bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3">
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
-          {/* Search Box */}
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder="Search by name, work email, Employee ID, designation..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] focus:bg-white transition-all"
+        {/* Full-Width Search Input (Never Squeezed) */}
+        <div className="relative w-full">
+          <input
+            type="text"
+            placeholder="Search by employee name, email, Employee ID, designation, department..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-9 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] focus:bg-white transition-all shadow-2xs"
+          />
+          <SearchIcon className="w-4 h-4 text-[#94A3B8] absolute left-3 top-2.5 pointer-events-none" />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-2 text-[#94A3B8] hover:text-[#111827] text-xs font-bold p-1 cursor-pointer"
+              title="Clear search"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* Filter Controls Row (Dropdowns Strictly Display Below) */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 pt-2 border-t border-[#F1F5F9]">
+          {/* Filter Pills Group */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider flex items-center gap-1 mr-0.5">
+              <FilterIcon className="w-3.5 h-3.5 text-[#64748B]" />
+              <span>Filters:</span>
+            </span>
+
+            {/* Department Custom Dropdown (Always Displays Below) */}
+            <FilterDropdown
+              label="Dept"
+              value={departmentFilter}
+              onChange={setDepartmentFilter}
+              options={[
+                { value: 'all', label: 'All Departments' },
+                ...departmentList.map((d) => ({ value: d.name, label: d.name })),
+              ]}
             />
-            <SearchIcon className="w-4 h-4 text-[#94A3B8] absolute left-3 top-2.5" />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-2.5 text-[#94A3B8] hover:text-[#111827] text-xs font-bold"
-              >
-                ✕
-              </button>
-            )}
+
+            {/* Designation / Role Custom Dropdown (Always Displays Below) */}
+            <FilterDropdown
+              label="Role"
+              value={designationFilter}
+              onChange={setDesignationFilter}
+              options={[
+                { value: 'all', label: 'All Designations' },
+                ...designationList.map((des) => ({ value: des.name, label: des.name })),
+              ]}
+            />
+
+            {/* Account Status Custom Dropdown (Always Displays Below) */}
+            <FilterDropdown
+              label="Status"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                { value: 'all', label: 'All Statuses' },
+                { value: 'active', label: 'Active' },
+                { value: 'invited', label: 'Invited' },
+                { value: 'inactive', label: 'Inactive' },
+                { value: 'suspended', label: 'Suspended' },
+              ]}
+            />
+
+            {/* Joining Date Custom Dropdown (Always Displays Below) */}
+            <FilterDropdown
+              label="Joined"
+              value={joiningDateFilter}
+              onChange={setJoiningDateFilter}
+              options={[
+                { value: 'all', label: 'All Time' },
+                { value: '30days', label: 'Last 30 Days' },
+                { value: '90days', label: 'Last 90 Days' },
+                { value: 'this_year', label: 'This Year (2026)' },
+              ]}
+            />
           </div>
 
-          {/* Quick Filters Grid */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Department Dropdown */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-semibold text-[#64748B] hidden xl:inline">Dept:</span>
-              <select
-                value={departmentFilter}
-                onChange={(e) => setDepartmentFilter(e.target.value)}
-                className="px-2.5 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
-              >
-                <option value="all">All Departments</option>
-                {departmentList.map((d) => (
-                  <option key={d.id} value={d.name}>
-                    {d.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Designation Dropdown */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-semibold text-[#64748B] hidden xl:inline">Role:</span>
-              <select
-                value={designationFilter}
-                onChange={(e) => setDesignationFilter(e.target.value)}
-                className="px-2.5 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
-              >
-                <option value="all">All Designations</option>
-                {designationList.map((des) => (
-                  <option key={des.id} value={des.name}>
-                    {des.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Account Status Dropdown */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-semibold text-[#64748B] hidden xl:inline">Status:</span>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-2.5 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
-              >
-                <option value="all">All Statuses</option>
-                <option value="active">Active</option>
-                <option value="invited">Invited</option>
-                <option value="inactive">Inactive</option>
-                <option value="suspended">Suspended</option>
-              </select>
-            </div>
-
-            {/* Joining Date Filter */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-semibold text-[#64748B] hidden xl:inline">Joined:</span>
-              <select
-                value={joiningDateFilter}
-                onChange={(e) => setJoiningDateFilter(e.target.value)}
-                className="px-2.5 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
-              >
-                <option value="all">All Time</option>
-                <option value="30days">Last 30 Days</option>
-                <option value="90days">Last 90 Days</option>
-                <option value="this_year">This Year (2026)</option>
-              </select>
-            </div>
-
-            {/* Sort Dropdown */}
-            <div className="flex items-center gap-1.5">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-2.5 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
-              >
-                <option value="name_asc">Name (A → Z)</option>
-                <option value="name_desc">Name (Z → A)</option>
-                <option value="date_desc">Joining Date (Newest)</option>
-                <option value="date_asc">Joining Date (Oldest)</option>
-              </select>
-            </div>
+          {/* Right Group: Sort & Reset */}
+          <div className="flex items-center gap-2 self-start lg:self-auto shrink-0 flex-wrap">
+            <span className="text-[11px] font-semibold text-[#64748B]">Sort:</span>
+            <FilterDropdown
+              align="right"
+              value={sortBy}
+              onChange={(val) => setSortBy(val as any)}
+              options={[
+                { value: 'name_asc', label: 'Name (A → Z)' },
+                { value: 'name_desc', label: 'Name (Z → A)' },
+                { value: 'date_desc', label: 'Joining Date (Newest)' },
+                { value: 'date_asc', label: 'Joining Date (Oldest)' },
+              ]}
+            />
 
             {/* Reset Filters Button */}
             {(searchQuery ||
@@ -919,10 +1015,11 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="px-2.5 py-1.5 rounded-md bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#EF4444] text-xs font-semibold cursor-pointer transition-colors"
+                className="px-2.5 py-1.5 rounded-md bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#EF4444] text-xs font-semibold cursor-pointer transition-colors border border-[#EF4444]/20 flex items-center gap-1"
                 title="Reset all filters"
               >
-                Reset
+                <span>✕</span>
+                <span>Reset</span>
               </button>
             )}
           </div>
