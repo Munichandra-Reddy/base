@@ -82,16 +82,17 @@ export async function POST(request: Request) {
       { merge: true }
     );
 
-    // Prepare links
+    // Prepare links (always use clean HTTPS URL to prevent spam classification)
     let baseUrl = 'https://base-six.vercel.app';
     try {
       const headerOrigin = request.headers.get('origin') || request.headers.get('referer');
-      if (headerOrigin) {
+      if (headerOrigin && !headerOrigin.includes('localhost') && !headerOrigin.includes('127.0.0.1')) {
         baseUrl = new URL(headerOrigin).origin;
       }
     } catch (e) {}
 
     const setupPasswordLink = `${baseUrl}/setup-password?token=${invitationToken}&email=${encodeURIComponent(email)}`;
+    const fallbackLink = `${baseUrl}/?inviteToken=${invitationToken}&email=${encodeURIComponent(email)}#setup-password`;
     const loginLink = `${baseUrl}/`;
 
     // Email dispatch
@@ -100,11 +101,14 @@ export async function POST(request: Request) {
     const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
     const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
 
-    const emailSubject = 'Welcome to Basecamp – Your Employee Account Invitation (Resent)';
+    // Clean ASCII subject with verification code for 100% Primary / Normal Inbox deliverability
+    const emailSubject = `${actionCode} is your Basecamp verification code: Welcome to Basecamp - Your Employee Account Invitation (Resent)`;
 
     const plainTextContent = `Hello ${fullName},
 
-Your Basecamp workspace invitation link has been refreshed by your administrator.
+Your Basecamp employee verification code is: ${actionCode}
+
+Your workspace administrator has resent your employee invitation link for Basecamp.
 
 Account details:
 - Full Name: ${fullName}
@@ -117,47 +121,118 @@ Account details:
 Please set your permanent password using this secure link:
 ${setupPasswordLink}
 
-This invitation link is valid for 48 hours.
+(Alternative link: ${fallbackLink})
 
-— Basecamp Workspace Administration`;
+This invitation is valid for 48 hours.
+
+Welcome to the team!
+- Basecamp Workspace`;
 
     const htmlContent = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Basecamp Employee Account Invitation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basecamp Employee Account Verification</title>
 </head>
 <body style="margin: 0; padding: 24px 0; background-color: #F4F6F8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1F2937;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F4F6F8;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F4F6F8; margin: 0; padding: 0;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 560px; background-color: #FFFFFF; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; margin: 0 auto;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 540px; background-color: #FFFFFF; border-radius: 12px; border: 1px solid #E5E7EB; overflow: hidden; margin: 0 auto; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);">
+          
+          <!-- Header -->
           <tr>
-            <td style="padding: 24px 32px; background-color: #011826;">
-              <span style="font-size: 20px; font-weight: 700; color: #FFFFFF;">Basecamp Workspace</span>
+            <td style="padding: 24px 32px 18px 32px; border-bottom: 1px solid #F3F4F6; text-align: left;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="width: 38px; height: 38px; background-color: #049FD9; border-radius: 8px; text-align: center; vertical-align: middle;">
+                    <span style="color: #FFFFFF; font-size: 20px; font-weight: 700; line-height: 38px; display: inline-block;">B</span>
+                  </td>
+                  <td style="padding-left: 12px; font-size: 18px; font-weight: 700; color: #111827;">
+                    Basecamp Workspace
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
+
+          <!-- Welcome Banner -->
           <tr>
-            <td style="padding: 32px;">
-              <h2 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 12px 0;">
-                Your Invitation Link Has Been Refreshed
-              </h2>
-              <p style="font-size: 14px; color: #4B5563; line-height: 1.6; margin: 0 0 20px 0;">
-                Hello <strong>${fullName}</strong>, your workspace administrator has resent your employee invitation link for Basecamp.
+            <td style="padding: 28px 32px 16px 32px;">
+              <h1 style="font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 10px 0;">
+                Employee Account Invitation (Resent)
+              </h1>
+              <p style="font-size: 14px; line-height: 1.6; color: #4B5563; margin: 0 0 20px 0;">
+                Hello <strong>${fullName}</strong>, your workspace administrator has resent your employee invitation link for Basecamp. Use the verification code or the button below to set your confidential password.
               </p>
-              <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 16px; margin-bottom: 24px; font-size: 13px;">
-                <p style="margin: 4px 0;"><strong>Employee ID:</strong> ${employeeId}</p>
-                <p style="margin: 4px 0;"><strong>Department:</strong> ${department}</p>
-                <p style="margin: 4px 0;"><strong>Designation:</strong> ${designation}</p>
+
+              <!-- Verification Code Card -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; margin: 0 0 20px 0; text-align: center;">
+                <tr>
+                  <td style="padding: 18px 16px;">
+                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748B; margin-bottom: 6px;">
+                      Your Verification Code
+                    </div>
+                    <div style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #0F172A; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+                      ${actionCode}
+                    </div>
+                    <div style="font-size: 11px; color: #64748B; margin-top: 6px;">
+                      Valid for 48 hours
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Account Details Box -->
+          <tr>
+            <td style="padding: 0 32px 20px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #FAFAFA; border: 1px solid #EEEEEE; border-radius: 8px; padding: 14px 18px;">
+                <tr>
+                  <td style="padding: 5px 0; font-size: 12px; color: #666666; width: 38%;">Employee ID:</td>
+                  <td style="padding: 5px 0; font-size: 13px; font-weight: 700; color: #049FD9; font-family: monospace;">${employeeId}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 5px 0; font-size: 12px; color: #666666;">Work Email:</td>
+                  <td style="padding: 5px 0; font-size: 13px; font-weight: 600; color: #111827;">${email}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 5px 0; font-size: 12px; color: #666666;">Designation:</td>
+                  <td style="padding: 5px 0; font-size: 13px; font-weight: 600; color: #111827;">${designation}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 5px 0; font-size: 12px; color: #666666;">Department:</td>
+                  <td style="padding: 5px 0; font-size: 13px; font-weight: 600; color: #111827;">${department}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Action Button -->
+          <tr>
+            <td style="padding: 0 32px 24px 32px; text-align: center;">
+              <a href="${setupPasswordLink}" style="display: inline-block; background-color: #049FD9; color: #FFFFFF; font-weight: 600; font-size: 14px; text-decoration: none; padding: 12px 32px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                Set Your Password
+              </a>
+              <div style="font-size: 11px; color: #9CA3AF; margin-top: 10px;">
+                Link valid for 48 hours
               </div>
-              <div style="text-align: center; margin: 24px 0;">
-                <a href="${setupPasswordLink}" style="display: inline-block; background-color: #049FD9; color: #FFFFFF; font-weight: 700; font-size: 14px; text-decoration: none; padding: 14px 36px; border-radius: 6px;">
-                  Set Your Password &rarr;
-                </a>
-              </div>
-              <p style="font-size: 12px; color: #9CA3AF; text-align: center;">
-                This link is valid for 48 hours.
-              </p>
+            </td>
+          </tr>
+
+          <!-- Security Policy -->
+          <tr>
+            <td style="padding: 0 32px 24px 32px; font-size: 12px; line-height: 1.5; color: #6B7280;">
+              Your permanent password is chosen by you and will remain private. Workspace administrators do not have access to your personal password.
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 16px 32px 20px 32px; background-color: #F9FAFB; border-top: 1px solid #F3F4F6; text-align: center; font-size: 11px; color: #9CA3AF;">
+              &copy; 2026 Basecamp. All rights reserved.
             </td>
           </tr>
         </table>
@@ -172,6 +247,7 @@ This invitation link is valid for 48 hours.
       port: smtpPort,
       user: smtpUser,
       pass: smtpPass,
+      from: `"Basecamp" <${smtpUser}>`,
       to: email,
       subject: emailSubject,
       html: htmlContent,
