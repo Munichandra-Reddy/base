@@ -33,15 +33,27 @@ export const deduplicateEmployees = (peopleList: Person[]): Person[] => {
     const cleanEmail = person.email.toLowerCase().trim();
 
     if (!map.has(cleanEmail)) {
-      map.set(cleanEmail, { ...person, email: cleanEmail });
+      map.set(cleanEmail, {
+        ...person,
+        email: cleanEmail,
+        employeeId: person.employeeId || person.id || cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'),
+        accessRole: person.accessRole || (person.role === 'admin' ? 'admin' : 'employee'),
+        status: person.status || 'active',
+        department: person.department || 'Engineering',
+        joiningDate: person.joiningDate || (person.createdAt ? person.createdAt.split('T')[0] : '2026-11-20'),
+      });
     } else {
       const existing = map.get(cleanEmail)!;
-      const isExistingGeneric = !existing.role || existing.role.toLowerCase() === 'team member';
-      const isNewSpecific = person.role && person.role.toLowerCase() !== 'team member';
-
-      if (isExistingGeneric && isNewSpecific) {
-        map.set(cleanEmail, { ...existing, ...person, email: cleanEmail });
-      }
+      map.set(cleanEmail, {
+        ...existing,
+        ...person,
+        email: cleanEmail,
+        employeeId: person.employeeId || existing.employeeId || person.id,
+        accessRole: person.accessRole || existing.accessRole || 'employee',
+        status: person.status || existing.status || 'active',
+        department: person.department || existing.department || 'Engineering',
+        joiningDate: person.joiningDate || existing.joiningDate || '2026-11-20',
+      });
     }
   }
 
@@ -147,47 +159,62 @@ export const subscribeToEmployees = (callback: (people: Person[]) => void) => {
             return;
           }
 
-          const personObj: Person = { ...data, id: d.id, email } as Person;
+          const personObj: Person = {
+            ...data,
+            id: d.id,
+            email,
+            employeeId: data.employeeId || d.id,
+            name: data.name || data.fullName || email.split('@')[0],
+            role: data.role || data.designation || 'Team Member',
+            designation: data.designation || data.role || 'Team Member',
+            accessRole: data.accessRole || (data.role === 'admin' ? 'admin' : 'employee'),
+            department: data.department || 'Engineering',
+            phone: data.phone || '',
+            joiningDate: data.joiningDate || (data.createdAt ? data.createdAt.split('T')[0] : '2026-11-20'),
+            status: data.status || 'active',
+            projectsCount: data.projectsCount || 1,
+            avatar: data.avatar || (data.name ? data.name[0].toUpperCase() : 'E'),
+            avatarBg: data.avatarBg || 'bg-[#049FD9] text-white',
+          } as Person;
+
           const deterministicDocId = email.replace(/[^a-zA-Z0-9]/g, '_');
 
           if (!seen.has(email)) {
             seen.set(email, { person: personObj, docId: d.id });
           } else {
-            // Found duplicate document in Firestore for this email!
+            // Found duplicate document in Firestore for this email
             const existing = seen.get(email)!;
-            const existingRole = (existing.person.role || '').toLowerCase();
-            const currentRole = (personObj.role || '').toLowerCase();
-
-            // Best role to keep (prefer specific designation like Developer over generic Team Member)
             const preferredRole =
-              existingRole !== 'team member' && existingRole !== ''
-                ? existing.person.role
-                : personObj.role || 'Team Member';
+              personObj.role && personObj.role.toLowerCase() !== 'team member'
+                ? personObj.role
+                : existing.person.role;
 
-            // Best name to keep
             const preferredName =
-              existing.person.name && existing.person.name !== email.split('@')[0]
-                ? existing.person.name
-                : personObj.name || existing.person.name;
+              personObj.name && !personObj.name.includes('@')
+                ? personObj.name
+                : existing.person.name;
 
-            // Prefer deterministic document ID based on email
+            const mergedPerson: Person = {
+              ...existing.person,
+              ...personObj,
+              role: preferredRole,
+              name: preferredName,
+              employeeId: personObj.employeeId || existing.person.employeeId,
+              accessRole: personObj.accessRole || existing.person.accessRole,
+              status: personObj.status || existing.person.status,
+              department: personObj.department || existing.person.department,
+              joiningDate: personObj.joiningDate || existing.person.joiningDate,
+            };
+
             if (d.id === deterministicDocId && existing.docId !== deterministicDocId) {
               duplicateDocIdsToDelete.push(existing.docId);
-              seen.set(email, {
-                person: { ...personObj, role: preferredRole, name: preferredName },
-                docId: d.id,
-              });
+              seen.set(email, { person: mergedPerson, docId: d.id });
             } else if (existing.docId === deterministicDocId && d.id !== deterministicDocId) {
               duplicateDocIdsToDelete.push(d.id);
-              seen.set(email, {
-                person: { ...existing.person, role: preferredRole, name: preferredName },
-                docId: existing.docId,
-              });
-            } else if (existingRole === 'team member' && currentRole !== 'team member') {
-              duplicateDocIdsToDelete.push(existing.docId);
-              seen.set(email, { person: personObj, docId: d.id });
+              seen.set(email, { person: mergedPerson, docId: existing.docId });
             } else {
               duplicateDocIdsToDelete.push(d.id);
+              seen.set(email, { person: mergedPerson, docId: existing.docId });
             }
           }
         });

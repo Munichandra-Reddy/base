@@ -204,6 +204,16 @@ export default function Home() {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [globalToast, setGlobalToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+
+  useEffect(() => {
+    if (globalToast) {
+      const timer = setTimeout(() => {
+        setGlobalToast(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [globalToast]);
 
   // Load persisted state from localStorage on mount so page refreshes don't lose data!
   useEffect(() => {
@@ -517,39 +527,38 @@ export default function Home() {
     }
   };
 
-  const handleAddEmployee = async (name: string, email: string, role?: string) => {
-    const cleanEmail = email.trim().toLowerCase();
-    if (!cleanEmail || cleanEmail === 'cr7156816@gmail.com' || cleanEmail.endsWith('@abctech.com')) return;
+  const handleAddEmployee = async (employeeData: {
+    fullName: string;
+    email: string;
+    accessRole: 'admin' | 'employee';
+    designation: string;
+    department: string;
+    phone?: string;
+    employeeId: string;
+    joiningDate: string;
+  }) => {
+    const res = await fetch('/api/employees/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-email': currentUser?.email || 'cr7156816@gmail.com',
+      },
+      body: JSON.stringify({
+        ...employeeData,
+        adminEmail: currentUser?.email || 'cr7156816@gmail.com',
+        isAdmin: dashboardRole === 'admin',
+      }),
+    });
 
-    const existing = people.find((p) => p.email && p.email.toLowerCase() === cleanEmail);
-    if (existing) return existing;
+    const data = await res.json();
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to create employee');
+    }
 
-    const docId = cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
-    const colorOptions = [
-      'bg-blue-100 text-blue-700',
-      'bg-purple-100 text-purple-700',
-      'bg-cyan-100 text-cyan-700',
-      'bg-emerald-100 text-emerald-700',
-      'bg-amber-100 text-amber-700',
-      'bg-indigo-100 text-indigo-700',
-      'bg-rose-100 text-rose-700',
-    ];
-    const randomBg = colorOptions[people.length % colorOptions.length];
-    const formattedName = name.trim() || cleanEmail.split('@')[0];
-
-    const newPerson: Person = {
-      id: docId,
-      name: formattedName,
-      role: role?.trim() || 'Team Member',
-      email: cleanEmail,
-      status: 'active',
-      avatar: formattedName[0].toUpperCase(),
-      avatarBg: randomBg,
-      projectsCount: 1,
-    };
+    const createdPerson: Person = data.employee;
 
     setPeople((prev) => {
-      const updated = deduplicateEmployees([...prev, newPerson]);
+      const updated = deduplicateEmployees([...prev, createdPerson]);
       if (typeof window !== 'undefined') {
         localStorage.setItem('workorbit_people', JSON.stringify(updated));
       }
@@ -558,11 +567,11 @@ export default function Home() {
 
     const newAct: Activity = {
       id: `act-${Date.now()}`,
-      userName: formattedName,
-      userAvatar: newPerson.avatar,
-      avatarBg: randomBg,
-      action: 'joined as employee',
-      target: 'Workspace Team',
+      userName: currentUser?.fullName || 'Admin',
+      userAvatar: (currentUser?.fullName || 'A')[0].toUpperCase(),
+      avatarBg: 'bg-[#011826] text-white',
+      action: 'invited employee',
+      target: `${createdPerson.name} (${createdPerson.role})`,
       timeAgo: 'Just now',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
@@ -575,37 +584,12 @@ export default function Home() {
       return updated;
     });
 
-    if (typeof window !== 'undefined') {
-      try {
-        const regStr = localStorage.getItem('workorbit_registered_users');
-        const regUsers = regStr ? JSON.parse(regStr) : [];
-        if (!regUsers.some((u: any) => u.email?.toLowerCase() === cleanEmail)) {
-          regUsers.push({
-            email: cleanEmail,
-            fullName: formattedName,
-            companyName: 'GEONIXA',
-            role: 'employee',
-            designation: newPerson.role,
-          });
-          localStorage.setItem('workorbit_registered_users', JSON.stringify(regUsers));
-        }
-      } catch (e) {}
-    }
+    setGlobalToast({
+      type: 'success',
+      message: data.message || `Employee "${createdPerson.name}" created and invitation email sent!`,
+    });
 
-    try {
-      await addFirebaseEmployee(newPerson);
-      await addFirebaseUserAccount({
-        email: cleanEmail,
-        password: 'Employee@123',
-        fullName: formattedName,
-        companyName: 'GEONIXA',
-        role: 'employee',
-        designation: newPerson.role,
-        createdAt: new Date().toISOString(),
-      });
-    } catch (err) {}
-
-    return newPerson;
+    return createdPerson;
   };
 
   const handleLogin = (
@@ -677,7 +661,15 @@ export default function Home() {
               }
             }
           } catch (e) {}
-          handleAddEmployee(userObj.fullName, cleanEmail, userDesignation);
+          handleAddEmployee({
+            fullName: userObj.fullName,
+            email: cleanEmail,
+            accessRole: 'employee',
+            designation: userDesignation || 'Team Member',
+            department: 'Engineering',
+            employeeId: `EMP-${Date.now().toString().slice(-4)}`,
+            joiningDate: new Date().toISOString().split('T')[0],
+          });
         }
       }
     }
@@ -1014,6 +1006,25 @@ export default function Home() {
         currentRole={dashboardRole}
         onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
       />
+
+      {/* Global Toast Alert */}
+      {globalToast && (
+        <div className="fixed top-4 right-4 z-50 max-w-md p-3.5 bg-white border border-[#E5E5E5] shadow-xl rounded-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-3 duration-200">
+          <div className="flex items-center gap-2.5">
+            <span className="text-base">{globalToast.type === 'success' ? '✅' : '⚠️'}</span>
+            <span className={`text-xs font-semibold ${globalToast.type === 'success' ? 'text-[#166534]' : 'text-[#991B1B]'}`}>
+              {globalToast.message}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setGlobalToast(null)}
+            className="text-xs text-gray-400 hover:text-gray-600 font-bold ml-2 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Popover Notifications */}
       <NotificationPanel

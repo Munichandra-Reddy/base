@@ -47,15 +47,41 @@ export interface ChatMessage {
   channel: string;
 }
 
+export type EmployeeStatus = 'invited' | 'active' | 'inactive' | 'suspended' | 'away' | 'offline';
+export type AccessRole = 'admin' | 'employee';
+
 export interface Person {
   id: string;
+  employeeId?: string;
   name: string;
-  role: string;
+  role: string; // Designation / Job title
+  designation?: string;
+  accessRole?: AccessRole;
+  department?: string;
+  phone?: string;
+  joiningDate?: string;
   email: string;
-  status: 'active' | 'away' | 'offline';
+  status: EmployeeStatus;
   avatar: string;
   avatarBg: string;
   projectsCount: number;
+  createdAt?: string;
+  invitedAt?: string;
+  activatedAt?: string;
+}
+
+export interface InvitationRecord {
+  token: string;
+  email: string;
+  employeeId: string;
+  fullName: string;
+  accessRole: AccessRole;
+  designation: string;
+  department: string;
+  createdAt: number;
+  expiresAt: number;
+  used: boolean;
+  usedAt?: number;
 }
 
 export interface CheckIn {

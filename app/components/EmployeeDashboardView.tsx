@@ -48,7 +48,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
   const employeeEmail = currentUser?.email || 'priya@abctech.com';
 
   const totalEmployeesCount = people?.length ?? 0;
-  const activeEmployeesCount = people?.filter((p) => p.status === 'active').length ?? totalEmployeesCount;
+  const activeEmployeesCount = people?.filter((p) => (p.status || 'active') === 'active').length ?? 0;
 
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('pending');
 

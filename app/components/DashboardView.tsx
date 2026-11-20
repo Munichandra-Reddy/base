@@ -48,7 +48,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
 
   const totalEmployeesCount = people?.length ?? 0;
-  const activeEmployeesCount = people?.filter((p) => p.status === 'active').length ?? totalEmployeesCount;
+  const activeEmployeesCount = people?.filter((p) => (p.status || 'active') === 'active').length ?? 0;
 
   const filteredTasks = tasks.filter((t) => {
     if (taskFilter === 'pending') return !t.completed;

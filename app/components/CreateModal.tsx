@@ -26,7 +26,16 @@ interface CreateModalProps {
   } | string, descArg?: string) => void;
   people?: Person[];
   projects?: Project[];
-  onAddEmployee?: (name: string, email: string, role?: string) => void;
+  onAddEmployee?: (employeeData: {
+    fullName: string;
+    email: string;
+    accessRole: 'admin' | 'employee';
+    designation: string;
+    department: string;
+    phone?: string;
+    employeeId: string;
+    joiningDate: string;
+  }) => Promise<any> | void;
   initialType?: 'task' | 'project' | 'employee';
   isAdmin?: boolean;
 }
@@ -57,10 +66,30 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   // Employee Form State (Admin only)
   const [empName, setEmpName] = useState('');
   const [empEmail, setEmpEmail] = useState('');
-  const [empRole, setEmpRole] = useState('Team Member');
+  const [empAccessRole, setEmpAccessRole] = useState<'admin' | 'employee'>('employee');
+  const [empDesignation, setEmpDesignation] = useState('');
+  const [empDepartment, setEmpDepartment] = useState('Engineering');
+  const [empPhone, setEmpPhone] = useState('');
+  const [empId, setEmpId] = useState('');
+  const [empJoiningDate, setEmpJoiningDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [empError, setEmpError] = useState<string | null>(null);
+  const [empSuccess, setEmpSuccess] = useState<string | null>(null);
+  const [isCreatingEmp, setIsCreatingEmp] = useState(false);
 
-  // Sync initial activeType when modal opens
+  // Auto-generate unique Employee ID
+  const computeNextEmpId = () => {
+    const existingNums = (people || [])
+      .map((p) => p.employeeId || p.id || '')
+      .filter((id) => id.toUpperCase().startsWith('EMP-'))
+      .map((id) => {
+        const num = parseInt(id.replace(/[^0-9]/g, ''), 10);
+        return isNaN(num) ? 0 : num;
+      });
+    const maxNum = existingNums.length > 0 ? Math.max(...existingNums) : 1000;
+    return `EMP-${Math.max(1001, maxNum + 1)}`;
+  };
+
+  // Sync initial activeType & auto-generate ID when modal opens
   useEffect(() => {
     if (isOpen) {
       if (initialType === 'employee' && isAdmin) {
@@ -71,8 +100,12 @@ export const CreateModal: React.FC<CreateModalProps> = ({
         setActiveType('task');
       }
       setEmpError(null);
+      setEmpSuccess(null);
+      if (!empId) {
+        setEmpId(computeNextEmpId());
+      }
     }
-  }, [isOpen, initialType, isAdmin]);
+  }, [isOpen, initialType, isAdmin, people]);
 
   // Task Form State (Initially Empty)
   const [taskTitle, setTaskTitle] = useState('');
@@ -194,34 +227,90 @@ export const CreateModal: React.FC<CreateModalProps> = ({
     }
   };
 
-  const handleEmployeeSubmit = (e: React.FormEvent) => {
+  const handleEmployeeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmpError(null);
-    if (!isAdmin) return;
+    setEmpSuccess(null);
+    if (!isAdmin) {
+      setEmpError('Unauthorized: Only administrators can create new employees.');
+      return;
+    }
 
+    const cleanName = empName.trim();
     const cleanEmail = empEmail.trim().toLowerCase();
-    if (!empName.trim()) {
-      setEmpError('Please enter employee full name.');
+    const cleanDesignation = empDesignation.trim();
+    const cleanDept = empDepartment.trim();
+    const cleanId = (empId.trim() || computeNextEmpId()).toUpperCase();
+    const cleanJoining = empJoiningDate || new Date().toISOString().split('T')[0];
+
+    // 1. Validate required fields
+    if (!cleanName) {
+      setEmpError('Employee Full Name is required.');
       return;
     }
-    if (!cleanEmail || !cleanEmail.includes('@')) {
-      setEmpError('Please enter a valid email address.');
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+      setEmpError('Please enter a valid work email address (e.g. name@company.com).');
       return;
     }
+
+    if (!cleanDesignation) {
+      setEmpError('Designation (Job Title) is required.');
+      return;
+    }
+
+    if (!cleanDept) {
+      setEmpError('Department is required.');
+      return;
+    }
+
+    // 2. Validate against duplicate email
     if (people?.some((p) => p.email && p.email.toLowerCase() === cleanEmail)) {
-      setEmpError('An employee with this email already exists in workspace.');
+      setEmpError(`An employee with email "${cleanEmail}" already exists in the workspace.`);
       return;
     }
 
-    if (onAddEmployee) {
-      onAddEmployee(empName.trim(), cleanEmail, empRole.trim());
+    // 3. Validate against duplicate employee ID
+    if (people?.some((p) => (p.employeeId || p.id || '').toUpperCase() === cleanId)) {
+      setEmpError(`Employee ID "${cleanId}" is already assigned. Please change it or use auto-generated ID.`);
+      return;
     }
 
-    setEmpName('');
-    setEmpEmail('');
-    setEmpRole('Team Member');
-    setEmpError(null);
-    onClose();
+    setIsCreatingEmp(true);
+
+    try {
+      if (onAddEmployee) {
+        await onAddEmployee({
+          fullName: cleanName,
+          email: cleanEmail,
+          accessRole: empAccessRole,
+          designation: cleanDesignation,
+          department: cleanDept,
+          phone: empPhone.trim() || undefined,
+          employeeId: cleanId,
+          joiningDate: cleanJoining,
+        });
+      }
+
+      setEmpSuccess(`Employee "${cleanName}" created successfully! Invitation email has been sent.`);
+      setTimeout(() => {
+        setEmpName('');
+        setEmpEmail('');
+        setEmpDesignation('');
+        setEmpDepartment('Engineering');
+        setEmpPhone('');
+        setEmpId(computeNextEmpId());
+        setEmpJoiningDate(new Date().toISOString().split('T')[0]);
+        setEmpError(null);
+        setEmpSuccess(null);
+        setIsCreatingEmp(false);
+        onClose();
+      }, 1000);
+    } catch (err: any) {
+      setIsCreatingEmp(false);
+      setEmpError(err?.message || 'Failed to create employee. Please try again.');
+    }
   };
 
   return (
@@ -292,12 +381,21 @@ export const CreateModal: React.FC<CreateModalProps> = ({
         {/* Scrollable Form Body */}
         <div className="p-6 overflow-y-auto space-y-4 flex-1">
           {activeType === 'employee' && isAdmin ? (
-            <form id="create-employee-form" onSubmit={handleEmployeeSubmit} className="space-y-4">
+            <form id="create-employee-form" onSubmit={handleEmployeeSubmit} className="space-y-3.5">
               {empError && (
-                <div className="p-3 bg-[#FEF2F2] border border-[#EF4444]/30 text-[#EF4444] rounded-lg text-xs font-semibold">
-                  {empError}
+                <div className="p-3 bg-[#FEF2F2] border border-[#EF4444]/30 text-[#EF4444] rounded-lg text-xs font-semibold flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>{empError}</span>
                 </div>
               )}
+
+              {empSuccess && (
+                <div className="p-3 bg-[#F0FDF4] border border-[#16A34A]/30 text-[#16A34A] rounded-lg text-xs font-semibold flex items-center gap-2">
+                  <span>✓</span>
+                  <span>{empSuccess}</span>
+                </div>
+              )}
+
               {/* 1. Employee Full Name */}
               <div>
                 <label className="block text-xs font-extrabold text-[#0F172A] mb-1">
@@ -328,16 +426,120 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 />
               </div>
 
-              {/* 3. Role / Designation */}
+              {/* 3. Access Role & 4. Department (Grid) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-extrabold text-[#0F172A] mb-1">
+                    Access Role <span className="text-[#EF4444] font-normal">*</span>
+                  </label>
+                  <select
+                    value={empAccessRole}
+                    onChange={(e) => setEmpAccessRole(e.target.value as any)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] cursor-pointer"
+                  >
+                    <option value="employee">Employee (Default)</option>
+                    <option value="admin">Admin (Full Access)</option>
+                  </select>
+                  <p className="text-[10px] text-[#64748B] mt-0.5">Determines workspace permissions</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold text-[#0F172A] mb-1">
+                    Department <span className="text-[#EF4444] font-normal">*</span>
+                  </label>
+                  <select
+                    value={empDepartment}
+                    onChange={(e) => setEmpDepartment(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] cursor-pointer"
+                  >
+                    <option value="Engineering">Engineering</option>
+                    <option value="Design">Design</option>
+                    <option value="Product">Product</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Human Resources">Human Resources</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Operations">Operations</option>
+                    <option value="Customer Support">Customer Support</option>
+                  </select>
+                  <p className="text-[10px] text-[#64748B] mt-0.5">Organizational division</p>
+                </div>
+              </div>
+
+              {/* 5. Designation / Job Title */}
               <div>
-                <label className="block text-xs font-semibold text-[#222222] mb-1">Role / Designation</label>
+                <label className="block text-xs font-extrabold text-[#0F172A] mb-1">
+                  Designation / Job Title <span className="text-[#EF4444] font-normal">*</span>
+                </label>
                 <input
                   type="text"
-                  placeholder="e.g. Software Engineer, Product Designer, Team Member"
-                  value={empRole}
-                  onChange={(e) => setEmpRole(e.target.value)}
+                  required
+                  placeholder="e.g. Senior Software Engineer, UI/UX Designer"
+                  value={empDesignation}
+                  onChange={(e) => setEmpDesignation(e.target.value)}
                   className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all"
                 />
+                <p className="text-[10px] text-[#64748B] mt-0.5">Describes the employee's job responsibilities</p>
+              </div>
+
+              {/* 6. Employee ID & 7. Joining Date (Grid) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-[#222222]">
+                      Employee ID <span className="text-[#EF4444] font-normal">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setEmpId(computeNextEmpId())}
+                      className="text-[10px] font-semibold text-[#049FD9] hover:underline cursor-pointer"
+                    >
+                      Auto-generate
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. EMP-1004"
+                    value={empId}
+                    onChange={(e) => setEmpId(e.target.value.toUpperCase())}
+                    className="w-full p-2.5 bg-[#F8FAFC] border border-[#CCCCCC] rounded-md text-xs font-bold text-[#0F172A] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] font-mono"
+                  />
+                  <p className="text-[10px] text-[#64748B] mt-0.5">Unique identifier across workspace</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#222222] mb-1">
+                    Joining Date <span className="text-[#EF4444] font-normal">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={empJoiningDate}
+                    onChange={(e) => setEmpJoiningDate(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] cursor-pointer"
+                  />
+                  <p className="text-[10px] text-[#64748B] mt-0.5">Official start date</p>
+                </div>
+              </div>
+
+              {/* 8. Phone Number (Optional) */}
+              <div>
+                <label className="block text-xs font-semibold text-[#222222] mb-1">
+                  Phone Number <span className="text-[#64748B] font-normal">(Optional)</span>
+                </label>
+                <input
+                  type="tel"
+                  placeholder="e.g. +1 (555) 234-5678"
+                  value={empPhone}
+                  onChange={(e) => setEmpPhone(e.target.value)}
+                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all"
+                />
+              </div>
+
+              {/* Notice */}
+              <div className="p-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-[11px] text-[#64748B] leading-relaxed">
+                ✉️ An invitation email will automatically be delivered to the employee with a secure link to set their confidential password.
               </div>
             </form>
           ) : activeType === 'task' ? (
@@ -585,6 +787,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
           </button>
           <button
             type="submit"
+            disabled={isCreatingEmp}
             form={
               activeType === 'employee' && isAdmin
                 ? 'create-employee-form'
@@ -594,7 +797,11 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             }
             className="btn-primary"
           >
-            Create {activeType === 'employee' && isAdmin ? 'Employee' : activeType === 'task' ? 'Task' : 'Project'}
+            {activeType === 'employee' && isAdmin
+              ? isCreatingEmp
+                ? 'Creating & Sending Invite...'
+                : 'Create Employee'
+              : `Create ${activeType === 'task' ? 'Task' : 'Project'}`}
           </button>
         </div>
 

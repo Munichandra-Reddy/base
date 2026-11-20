@@ -102,12 +102,21 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+
+      // Check for employee invitation setup-password link
+      const inviteToken = urlParams.get('inviteToken') || (hash === '#setup-password' ? urlParams.get('token') : null);
+      if (inviteToken) {
+        const inviteEmail = urlParams.get('email') || '';
+        window.location.href = `/setup-password?token=${encodeURIComponent(inviteToken)}&email=${encodeURIComponent(inviteEmail)}`;
+        return;
+      }
+
       let urlEmail = urlParams.get('resetEmail');
       let urlRole = urlParams.get('role');
       let urlCode = urlParams.get('resetCode');
       let urlExp = urlParams.get('exp');
       const token = urlParams.get('token');
-      const hash = window.location.hash;
 
       // Extract secure token parameters if present
       if (token) {
@@ -654,73 +663,92 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         }
       }
 
-      // 2. EMPLOYEE LOGIN: ALL OTHER RESPECTIVE CREDENTIALS
+      // 2. EMPLOYEE & WORKSPACE USERS LOGIN: ALL OTHER RESPECTIVE CREDENTIALS
+      const docId = cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
+      let accountStatus: string = 'active';
+      let accountRole: 'admin' | 'employee' = 'employee';
+      let storedPassword = '';
+      let accountFullName = '';
+      let accountCompany = 'Basecamp';
       let employeeAccount = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
-      let isAuthenticated = false;
 
-      if (employeeAccount && employeeAccount.password === password) {
-        isAuthenticated = true;
+      if (employeeAccount) {
+        accountFullName = employeeAccount.fullName;
+        accountCompany = employeeAccount.companyName || 'Basecamp';
+        accountRole = (employeeAccount.role as any) === 'admin' ? 'admin' : 'employee';
+        storedPassword = employeeAccount.password || '';
       }
 
-      // Background Check 1: Check Firestore user_accounts
-      if (!isAuthenticated && db) {
+      // Check Firestore user_accounts & employees collections for real-time status and profile
+      if (db) {
         try {
-          const empDocRef = doc(db, 'user_accounts', cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'));
-          const empSnap = await getDoc(empDocRef);
+          const [userSnap, empSnap] = await Promise.all([
+            getDoc(doc(db, 'user_accounts', docId)),
+            getDoc(doc(db, 'employees', docId)),
+          ]);
+
+          if (userSnap.exists()) {
+            const uData = userSnap.data();
+            if (uData.status) accountStatus = uData.status;
+            if (uData.password) storedPassword = uData.password;
+            if (uData.fullName) accountFullName = uData.fullName;
+            if (uData.companyName) accountCompany = uData.companyName;
+            if (uData.accessRole === 'admin' || uData.role === 'admin') accountRole = 'admin';
+          }
+
           if (empSnap.exists()) {
-            const data = empSnap.data() as StoredUserAccount;
-            if (data && data.email) {
-              if (!employeeAccount) {
-                employeeAccount = {
-                  email: data.email,
-                  password: data.password,
-                  fullName: data.fullName,
-                  companyName: data.companyName,
-                  role: 'employee',
-                  designation: data.designation,
-                };
-              }
-              if (data.password === password) {
-                isAuthenticated = true;
-              }
-            }
+            const eData = empSnap.data();
+            if (eData.status) accountStatus = eData.status;
+            if (eData.name) accountFullName = eData.name;
+            if (eData.accessRole === 'admin' || eData.role === 'admin') accountRole = 'admin';
           }
         } catch (e) {
-          console.warn('Firestore employee check error:', e);
+          console.warn('Firestore employee lookup error:', e);
         }
       }
 
-      // Background Check 2: Check Firebase Auth
+      // Check in-memory people list for status if not found in Firestore
+      if (accountStatus === 'active') {
+        const foundPerson = people.find((p) => p.email && p.email.toLowerCase() === cleanEmail);
+        if (foundPerson) {
+          if (foundPerson.status) accountStatus = foundPerson.status;
+          if (foundPerson.name) accountFullName = foundPerson.name;
+          if (foundPerson.accessRole === 'admin' || foundPerson.role === 'admin') accountRole = 'admin';
+        }
+      }
+
+      // 4. CHECK ACCOUNT STATUS (Inactive, Suspended, or Invited)
+      if (accountStatus === 'inactive' || accountStatus === 'suspended') {
+        setIsSubmitting(false);
+        setErrorMessage('This account has been deactivated by your administrator. Access to the workspace is blocked.');
+        return;
+      }
+
+      if (accountStatus === 'invited') {
+        setIsSubmitting(false);
+        setErrorMessage('Your account invitation is pending. Please click the "Set Your Password" link in your invitation email before signing in.');
+        return;
+      }
+
+      // 5. AUTHENTICATE PASSWORD
+      let isAuthenticated = false;
+      if (storedPassword && password === storedPassword) {
+        isAuthenticated = true;
+      }
+
+      // Fallback check Firebase Auth
       if (!isAuthenticated && auth) {
         try {
           const cred = await signInWithEmailAndPassword(auth, cleanEmail, password);
           if (cred && cred.user) {
             isAuthenticated = true;
-            if (employeeAccount) {
-              employeeAccount.password = password;
-            }
           }
         } catch (e) {}
       }
 
-      // Background Check 3: Check people directory if account not yet in user_accounts
-      if (!employeeAccount) {
-        const foundInPeople = people.find((p) => p.email && p.email.toLowerCase() === cleanEmail);
-        if (foundInPeople) {
-          employeeAccount = {
-            email: foundInPeople.email,
-            password: password,
-            fullName: foundInPeople.name,
-            companyName: 'GEONIXA',
-            role: 'employee',
-            designation: foundInPeople.role,
-          };
-        }
-      }
-
-      if (!employeeAccount && !isAuthenticated) {
+      if (!storedPassword && !isAuthenticated) {
         setIsSubmitting(false);
-        setErrorMessage('Employee account not found. Please click "Create Account" below to register.');
+        setErrorMessage('Employee account not found. Please contact your workspace administrator to create your account.');
         return;
       }
 
@@ -730,13 +758,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
         return;
       }
 
-      setSuccessMessage(`Welcome back, ${employeeAccount?.fullName || 'Employee'}! Opening Employee Dashboard...`);
+      setSuccessMessage(`Welcome back, ${accountFullName || 'Employee'}! Opening ${accountRole === 'admin' ? 'Admin' : 'Employee'} Dashboard...`);
       setTimeout(() => {
         onLogin(
-          employeeAccount?.email || cleanEmail,
-          employeeAccount?.fullName || 'Employee',
-          employeeAccount?.companyName || 'GEONIXA',
-          'employee'
+          cleanEmail,
+          accountFullName || 'Employee',
+          accountCompany,
+          accountRole
         );
       }, 450);
       return;

@@ -58,5 +58,11 @@ service cloud.firestore {
     match /password_resets/{emailId} {
       allow read, write: if true;
     }
+
+    // Employee Invitations: Token verification and admin management
+    match /invitations/{inviteToken} {
+      allow read, update: if true;
+      allow create, delete: if isAdmin();
+    }
   }
 }
