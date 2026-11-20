@@ -819,21 +819,13 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
         </div>
       </div>
 
-      {/* 2. TOP ACTION BAR (Header & Mode Toggle - Perfectly Responsive) */}
-      <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-xl font-bold text-[#111827]">Employee Directory & Operations</h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#F0F9FF] text-[#0284C7] border border-[#BAE6FD]">
-              {displayPeople.length} {displayPeople.length === 1 ? 'employee' : 'employees'}
-            </span>
-          </div>
-          <p className="text-[#595959] text-xs font-normal mt-1">
-            Manage onboarding, employee assignments, departments, designations, and account lifecycle.
-          </p>
-        </div>
+      {/* 2. TOP ACTION BAR (Clean Single-Row Header & Controls) */}
+      <div className="bg-white px-4 py-3 sm:px-5 sm:py-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <h1 className="text-lg sm:text-xl font-bold text-[#111827] tracking-tight shrink-0">
+          Employee Directory & Operations
+        </h1>
 
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap shrink-0 self-start xl:self-auto">
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
           {/* Table / Cards Toggle */}
           <div className="flex items-center bg-[#F4F6F8] border border-[#E5E5E5] rounded-md p-0.5 shrink-0">
             <button
@@ -864,7 +856,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                 setIsDeptModalOpen(true);
                 fetchDepartmentsAndDesignations();
               }}
-              className="px-3.5 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap"
+              className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap"
             >
               <FolderIcon className="w-3.5 h-3.5 text-[#64748B]" />
               <span>Departments & Roles</span>
@@ -875,7 +867,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
           {isAdmin && onOpenAddEmployee && (
             <button
               onClick={onOpenAddEmployee}
-              className="btn-primary shrink-0 flex items-center gap-1.5 text-xs py-2 px-4 cursor-pointer whitespace-nowrap shadow-2xs"
+              className="btn-primary shrink-0 flex items-center gap-1.5 text-xs py-1.5 px-3.5 cursor-pointer whitespace-nowrap shadow-2xs"
             >
               <PlusIcon className="w-4 h-4" />
               <span>Add Employee</span>
