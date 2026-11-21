@@ -210,8 +210,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const [formStatus, setFormStatus] = useState<ProjectStatus>('planning');
   const [formNotes, setFormNotes] = useState('');
   const [isFormPMDropdownOpen, setIsFormPMDropdownOpen] = useState(false);
+  const [formPMSearch, setFormPMSearch] = useState('');
   const [formTeamSearch, setFormTeamSearch] = useState('');
   const [isEditPMDropdownOpen, setIsEditPMDropdownOpen] = useState(false);
+  const [editPMSearch, setEditPMSearch] = useState('');
   const formPMDropdownRef = useRef<HTMLDivElement>(null);
   const editPMDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -237,6 +239,30 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     const list = deduplicateEmployees(people || []);
     return list.filter((p) => (p.status || 'active').toLowerCase() === 'active');
   }, [people]);
+
+  const filteredFormPMEmp = useMemo(() => {
+    return activeEmployees.filter((emp) => {
+      if (!formPMSearch.trim()) return true;
+      const q = formPMSearch.toLowerCase().trim();
+      const nameMatch = (emp.name || '').toLowerCase().includes(q);
+      const roleMatch = (emp.role || emp.designation || '').toLowerCase().includes(q);
+      const deptMatch = (emp.department || '').toLowerCase().includes(q);
+      const emailMatch = (emp.email || '').toLowerCase().includes(q);
+      return nameMatch || roleMatch || deptMatch || emailMatch;
+    });
+  }, [activeEmployees, formPMSearch]);
+
+  const filteredEditPMEmp = useMemo(() => {
+    return activeEmployees.filter((emp) => {
+      if (!editPMSearch.trim()) return true;
+      const q = editPMSearch.toLowerCase().trim();
+      const nameMatch = (emp.name || '').toLowerCase().includes(q);
+      const roleMatch = (emp.role || emp.designation || '').toLowerCase().includes(q);
+      const deptMatch = (emp.department || '').toLowerCase().includes(q);
+      const emailMatch = (emp.email || '').toLowerCase().includes(q);
+      return nameMatch || roleMatch || deptMatch || emailMatch;
+    });
+  }, [activeEmployees, editPMSearch]);
 
   const filteredFormEmployees = useMemo(() => {
     return activeEmployees.filter((emp) => {
@@ -2358,51 +2384,94 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 {/* Dropdown Menu - Strictly Opens Below */}
                 {isFormPMDropdownOpen && (
                   <div
-                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-56 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
+                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 overflow-hidden font-sans animate-in fade-in zoom-in-95 duration-100 flex flex-col"
                     style={{ top: '100%' }}
                   >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormManager('');
-                        setFormManagerEmail('');
-                        setIsFormPMDropdownOpen(false);
-                      }}
-                      className="w-full text-left px-3 py-2 text-xs text-[#888888] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
-                    >
-                      Select Project Manager...
-                    </button>
-                    {activeEmployees.map((emp) => {
-                      const isChosen = emp.name.toLowerCase() === formManager.toLowerCase();
-                      return (
-                        <button
-                          key={emp.id}
-                          type="button"
-                          onClick={() => {
-                            setFormManager(emp.name);
-                            setFormManagerEmail(emp.email || '');
-                            if (!formMembers.includes(emp.name)) {
-                              setFormMembers([...formMembers, emp.name]);
-                            }
-                            setIsFormPMDropdownOpen(false);
-                          }}
-                          className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-                            isChosen
-                              ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
-                              : 'text-[#111827] hover:bg-[#F8FAFC]'
-                          }`}
-                        >
-                          <div>
-                            <span className="font-semibold block">{emp.name}</span>
-                            <span className="text-[10px] text-[#64748B]">
-                              {emp.role || emp.designation}
-                              {emp.department ? ` • ${emp.department}` : ''}
-                            </span>
-                          </div>
-                          {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
-                        </button>
-                      );
-                    })}
+                    {/* Search Input Box */}
+                    <div className="p-2 border-b border-[#E5E5E5] bg-[#F8FAFC]">
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#888888]">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        </span>
+                        <input
+                          type="text"
+                          autoFocus
+                          value={formPMSearch}
+                          onChange={(e) => setFormPMSearch(e.target.value)}
+                          placeholder="Search manager by name, role, dept..."
+                          className="w-full pl-8 pr-7 py-1.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] placeholder-[#888888] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        {formPMSearch && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFormPMSearch('');
+                            }}
+                            className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#888888] hover:text-[#111827] text-xs cursor-pointer"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Scrollable list */}
+                    <div className="max-h-48 overflow-y-auto divide-y divide-[#F1F5F9]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormManager('');
+                          setFormManagerEmail('');
+                          setIsFormPMDropdownOpen(false);
+                          setFormPMSearch('');
+                        }}
+                        className="w-full text-left px-3 py-2 text-xs text-[#888888] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+                      >
+                        Select Project Manager...
+                      </button>
+                      {filteredFormPMEmp.length === 0 ? (
+                        <div className="py-4 text-center text-xs text-[#888888]">
+                          No employees match &ldquo;{formPMSearch}&rdquo;
+                        </div>
+                      ) : (
+                        filteredFormPMEmp.map((emp) => {
+                          const isChosen = emp.name.toLowerCase() === formManager.toLowerCase();
+                          return (
+                            <button
+                              key={emp.id}
+                              type="button"
+                              onClick={() => {
+                                setFormManager(emp.name);
+                                setFormManagerEmail(emp.email || '');
+                                if (!formMembers.includes(emp.name)) {
+                                  setFormMembers([...formMembers, emp.name]);
+                                }
+                                setIsFormPMDropdownOpen(false);
+                                setFormPMSearch('');
+                              }}
+                              className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                                isChosen
+                                  ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
+                                  : 'text-[#111827] hover:bg-[#F8FAFC]'
+                              }`}
+                            >
+                              <div>
+                                <span className="font-semibold block">{emp.name}</span>
+                                <span className="text-[10px] text-[#64748B]">
+                                  {emp.role || emp.designation}
+                                  {emp.department ? ` • ${emp.department}` : ''}
+                                </span>
+                              </div>
+                              {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
                 )}
                 <span className="text-[10px] text-[#64748B] mt-0.5 block">
@@ -2715,40 +2784,82 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 {/* Dropdown Menu - Strictly Opens Below */}
                 {isEditPMDropdownOpen && (
                   <div
-                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-56 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
+                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 overflow-hidden font-sans animate-in fade-in zoom-in-95 duration-100 flex flex-col"
                     style={{ top: '100%' }}
                   >
-                    {activeEmployees.map((emp) => {
-                      const isChosen = emp.name.toLowerCase() === formManager.toLowerCase();
-                      return (
-                        <button
-                          key={emp.id}
-                          type="button"
-                          onClick={() => {
-                            setFormManager(emp.name);
-                            setFormManagerEmail(emp.email || '');
-                            if (!formMembers.includes(emp.name)) {
-                              setFormMembers([...formMembers, emp.name]);
-                            }
-                            setIsEditPMDropdownOpen(false);
-                          }}
-                          className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-                            isChosen
-                              ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
-                              : 'text-[#111827] hover:bg-[#F8FAFC]'
-                          }`}
-                        >
-                          <div>
-                            <span className="font-semibold block">{emp.name}</span>
-                            <span className="text-[10px] text-[#64748B]">
-                              {emp.role || emp.designation}
-                              {emp.department ? ` • ${emp.department}` : ''}
-                            </span>
-                          </div>
-                          {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
-                        </button>
-                      );
-                    })}
+                    {/* Search Input Box */}
+                    <div className="p-2 border-b border-[#E5E5E5] bg-[#F8FAFC]">
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#888888]">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        </span>
+                        <input
+                          type="text"
+                          autoFocus
+                          value={editPMSearch}
+                          onChange={(e) => setEditPMSearch(e.target.value)}
+                          placeholder="Search manager by name, role, dept..."
+                          className="w-full pl-8 pr-7 py-1.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] placeholder-[#888888] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        {editPMSearch && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditPMSearch('');
+                            }}
+                            className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#888888] hover:text-[#111827] text-xs cursor-pointer"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Scrollable list */}
+                    <div className="max-h-48 overflow-y-auto divide-y divide-[#F1F5F9]">
+                      {filteredEditPMEmp.length === 0 ? (
+                        <div className="py-4 text-center text-xs text-[#888888]">
+                          No employees match &ldquo;{editPMSearch}&rdquo;
+                        </div>
+                      ) : (
+                        filteredEditPMEmp.map((emp) => {
+                          const isChosen = emp.name.toLowerCase() === formManager.toLowerCase();
+                          return (
+                            <button
+                              key={emp.id}
+                              type="button"
+                              onClick={() => {
+                                setFormManager(emp.name);
+                                setFormManagerEmail(emp.email || '');
+                                if (!formMembers.includes(emp.name)) {
+                                  setFormMembers([...formMembers, emp.name]);
+                                }
+                                setIsEditPMDropdownOpen(false);
+                                setEditPMSearch('');
+                              }}
+                              className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                                isChosen
+                                  ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
+                                  : 'text-[#111827] hover:bg-[#F8FAFC]'
+                              }`}
+                            >
+                              <div>
+                                <span className="font-semibold block">{emp.name}</span>
+                                <span className="text-[10px] text-[#64748B]">
+                                  {emp.role || emp.designation}
+                                  {emp.department ? ` • ${emp.department}` : ''}
+                                </span>
+                              </div>
+                              {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
