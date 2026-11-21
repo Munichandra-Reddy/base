@@ -1049,79 +1049,76 @@ export const TasksView: React.FC<TasksViewProps> = ({
         </div>
 
         {/* Row B: Dropdown Filters & Sort (Opening Strictly Downward) */}
-        <div className="pt-2.5 border-t border-[#F0F0F0] flex flex-wrap items-center justify-between gap-2.5 text-xs text-[#334155]">
-          {/* Left: Filter Controls */}
-          <div className="flex items-center gap-2.5 flex-wrap">
-            {/* Project Filter */}
+        <div className="pt-2.5 border-t border-[#F0F0F0] flex flex-wrap items-center gap-2.5 text-xs text-[#334155]">
+          {/* Project Filter */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-medium text-[#64748B]">Project:</span>
+            <select
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
+              className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+            >
+              <option value="all">All Projects</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.name}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Assigned Employee Filter (Admin) */}
+          {isAdmin && (
             <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-medium text-[#64748B]">Project:</span>
+              <span className="text-[11px] font-medium text-[#64748B]">Assignee:</span>
               <select
-                value={selectedProject}
-                onChange={(e) => setSelectedProject(e.target.value)}
+                value={selectedEmployee}
+                onChange={(e) => setSelectedEmployee(e.target.value)}
                 className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
               >
-                <option value="all">All Projects</option>
-                {projects.map((p) => (
-                  <option key={p.id} value={p.name}>
-                    {p.name}
+                <option value="all">All Assignees</option>
+                {activeEmployees.map((emp) => (
+                  <option key={emp.id} value={emp.name}>
+                    {emp.name} ({emp.role || emp.department || 'Employee'})
                   </option>
                 ))}
               </select>
             </div>
+          )}
 
-            {/* Assigned Employee Filter (Admin) */}
-            {isAdmin && (
-              <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-medium text-[#64748B]">Assignee:</span>
-                <select
-                  value={selectedEmployee}
-                  onChange={(e) => setSelectedEmployee(e.target.value)}
-                  className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
-                >
-                  <option value="all">All Assignees</option>
-                  {activeEmployees.map((emp) => (
-                    <option key={emp.id} value={emp.name}>
-                      {emp.name} ({emp.role || emp.department || 'Employee'})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Priority Filter */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-medium text-[#64748B]">Priority:</span>
-              <select
-                value={selectedPriority}
-                onChange={(e) => setSelectedPriority(e.target.value)}
-                className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
-              >
-                <option value="all">All Priorities</option>
-                <option value="critical">Critical</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
-            </div>
-
-            {/* Due Date Filter */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-medium text-[#64748B]">Due Date:</span>
-              <select
-                value={selectedDueDateFilter}
-                onChange={(e) => setSelectedDueDateFilter(e.target.value)}
-                className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
-              >
-                <option value="all">All Deadlines</option>
-                <option value="today">Due Today</option>
-                <option value="this_week">Due This Week</option>
-                <option value="overdue">Overdue Only</option>
-              </select>
-            </div>
+          {/* Priority Filter */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-medium text-[#64748B]">Priority:</span>
+            <select
+              value={selectedPriority}
+              onChange={(e) => setSelectedPriority(e.target.value)}
+              className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+            >
+              <option value="all">All Priorities</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
           </div>
 
-          {/* Right: Sort By & Reset Filters */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Due Date Filter */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-medium text-[#64748B]">Due Date:</span>
+            <select
+              value={selectedDueDateFilter}
+              onChange={(e) => setSelectedDueDateFilter(e.target.value)}
+              className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+            >
+              <option value="all">All Deadlines</option>
+              <option value="today">Due Today</option>
+              <option value="this_week">Due This Week</option>
+              <option value="overdue">Overdue Only</option>
+            </select>
+          </div>
+
+          {/* Sort By (Placed directly beside Due Date) */}
+          <div className="flex items-center gap-1.5">
             <span className="text-[11px] font-medium text-[#64748B]">Sort:</span>
             <select
               value={sortOption}
@@ -1133,16 +1130,16 @@ export const TasksView: React.FC<TasksViewProps> = ({
               <option value="priority">Priority (Highest First)</option>
               <option value="name">Task Name (A → Z)</option>
             </select>
-
-            {/* Reset Filters */}
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="px-2 py-1 text-xs text-[#64748B] hover:text-[#0F172A] hover:bg-[#E5E5E5] rounded transition-colors cursor-pointer"
-            >
-              Reset
-            </button>
           </div>
+
+          {/* Reset Filters */}
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="px-2 py-1 text-xs text-[#64748B] hover:text-[#0F172A] hover:bg-[#E5E5E5] rounded transition-colors cursor-pointer"
+          >
+            Reset
+          </button>
         </div>
       </div>
 
