@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Task,
   Project,
@@ -100,6 +100,15 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
+  // Create Task Modal: Project & Assignee Dropdown states (Strictly Opens Below with Search)
+  const [isTaskProjectDropdownOpen, setIsTaskProjectDropdownOpen] = useState(false);
+  const [taskProjectSearch, setTaskProjectSearch] = useState('');
+  const taskProjectRef = useRef<HTMLDivElement>(null);
+
+  const [isTaskAssigneeDropdownOpen, setIsTaskAssigneeDropdownOpen] = useState(false);
+  const [taskAssigneeSearch, setTaskAssigneeSearch] = useState('');
+  const taskAssigneeRef = useRef<HTMLDivElement>(null);
+
   // Submission / Review form states
   const [submissionSummary, setSubmissionSummary] = useState('');
   const [submissionComment, setSubmissionComment] = useState('');
@@ -147,6 +156,54 @@ export const TasksView: React.FC<TasksViewProps> = ({
     );
     return matched.length > 0 ? matched : activeEmployees;
   }, [taskProject, projects, activeEmployees]);
+
+  const filteredValidProjects = useMemo(() => {
+    if (!taskProjectSearch.trim()) return validProjects;
+    const q = taskProjectSearch.toLowerCase().trim();
+    return validProjects.filter((p) =>
+      (p.name || '').toLowerCase().includes(q) ||
+      (p.projectId || p.id || '').toLowerCase().includes(q)
+    );
+  }, [validProjects, taskProjectSearch]);
+
+  const filteredProjectEligibleEmployees = useMemo(() => {
+    if (!taskAssigneeSearch.trim()) return projectEligibleEmployees;
+    const q = taskAssigneeSearch.toLowerCase().trim();
+    return projectEligibleEmployees.filter((emp) =>
+      (emp.name || '').toLowerCase().includes(q) ||
+      (emp.role || emp.designation || '').toLowerCase().includes(q) ||
+      (emp.department || '').toLowerCase().includes(q) ||
+      (emp.email || '').toLowerCase().includes(q)
+    );
+  }, [projectEligibleEmployees, taskAssigneeSearch]);
+
+  // Close Task Project / Assignee dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (taskProjectRef.current && !taskProjectRef.current.contains(event.target as Node)) {
+        setIsTaskProjectDropdownOpen(false);
+      }
+      if (taskAssigneeRef.current && !taskAssigneeRef.current.contains(event.target as Node)) {
+        setIsTaskAssigneeDropdownOpen(false);
+      }
+    };
+    if (isTaskProjectDropdownOpen || isTaskAssigneeDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isTaskProjectDropdownOpen, isTaskAssigneeDropdownOpen]);
+
+  // Reset dropdown and search states when create modal closes
+  useEffect(() => {
+    if (!isCreateModalOpen) {
+      setIsTaskProjectDropdownOpen(false);
+      setTaskProjectSearch('');
+      setIsTaskAssigneeDropdownOpen(false);
+      setTaskAssigneeSearch('');
+    }
+  }, [isCreateModalOpen]);
 
   // -------------------------------------------------------------
   // Dynamic 6 Summary Metric Calculations
@@ -328,6 +385,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
     setTaskInstructions('');
     setTaskAdminNotes('');
     setFormError('');
+    setIsTaskProjectDropdownOpen(false);
+    setTaskProjectSearch('');
+    setIsTaskAssigneeDropdownOpen(false);
+    setTaskAssigneeSearch('');
     setIsCreateModalOpen(true);
   };
 
@@ -1741,51 +1802,229 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 />
               </div>
 
-              {/* Project Selection */}
+              {/* Project Selection & Assigned Employee (Strictly Opens Below with Single Searchable Box) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
+                {/* 1. Project Selection */}
+                <div className="relative" ref={taskProjectRef}>
                   <label className="block font-bold text-[#0F172A] mb-1">
                     Select Project <span className="text-[#DC2626]">*</span>
                   </label>
-                  <select
-                    required
-                    value={taskProject}
-                    onChange={(e) => setTaskProject(e.target.value)}
-                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
-                  >
-                    {validProjects.map((p) => (
-                      <option key={p.id} value={p.name}>
-                        {p.name} ({p.projectId || p.id})
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={isTaskProjectDropdownOpen ? taskProjectSearch : taskProject}
+                      onChange={(e) => {
+                        setTaskProjectSearch(e.target.value);
+                        if (!isTaskProjectDropdownOpen) setIsTaskProjectDropdownOpen(true);
+                      }}
+                      onFocus={() => {
+                        setIsTaskProjectDropdownOpen(true);
+                        setTaskProjectSearch('');
+                      }}
+                      placeholder="Search project..."
+                      className={`w-full p-2.5 pr-14 bg-white border rounded-md text-xs text-[#111827] placeholder-[#9CA3AF] focus:outline-none transition-all cursor-pointer ${
+                        isTaskProjectDropdownOpen
+                          ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
+                          : 'border-[#CCCCCC] hover:border-[#999999]'
+                      }`}
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center gap-1.5">
+                      {taskProject && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTaskProject('');
+                            setTaskProjectSearch('');
+                          }}
+                          className="text-[#888888] hover:text-[#222222] text-xs p-0.5 cursor-pointer"
+                          title="Clear project"
+                        >
+                          ✕
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsTaskProjectDropdownOpen((prev) => !prev);
+                          if (!isTaskProjectDropdownOpen) setTaskProjectSearch('');
+                        }}
+                        className="text-[#888888] hover:text-[#222222] p-0.5 cursor-pointer"
+                      >
+                        <svg
+                          className={`w-3.5 h-3.5 transition-transform duration-150 ${
+                            isTaskProjectDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
+                          }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Dropdown Menu - Strictly Opens Below */}
+                  {isTaskProjectDropdownOpen && (
+                    <div
+                      className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-52 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
+                      style={{ top: '100%' }}
+                    >
+                      {filteredValidProjects.length === 0 ? (
+                        <div className="p-3 text-center text-xs text-[#888888]">
+                          No matching projects found
+                        </div>
+                      ) : (
+                        filteredValidProjects.map((p) => {
+                          const isSelected = p.name === taskProject;
+                          return (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                setTaskProject(p.name);
+                                setIsTaskProjectDropdownOpen(false);
+                                setTaskProjectSearch('');
+                              }}
+                              className={`w-full text-left px-3 py-2 flex items-center justify-between text-xs transition-colors cursor-pointer ${
+                                isSelected
+                                  ? 'bg-[#EBF7FD] text-[#049FD9] font-semibold'
+                                  : 'hover:bg-[#F8FAFC] text-[#222222]'
+                              }`}
+                            >
+                              <div className="truncate">
+                                <span className="font-semibold">{p.name}</span>{' '}
+                                <span className="text-[10px] text-[#64748B]">({p.projectId || p.id})</span>
+                              </div>
+                              {isSelected && <span className="text-[#049FD9] font-bold">✓</span>}
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                {/* Assigned Employee (Project Members) */}
-                <div>
+                {/* 2. Assigned Employee (Project Members) */}
+                <div className="relative" ref={taskAssigneeRef}>
                   <label className="block font-bold text-[#0F172A] mb-1">
                     Assign Employee <span className="text-[#DC2626]">*</span>
                   </label>
-                  <select
-                    required
-                    value={taskAssignedTo}
-                    onChange={(e) => {
-                      const emp = projectEligibleEmployees.find((p) => p.name === e.target.value);
-                      setTaskAssignedTo(e.target.value);
-                      if (emp) {
-                        setTaskAssignedToId(emp.id);
-                        setTaskAssignedToEmail(emp.email);
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={
+                        isTaskAssigneeDropdownOpen
+                          ? taskAssigneeSearch
+                          : taskAssignedTo
+                          ? `${taskAssignedTo}${
+                              projectEligibleEmployees.find((e) => e.name === taskAssignedTo)
+                                ? ` (${projectEligibleEmployees.find((e) => e.name === taskAssignedTo)?.role || projectEligibleEmployees.find((e) => e.name === taskAssignedTo)?.designation || 'Team Member'})`
+                                : ''
+                            }`
+                          : ''
                       }
-                    }}
-                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
-                  >
-                    <option value="">Select Employee...</option>
-                    {projectEligibleEmployees.map((emp) => (
-                      <option key={emp.id} value={emp.name}>
-                        {emp.name} — {emp.role || emp.designation || 'Team Member'}
-                      </option>
-                    ))}
-                  </select>
+                      onChange={(e) => {
+                        setTaskAssigneeSearch(e.target.value);
+                        if (!isTaskAssigneeDropdownOpen) setIsTaskAssigneeDropdownOpen(true);
+                      }}
+                      onFocus={() => {
+                        setIsTaskAssigneeDropdownOpen(true);
+                        setTaskAssigneeSearch('');
+                      }}
+                      placeholder="Search employee by name, role, dept..."
+                      className={`w-full p-2.5 pr-14 bg-white border rounded-md text-xs text-[#111827] placeholder-[#9CA3AF] focus:outline-none transition-all cursor-pointer ${
+                        isTaskAssigneeDropdownOpen
+                          ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
+                          : 'border-[#CCCCCC] hover:border-[#999999]'
+                      }`}
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center gap-1.5">
+                      {taskAssignedTo && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTaskAssignedTo('');
+                            setTaskAssignedToId('');
+                            setTaskAssignedToEmail('');
+                            setTaskAssigneeSearch('');
+                          }}
+                          className="text-[#888888] hover:text-[#222222] text-xs p-0.5 cursor-pointer"
+                          title="Clear assignee"
+                        >
+                          ✕
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsTaskAssigneeDropdownOpen((prev) => !prev);
+                          if (!isTaskAssigneeDropdownOpen) setTaskAssigneeSearch('');
+                        }}
+                        className="text-[#888888] hover:text-[#222222] p-0.5 cursor-pointer"
+                      >
+                        <svg
+                          className={`w-3.5 h-3.5 transition-transform duration-150 ${
+                            isTaskAssigneeDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
+                          }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Dropdown Menu - Strictly Opens Below */}
+                  {isTaskAssigneeDropdownOpen && (
+                    <div
+                      className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-52 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
+                      style={{ top: '100%' }}
+                    >
+                      {filteredProjectEligibleEmployees.length === 0 ? (
+                        <div className="p-3 text-center text-xs text-[#888888]">
+                          No matching employees found
+                        </div>
+                      ) : (
+                        filteredProjectEligibleEmployees.map((emp) => {
+                          const isSelected = emp.name === taskAssignedTo;
+                          return (
+                            <button
+                              key={emp.id}
+                              type="button"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                setTaskAssignedTo(emp.name);
+                                setTaskAssignedToId(emp.id);
+                                setTaskAssignedToEmail(emp.email || '');
+                                setIsTaskAssigneeDropdownOpen(false);
+                                setTaskAssigneeSearch('');
+                              }}
+                              className={`w-full text-left px-3 py-2 flex items-center justify-between text-xs transition-colors cursor-pointer ${
+                                isSelected
+                                  ? 'bg-[#EBF7FD] text-[#049FD9] font-semibold'
+                                  : 'hover:bg-[#F8FAFC] text-[#222222]'
+                              }`}
+                            >
+                              <div className="min-w-0 pr-2">
+                                <div className="font-semibold truncate">{emp.name}</div>
+                                <div className="text-[10px] text-[#64748B] truncate">
+                                  {emp.role || emp.designation || 'Team Member'}
+                                  {emp.department ? ` • ${emp.department}` : ''}
+                                </div>
+                              </div>
+                              {isSelected && <span className="text-[#049FD9] font-bold">✓</span>}
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
