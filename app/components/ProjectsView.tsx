@@ -1265,17 +1265,12 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               ) : (
                 <div className="space-y-2.5 max-h-60 overflow-y-auto">
                   {projectActivities.map((act) => (
-                    <div key={act.id} className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] flex items-start gap-3 text-xs">
-                      <div className="w-6 h-6 rounded-full bg-[#E0F2FE] text-[#049FD9] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                        ⚡
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-[#111827]">{act.description}</p>
-                        <div className="flex items-center gap-2 text-[10px] text-[#64748B] mt-0.5">
-                          <span>By: {act.performedBy || 'Admin'}</span>
-                          <span>•</span>
-                          <span>{act.timestamp ? new Date(act.timestamp).toLocaleString() : 'Recent'}</span>
-                        </div>
+                    <div key={act.id} className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] text-xs space-y-1">
+                      <p className="font-semibold text-[#111827]">{act.description}</p>
+                      <div className="flex items-center gap-2 text-[10px] text-[#64748B]">
+                        <span>By: {act.performedBy || 'Admin'}</span>
+                        <span>•</span>
+                        <span>{act.timestamp ? new Date(act.timestamp).toLocaleString() : 'Recent'}</span>
                       </div>
                     </div>
                   ))}

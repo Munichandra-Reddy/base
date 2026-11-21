@@ -980,7 +980,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                   if (log.isDemo || log.status === 'simulated') {
                     statusBadge = (
                       <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-[#FFFBEB] text-[#F59E0B] border border-amber-300 flex items-center gap-1 w-fit">
-                        ⚡ Demo Simulated (Not Sent)
+                        Demo Simulated (Not Sent)
                       </span>
                     );
                   } else if (log.status === 'failed') {

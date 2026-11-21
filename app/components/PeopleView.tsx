@@ -1700,22 +1700,17 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                       {employeeActivities.map((log) => (
                         <div
                           key={log.id}
-                          className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] flex items-start gap-3 text-xs"
+                          className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] text-xs space-y-1"
                         >
-                          <div className="w-7 h-7 rounded-full bg-[#E0F2FE] text-[#049FD9] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                            ⚡
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-[#111827]">{log.description}</p>
-                            <div className="flex items-center gap-2 text-[10px] text-[#64748B] mt-1">
-                              <span>By: {log.performedBy || 'Admin'}</span>
-                              <span>•</span>
-                              <span>
-                                {log.timestamp
-                                  ? new Date(log.timestamp).toLocaleString()
-                                  : 'Recent'}
-                              </span>
-                            </div>
+                          <p className="font-semibold text-[#111827]">{log.description}</p>
+                          <div className="flex items-center gap-2 text-[10px] text-[#64748B]">
+                            <span>By: {log.performedBy || 'Admin'}</span>
+                            <span>•</span>
+                            <span>
+                              {log.timestamp
+                                ? new Date(log.timestamp).toLocaleString()
+                                : 'Recent'}
+                            </span>
                           </div>
                         </div>
                       ))}
