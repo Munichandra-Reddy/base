@@ -26,6 +26,104 @@ import {
   FileIcon,
 } from './Icons';
 
+interface TaskFilterDropdownProps {
+  label?: string;
+  value: string;
+  onChange: (val: string) => void;
+  options: { value: string; label: string }[];
+  className?: string;
+}
+
+const TaskFilterDropdown: React.FC<TaskFilterDropdownProps> = ({
+  label,
+  value,
+  onChange,
+  options,
+  className = '',
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  const selectedOption =
+    options.find((o) => o.value === value) || options[0];
+
+  return (
+    <div className={`relative inline-flex items-center gap-1.5 ${className}`} ref={containerRef}>
+      {label && <span className="text-[11px] font-medium text-[#64748B] shrink-0">{label}:</span>}
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={`px-2 py-1 bg-white border rounded text-xs text-[#111827] focus:outline-none cursor-pointer flex items-center justify-between gap-1.5 transition-all select-none ${
+          isOpen
+            ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
+            : 'border-[#CCCCCC] hover:border-[#999999]'
+        }`}
+      >
+        <span className="truncate max-w-[150px]">{selectedOption?.label || value}</span>
+        <svg
+          className={`w-3.5 h-3.5 text-[#64748B] transition-transform duration-150 shrink-0 ${
+            isOpen ? 'rotate-180 text-[#049FD9]' : ''
+          }`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* DROPDOWN MENU - STRICTLY POSITIONED BELOW WITH top-full mt-1 */}
+      {isOpen && (
+        <div
+          className="absolute top-full mt-1 left-0 min-w-full w-max max-w-[260px] max-h-60 overflow-y-auto bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 py-1 font-sans animate-in fade-in zoom-in-95 duration-100"
+          style={{ top: '100%' }}
+        >
+          {options.map((opt) => {
+            const active = opt.value === value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                  active
+                    ? 'bg-[#EBF7FD] text-[#049FD9] font-semibold'
+                    : 'text-[#1F2937] hover:bg-[#F8FAFC]'
+                }`}
+              >
+                <span className="truncate">{opt.label}</span>
+                {active && <span className="text-[#049FD9] font-bold text-xs shrink-0">✓</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 interface TasksViewProps {
   tasks: Task[];
   projects?: Project[];
@@ -1051,86 +1149,71 @@ export const TasksView: React.FC<TasksViewProps> = ({
         {/* Row B: Dropdown Filters & Sort (Opening Strictly Downward) */}
         <div className="pt-2.5 border-t border-[#F0F0F0] flex flex-wrap items-center gap-2.5 text-xs text-[#334155]">
           {/* Project Filter */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-medium text-[#64748B]">Project:</span>
-            <select
-              value={selectedProject}
-              onChange={(e) => setSelectedProject(e.target.value)}
-              className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
-            >
-              <option value="all">All Projects</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.name}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <TaskFilterDropdown
+            label="Project"
+            value={selectedProject}
+            onChange={setSelectedProject}
+            options={[
+              { value: 'all', label: 'All Projects' },
+              ...projects.map((p) => ({ value: p.name, label: p.name })),
+            ]}
+          />
 
           {/* Assigned Employee Filter (Admin) */}
           {isAdmin && (
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-medium text-[#64748B]">Assignee:</span>
-              <select
-                value={selectedEmployee}
-                onChange={(e) => setSelectedEmployee(e.target.value)}
-                className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
-              >
-                <option value="all">All Assignees</option>
-                {activeEmployees.map((emp) => (
-                  <option key={emp.id} value={emp.name}>
-                    {emp.name} ({emp.role || emp.department || 'Employee'})
-                  </option>
-                ))}
-              </select>
-            </div>
+            <TaskFilterDropdown
+              label="Assignee"
+              value={selectedEmployee}
+              onChange={setSelectedEmployee}
+              options={[
+                { value: 'all', label: 'All Assignees' },
+                ...activeEmployees.map((emp) => ({
+                  value: emp.name,
+                  label: `${emp.name} (${emp.role || emp.department || 'Employee'})`,
+                })),
+              ]}
+            />
           )}
 
           {/* Priority Filter */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-medium text-[#64748B]">Priority:</span>
-            <select
-              value={selectedPriority}
-              onChange={(e) => setSelectedPriority(e.target.value)}
-              className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
-            >
-              <option value="all">All Priorities</option>
-              <option value="critical">Critical</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
-          </div>
+          <TaskFilterDropdown
+            label="Priority"
+            value={selectedPriority}
+            onChange={setSelectedPriority}
+            options={[
+              { value: 'all', label: 'All Priorities' },
+              { value: 'critical', label: 'Critical' },
+              { value: 'high', label: 'High' },
+              { value: 'medium', label: 'Medium' },
+              { value: 'low', label: 'Low' },
+            ]}
+          />
 
           {/* Due Date Filter */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-medium text-[#64748B]">Due Date:</span>
-            <select
-              value={selectedDueDateFilter}
-              onChange={(e) => setSelectedDueDateFilter(e.target.value)}
-              className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
-            >
-              <option value="all">All Deadlines</option>
-              <option value="today">Due Today</option>
-              <option value="this_week">Due This Week</option>
-              <option value="overdue">Overdue Only</option>
-            </select>
-          </div>
+          <TaskFilterDropdown
+            label="Due Date"
+            value={selectedDueDateFilter}
+            onChange={setSelectedDueDateFilter}
+            options={[
+              { value: 'all', label: 'All Deadlines' },
+              { value: 'today', label: 'Due Today' },
+              { value: 'this_week', label: 'Due This Week' },
+              { value: 'overdue', label: 'Overdue Only' },
+            ]}
+          />
 
           {/* Sort By (Placed directly beside Due Date) */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-medium text-[#64748B]">Sort:</span>
-            <select
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value as any)}
-              className="px-2 py-1 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer font-medium"
-            >
-              <option value="due_asc">Deadline (Earliest First)</option>
-              <option value="due_desc">Deadline (Latest First)</option>
-              <option value="priority">Priority (Highest First)</option>
-              <option value="name">Task Name (A → Z)</option>
-            </select>
-          </div>
+          <TaskFilterDropdown
+            label="Sort"
+            value={sortOption}
+            onChange={(val) => setSortOption(val as any)}
+            options={[
+              { value: 'due_asc', label: 'Deadline (Earliest First)' },
+              { value: 'due_desc', label: 'Deadline (Latest First)' },
+              { value: 'priority', label: 'Priority (Highest First)' },
+              { value: 'name', label: 'Task Name (A → Z)' },
+            ]}
+          />
 
           {/* Reset Filters */}
           <button
