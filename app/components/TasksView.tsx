@@ -921,11 +921,6 @@ export const TasksView: React.FC<TasksViewProps> = ({
           <h1 className="text-xl font-bold text-[#111827]">
             {isAdmin ? 'Task Management' : 'My Tasks'}
           </h1>
-          <p className="text-[#595959] text-xs font-normal mt-0.5">
-            {isAdmin
-              ? 'Assign, supervise workflows, review employee submissions, and approve completed tasks.'
-              : 'Execute assigned tasks, log progress, collaborate with notes, and submit deliverables for review.'}
-          </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
