@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Task, Project, Activity, Person } from '@/lib/types';
+import { Task, Project, Activity, Person, isTaskOverdue } from '@/lib/types';
 import {
   CheckSquareIcon,
   ClockIcon,
@@ -9,6 +9,7 @@ import {
   ChatIcon,
   CheckCircleIcon,
   UsersIcon,
+  AlertCircleIcon,
 } from './Icons';
 
 interface EmployeeDashboardViewProps {
@@ -52,19 +53,29 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
 
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('pending');
 
-  // Filter tasks belonging to this employee
+  // Filter tasks strictly belonging to this employee
   const myTasks = tasks.filter((t) => {
     if (!t.assignedTo) return false;
-    const assigned = t.assignedTo.toLowerCase();
-    const current = employeeName.toLowerCase();
-    return assigned.includes(current) || current.includes(assigned) || assigned === 'you';
+    const assigned = t.assignedTo.toLowerCase().trim();
+    const current = employeeName.toLowerCase().trim();
+    const email = (currentUser?.email || '').toLowerCase().trim();
+    return (
+      assigned.includes(current) ||
+      current.includes(assigned) ||
+      assigned === 'you' ||
+      (t.assignedToEmail && t.assignedToEmail.toLowerCase() === email)
+    );
   });
 
-  // Fallback to sample tasks if this user has none assigned yet
-  const displayedTasks = myTasks.length > 0 ? myTasks : tasks.slice(0, 5);
+  const displayedTasks = myTasks;
 
-  const myPendingTasks = displayedTasks.filter((t) => !t.completed);
-  const myCompletedTasks = displayedTasks.filter((t) => t.completed);
+  const myTotalTasks = myTasks.length;
+  const myPendingTasks = myTasks.filter((t) => (t.status || 'pending') === 'pending' && !t.completed);
+  const myInProgressTasks = myTasks.filter((t) => t.status === 'in_progress');
+  const myInReviewTasks = myTasks.filter((t) => t.status === 'in_review');
+  const myChangesRequestedTasks = myTasks.filter((t) => t.status === 'changes_requested');
+  const myCompletedTasks = myTasks.filter((t) => t.status === 'completed' || t.completed);
+  const myOverdueTasks = myTasks.filter((t) => isTaskOverdue(t));
 
   // Filter projects belonging to this employee
   const myProjects = projects.filter((p) => {
@@ -75,16 +86,16 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
 
   // Filter tasks based on selected filter tab
   const filteredTaskList = displayedTasks.filter((t) => {
-    if (taskFilter === 'pending') return !t.completed;
-    if (taskFilter === 'completed') return t.completed;
+    if (taskFilter === 'pending') return !t.completed && t.status !== 'completed';
+    if (taskFilter === 'completed') return t.completed || t.status === 'completed';
     return true;
   });
 
   return (
     <div className="space-y-6 font-sans w-full">
-      {/* EMPLOYEE PERSONAL KPI METRICS (6 Compact Cards Grid: Responsive 1-2 Mobile, 2-3 Tablet, 6 Desktop) */}
+      {/* EMPLOYEE PERSONAL KPI METRICS (6 Dynamic Task Cards Grid: Responsive 1-2 Mobile, 2-3 Tablet, 6 Desktop) */}
       <div className="grid grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3 lg:gap-4 w-full">
-        {/* Card 1: My Open Tasks */}
+        {/* Card 1: My Tasks */}
         <div
           onClick={onViewTasks}
           className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between min-h-[82px]"
@@ -99,47 +110,97 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           </div>
           <div>
             <div className="text-xl font-bold text-[#222222] leading-tight">
-              {displayedTasks.length}
+              {myTotalTasks}
             </div>
             <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              {myPendingTasks.length} in progress
+              {myInProgressTasks.length} in progress
             </div>
           </div>
         </div>
 
-        {/* Card 2: Due Soon / Today */}
-        <div
-          onClick={onViewCalendar}
-          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between min-h-[82px]"
-        >
-          <div className="flex items-center justify-between mb-2 gap-1.5">
-            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
-              Due Soon
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#D97706] border border-[#E5E5E5] flex items-center justify-center shrink-0">
-              <ClockIcon className="w-3.5 h-3.5" />
-            </div>
-          </div>
-          <div>
-            <div className="text-xl font-bold text-[#222222] leading-tight">
-              {myPendingTasks.slice(0, 2).length}
-            </div>
-            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              pending review
-            </div>
-          </div>
-        </div>
-
-        {/* Card 3: Finished This Week */}
+        {/* Card 2: Pending Tasks */}
         <div
           onClick={onViewTasks}
           className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between min-h-[82px]"
         >
           <div className="flex items-center justify-between mb-2 gap-1.5">
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
-              Finished
+              Pending
             </span>
-            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#16A34A] border border-[#E5E5E5] flex items-center justify-center shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A] flex items-center justify-center shrink-0">
+              <ClockIcon className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-xl font-bold text-[#222222] leading-tight">
+              {myPendingTasks.length}
+            </div>
+            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
+              ready to start
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: In Progress Tasks */}
+        <div
+          onClick={onViewTasks}
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between min-h-[82px]"
+        >
+          <div className="flex items-center justify-between mb-2 gap-1.5">
+            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
+              In Progress
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] flex items-center justify-center shrink-0">
+              <CheckSquareIcon className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-xl font-bold text-[#222222] leading-tight">
+              {myInProgressTasks.length}
+            </div>
+            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
+              active work
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Changes Requested (or Review) */}
+        <div
+          onClick={onViewTasks}
+          className={`bg-white p-3 rounded-[4px] border shadow-2xs transition-all cursor-pointer group flex flex-col justify-between min-h-[82px] ${
+            myChangesRequestedTasks.length > 0
+              ? 'border-[#FECDD3] bg-[#FFF1F2]/30'
+              : 'border-[#E5E5E5] hover:border-[#049FD9]'
+          }`}
+        >
+          <div className="flex items-center justify-between mb-2 gap-1.5">
+            <span className={`text-xs font-semibold truncate ${myChangesRequestedTasks.length > 0 ? 'text-[#E11D48]' : 'text-[#595959]'}`}>
+              {myChangesRequestedTasks.length > 0 ? 'Changes Needed' : 'In Review'}
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-[#FFF1F2] text-[#E11D48] border border-[#FECDD3] flex items-center justify-center shrink-0">
+              <AlertCircleIcon className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-xl font-bold text-[#222222] leading-tight">
+              {myChangesRequestedTasks.length > 0 ? myChangesRequestedTasks.length : myInReviewTasks.length}
+            </div>
+            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
+              {myChangesRequestedTasks.length > 0 ? 'revisions required' : 'awaiting approval'}
+            </div>
+          </div>
+        </div>
+
+        {/* Card 5: Completed Tasks */}
+        <div
+          onClick={onViewTasks}
+          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between min-h-[82px]"
+        >
+          <div className="flex items-center justify-between mb-2 gap-1.5">
+            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
+              Completed
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0] flex items-center justify-center shrink-0">
               <CheckCircleIcon className="w-3.5 h-3.5" />
             </div>
           </div>
@@ -148,76 +209,34 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
               {myCompletedTasks.length}
             </div>
             <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              completed
+              100% verified
             </div>
           </div>
         </div>
 
-        {/* Card 4: My Active Projects */}
+        {/* Card 6: Overdue Tasks */}
         <div
-          onClick={onViewProjects}
-          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between min-h-[82px]"
+          onClick={onViewTasks}
+          className={`bg-white p-3 rounded-[4px] border shadow-2xs transition-all cursor-pointer group flex flex-col justify-between min-h-[82px] ${
+            myOverdueTasks.length > 0
+              ? 'border-[#FCA5A5] bg-[#FEF2F2]/30'
+              : 'border-[#E5E5E5] hover:border-[#049FD9]'
+          }`}
         >
           <div className="flex items-center justify-between mb-2 gap-1.5">
-            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
-              My Projects
+            <span className="text-xs font-semibold text-[#DC2626] truncate">
+              Overdue
             </span>
-            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center shrink-0">
-              <FolderIcon className="w-3.5 h-3.5" />
+            <div className="w-7 h-7 rounded-lg bg-[#FEF2F2] text-[#DC2626] border border-[#FCA5A5] flex items-center justify-center shrink-0">
+              <AlertCircleIcon className="w-3.5 h-3.5" />
             </div>
           </div>
           <div>
-            <div className="text-xl font-bold text-[#222222] leading-tight">
-              {displayedProjects.length}
+            <div className="text-xl font-bold text-[#DC2626] leading-tight">
+              {myOverdueTasks.length}
             </div>
-            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              active projects
-            </div>
-          </div>
-        </div>
-
-        {/* Card 5: Campfire Mentions */}
-        <div
-          onClick={onViewChat}
-          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between min-h-[82px]"
-        >
-          <div className="flex items-center justify-between mb-2 gap-1.5">
-            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
-              Campfire
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center shrink-0">
-              <ChatIcon className="w-3.5 h-3.5" />
-            </div>
-          </div>
-          <div>
-            <div className="text-xl font-bold text-[#222222] leading-tight">
-              3
-            </div>
-            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              new messages
-            </div>
-          </div>
-        </div>
-
-        {/* Card 6: Total Employees */}
-        <div
-          onClick={onViewEmployees}
-          className="bg-white p-3 rounded-[4px] border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer group flex flex-col justify-between min-h-[82px]"
-        >
-          <div className="flex items-center justify-between mb-2 gap-1.5">
-            <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
-              Employees
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#049FD9] border border-[#E5E5E5] flex items-center justify-center shrink-0">
-              <UsersIcon className="w-3.5 h-3.5" />
-            </div>
-          </div>
-          <div>
-            <div className="text-xl font-bold text-[#222222] leading-tight">
-              {totalEmployeesCount}
-            </div>
-            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              {activeEmployeesCount} active
+            <div className="text-[11px] font-medium text-[#B91C1C] mt-0.5 truncate">
+              {myOverdueTasks.length > 0 ? 'deadline passed' : 'all on schedule'}
             </div>
           </div>
         </div>

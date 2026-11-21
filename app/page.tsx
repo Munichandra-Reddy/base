@@ -705,8 +705,11 @@ export default function Home() {
           description?: string;
           project: string;
           assignedTo?: string;
-          priority?: 'low' | 'medium' | 'high';
+          priority?: 'low' | 'medium' | 'high' | 'critical';
           dueDate?: string;
+          startDate?: string;
+          instructions?: string;
+          adminNotes?: string;
         }
       | string,
     projectArg?: string
@@ -715,30 +718,73 @@ export default function Home() {
     let project = 'E-Commerce Website';
     let description = '';
     let assignedTo = currentUser?.fullName || 'Rahul Kumar';
-    let priority: 'low' | 'medium' | 'high' = 'medium';
-    let dueDate = '2026-10-25';
+    let priority: 'low' | 'medium' | 'high' | 'critical' = 'medium';
+    let dueDate = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+    let startDate = new Date().toISOString().split('T')[0];
+    let instructions = '';
+    let adminNotes = '';
 
     if (typeof taskData === 'object') {
       title = taskData.title;
       project = taskData.project || project;
       description = taskData.description || '';
       assignedTo = taskData.assignedTo || assignedTo;
-      priority = taskData.priority || priority;
+      priority = (taskData.priority as any) || priority;
       dueDate = taskData.dueDate || dueDate;
+      startDate = taskData.startDate || startDate;
+      instructions = taskData.instructions || '';
+      adminNotes = taskData.adminNotes || '';
     } else {
       title = taskData;
       if (projectArg) project = projectArg;
     }
 
+    const matchedProject = projects.find((p) => p.name === project || p.id === project);
+    const matchedEmployee = people.find((p) => p.name === assignedTo || p.email === assignedTo);
+
+    const docId = `tsk_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const candidateTaskId = `TSK-${String(1001 + tasks.length).padStart(4, '0')}`;
+    const nowIso = new Date().toISOString();
+
     const newTask: Task = {
-      id: `t-${Date.now()}`,
+      id: docId,
+      taskId: candidateTaskId,
       title,
-      project,
-      completed: false,
-      dueDate,
-      assignedTo,
-      priority,
       description,
+      project,
+      projectId: matchedProject ? matchedProject.id : '',
+      completed: false,
+      status: 'pending',
+      priority,
+      assignedTo,
+      assignedToId: matchedEmployee ? matchedEmployee.id : '',
+      assignedToEmail: matchedEmployee ? matchedEmployee.email : '',
+      assignedToRole: matchedEmployee?.role || matchedEmployee?.designation || '',
+      assignedToDept: matchedEmployee?.department || '',
+      assignedBy: currentUser?.email || 'Admin',
+      assignedByName: currentUser?.fullName || 'Workspace Administrator',
+      startDate,
+      dueDate,
+      progress: 0,
+      instructions,
+      adminNotes,
+      attachments: [],
+      comments: [],
+      submissions: [],
+      activities: [
+        {
+          id: `act_${Date.now()}_1`,
+          taskId: candidateTaskId,
+          projectId: matchedProject ? matchedProject.id : '',
+          performedBy: currentUser?.email || 'Admin',
+          performedByName: currentUser?.fullName || 'Workspace Administrator',
+          activityType: 'task_created',
+          description: `Task "${title}" created and assigned to ${assignedTo}.`,
+          timestamp: nowIso,
+        },
+      ],
+      createdAt: nowIso,
+      updatedAt: nowIso,
     };
 
     setTasks((prev) => {
@@ -769,8 +815,21 @@ export default function Home() {
     });
 
     try {
-      await addFirebaseTask(newTask);
-    } catch (err) {}
+      await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newTask),
+      });
+    } catch (err) {
+      try {
+        await addFirebaseTask(newTask);
+      } catch (e) {}
+    }
+
+    setGlobalToast({
+      message: `Task "${title}" has been assigned to ${assignedTo} successfully.`,
+      type: 'success',
+    });
   };
 
   const handleUpdateEmployee = async (email: string, updates: Partial<Person>) => {
@@ -1130,8 +1189,13 @@ export default function Home() {
               {activeTab === 'tasks' && (
                 <TasksView
                   tasks={tasks}
+                  projects={projects}
+                  people={people}
                   onToggleTask={handleToggleTask}
-                  onOpenAddTask={() => setIsCreateModalOpen(true)}
+                  onOpenAddTask={() => {
+                    setCreateModalType('task');
+                    setIsCreateModalOpen(true);
+                  }}
                   isAdmin={dashboardRole === 'admin'}
                   currentUser={currentUser}
                 />

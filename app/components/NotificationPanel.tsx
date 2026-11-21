@@ -2,22 +2,40 @@
 
 import React from 'react';
 
+export interface NotificationItem {
+  id?: string;
+  title: string;
+  desc: string;
+  time?: string;
+  taskId?: string;
+}
+
 interface NotificationPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onClear: () => void;
   unreadCount?: number;
+  items?: NotificationItem[];
+  onSelectTask?: (taskId: string) => void;
 }
 
-export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose, onClear, unreadCount }) => {
+export const NotificationPanel: React.FC<NotificationPanelProps> = ({
+  isOpen,
+  onClose,
+  onClear,
+  unreadCount,
+  items,
+  onSelectTask,
+}) => {
   if (!isOpen) return null;
 
-  const notifications = [
+  const defaultNotifications: NotificationItem[] = [
     { title: 'Project workspace updated', desc: 'E-Commerce Website setup complete', time: '5m ago' },
     { title: 'Sprint task status updated', desc: 'Homepage components deployed', time: '30m ago' },
     { title: 'Weekly Sprint Retrospective', desc: 'Starts in 1 hour in Campfire #general', time: '1h ago' },
   ];
 
+  const notifications = items && items.length > 0 ? items : defaultNotifications;
   const isRead = unreadCount === 0;
 
   return (
@@ -52,7 +70,18 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, on
 
         <div className="divide-y divide-[#E5E5E5] max-h-72 overflow-y-auto">
           {notifications.map((n, i) => (
-            <div key={i} className={`p-3 transition-colors ${isRead ? 'bg-[#F4F6F8]/40 opacity-70' : 'hover:bg-[#F4F6F8]'}`}>
+            <div
+              key={i}
+              onClick={() => {
+                if (n.taskId && onSelectTask) {
+                  onSelectTask(n.taskId);
+                  onClose();
+                }
+              }}
+              className={`p-3 transition-colors ${
+                n.taskId ? 'cursor-pointer hover:bg-[#EFF6FF]' : ''
+              } ${isRead ? 'bg-[#F4F6F8]/40 opacity-70' : 'hover:bg-[#F4F6F8]'}`}
+            >
               <div className="flex justify-between items-start mb-0.5 gap-2">
                 <h5 className="text-xs font-semibold text-[#222222] break-words min-w-0">{n.title}</h5>
                 <span className="text-[10px] text-[#595959] shrink-0">{n.time}</span>

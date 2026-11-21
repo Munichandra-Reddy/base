@@ -329,7 +329,55 @@ export const subscribeToTasks = (callback: (tasks: Task[]) => void) => {
     return onSnapshot(
       collection(db, 'tasks'),
       (snapshot) => {
-        const tasksList: Task[] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Task));
+        const tasksList: Task[] = snapshot.docs.map((d, idx) => {
+          const data = d.data();
+          const isCompleted = Boolean(data.completed || data.status === 'completed');
+          let status: any = data.status || (isCompleted ? 'completed' : 'pending');
+          const todayStr = new Date().toISOString().split('T')[0];
+
+          let taskId = data.taskId;
+          if (!taskId) {
+            const numericPart = (d.id || '').replace(/[^0-9]/g, '');
+            if (numericPart.length >= 4) {
+              taskId = `TSK-${numericPart.slice(-4)}`;
+            } else {
+              taskId = `TSK-${String(1001 + idx).padStart(4, '0')}`;
+            }
+          }
+
+          return {
+            id: d.id,
+            taskId,
+            title: data.title || 'Untitled Task',
+            description: data.description || '',
+            project: data.project || data.projectName || 'General',
+            projectId: data.projectId || '',
+            completed: isCompleted,
+            status,
+            priority: (data.priority || 'medium').toLowerCase(),
+            assignedTo: data.assignedTo || 'Unassigned',
+            assignedToId: data.assignedToId || data.assignedToUid || '',
+            assignedToEmail: data.assignedToEmail || '',
+            assignedToRole: data.assignedToRole || data.assignedToDesignation || '',
+            assignedToDept: data.assignedToDept || data.assignedToDepartment || '',
+            assignedBy: data.assignedBy || 'Admin',
+            assignedByName: data.assignedByName || 'Workspace Administrator',
+            startDate: data.startDate || todayStr,
+            dueDate: data.dueDate || todayStr,
+            progress: typeof data.progress === 'number' ? data.progress : isCompleted ? 100 : 0,
+            instructions: data.instructions || '',
+            adminNotes: data.adminNotes || '',
+            attachments: Array.isArray(data.attachments) ? data.attachments : [],
+            comments: Array.isArray(data.comments) ? data.comments : [],
+            submissions: Array.isArray(data.submissions) ? data.submissions : [],
+            activities: Array.isArray(data.activities) ? data.activities : [],
+            createdAt: data.createdAt || todayStr,
+            updatedAt: data.updatedAt || todayStr,
+            startedAt: data.startedAt || '',
+            submittedAt: data.submittedAt || '',
+            completedAt: data.completedAt || '',
+          } as Task;
+        });
         callback(tasksList);
       },
       (error) => {
@@ -355,9 +403,24 @@ export const addFirebaseTask = async (task: Task) => {
 export const toggleFirebaseTask = async (taskId: string, completed: boolean) => {
   try {
     const taskRef = doc(db, 'tasks', taskId);
-    await updateDoc(taskRef, { completed });
+    const nowIso = new Date().toISOString();
+    await updateDoc(taskRef, {
+      completed,
+      status: completed ? 'completed' : 'in_progress',
+      progress: completed ? 100 : 50,
+      updatedAt: nowIso,
+      completedAt: completed ? nowIso : '',
+    });
   } catch (error) {
     console.error('Error toggling task in Firebase:', error);
+  }
+};
+
+export const deleteFirebaseTask = async (taskId: string) => {
+  try {
+    await deleteDoc(doc(db, 'tasks', taskId));
+  } catch (error) {
+    console.error('Error deleting task in Firebase:', error);
   }
 };
 

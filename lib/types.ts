@@ -1,14 +1,132 @@
+export type TaskStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'in_review'
+  | 'changes_requested'
+  | 'completed'
+  | 'cancelled';
+
+export type TaskPriority = 'low' | 'medium' | 'high' | 'critical';
+
+export interface TaskAttachment {
+  id: string;
+  fileName: string;
+  storagePath: string;
+  fileType: string;
+  fileSize: string;
+  fileUrl?: string;
+  uploadedBy: string;
+  uploadedByName?: string;
+  uploadedAt: string;
+}
+
+export interface TaskComment {
+  id: string;
+  taskId: string;
+  userId: string;
+  userName: string;
+  userRole: string;
+  userAvatar?: string;
+  avatarBg?: string;
+  message: string;
+  createdAt: string;
+}
+
+export interface TaskSubmission {
+  id: string;
+  submittedBy: string;
+  submittedByName: string;
+  summary: string;
+  comment?: string;
+  progress: number;
+  attachmentIds?: string[];
+  attachments?: TaskAttachment[];
+  submittedAt: string;
+  reviewStatus: 'pending' | 'approved' | 'changes_requested';
+  reviewerId?: string;
+  reviewerName?: string;
+  reviewComment?: string;
+  reviewedAt?: string;
+}
+
+export interface TaskActivity {
+  id: string;
+  taskId: string;
+  projectId?: string;
+  performedBy: string;
+  performedByName: string;
+  activityType:
+    | 'task_created'
+    | 'task_assigned'
+    | 'task_reassigned'
+    | 'task_started'
+    | 'progress_updated'
+    | 'comment_added'
+    | 'file_uploaded'
+    | 'submitted_for_review'
+    | 'review_approved'
+    | 'changes_requested'
+    | 'task_completed'
+    | 'due_date_changed'
+    | 'priority_changed'
+    | 'task_cancelled'
+    | 'task_edited';
+  description: string;
+  previousValue?: string;
+  newValue?: string;
+  timestamp: string;
+}
+
+export interface TaskNotification {
+  id: string;
+  recipientUid: string;
+  taskId: string;
+  projectId?: string;
+  notificationType: string;
+  message: string;
+  createdAt: string;
+  read: boolean;
+}
+
 export interface Task {
   id: string;
+  taskId?: string; // TSK-XXXX
   title: string;
-  project: string;
-  completed: boolean;
-  dueDate?: string;
-  assignedTo?: string;
-  priority?: 'low' | 'medium' | 'high';
   description?: string;
-  status?: 'pending' | 'in_progress' | 'completed';
+  project: string; // Project Name (backwards-compatible)
+  projectId?: string; // Project document ID
+  completed: boolean; // Backwards-compatible (true if status === 'completed')
+  status?: TaskStatus;
+  priority?: TaskPriority | string;
+  assignedTo?: string; // Full Name
+  assignedToId?: string; // Firebase UID / Employee ID
+  assignedToEmail?: string;
+  assignedToRole?: string;
+  assignedToDept?: string;
+  assignedBy?: string; // Admin UID or Name
+  assignedByName?: string;
+  startDate?: string;
+  dueDate?: string;
+  progress?: number; // 0-100
+  instructions?: string; // Employee-facing instructions
+  adminNotes?: string; // Internal Admin notes (hidden from employees)
+  attachments?: TaskAttachment[];
+  comments?: TaskComment[];
+  submissions?: TaskSubmission[];
+  activities?: TaskActivity[];
+  createdAt?: string;
+  updatedAt?: string;
+  startedAt?: string;
+  submittedAt?: string;
+  completedAt?: string;
 }
+
+export const isTaskOverdue = (task: Task): boolean => {
+  if (task.status === 'completed' || task.status === 'cancelled' || task.completed) return false;
+  if (!task.dueDate) return false;
+  const today = new Date().toISOString().split('T')[0];
+  return task.dueDate < today;
+};
 
 export type ProjectStatus = 'planning' | 'active' | 'on_hold' | 'completed' | 'cancelled';
 export type ProjectPriority = 'low' | 'medium' | 'high' | 'critical';

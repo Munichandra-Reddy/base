@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Task, Activity, WorkspaceStats, Person, Project } from '@/lib/types';
+import { Task, Activity, WorkspaceStats, Person, Project, isTaskOverdue } from '@/lib/types';
 import {
   FolderIcon,
   CheckSquareIcon,
@@ -50,9 +50,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const totalEmployeesCount = people?.length ?? 0;
   const activeEmployeesCount = people?.filter((p) => (p.status || 'active') === 'active').length ?? 0;
 
+  // Dynamic Task Statistics
+  const dynamicTotalTasks = tasks.length;
+  const dynamicPendingTasks = tasks.filter((t) => (t.status || 'pending') === 'pending' && !t.completed).length;
+  const dynamicInProgressTasks = tasks.filter((t) => t.status === 'in_progress').length;
+  const dynamicInReviewTasks = tasks.filter((t) => t.status === 'in_review').length;
+  const dynamicCompletedTasks = tasks.filter((t) => t.status === 'completed' || t.completed).length;
+  const dynamicOverdueTasks = tasks.filter((t) => isTaskOverdue(t)).length;
+
   const filteredTasks = tasks.filter((t) => {
-    if (taskFilter === 'pending') return !t.completed;
-    if (taskFilter === 'completed') return t.completed;
+    if (taskFilter === 'pending') return !t.completed && t.status !== 'completed';
+    if (taskFilter === 'completed') return t.completed || t.status === 'completed';
     return true;
   });
 
@@ -99,10 +107,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div>
             <div className="text-xl font-bold text-[#222222] leading-tight">
-              {stats.todosTotal || 120}
+              {dynamicTotalTasks}
             </div>
             <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              {stats.todosInProgress || 35} in progress
+              {dynamicInProgressTasks} in progress
             </div>
           </div>
         </div>
@@ -162,14 +170,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <span className="text-xs font-semibold text-[#595959] group-hover:text-[#222222] transition-colors truncate">
               Overdue Tasks
             </span>
-            <div className="w-7 h-7 rounded-lg bg-[#F4F6F8] text-[#DC2626] border border-[#E5E5E5] flex items-center justify-center shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-[#FEF2F2] text-[#DC2626] border border-[#FCA5A5] flex items-center justify-center shrink-0">
               <CalendarIcon className="w-3.5 h-3.5" />
             </div>
           </div>
           <div>
-            <div className="text-xl font-bold text-[#222222] leading-tight">15</div>
+            <div className="text-xl font-bold text-[#DC2626] leading-tight">{dynamicOverdueTasks}</div>
             <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              needs attention
+              {dynamicOverdueTasks > 0 ? 'needs attention' : 'on schedule'}
             </div>
           </div>
         </div>
@@ -485,7 +493,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       />
                     </svg>
                     <div className="absolute text-center leading-tight">
-                      <div className="text-base font-black text-[#0F172A]">120</div>
+                      <div className="text-base font-black text-[#0F172A]">{dynamicTotalTasks}</div>
                       <div className="text-[9px] font-bold text-[#64748B]">Total Tasks</div>
                     </div>
                   </div>
@@ -497,28 +505,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         <span className="w-2 h-2 rounded-full bg-[#10B981]" />
                         <span>Completed</span>
                       </div>
-                      <span className="font-bold text-[#0F172A]">52</span>
+                      <span className="font-bold text-[#0F172A]">{dynamicCompletedTasks}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
                         <span>In Progress</span>
                       </div>
-                      <span className="font-bold text-[#0F172A]">35</span>
+                      <span className="font-bold text-[#0F172A]">{dynamicInProgressTasks}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />
+                        <span>In Review</span>
+                      </div>
+                      <span className="font-bold text-[#0F172A]">{dynamicInReviewTasks}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
                         <span>Pending</span>
                       </div>
-                      <span className="font-bold text-[#0F172A]">18</span>
+                      <span className="font-bold text-[#0F172A]">{dynamicPendingTasks}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
                         <span>Overdue</span>
                       </div>
-                      <span className="font-bold text-[#0F172A]">15</span>
+                      <span className="font-bold text-[#0F172A]">{dynamicOverdueTasks}</span>
                     </div>
                   </div>
                 </div>

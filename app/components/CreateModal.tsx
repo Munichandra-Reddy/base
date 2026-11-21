@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Person, Project } from '@/lib/types';
 import { saveFileToDB } from '@/lib/fileUtils';
 import { FolderIcon, FileIcon } from './Icons';
@@ -121,6 +121,20 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   const [assignedMember, setAssignedMember] = useState('');
   const [taskPriority, setTaskPriority] = useState<'high' | 'medium' | 'low'>('medium');
   const [taskDueDate, setTaskDueDate] = useState('');
+
+  const eligibleTaskEmployees = useMemo(() => {
+    const activeEmps = employeeList.filter(
+      (e) => (e.status || 'active') === 'active' && (e.email || '').toLowerCase() !== 'cr7156816@gmail.com'
+    );
+    if (!taskProject) return activeEmps;
+    const proj = projects?.find((p) => p.name === taskProject || p.id === taskProject);
+    if (!proj || !proj.members || proj.members.length === 0) return activeEmps;
+    const memberSet = new Set(proj.members.map((m) => m.toLowerCase().trim()));
+    const matched = activeEmps.filter(
+      (e) => memberSet.has(e.name.toLowerCase().trim()) || memberSet.has(e.email.toLowerCase().trim())
+    );
+    return matched.length > 0 ? matched : activeEmps;
+  }, [taskProject, projects, employeeList]);
 
   // Project Form State (Initially Empty)
   const [projectName, setProjectName] = useState('');
@@ -682,9 +696,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all cursor-pointer"
                 >
                   <option value="">Select Team Member...</option>
-                  {employeeList.map((emp) => (
+                  {eligibleTaskEmployees.map((emp) => (
                     <option key={emp.id} value={emp.name}>
-                      {emp.name} ({emp.role})
+                      {emp.name} ({emp.role || emp.designation || 'Team Member'})
                     </option>
                   ))}
                 </select>
