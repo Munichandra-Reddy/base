@@ -162,9 +162,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   onDeleteProject,
   onNavigateToEmployee,
 }) => {
-  // View mode: 'table' | 'cards'
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
-
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -1652,28 +1649,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </h1>
 
         <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
-          {/* View Mode Toggle: Table / Cards / Kanban */}
-          <div className="flex items-center bg-[#F4F6F8] border border-[#E5E5E5] rounded-md p-0.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => setViewMode('table')}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors cursor-pointer ${
-                viewMode === 'table' ? 'bg-white text-[#111827] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#111827]'
-              }`}
-            >
-              Table View
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('cards')}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors cursor-pointer ${
-                viewMode === 'cards' ? 'bg-white text-[#111827] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#111827]'
-              }`}
-            >
-              Cards
-            </button>
-          </div>
-
           {/* Create Project Button (Admin Only) */}
           {isAdmin && (
             <button
@@ -1829,8 +1804,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       </div>
 
       {/* 4. PROFESSIONAL 10-COLUMN ENTERPRISE TABLE VIEW */}
-      {viewMode === 'table' && (
-        <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
@@ -2024,128 +1998,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             </table>
           </div>
         </div>
-      )}
-
-      {/* 5. CARDS VIEW */}
-      {viewMode === 'cards' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {displayedProjects.length === 0 ? (
-            <div className="col-span-full py-12 text-center text-[#64748B] bg-white rounded-lg border border-[#E5E5E5]">
-              <p className="font-semibold text-sm text-[#111827]">No projects match your filters.</p>
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="mt-2 px-3 py-1.5 bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] font-semibold text-xs rounded-md border border-[#E5E5E5] cursor-pointer"
-              >
-                Reset All Filters
-              </button>
-            </div>
-          ) : (
-            displayedProjects.map((proj) => {
-              const taskMetrics = getProjectTaskMetrics(proj);
-              const membersList = proj.members || [];
-
-              return (
-                <div
-                  key={proj.id}
-                  className="bg-white rounded-lg border border-[#E5E5E5] p-5 shadow-2xs hover:border-[#049FD9] transition-all flex flex-col justify-between space-y-4"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <span className="font-mono text-[10px] font-bold text-[#049FD9] block">
-                          {proj.projectId || proj.id}
-                        </span>
-                        <h3 className="font-bold text-base text-[#111827] mt-0.5 line-clamp-1">{proj.name}</h3>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        {renderPriorityBadge(proj.priority)}
-                        {renderStatusBadge(proj.status)}
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-[#64748B] line-clamp-2 leading-relaxed">
-                      {proj.description || 'No description provided.'}
-                    </p>
-
-                    <div className="pt-2 border-t border-[#F1F5F9] space-y-1.5 text-xs">
-                      <div className="flex justify-between">
-                        <span className="text-[#94A3B8]">Manager:</span>
-                        <span className="font-semibold text-[#111827]">{proj.manager || 'Workspace Admin'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[#94A3B8]">Deadline:</span>
-                        <span className="font-semibold text-[#111827]">{proj.endDate || proj.deadline || '—'}</span>
-                      </div>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div>
-                      <div className="flex justify-between text-xs font-semibold text-[#475569] mb-1">
-                        <span>Progress</span>
-                        <span className="text-[#049FD9]">{taskMetrics.completionRate}%</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-[#10B981] rounded-full"
-                          style={{ width: `${taskMetrics.completionRate}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Card Footer */}
-                  <div className="pt-3 border-t border-[#F1F5F9] flex items-center justify-between">
-                    <div className="flex items-center -space-x-1.5">
-                      {membersList.slice(0, 3).map((m, idx) => {
-                        const emp = getMemberProfile(m);
-                        return (
-                          <div
-                            key={idx}
-                            title={emp?.name || m}
-                            className={`w-6 h-6 rounded-full border border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs ${
-                              emp?.avatarBg || 'bg-[#049FD9]'
-                            }`}
-                          >
-                            {emp?.avatar || m[0]?.toUpperCase() || 'E'}
-                          </div>
-                        );
-                      })}
-                      {membersList.length > 3 && (
-                        <div className="w-6 h-6 rounded-full bg-[#E2E8F0] border border-white flex items-center justify-center text-[9px] font-bold text-[#475569]">
-                          +{membersList.length - 3}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedProject(proj);
-                          if (onSelectProject) onSelectProject(proj);
-                        }}
-                        className="px-3 py-1 rounded bg-[#E0F2FE] hover:bg-[#BAE6FD] text-[#0284C7] font-semibold text-xs cursor-pointer transition-colors"
-                      >
-                        View Project
-                      </button>
-                      {isAdmin && (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEdit(proj)}
-                          className="px-2.5 py-1 rounded bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-semibold text-xs cursor-pointer transition-colors"
-                        >
-                          Edit
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      )}
 
 
 
