@@ -209,6 +209,46 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const [formPriority, setFormPriority] = useState<ProjectPriority>('medium');
   const [formStatus, setFormStatus] = useState<ProjectStatus>('planning');
   const [formNotes, setFormNotes] = useState('');
+  const [isFormPMDropdownOpen, setIsFormPMDropdownOpen] = useState(false);
+  const [formTeamSearch, setFormTeamSearch] = useState('');
+  const [isEditPMDropdownOpen, setIsEditPMDropdownOpen] = useState(false);
+  const formPMDropdownRef = useRef<HTMLDivElement>(null);
+  const editPMDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (formPMDropdownRef.current && !formPMDropdownRef.current.contains(e.target as Node)) {
+        setIsFormPMDropdownOpen(false);
+      }
+      if (editPMDropdownRef.current && !editPMDropdownRef.current.contains(e.target as Node)) {
+        setIsEditPMDropdownOpen(false);
+      }
+    };
+    if (isFormPMDropdownOpen || isEditPMDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isFormPMDropdownOpen, isEditPMDropdownOpen]);
+
+  // Deduplicated real active employees from Employee Management
+  const activeEmployees = useMemo(() => {
+    const list = deduplicateEmployees(people || []);
+    return list.filter((p) => (p.status || 'active').toLowerCase() === 'active');
+  }, [people]);
+
+  const filteredFormEmployees = useMemo(() => {
+    return activeEmployees.filter((emp) => {
+      if (!formTeamSearch.trim()) return true;
+      const q = formTeamSearch.toLowerCase().trim();
+      const nameMatch = (emp.name || '').toLowerCase().includes(q);
+      const roleMatch = (emp.role || emp.designation || '').toLowerCase().includes(q);
+      const deptMatch = (emp.department || '').toLowerCase().includes(q);
+      const emailMatch = (emp.email || '').toLowerCase().includes(q);
+      return nameMatch || roleMatch || deptMatch || emailMatch;
+    });
+  }, [activeEmployees, formTeamSearch]);
 
   // Team management modal state
   const [selectedNewMember, setSelectedNewMember] = useState('');
@@ -227,12 +267,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const [customMessages, setCustomMessages] = useState<Record<string, Array<{ id: string; sender: string; text: string; time: string }>>>({});
   const [newUpdateText, setNewUpdateText] = useState('');
   const [customUpdates, setCustomUpdates] = useState<Array<{ id: string; project: string; author: string; role: string; timeAgo: string; text: string; category: string }>>([]);
-
-  // Deduplicated real active employees from Employee Management
-  const activeEmployees = useMemo(() => {
-    const list = deduplicateEmployees(people || []);
-    return list.filter((p) => (p.status || 'active').toLowerCase() === 'active');
-  }, [people]);
 
   // Sync selectedProject with prop
   useEffect(() => {
@@ -2286,31 +2320,91 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               </div>
 
               {/* Project Manager Selection */}
-              <div>
+              <div className="relative" ref={formPMDropdownRef}>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Project Manager <span className="text-red-500">*</span>
                 </label>
-                <select
-                  required
-                  value={formManager}
-                  onChange={(e) => {
-                    const chosen = e.target.value;
-                    setFormManager(chosen);
-                    const emp = activeEmployees.find((p) => p.name === chosen);
-                    setFormManagerEmail(emp?.email || '');
-                    if (!formMembers.includes(chosen)) {
-                      setFormMembers([...formMembers, chosen]);
-                    }
-                  }}
-                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                <button
+                  type="button"
+                  onClick={() => setIsFormPMDropdownOpen((prev) => !prev)}
+                  className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-medium text-left flex items-center justify-between transition-all cursor-pointer ${
+                    isFormPMDropdownOpen
+                      ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
+                      : 'border-[#CCCCCC] hover:border-[#999999]'
+                  }`}
                 >
-                  <option value="">Select Project Manager...</option>
-                  {activeEmployees.map((emp) => (
-                    <option key={emp.id} value={emp.name}>
-                      {emp.name} ({emp.role || emp.designation} - {emp.department})
-                    </option>
-                  ))}
-                </select>
+                  <span className={formManager ? 'text-[#111827] font-semibold truncate pr-2' : 'text-[#888888]'}>
+                    {formManager ? (
+                      (() => {
+                        const emp = activeEmployees.find((p) => p.name.toLowerCase() === formManager.toLowerCase());
+                        return emp ? `${emp.name} (${emp.role || emp.designation} • ${emp.department})` : formManager;
+                      })()
+                    ) : (
+                      'Select Project Manager...'
+                    )}
+                  </span>
+                  <svg
+                    className={`w-4 h-4 text-[#888888] transition-transform duration-150 shrink-0 ${
+                      isFormPMDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu - Strictly Opens Below */}
+                {isFormPMDropdownOpen && (
+                  <div
+                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-56 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
+                    style={{ top: '100%' }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormManager('');
+                        setFormManagerEmail('');
+                        setIsFormPMDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-xs text-[#888888] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+                    >
+                      Select Project Manager...
+                    </button>
+                    {activeEmployees.map((emp) => {
+                      const isChosen = emp.name.toLowerCase() === formManager.toLowerCase();
+                      return (
+                        <button
+                          key={emp.id}
+                          type="button"
+                          onClick={() => {
+                            setFormManager(emp.name);
+                            setFormManagerEmail(emp.email || '');
+                            if (!formMembers.includes(emp.name)) {
+                              setFormMembers([...formMembers, emp.name]);
+                            }
+                            setIsFormPMDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                            isChosen
+                              ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
+                              : 'text-[#111827] hover:bg-[#F8FAFC]'
+                          }`}
+                        >
+                          <div>
+                            <span className="font-semibold block">{emp.name}</span>
+                            <span className="text-[10px] text-[#64748B]">
+                              {emp.role || emp.designation}
+                              {emp.department ? ` • ${emp.department}` : ''}
+                            </span>
+                          </div>
+                          {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
                 <span className="text-[10px] text-[#64748B] mt-0.5 block">
                   Only active employees from Employee Management can lead projects.
                 </span>
@@ -2318,36 +2412,83 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
               {/* Team Members Multi-Select */}
               <div>
-                <label className="block text-xs font-semibold text-[#111827] mb-1">
-                  Assign Team Members ({formMembers.length} selected)
-                </label>
-                <div className="p-2.5 bg-[#F8FAFC] border border-[#CCCCCC] rounded-md max-h-36 overflow-y-auto space-y-1 text-xs">
-                  {activeEmployees.map((emp) => {
-                    const isChecked = formMembers.includes(emp.name);
-                    const isPM = emp.name === formManager;
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-[#111827]">
+                    Assign Team Members {formMembers.length > 0 && (
+                      <span className="text-[#0284C7] font-bold ml-1">({formMembers.length} selected)</span>
+                    )}
+                  </label>
+                  {formMembers.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFormMembers(formManager ? [formManager] : [])}
+                      className="text-[11px] text-[#64748B] hover:text-red-500 font-medium transition-colors cursor-pointer"
+                    >
+                      Clear Selection
+                    </button>
+                  )}
+                </div>
 
-                    return (
-                      <label
-                        key={emp.id}
-                        className={`p-1.5 rounded flex items-center justify-between cursor-pointer transition-colors ${
-                          isChecked ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold' : 'hover:bg-white text-[#475569]'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            disabled={isPM}
-                            onChange={() => toggleFormMember(emp.name)}
-                            className="w-3.5 h-3.5 text-[#049FD9] rounded"
-                          />
-                          <span>{emp.name}</span>
-                          <span className="text-[10px] text-[#94A3B8]">({emp.role || emp.designation})</span>
-                        </div>
-                        {isPM && <span className="text-[10px] font-bold text-[#0284C7]">PM</span>}
-                      </label>
-                    );
-                  })}
+                {/* Team Search Box */}
+                <div className="relative mb-2">
+                  <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#888888]">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    value={formTeamSearch}
+                    onChange={(e) => setFormTeamSearch(e.target.value)}
+                    placeholder="Search employees by name, role, department..."
+                    className="w-full pl-8 pr-7 py-1.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] placeholder-[#888888] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all"
+                  />
+                  {formTeamSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setFormTeamSearch('')}
+                      className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#888888] hover:text-[#111827] text-xs cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                <div className="p-2.5 bg-[#F8FAFC] border border-[#CCCCCC] rounded-md max-h-36 overflow-y-auto space-y-1 text-xs">
+                  {filteredFormEmployees.length === 0 ? (
+                    <div className="py-4 text-center text-xs text-[#888888]">
+                      No employees match &ldquo;{formTeamSearch}&rdquo;
+                    </div>
+                  ) : (
+                    filteredFormEmployees.map((emp) => {
+                      const isChecked = formMembers.includes(emp.name);
+                      const isPM = emp.name === formManager;
+
+                      return (
+                        <label
+                          key={emp.id}
+                          className={`p-1.5 rounded flex items-center justify-between cursor-pointer transition-colors ${
+                            isChecked ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold' : 'hover:bg-white text-[#475569]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              disabled={isPM}
+                              onChange={() => toggleFormMember(emp.name)}
+                              className="w-3.5 h-3.5 text-[#049FD9] rounded cursor-pointer"
+                            />
+                            <span>{emp.name}</span>
+                            <span className="text-[10px] text-[#94A3B8]">
+                              ({emp.role || emp.designation}{emp.department ? ` • ${emp.department}` : ''})
+                            </span>
+                          </div>
+                          {isPM && <span className="text-[10px] font-bold text-[#0284C7]">PM</span>}
+                        </label>
+                      );
+                    })
+                  )}
                 </div>
               </div>
 
@@ -2538,27 +2679,78 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               </div>
 
               {/* Project Manager */}
-              <div>
+              <div className="relative" ref={editPMDropdownRef}>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Project Manager</label>
-                <select
-                  value={formManager}
-                  onChange={(e) => {
-                    const chosen = e.target.value;
-                    setFormManager(chosen);
-                    const emp = activeEmployees.find((p) => p.name === chosen);
-                    setFormManagerEmail(emp?.email || '');
-                    if (!formMembers.includes(chosen)) {
-                      setFormMembers([...formMembers, chosen]);
-                    }
-                  }}
-                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                <button
+                  type="button"
+                  onClick={() => setIsEditPMDropdownOpen((prev) => !prev)}
+                  className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-medium text-left flex items-center justify-between transition-all cursor-pointer ${
+                    isEditPMDropdownOpen
+                      ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
+                      : 'border-[#CCCCCC] hover:border-[#999999]'
+                  }`}
                 >
-                  {activeEmployees.map((emp) => (
-                    <option key={emp.id} value={emp.name}>
-                      {emp.name} ({emp.role || emp.designation})
-                    </option>
-                  ))}
-                </select>
+                  <span className={formManager ? 'text-[#111827] font-semibold truncate pr-2' : 'text-[#888888]'}>
+                    {formManager ? (
+                      (() => {
+                        const emp = activeEmployees.find((p) => p.name.toLowerCase() === formManager.toLowerCase());
+                        return emp ? `${emp.name} (${emp.role || emp.designation} • ${emp.department})` : formManager;
+                      })()
+                    ) : (
+                      'Select Project Manager...'
+                    )}
+                  </span>
+                  <svg
+                    className={`w-4 h-4 text-[#888888] transition-transform duration-150 shrink-0 ${
+                      isEditPMDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu - Strictly Opens Below */}
+                {isEditPMDropdownOpen && (
+                  <div
+                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-56 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
+                    style={{ top: '100%' }}
+                  >
+                    {activeEmployees.map((emp) => {
+                      const isChosen = emp.name.toLowerCase() === formManager.toLowerCase();
+                      return (
+                        <button
+                          key={emp.id}
+                          type="button"
+                          onClick={() => {
+                            setFormManager(emp.name);
+                            setFormManagerEmail(emp.email || '');
+                            if (!formMembers.includes(emp.name)) {
+                              setFormMembers([...formMembers, emp.name]);
+                            }
+                            setIsEditPMDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                            isChosen
+                              ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
+                              : 'text-[#111827] hover:bg-[#F8FAFC]'
+                          }`}
+                        >
+                          <div>
+                            <span className="font-semibold block">{emp.name}</span>
+                            <span className="text-[10px] text-[#64748B]">
+                              {emp.role || emp.designation}
+                              {emp.department ? ` • ${emp.department}` : ''}
+                            </span>
+                          </div>
+                          {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Start Date & End Date */}
