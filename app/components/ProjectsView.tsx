@@ -162,8 +162,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   onDeleteProject,
   onNavigateToEmployee,
 }) => {
-  // View mode: 'table' | 'cards' | 'kanban'
-  const [viewMode, setViewMode] = useState<'table' | 'cards' | 'kanban'>('table');
+  // View mode: 'table' | 'cards'
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -1672,15 +1672,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             >
               Cards
             </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('kanban')}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors cursor-pointer ${
-                viewMode === 'kanban' ? 'bg-white text-[#111827] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#111827]'
-              }`}
-            >
-              Kanban
-            </button>
           </div>
 
           {/* Create Project Button (Admin Only) */}
@@ -2156,70 +2147,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </div>
       )}
 
-      {/* 6. KANBAN VIEW */}
-      {viewMode === 'kanban' && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {(['planning', 'active', 'on_hold', 'completed'] as ProjectStatus[]).map((colStatus) => {
-            const colProjects = displayedProjects.filter((p) => {
-              const s = (p.status || 'planning').toLowerCase();
-              if (colStatus === 'on_hold') return s === 'on_hold' || s === 'on hold';
-              return s === colStatus;
-            });
 
-            const colTitles: Record<string, string> = {
-              planning: 'Planning',
-              active: 'In Progress / Active',
-              on_hold: 'On Hold',
-              completed: 'Completed',
-            };
-
-            return (
-              <div key={colStatus} className="bg-[#F8FAFC] p-3.5 rounded-lg border border-[#E2E8F0] space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
-                  <h4 className="font-bold text-xs text-[#111827] uppercase tracking-wider">
-                    {colTitles[colStatus]}
-                  </h4>
-                  <span className="px-2 py-0.2 rounded-full text-[10px] font-bold bg-[#E2E8F0] text-[#475569]">
-                    {colProjects.length}
-                  </span>
-                </div>
-
-                <div className="space-y-2.5">
-                  {colProjects.length === 0 ? (
-                    <div className="py-6 text-center text-[11px] text-[#94A3B8]">
-                      No projects
-                    </div>
-                  ) : (
-                    colProjects.map((proj) => (
-                      <div
-                        key={proj.id}
-                        onClick={() => {
-                          setSelectedProject(proj);
-                          if (onSelectProject) onSelectProject(proj);
-                        }}
-                        className="bg-white p-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs hover:border-[#049FD9] transition-all cursor-pointer space-y-2"
-                      >
-                        <div className="flex items-start justify-between gap-1">
-                          <span className="font-mono text-[9px] font-bold text-[#049FD9]">
-                            {proj.projectId || proj.id}
-                          </span>
-                          {renderPriorityBadge(proj.priority)}
-                        </div>
-                        <h5 className="font-bold text-xs text-[#111827] line-clamp-1">{proj.name}</h5>
-                        <p className="text-[11px] text-[#64748B] line-clamp-1">{proj.description}</p>
-                        <div className="flex items-center justify-between pt-1 border-t border-[#F1F5F9] text-[10px] text-[#94A3B8]">
-                          <span>PM: {proj.manager}</span>
-                          <span>{proj.progress || 0}%</span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
 
       {/* ======================================================== */}
       {/* MODAL 1: CREATE PROJECT (CONNECTED TO FIRESTORE)         */}
