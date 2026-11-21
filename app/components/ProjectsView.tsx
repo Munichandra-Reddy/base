@@ -2350,128 +2350,130 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Project Manager <span className="text-red-500">*</span>
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setIsFormPMDropdownOpen((prev) => !prev)}
-                  className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-medium text-left flex items-center justify-between transition-all cursor-pointer ${
-                    isFormPMDropdownOpen
-                      ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
-                      : 'border-[#CCCCCC] hover:border-[#999999]'
-                  }`}
-                >
-                  <span className={formManager ? 'text-[#111827] font-semibold truncate pr-2' : 'text-[#888888]'}>
-                    {formManager ? (
-                      (() => {
-                        const emp = activeEmployees.find((p) => p.name.toLowerCase() === formManager.toLowerCase());
-                        return emp ? `${emp.name} (${emp.role || emp.designation} • ${emp.department})` : formManager;
-                      })()
-                    ) : (
-                      'Select Project Manager...'
-                    )}
-                  </span>
-                  <svg
-                    className={`w-4 h-4 text-[#888888] transition-transform duration-150 shrink-0 ${
-                      isFormPMDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={
+                      isFormPMDropdownOpen
+                        ? formPMSearch
+                        : formManager
+                        ? (() => {
+                            const emp = activeEmployees.find((p) => p.name.toLowerCase() === formManager.toLowerCase());
+                            return emp ? `${emp.name} (${emp.role || emp.designation} • ${emp.department})` : formManager;
+                          })()
+                        : ''
+                    }
+                    onChange={(e) => {
+                      setFormPMSearch(e.target.value);
+                      if (!isFormPMDropdownOpen) setIsFormPMDropdownOpen(true);
+                    }}
+                    onFocus={() => {
+                      setIsFormPMDropdownOpen(true);
+                      setFormPMSearch('');
+                    }}
+                    placeholder="Select Project Manager..."
+                    className={`w-full px-3 py-2 pr-14 bg-white border rounded-md text-xs font-medium text-[#111827] placeholder-[#888888] focus:outline-none transition-all cursor-pointer ${
+                      isFormPMDropdownOpen
+                        ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
+                        : 'border-[#CCCCCC] hover:border-[#999999]'
                     }`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {/* Dropdown Menu - Strictly Opens Below */}
-                {isFormPMDropdownOpen && (
-                  <div
-                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 overflow-hidden font-sans animate-in fade-in zoom-in-95 duration-100 flex flex-col"
-                    style={{ top: '100%' }}
-                  >
-                    {/* Search Input Box */}
-                    <div className="p-2 border-b border-[#E5E5E5] bg-[#F8FAFC]">
-                      <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#888888]">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                          </svg>
-                        </span>
-                        <input
-                          type="text"
-                          autoFocus
-                          value={formPMSearch}
-                          onChange={(e) => setFormPMSearch(e.target.value)}
-                          placeholder="Search manager by name, role, dept..."
-                          className="w-full pl-8 pr-7 py-1.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] placeholder-[#888888] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        {formPMSearch && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setFormPMSearch('');
-                            }}
-                            className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#888888] hover:text-[#111827] text-xs cursor-pointer"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Scrollable list */}
-                    <div className="max-h-48 overflow-y-auto divide-y divide-[#F1F5F9]">
+                  />
+                  <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center gap-1.5">
+                    {formManager && (
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setFormManager('');
                           setFormManagerEmail('');
-                          setIsFormPMDropdownOpen(false);
                           setFormPMSearch('');
                         }}
-                        className="w-full text-left px-3 py-2 text-xs text-[#888888] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+                        className="text-[#888888] hover:text-[#111827] text-xs p-0.5 cursor-pointer"
+                        title="Clear manager"
                       >
-                        Select Project Manager...
+                        ✕
                       </button>
-                      {filteredFormPMEmp.length === 0 ? (
-                        <div className="py-4 text-center text-xs text-[#888888]">
-                          No employees match &ldquo;{formPMSearch}&rdquo;
-                        </div>
-                      ) : (
-                        filteredFormPMEmp.map((emp) => {
-                          const isChosen = emp.name.toLowerCase() === formManager.toLowerCase();
-                          return (
-                            <button
-                              key={emp.id}
-                              type="button"
-                              onClick={() => {
-                                setFormManager(emp.name);
-                                setFormManagerEmail(emp.email || '');
-                                if (!formMembers.includes(emp.name)) {
-                                  setFormMembers([...formMembers, emp.name]);
-                                }
-                                setIsFormPMDropdownOpen(false);
-                                setFormPMSearch('');
-                              }}
-                              className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-                                isChosen
-                                  ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
-                                  : 'text-[#111827] hover:bg-[#F8FAFC]'
-                              }`}
-                            >
-                              <div>
-                                <span className="font-semibold block">{emp.name}</span>
-                                <span className="text-[10px] text-[#64748B]">
-                                  {emp.role || emp.designation}
-                                  {emp.department ? ` • ${emp.department}` : ''}
-                                </span>
-                              </div>
-                              {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
-                            </button>
-                          );
-                        })
-                      )}
-                    </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsFormPMDropdownOpen((prev) => !prev);
+                        if (!isFormPMDropdownOpen) setFormPMSearch('');
+                      }}
+                      className="text-[#888888] hover:text-[#111827] p-0.5 cursor-pointer"
+                    >
+                      <svg
+                        className={`w-4 h-4 transition-transform duration-150 ${
+                          isFormPMDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Dropdown Menu - Strictly Opens Below (Single box only!) */}
+                {isFormPMDropdownOpen && (
+                  <div
+                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-52 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
+                    style={{ top: '100%' }}
+                  >
+                    <button
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setFormManager('');
+                        setFormManagerEmail('');
+                        setIsFormPMDropdownOpen(false);
+                        setFormPMSearch('');
+                      }}
+                      className="w-full text-left px-3 py-2 text-xs text-[#888888] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+                    >
+                      Select Project Manager...
+                    </button>
+                    {filteredFormPMEmp.length === 0 ? (
+                      <div className="py-4 text-center text-xs text-[#888888]">
+                        No employees match &ldquo;{formPMSearch}&rdquo;
+                      </div>
+                    ) : (
+                      filteredFormPMEmp.map((emp) => {
+                        const isChosen = emp.name.toLowerCase() === formManager.toLowerCase();
+                        return (
+                          <button
+                            key={emp.id}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setFormManager(emp.name);
+                              setFormManagerEmail(emp.email || '');
+                              if (!formMembers.includes(emp.name)) {
+                                setFormMembers([...formMembers, emp.name]);
+                              }
+                              setIsFormPMDropdownOpen(false);
+                              setFormPMSearch('');
+                            }}
+                            className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                              isChosen
+                                ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
+                                : 'text-[#111827] hover:bg-[#F8FAFC]'
+                            }`}
+                          >
+                            <div>
+                              <span className="font-semibold block">{emp.name}</span>
+                              <span className="text-[10px] text-[#64748B]">
+                                {emp.role || emp.designation}
+                                {emp.department ? ` • ${emp.department}` : ''}
+                              </span>
+                            </div>
+                            {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
+                          </button>
+                        );
+                      })
+                    )}
                   </div>
                 )}
                 <span className="text-[10px] text-[#64748B] mt-0.5 block">
@@ -2750,116 +2752,117 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Project Manager */}
               <div className="relative" ref={editPMDropdownRef}>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Project Manager</label>
-                <button
-                  type="button"
-                  onClick={() => setIsEditPMDropdownOpen((prev) => !prev)}
-                  className={`w-full px-3 py-2 bg-white border rounded-md text-xs font-medium text-left flex items-center justify-between transition-all cursor-pointer ${
-                    isEditPMDropdownOpen
-                      ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
-                      : 'border-[#CCCCCC] hover:border-[#999999]'
-                  }`}
-                >
-                  <span className={formManager ? 'text-[#111827] font-semibold truncate pr-2' : 'text-[#888888]'}>
-                    {formManager ? (
-                      (() => {
-                        const emp = activeEmployees.find((p) => p.name.toLowerCase() === formManager.toLowerCase());
-                        return emp ? `${emp.name} (${emp.role || emp.designation} • ${emp.department})` : formManager;
-                      })()
-                    ) : (
-                      'Select Project Manager...'
-                    )}
-                  </span>
-                  <svg
-                    className={`w-4 h-4 text-[#888888] transition-transform duration-150 shrink-0 ${
-                      isEditPMDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={
+                      isEditPMDropdownOpen
+                        ? editPMSearch
+                        : formManager
+                        ? (() => {
+                            const emp = activeEmployees.find((p) => p.name.toLowerCase() === formManager.toLowerCase());
+                            return emp ? `${emp.name} (${emp.role || emp.designation} • ${emp.department})` : formManager;
+                          })()
+                        : ''
+                    }
+                    onChange={(e) => {
+                      setEditPMSearch(e.target.value);
+                      if (!isEditPMDropdownOpen) setIsEditPMDropdownOpen(true);
+                    }}
+                    onFocus={() => {
+                      setIsEditPMDropdownOpen(true);
+                      setEditPMSearch('');
+                    }}
+                    placeholder="Select Project Manager..."
+                    className={`w-full px-3 py-2 pr-14 bg-white border rounded-md text-xs font-medium text-[#111827] placeholder-[#888888] focus:outline-none transition-all cursor-pointer ${
+                      isEditPMDropdownOpen
+                        ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
+                        : 'border-[#CCCCCC] hover:border-[#999999]'
                     }`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+                  />
+                  <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center gap-1.5">
+                    {formManager && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFormManager('');
+                          setFormManagerEmail('');
+                          setEditPMSearch('');
+                        }}
+                        className="text-[#888888] hover:text-[#111827] text-xs p-0.5 cursor-pointer"
+                        title="Clear manager"
+                      >
+                        ✕
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditPMDropdownOpen((prev) => !prev);
+                        if (!isEditPMDropdownOpen) setEditPMSearch('');
+                      }}
+                      className="text-[#888888] hover:text-[#111827] p-0.5 cursor-pointer"
+                    >
+                      <svg
+                        className={`w-4 h-4 transition-transform duration-150 ${
+                          isEditPMDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
 
-                {/* Dropdown Menu - Strictly Opens Below */}
+                {/* Dropdown Menu - Strictly Opens Below (Single box only!) */}
                 {isEditPMDropdownOpen && (
                   <div
-                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 overflow-hidden font-sans animate-in fade-in zoom-in-95 duration-100 flex flex-col"
+                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-52 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
                     style={{ top: '100%' }}
                   >
-                    {/* Search Input Box */}
-                    <div className="p-2 border-b border-[#E5E5E5] bg-[#F8FAFC]">
-                      <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#888888]">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                          </svg>
-                        </span>
-                        <input
-                          type="text"
-                          autoFocus
-                          value={editPMSearch}
-                          onChange={(e) => setEditPMSearch(e.target.value)}
-                          placeholder="Search manager by name, role, dept..."
-                          className="w-full pl-8 pr-7 py-1.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] placeholder-[#888888] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        {editPMSearch && (
+                    {filteredEditPMEmp.length === 0 ? (
+                      <div className="py-4 text-center text-xs text-[#888888]">
+                        No employees match &ldquo;{editPMSearch}&rdquo;
+                      </div>
+                    ) : (
+                      filteredEditPMEmp.map((emp) => {
+                        const isChosen = emp.name.toLowerCase() === formManager.toLowerCase();
+                        return (
                           <button
+                            key={emp.id}
                             type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setFormManager(emp.name);
+                              setFormManagerEmail(emp.email || '');
+                              if (!formMembers.includes(emp.name)) {
+                                setFormMembers([...formMembers, emp.name]);
+                              }
+                              setIsEditPMDropdownOpen(false);
                               setEditPMSearch('');
                             }}
-                            className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#888888] hover:text-[#111827] text-xs cursor-pointer"
+                            className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                              isChosen
+                                ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
+                                : 'text-[#111827] hover:bg-[#F8FAFC]'
+                            }`}
                           >
-                            ✕
+                            <div>
+                              <span className="font-semibold block">{emp.name}</span>
+                              <span className="text-[10px] text-[#64748B]">
+                                {emp.role || emp.designation}
+                                {emp.department ? ` • ${emp.department}` : ''}
+                              </span>
+                            </div>
+                            {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
                           </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Scrollable list */}
-                    <div className="max-h-48 overflow-y-auto divide-y divide-[#F1F5F9]">
-                      {filteredEditPMEmp.length === 0 ? (
-                        <div className="py-4 text-center text-xs text-[#888888]">
-                          No employees match &ldquo;{editPMSearch}&rdquo;
-                        </div>
-                      ) : (
-                        filteredEditPMEmp.map((emp) => {
-                          const isChosen = emp.name.toLowerCase() === formManager.toLowerCase();
-                          return (
-                            <button
-                              key={emp.id}
-                              type="button"
-                              onClick={() => {
-                                setFormManager(emp.name);
-                                setFormManagerEmail(emp.email || '');
-                                if (!formMembers.includes(emp.name)) {
-                                  setFormMembers([...formMembers, emp.name]);
-                                }
-                                setIsEditPMDropdownOpen(false);
-                                setEditPMSearch('');
-                              }}
-                              className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-                                isChosen
-                                  ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
-                                  : 'text-[#111827] hover:bg-[#F8FAFC]'
-                              }`}
-                            >
-                              <div>
-                                <span className="font-semibold block">{emp.name}</span>
-                                <span className="text-[10px] text-[#64748B]">
-                                  {emp.role || emp.designation}
-                                  {emp.department ? ` • ${emp.department}` : ''}
-                                </span>
-                              </div>
-                              {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
-                            </button>
-                          );
-                        })
-                      )}
-                    </div>
+                        );
+                      })
+                    )}
                   </div>
                 )}
               </div>

@@ -786,135 +786,130 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 </div>
               </div>
 
-              {/* 3. Project Manager - Custom Dropdown (Strictly Opens Below) */}
+              {/* 3. Project Manager - Single Searchable Box (Strictly Opens Below) */}
               <div className="relative" ref={pmDropdownRef}>
                 <label className="block text-xs font-semibold text-[#222222] mb-1">
                   Project Manager <span className="text-red-500">*</span>
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setIsPMDropdownOpen((prev) => !prev)}
-                  className={`w-full p-2.5 bg-white border rounded-md text-xs font-medium text-left flex items-center justify-between transition-all cursor-pointer ${
-                    isPMDropdownOpen
-                      ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
-                      : 'border-[#CCCCCC] hover:border-[#999999]'
-                  }`}
-                >
-                  <span className={projectManager ? 'text-[#222222] font-semibold truncate pr-2' : 'text-[#888888]'}>
-                    {selectedManagerEmp ? (
-                      <span>
-                        {selectedManagerEmp.name}{' '}
-                        <span className="font-normal text-[#64748B]">
-                          ({selectedManagerEmp.role || selectedManagerEmp.designation}
-                          {selectedManagerEmp.department ? ` • ${selectedManagerEmp.department}` : ''})
-                        </span>
-                      </span>
-                    ) : (
-                      projectManager || 'Select Manager...'
-                    )}
-                  </span>
-                  <svg
-                    className={`w-4 h-4 text-[#888888] transition-transform duration-150 shrink-0 ${
-                      isPMDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={
+                      isPMDropdownOpen
+                        ? pmSearchQuery
+                        : selectedManagerEmp
+                        ? `${selectedManagerEmp.name} (${selectedManagerEmp.role || selectedManagerEmp.designation}${selectedManagerEmp.department ? ` • ${selectedManagerEmp.department}` : ''})`
+                        : projectManager
+                    }
+                    onChange={(e) => {
+                      setPmSearchQuery(e.target.value);
+                      if (!isPMDropdownOpen) setIsPMDropdownOpen(true);
+                    }}
+                    onFocus={() => {
+                      setIsPMDropdownOpen(true);
+                      setPmSearchQuery('');
+                    }}
+                    placeholder="Select Manager..."
+                    className={`w-full p-2.5 pr-14 bg-white border rounded-md text-xs font-medium text-[#222222] placeholder-[#888888] focus:outline-none transition-all cursor-pointer ${
+                      isPMDropdownOpen
+                        ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
+                        : 'border-[#CCCCCC] hover:border-[#999999]'
                     }`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {/* Dropdown Menu - Strictly Opens Below */}
-                {isPMDropdownOpen && (
-                  <div
-                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 overflow-hidden font-sans animate-in fade-in zoom-in-95 duration-100 flex flex-col"
-                    style={{ top: '100%' }}
-                  >
-                    {/* Search Input Box */}
-                    <div className="p-2 border-b border-[#E5E5E5] bg-[#F8FAFC]">
-                      <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#888888]">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                          </svg>
-                        </span>
-                        <input
-                          type="text"
-                          autoFocus
-                          value={pmSearchQuery}
-                          onChange={(e) => setPmSearchQuery(e.target.value)}
-                          placeholder="Search manager by name, role, dept..."
-                          className="w-full pl-8 pr-7 py-1.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#222222] placeholder-[#888888] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        {pmSearchQuery && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setPmSearchQuery('');
-                            }}
-                            className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#888888] hover:text-[#222222] text-xs cursor-pointer"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Scrollable Manager Options List */}
-                    <div className="max-h-48 overflow-y-auto divide-y divide-[#F1F5F9]">
+                  />
+                  <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center gap-1.5">
+                    {projectManager && (
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setProjectManager('');
-                          setIsPMDropdownOpen(false);
                           setPmSearchQuery('');
                         }}
-                        className="w-full text-left px-3 py-2 text-xs text-[#888888] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+                        className="text-[#888888] hover:text-[#222222] text-xs p-0.5 cursor-pointer"
+                        title="Clear manager"
                       >
-                        Select Manager...
+                        ✕
                       </button>
-                      {filteredManagerList.length === 0 ? (
-                        <div className="py-4 text-center text-xs text-[#888888]">
-                          No employees match &ldquo;{pmSearchQuery}&rdquo;
-                        </div>
-                      ) : (
-                        filteredManagerList.map((emp) => {
-                          const isChosen = emp.name.toLowerCase() === projectManager.toLowerCase();
-                          return (
-                            <button
-                              key={emp.id}
-                              type="button"
-                              onClick={() => {
-                                setProjectManager(emp.name);
-                                setProjectError(null);
-                                if (!projectMembers.includes(emp.name)) {
-                                  setProjectMembers((prev) => [...prev, emp.name]);
-                                }
-                                setIsPMDropdownOpen(false);
-                                setPmSearchQuery('');
-                              }}
-                              className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-                                isChosen
-                                  ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
-                                  : 'text-[#222222] hover:bg-[#F8FAFC]'
-                              }`}
-                            >
-                              <div>
-                                <span className="font-semibold text-[#111827] block">{emp.name}</span>
-                                <span className="text-[10px] text-[#64748B]">
-                                  {emp.role || emp.designation}
-                                  {emp.department ? ` • ${emp.department}` : ''}
-                                </span>
-                              </div>
-                              {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
-                            </button>
-                          );
-                        })
-                      )}
-                    </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPMDropdownOpen((prev) => !prev);
+                        if (!isPMDropdownOpen) setPmSearchQuery('');
+                      }}
+                      className="text-[#888888] hover:text-[#222222] p-0.5 cursor-pointer"
+                    >
+                      <svg
+                        className={`w-4 h-4 transition-transform duration-150 ${
+                          isPMDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Dropdown Menu - Strictly Opens Below (Only 1 box on screen!) */}
+                {isPMDropdownOpen && (
+                  <div
+                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-52 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
+                    style={{ top: '100%' }}
+                  >
+                    <button
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setProjectManager('');
+                        setIsPMDropdownOpen(false);
+                        setPmSearchQuery('');
+                      }}
+                      className="w-full text-left px-3 py-2 text-xs text-[#888888] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+                    >
+                      Select Manager...
+                    </button>
+                    {filteredManagerList.length === 0 ? (
+                      <div className="py-4 text-center text-xs text-[#888888]">
+                        No employees match &ldquo;{pmSearchQuery}&rdquo;
+                      </div>
+                    ) : (
+                      filteredManagerList.map((emp) => {
+                        const isChosen = emp.name.toLowerCase() === projectManager.toLowerCase();
+                        return (
+                          <button
+                            key={emp.id}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setProjectManager(emp.name);
+                              setProjectError(null);
+                              if (!projectMembers.includes(emp.name)) {
+                                setProjectMembers((prev) => [...prev, emp.name]);
+                              }
+                              setIsPMDropdownOpen(false);
+                              setPmSearchQuery('');
+                            }}
+                            className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                              isChosen
+                                ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
+                                : 'text-[#222222] hover:bg-[#F8FAFC]'
+                            }`}
+                          >
+                            <div>
+                              <span className="font-semibold text-[#111827] block">{emp.name}</span>
+                              <span className="text-[10px] text-[#64748B]">
+                                {emp.role || emp.designation}
+                                {emp.department ? ` • ${emp.department}` : ''}
+                              </span>
+                            </div>
+                            {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
+                          </button>
+                        );
+                      })
+                    )}
                   </div>
                 )}
               </div>
