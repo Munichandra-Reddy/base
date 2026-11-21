@@ -747,13 +747,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   };
 
   // Add Member via Manage Team Modal
-  const handleAddTeamMember = async () => {
-    if (!managingTeamProject || !selectedNewMember) return;
+  const handleAddTeamMember = async (empName?: string) => {
+    const memberToAdd = empName || selectedNewMember;
+    if (!managingTeamProject || !memberToAdd) return;
     setIsProcessing(true);
     setActionNotice(null);
 
     try {
-      const targetEmp = activeEmployees.find((e) => e.name === selectedNewMember || e.email === selectedNewMember);
+      const targetEmp = activeEmployees.find((e) => e.name === memberToAdd || e.email === memberToAdd);
       const res = await fetch('/api/projects/team', {
         method: 'POST',
         headers: {
@@ -763,7 +764,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         body: JSON.stringify({
           projectId: managingTeamProject.id,
           action: 'add_member',
-          memberName: targetEmp?.name || selectedNewMember,
+          memberName: targetEmp?.name || memberToAdd,
           memberEmail: targetEmp?.email || '',
         }),
       });
@@ -2737,13 +2738,18 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             {/* Add New Member Section */}
             <div className="space-y-1.5 pt-2">
               <label className="block text-xs font-semibold text-[#111827]">Add Active Employee to Team</label>
-              <div className="flex items-center gap-2 w-full">
+              <div className="w-full">
                 <select
-                  value={selectedNewMember}
-                  onChange={(e) => setSelectedNewMember(e.target.value)}
-                  className="flex-1 min-w-0 px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] truncate"
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleAddTeamMember(e.target.value);
+                    }
+                  }}
+                  disabled={isProcessing}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer disabled:opacity-50"
                 >
-                  <option value="">Select active employee...</option>
+                  <option value="">Select active employee to add...</option>
                   {activeEmployees
                     .filter((e) => !(managingTeamProject.members || []).includes(e.name))
                     .map((emp) => (
@@ -2752,14 +2758,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       </option>
                     ))}
                 </select>
-                <button
-                  type="button"
-                  disabled={!selectedNewMember || isProcessing}
-                  onClick={handleAddTeamMember}
-                  className="btn-primary py-2 px-4 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0 whitespace-nowrap"
-                >
-                  Add Member
-                </button>
               </div>
             </div>
 
