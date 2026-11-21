@@ -2686,7 +2686,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans"
         >
-          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 overflow-hidden">
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <div>
                 <h3 className="text-base font-bold text-[#111827]">Manage Project Team</h3>
@@ -2737,11 +2737,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             {/* Add New Member Section */}
             <div className="space-y-1.5 pt-2">
               <label className="block text-xs font-semibold text-[#111827]">Add Active Employee to Team</label>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full">
                 <select
                   value={selectedNewMember}
                   onChange={(e) => setSelectedNewMember(e.target.value)}
-                  className="flex-1 px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  className="flex-1 min-w-0 px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] truncate"
                 >
                   <option value="">Select active employee...</option>
                   {activeEmployees
@@ -2756,7 +2756,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   type="button"
                   disabled={!selectedNewMember || isProcessing}
                   onClick={handleAddTeamMember}
-                  className="btn-primary py-2 px-4 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0"
+                  className="btn-primary py-2 px-4 text-xs font-semibold cursor-pointer disabled:opacity-50 shrink-0 whitespace-nowrap"
                 >
                   Add Member
                 </button>
