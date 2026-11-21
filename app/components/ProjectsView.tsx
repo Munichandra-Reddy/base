@@ -72,7 +72,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   const isSelected = value !== 'all' && value !== 'name_asc';
 
   return (
-    <div className={`relative inline-block text-left ${className}`} ref={containerRef}>
+    <div className={`relative inline-block text-left shrink-0 ${className}`} ref={containerRef}>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -1772,73 +1772,66 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           )}
         </div>
 
-        {/* Filter Controls Row */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 pt-2 border-t border-[#F1F5F9]">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider flex items-center gap-1 mr-0.5">
-              <FilterIcon className="w-3.5 h-3.5 text-[#64748B]" />
-              <span>Filters:</span>
-            </span>
+        {/* Filter Controls Row (All in single line without wrapping) */}
+        <div className="pt-2 border-t border-[#F1F5F9] flex items-center gap-2 text-xs text-[#334155] overflow-x-auto scrollbar-none flex-nowrap">
+          {/* Status Filter */}
+          <FilterDropdown
+            label="Status"
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={[
+              { value: 'all', label: 'All Statuses' },
+              { value: 'planning', label: 'Planning' },
+              { value: 'active', label: 'Active' },
+              { value: 'on_hold', label: 'On Hold' },
+              { value: 'completed', label: 'Completed' },
+              { value: 'cancelled', label: 'Cancelled' },
+            ]}
+          />
 
-            {/* Status Filter */}
-            <FilterDropdown
-              label="Status"
-              value={statusFilter}
-              onChange={setStatusFilter}
-              options={[
-                { value: 'all', label: 'All Statuses' },
-                { value: 'planning', label: 'Planning' },
-                { value: 'active', label: 'Active' },
-                { value: 'on_hold', label: 'On Hold' },
-                { value: 'completed', label: 'Completed' },
-                { value: 'cancelled', label: 'Cancelled' },
-              ]}
-            />
+          {/* Priority Filter */}
+          <FilterDropdown
+            label="Priority"
+            value={priorityFilter}
+            onChange={setPriorityFilter}
+            options={[
+              { value: 'all', label: 'All Priorities' },
+              { value: 'critical', label: 'Critical' },
+              { value: 'high', label: 'High' },
+              { value: 'medium', label: 'Medium' },
+              { value: 'low', label: 'Low' },
+            ]}
+          />
 
-            {/* Priority Filter */}
-            <FilterDropdown
-              label="Priority"
-              value={priorityFilter}
-              onChange={setPriorityFilter}
-              options={[
-                { value: 'all', label: 'All Priorities' },
-                { value: 'critical', label: 'Critical' },
-                { value: 'high', label: 'High' },
-                { value: 'medium', label: 'Medium' },
-                { value: 'low', label: 'Low' },
-              ]}
-            />
+          {/* Project Manager Filter */}
+          <FilterDropdown
+            label="Manager"
+            value={managerFilter}
+            onChange={setManagerFilter}
+            options={[
+              { value: 'all', label: 'All Managers' },
+              ...projectManagerOptions.map((pm) => ({ value: pm, label: pm })),
+            ]}
+          />
 
-            {/* Project Manager Filter */}
-            <FilterDropdown
-              label="Manager"
-              value={managerFilter}
-              onChange={setManagerFilter}
-              options={[
-                { value: 'all', label: 'All Managers' },
-                ...projectManagerOptions.map((pm) => ({ value: pm, label: pm })),
-              ]}
-            />
+          {/* Date Range Filter */}
+          <FilterDropdown
+            label="Timeline"
+            value={dateFilter}
+            onChange={setDateFilter}
+            options={[
+              { value: 'all', label: 'All Timelines' },
+              { value: 'overdue', label: 'Overdue Only' },
+              { value: 'this_month', label: 'Due This Month' },
+              { value: 'recent', label: 'Last 30 Days' },
+            ]}
+          />
 
-            {/* Date Range Filter */}
-            <FilterDropdown
-              label="Timeline"
-              value={dateFilter}
-              onChange={setDateFilter}
-              options={[
-                { value: 'all', label: 'All Timelines' },
-                { value: 'overdue', label: 'Overdue Only' },
-                { value: 'this_month', label: 'Due This Month' },
-                { value: 'recent', label: 'Last 30 Days' },
-              ]}
-            />
-          </div>
-
-          {/* Right Sort & Reset Controls */}
-          <div className="flex items-center gap-2 self-start lg:self-auto shrink-0 flex-wrap">
+          {/* Sort Controls (Placed directly beside Timeline) */}
+          <div className="flex items-center gap-1.5 shrink-0">
             <span className="text-[11px] font-semibold text-[#64748B]">Sort:</span>
             <FilterDropdown
-              align="right"
+              align="left"
               value={sortBy}
               onChange={(val) => setSortBy(val as any)}
               options={[
@@ -1850,24 +1843,25 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 { value: 'progress', label: 'Progress (%)' },
               ]}
             />
-
-            {(searchQuery ||
-              statusFilter !== 'all' ||
-              priorityFilter !== 'all' ||
-              managerFilter !== 'all' ||
-              dateFilter !== 'all' ||
-              sortBy !== 'date_desc') && (
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="px-2.5 py-1.5 rounded-md bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#EF4444] text-xs font-semibold cursor-pointer transition-colors border border-[#EF4444]/20 flex items-center gap-1"
-                title="Reset all filters"
-              >
-                <span>✕</span>
-                <span>Reset</span>
-              </button>
-            )}
           </div>
+
+          {/* Reset Filters */}
+          {(searchQuery ||
+            statusFilter !== 'all' ||
+            priorityFilter !== 'all' ||
+            managerFilter !== 'all' ||
+            dateFilter !== 'all' ||
+            sortBy !== 'date_desc') && (
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="px-2.5 py-1.5 rounded-md bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#EF4444] text-xs font-semibold cursor-pointer transition-colors border border-[#EF4444]/20 flex items-center gap-1 shrink-0 whitespace-nowrap"
+              title="Reset all filters"
+            >
+              <span>✕</span>
+              <span>Reset</span>
+            </button>
+          )}
         </div>
       </div>
 
