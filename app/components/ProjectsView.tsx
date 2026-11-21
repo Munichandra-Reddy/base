@@ -985,42 +985,31 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     return (
       <div className="space-y-5 font-sans w-full">
         {/* Top Breadcrumb & Action Header */}
-        <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedProject(null);
-                if (onSelectProject) onSelectProject(null);
-              }}
-              className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
-            >
-              <span>← Back to Projects</span>
-            </button>
-            <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-xl font-bold text-[#111827]">{selectedProject.name}</h1>
-                <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-[#E0F2FE] text-[#0284C7] border border-[#BAE6FD]">
-                  {selectedProject.projectId || selectedProject.id}
-                </span>
-                {renderStatusBadge(selectedProject.status)}
-                {renderPriorityBadge(selectedProject.priority)}
-              </div>
-              <p className="text-xs text-[#64748B] mt-0.5">
-                Category: <span className="font-semibold text-[#111827]">{selectedProject.category || 'General'}</span> • PM:{' '}
-                <span className="font-semibold text-[#111827]">{selectedProject.manager || 'Workspace Admin'}</span>
-              </p>
+        <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl font-bold text-[#111827]">{selectedProject.name}</h1>
+              <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-[#E0F2FE] text-[#0284C7] border border-[#BAE6FD]">
+                {selectedProject.projectId || selectedProject.id}
+              </span>
+              {renderStatusBadge(selectedProject.status)}
+              {renderPriorityBadge(selectedProject.priority)}
             </div>
+            <p className="text-xs text-[#64748B] mt-1.5 flex items-center gap-2 flex-wrap">
+              <span>Category: <strong className="font-semibold text-[#111827]">{selectedProject.category || 'General'}</strong></span>
+              <span className="text-[#CBD5E1]">•</span>
+              <span>PM: <strong className="font-semibold text-[#111827]">{selectedProject.manager || 'Workspace Admin'}</strong></span>
+            </p>
           </div>
 
           {/* Quick Actions (Admin only) */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
             {isAdmin && (
               <>
                 <button
                   type="button"
                   onClick={() => setManagingTeamProject(selectedProject)}
-                  className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
                 >
                   <UserPlusIcon className="w-3.5 h-3.5 text-[#64748B]" />
                   <span>Manage Team</span>
@@ -1028,7 +1017,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setStatusChangeProject(selectedProject)}
-                  className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
                 >
                   <RefreshCwIcon className="w-3.5 h-3.5 text-[#64748B]" />
                   <span>Change Status</span>
@@ -1036,7 +1025,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleOpenEdit(selectedProject)}
-                  className="btn-primary py-1.5 px-3.5 text-xs font-semibold cursor-pointer"
+                  className="btn-primary py-1.5 px-3.5 text-xs font-semibold cursor-pointer whitespace-nowrap"
                 >
                   Edit Project
                 </button>

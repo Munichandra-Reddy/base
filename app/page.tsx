@@ -424,8 +424,8 @@ export default function Home() {
     }
     setActiveTab(tab);
     if (typeof window !== 'undefined') {
-      const currentHash = window.location.hash.replace('#', '');
-      if (currentHash !== tab) {
+      const currentHash = window.location.hash.replace('#', '').trim();
+      if (currentHash !== tab || (tab === 'projects' && selectedProjectId)) {
         window.history.pushState({ tab }, '', `#${tab}`);
       }
     }
@@ -441,20 +441,23 @@ export default function Home() {
     setSelectedProjectId(targetId);
     setActiveTab('projects');
     if (typeof window !== 'undefined') {
-      window.history.pushState(
-        { tab: 'projects', projectId: targetId, view: 'project_details' },
-        '',
-        `#project-${targetId}`
-      );
+      const currentHash = window.location.hash.replace('#', '').trim();
+      if (currentHash !== `project-${targetId}`) {
+        window.history.pushState(
+          { tab: 'projects', projectId: targetId, view: 'project_details' },
+          '',
+          `#project-${targetId}`
+        );
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
+    const syncStateFromUrl = () => {
       if (typeof window === 'undefined') return;
 
-      const hash = window.location.hash.replace('#', '');
+      const hash = window.location.hash.replace('#', '').trim();
       const validTabs: NavTab[] = [
         'dashboard',
         'tasks',
@@ -467,34 +470,42 @@ export default function Home() {
         'reports',
       ];
 
-      if (e.state && e.state.projectId) {
-        setSelectedProjectId(e.state.projectId);
+      const state = window.history.state;
+
+      if (state && state.projectId) {
+        setSelectedProjectId(state.projectId);
         setActiveTab('projects');
       } else if (hash.startsWith('project-')) {
         const pId = hash.replace('project-', '');
         setSelectedProjectId(pId);
         setActiveTab('projects');
-      } else if (e.state && e.state.tab && validTabs.includes(e.state.tab)) {
-        if (e.state.tab === 'projects') setSelectedProjectId(null);
-        setActiveTab(e.state.tab);
+      } else if (state && state.tab && validTabs.includes(state.tab)) {
+        if (state.tab === 'projects') setSelectedProjectId(null);
+        setActiveTab(state.tab);
       } else if (validTabs.includes(hash as NavTab)) {
         if (hash === 'projects') setSelectedProjectId(null);
         setActiveTab(hash as NavTab);
-      } else {
+      } else if (!hash) {
         setSelectedProjectId(null);
         setActiveTab('dashboard');
       }
     };
 
-    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', syncStateFromUrl);
+    window.addEventListener('hashchange', syncStateFromUrl);
 
-    if (typeof window !== 'undefined' && window.location.hash) {
-      const hash = window.location.hash.replace('#', '');
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '').trim();
       if (hash.startsWith('project-')) {
         const pId = hash.replace('project-', '');
         setSelectedProjectId(pId);
         setActiveTab('projects');
-      } else {
+        window.history.replaceState(
+          { tab: 'projects', projectId: pId, view: 'project_details' },
+          '',
+          `#${hash}`
+        );
+      } else if (hash) {
         const validTabs: NavTab[] = [
           'dashboard',
           'tasks',
@@ -503,14 +514,22 @@ export default function Home() {
           'chat',
           'files',
           'people',
+          'checkins',
+          'reports',
         ];
         if (validTabs.includes(hash as NavTab)) {
           setActiveTab(hash as NavTab);
+          window.history.replaceState({ tab: hash }, '', `#${hash}`);
         }
+      } else {
+        window.history.replaceState({ tab: 'dashboard' }, '', '#dashboard');
       }
     }
 
-    return () => window.removeEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', syncStateFromUrl);
+      window.removeEventListener('hashchange', syncStateFromUrl);
+    };
   }, []);
 
 
@@ -1214,7 +1233,19 @@ export default function Home() {
                   isAdmin={dashboardRole === 'admin'}
                   currentUser={currentUser}
                   selectedProjectId={selectedProjectId}
-                  onSelectProject={(proj) => setSelectedProjectId(proj ? proj.id : null)}
+                  onSelectProject={(proj) => {
+                    if (proj) {
+                      handleOpenProject(proj.id);
+                    } else {
+                      setSelectedProjectId(null);
+                      if (typeof window !== 'undefined') {
+                        const hash = window.location.hash.replace('#', '').trim();
+                        if (hash.startsWith('project-')) {
+                          window.history.pushState({ tab: 'projects' }, '', '#projects');
+                        }
+                      }
+                    }
+                  }}
                   onUpdateProject={(updatedProj) => {
                     setProjects((prev) =>
                       prev.map((p) => (p.id === updatedProj.id ? updatedProj : p))
