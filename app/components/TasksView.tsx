@@ -67,18 +67,18 @@ const TaskFilterDropdown: React.FC<TaskFilterDropdownProps> = ({
     options.find((o) => o.value === value) || options[0];
 
   return (
-    <div className={`relative inline-flex items-center gap-1.5 ${className}`} ref={containerRef}>
+    <div className={`relative inline-flex items-center gap-1 shrink-0 ${className}`} ref={containerRef}>
       {label && <span className="text-[11px] font-medium text-[#64748B] shrink-0">{label}:</span>}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`px-2 py-1 bg-white border rounded text-xs text-[#111827] focus:outline-none cursor-pointer flex items-center justify-between gap-1.5 transition-all select-none ${
+        className={`px-2 py-1 bg-white border rounded text-xs text-[#111827] focus:outline-none cursor-pointer flex items-center justify-between gap-1 transition-all select-none shrink-0 ${
           isOpen
             ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
             : 'border-[#CCCCCC] hover:border-[#999999]'
         }`}
       >
-        <span className="truncate max-w-[150px]">{selectedOption?.label || value}</span>
+        <span className="truncate max-w-[130px] sm:max-w-[150px]">{selectedOption?.label || value}</span>
         <svg
           className={`w-3.5 h-3.5 text-[#64748B] transition-transform duration-150 shrink-0 ${
             isOpen ? 'rotate-180 text-[#049FD9]' : ''
@@ -1146,8 +1146,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
           </div>
         </div>
 
-        {/* Row B: Dropdown Filters & Sort (Opening Strictly Downward) */}
-        <div className="pt-2.5 border-t border-[#F0F0F0] flex flex-wrap items-center gap-2.5 text-xs text-[#334155]">
+        {/* Row B: Dropdown Filters & Sort (Single Line - All Fit in One Line) */}
+        <div className="pt-2.5 border-t border-[#F0F0F0] flex items-center gap-2 text-xs text-[#334155] overflow-x-auto scrollbar-none flex-nowrap">
           {/* Project Filter */}
           <TaskFilterDropdown
             label="Project"
@@ -1215,11 +1215,11 @@ export const TasksView: React.FC<TasksViewProps> = ({
             ]}
           />
 
-          {/* Reset Filters */}
+          {/* Reset Filters (Fit directly at the end of the same line) */}
           <button
             type="button"
             onClick={handleResetFilters}
-            className="px-2 py-1 text-xs text-[#64748B] hover:text-[#0F172A] hover:bg-[#E5E5E5] rounded transition-colors cursor-pointer"
+            className="px-2 py-1 text-xs text-[#64748B] hover:text-[#0F172A] hover:bg-[#E5E5E5] rounded transition-colors cursor-pointer shrink-0 whitespace-nowrap"
           >
             Reset
           </button>
