@@ -987,19 +987,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         {/* Top Breadcrumb & Action Header */}
         <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="min-w-0">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl font-bold text-[#111827]">{selectedProject.name}</h1>
-              <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-[#E0F2FE] text-[#0284C7] border border-[#BAE6FD]">
-                {selectedProject.projectId || selectedProject.id}
-              </span>
-              {renderStatusBadge(selectedProject.status)}
-              {renderPriorityBadge(selectedProject.priority)}
-            </div>
-            <p className="text-xs text-[#64748B] mt-1.5 flex items-center gap-2 flex-wrap">
-              <span>Category: <strong className="font-semibold text-[#111827]">{selectedProject.category || 'General'}</strong></span>
-              <span className="text-[#CBD5E1]">•</span>
-              <span>PM: <strong className="font-semibold text-[#111827]">{selectedProject.manager || 'Workspace Admin'}</strong></span>
-            </p>
+            <h1 className="text-xl font-bold text-[#111827]">{selectedProject.name}</h1>
           </div>
 
           {/* Quick Actions (Admin only) */}
