@@ -903,22 +903,6 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-52 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
                     style={{ top: '100%' }}
                   >
-                    <button
-                      type="button"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        setAssignedMember('');
-                        setIsTaskAssigneeDropdownOpen(false);
-                        setTaskAssigneeSearch('');
-                      }}
-                      className={`w-full text-left px-3 py-2 text-xs transition-colors cursor-pointer ${
-                        !assignedMember
-                          ? 'bg-[#EBF7FD] text-[#049FD9] font-semibold'
-                          : 'hover:bg-[#F8FAFC] text-[#666666]'
-                      }`}
-                    >
-                      <span>Select Team Member...</span>
-                    </button>
                     {filteredTaskAssigneeList.length === 0 ? (
                       <div className="p-3 text-center text-xs text-[#888888]">
                         No matching team members found
