@@ -1858,7 +1858,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <div>
             <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Total Projects</div>
             <div className="text-xl sm:text-2xl font-bold text-[#111827] mt-0.5">{summaryMetrics.total}</div>
-            <div className="text-[10px] text-[#049FD9] font-medium">All recorded</div>
           </div>
           <div className="w-9 h-9 rounded-lg bg-[#E0F2FE] text-[#049FD9] flex items-center justify-center shrink-0">
             <FolderIcon className="w-4 h-4" />
@@ -1870,7 +1869,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <div>
             <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Active</div>
             <div className="text-xl sm:text-2xl font-bold text-[#10B981] mt-0.5">{summaryMetrics.active}</div>
-            <div className="text-[10px] text-[#10B981] font-medium">In progress</div>
           </div>
           <div className="w-9 h-9 rounded-lg bg-[#DCFCE7] text-[#10B981] flex items-center justify-center shrink-0">
             <FolderIcon className="w-4 h-4" />
@@ -1882,7 +1880,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <div>
             <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Planning</div>
             <div className="text-xl sm:text-2xl font-bold text-[#3B82F6] mt-0.5">{summaryMetrics.planning}</div>
-            <div className="text-[10px] text-[#3B82F6] font-medium">Pre-kickoff</div>
           </div>
           <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] text-[#3B82F6] flex items-center justify-center shrink-0">
             <ClockIcon className="w-4 h-4" />
@@ -1894,7 +1891,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <div>
             <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">On Hold</div>
             <div className="text-xl sm:text-2xl font-bold text-[#D97706] mt-0.5">{summaryMetrics.onHold}</div>
-            <div className="text-[10px] text-[#F59E0B] font-medium">Paused</div>
           </div>
           <div className="w-9 h-9 rounded-lg bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0">
             <ClockIcon className="w-4 h-4" />
@@ -1906,7 +1902,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <div>
             <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Completed</div>
             <div className="text-xl sm:text-2xl font-bold text-[#16A34A] mt-0.5">{summaryMetrics.completed}</div>
-            <div className="text-[10px] text-[#16A34A] font-medium">Delivered</div>
           </div>
           <div className="w-9 h-9 rounded-lg bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center shrink-0">
             <CheckSquareIcon className="w-4 h-4" />
@@ -1918,32 +1913,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <div>
             <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Overdue</div>
             <div className="text-xl sm:text-2xl font-bold text-[#EF4444] mt-0.5">{summaryMetrics.overdue}</div>
-            <div className="text-[10px] text-[#EF4444] font-medium">Past deadline</div>
           </div>
           <div className="w-9 h-9 rounded-lg bg-[#FEF2F2] text-[#EF4444] flex items-center justify-center shrink-0">
             <AlertCircleIcon className="w-4 h-4" />
           </div>
-        </div>
-      </div>
-
-      {/* 2. TOP ACTION HEADER */}
-      <div className="bg-white px-4 py-3 sm:px-5 sm:py-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <h1 className="text-lg sm:text-xl font-bold text-[#111827] tracking-tight shrink-0">
-          Project Management Directory
-        </h1>
-
-        <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap shrink-0">
-          {/* Create Project Button (Admin Only) */}
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={handleOpenCreate}
-              className="btn-primary shrink-0 flex items-center gap-1.5 text-xs py-1.5 px-3.5 cursor-pointer whitespace-nowrap shadow-2xs"
-            >
-              <PlusIcon className="w-4 h-4" />
-              <span>Create Project</span>
-            </button>
-          )}
         </div>
       </div>
 
@@ -1970,26 +1943,38 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </div>
       )}
 
-      {/* 3. SEARCH, FILTERS & CONTROLS BAR (All Dropdowns Strictly Open Below) */}
+      {/* 2. SEARCH, FILTERS & CONTROLS BAR (All Dropdowns Strictly Open Below) */}
       <div className="bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3">
-        {/* Full-Width Search Input */}
-        <div className="relative w-full">
-          <input
-            type="text"
-            placeholder="Search projects by name, Project ID, manager, or category..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-9 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] focus:bg-white transition-all shadow-2xs"
-          />
-          <SearchIcon className="w-4 h-4 text-[#94A3B8] absolute left-3 top-2.5 pointer-events-none" />
-          {searchQuery && (
+        {/* Search Input & Action Button */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="Search projects by name, Project ID, manager, or category..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-9 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] focus:bg-white transition-all shadow-2xs"
+            />
+            <SearchIcon className="w-4 h-4 text-[#94A3B8] absolute left-3 top-2.5 pointer-events-none" />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-2 text-[#94A3B8] hover:text-[#111827] text-xs font-bold p-1 cursor-pointer"
+                title="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          {isAdmin && (
             <button
               type="button"
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-2 text-[#94A3B8] hover:text-[#111827] text-xs font-bold p-1 cursor-pointer"
-              title="Clear search"
+              onClick={handleOpenCreate}
+              className="btn-primary shrink-0 flex items-center gap-1.5 text-xs py-2 px-3.5 cursor-pointer whitespace-nowrap shadow-2xs"
             >
-              ✕
+              <PlusIcon className="w-4 h-4" />
+              <span>Create Project</span>
             </button>
           )}
         </div>

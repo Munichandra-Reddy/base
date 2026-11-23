@@ -915,33 +915,12 @@ export const TasksView: React.FC<TasksViewProps> = ({
         </div>
       )}
 
-      {/* HEADER BAR */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs">
-        <div>
-          <h1 className="text-xl font-bold text-[#111827]">
-            {isAdmin ? 'Task Management' : 'My Tasks'}
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {isAdmin && (
-            <button
-              onClick={handleOpenCreateModal}
-              className="btn-primary flex items-center gap-1.5 cursor-pointer"
-            >
-              <PlusIcon className="w-4 h-4" />
-              <span>Create Task</span>
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* 1. DYNAMIC SUMMARY CARDS (6 Metrics calculated dynamically from Firestore) */}
       <div className="grid grid-cols-2 min-[640px]:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3 lg:gap-4 w-full">
         {/* Metric 1: Total Tasks */}
         <div
           onClick={() => setActiveTab('all')}
-          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[82px] shadow-2xs ${
+          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[72px] shadow-2xs ${
             activeTab === 'all' ? 'border-[#049FD9] ring-1 ring-[#049FD9]' : 'border-[#E5E5E5] hover:border-[#049FD9]'
           }`}
         >
@@ -957,16 +936,13 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <div className="text-xl font-bold text-[#111827] leading-tight">
               {summaryMetrics.total}
             </div>
-            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              {summaryMetrics.completed} completed
-            </div>
           </div>
         </div>
 
         {/* Metric 2: Pending Tasks */}
         <div
           onClick={() => setActiveTab('pending')}
-          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[82px] shadow-2xs ${
+          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[72px] shadow-2xs ${
             activeTab === 'pending' ? 'border-[#049FD9] ring-1 ring-[#049FD9]' : 'border-[#E5E5E5] hover:border-[#049FD9]'
           }`}
         >
@@ -980,16 +956,13 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <div className="text-xl font-bold text-[#111827] leading-tight">
               {summaryMetrics.pending}
             </div>
-            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              ready to start
-            </div>
           </div>
         </div>
 
         {/* Metric 3: In Progress Tasks */}
         <div
           onClick={() => setActiveTab('in_progress')}
-          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[82px] shadow-2xs ${
+          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[72px] shadow-2xs ${
             activeTab === 'in_progress' ? 'border-[#049FD9] ring-1 ring-[#049FD9]' : 'border-[#E5E5E5] hover:border-[#049FD9]'
           }`}
         >
@@ -1003,16 +976,13 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <div className="text-xl font-bold text-[#111827] leading-tight">
               {summaryMetrics.in_progress}
             </div>
-            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              currently active
-            </div>
           </div>
         </div>
 
         {/* Metric 4: Submitted for Review (Highlight for Admin) */}
         <div
           onClick={() => setActiveTab('in_review')}
-          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[82px] shadow-2xs ${
+          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[72px] shadow-2xs ${
             activeTab === 'in_review'
               ? 'border-[#2563EB] ring-2 ring-[#2563EB]'
               : summaryMetrics.in_review > 0
@@ -1032,16 +1002,13 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <div className="text-xl font-extrabold text-[#1E3A8A] leading-tight">
               {summaryMetrics.in_review}
             </div>
-            <div className="text-[11px] font-medium text-[#1E40AF] mt-0.5 truncate">
-              {isAdmin ? 'awaiting approval' : 'submitted'}
-            </div>
           </div>
         </div>
 
         {/* Metric 5: Completed Tasks */}
         <div
           onClick={() => setActiveTab('completed')}
-          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[82px] shadow-2xs ${
+          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[72px] shadow-2xs ${
             activeTab === 'completed' ? 'border-[#049FD9] ring-1 ring-[#049FD9]' : 'border-[#E5E5E5] hover:border-[#049FD9]'
           }`}
         >
@@ -1055,16 +1022,13 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <div className="text-xl font-bold text-[#111827] leading-tight">
               {summaryMetrics.completed}
             </div>
-            <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              100% approved
-            </div>
           </div>
         </div>
 
         {/* Metric 6: Overdue Tasks */}
         <div
           onClick={() => setActiveTab('overdue')}
-          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[82px] shadow-2xs ${
+          className={`bg-white p-3 rounded-[4px] border transition-all cursor-pointer flex flex-col justify-between min-h-[72px] shadow-2xs ${
             activeTab === 'overdue'
               ? 'border-[#DC2626] ring-2 ring-[#DC2626]'
               : summaryMetrics.overdue > 0
@@ -1082,9 +1046,6 @@ export const TasksView: React.FC<TasksViewProps> = ({
             <div className="text-xl font-extrabold text-[#DC2626] leading-tight">
               {summaryMetrics.overdue}
             </div>
-            <div className="text-[11px] font-medium text-[#B91C1C] mt-0.5 truncate">
-              needs attention
-            </div>
           </div>
         </div>
       </div>
@@ -1092,15 +1053,26 @@ export const TasksView: React.FC<TasksViewProps> = ({
       {/* 2. FILTER TABS & SEARCH BAR */}
       <div className="bg-white p-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3">
         {/* Search Box */}
-        <div className="relative w-full">
-          <SearchIcon className="w-3.5 h-3.5 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Search by Title, ID, Project, Employee..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#CCCCCC] rounded-[4px] text-xs text-[#111827] font-medium placeholder-[#9CA3AF] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
-          />
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <SearchIcon className="w-3.5 h-3.5 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search by Title, ID, Project, Employee..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#CCCCCC] rounded-[4px] text-xs text-[#111827] font-medium placeholder-[#9CA3AF] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
+            />
+          </div>
+          {isAdmin && (
+            <button
+              onClick={handleOpenCreateModal}
+              className="btn-primary flex items-center gap-1.5 cursor-pointer shrink-0 text-xs py-1.5 px-3"
+            >
+              <PlusIcon className="w-4 h-4" />
+              <span>Create Task</span>
+            </button>
+          )}
         </div>
 
         {/* Row B: Dropdown Filters & Sort (Single Line - All Fit in One Line) */}
