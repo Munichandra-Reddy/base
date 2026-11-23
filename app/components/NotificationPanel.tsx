@@ -47,40 +47,41 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
   const effectiveUnread = unreadCount !== undefined ? unreadCount : unreadItemsCount;
 
   const displayItems = items
-    .filter((n) => n.status !== 'deleted')
+    .filter((n) => n && n.status !== 'deleted')
     .filter((n) => (filterTab === 'unread' ? !n.isRead : true))
     .slice(0, 20);
 
-  const getNotificationIcon = (type: NotificationType) => {
-    if (type.startsWith('task_')) {
+  const getNotificationIcon = (type?: NotificationType | string) => {
+    const safeType = String(type || '').toLowerCase();
+    if (safeType.startsWith('task_')) {
       return (
         <div className="w-8 h-8 rounded-lg bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center shrink-0">
           <CheckSquareIcon className="w-4 h-4" />
         </div>
       );
     }
-    if (type.startsWith('project_')) {
+    if (safeType.startsWith('project_')) {
       return (
         <div className="w-8 h-8 rounded-lg bg-[#F3E8FF] text-[#9333EA] flex items-center justify-center shrink-0">
           <FolderIcon className="w-4 h-4" />
         </div>
       );
     }
-    if (type.startsWith('chat_')) {
+    if (safeType.startsWith('chat_')) {
       return (
         <div className="w-8 h-8 rounded-lg bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center shrink-0">
           <ChatIcon className="w-4 h-4" />
         </div>
       );
     }
-    if (type.startsWith('meeting_')) {
+    if (safeType.startsWith('meeting_')) {
       return (
         <div className="w-8 h-8 rounded-lg bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0">
           <CalendarIcon className="w-4 h-4" />
         </div>
       );
     }
-    if (type.startsWith('file_')) {
+    if (safeType.startsWith('file_')) {
       return (
         <div className="w-8 h-8 rounded-lg bg-[#EEF2FF] text-[#4F46E5] flex items-center justify-center shrink-0">
           <FileIcon className="w-4 h-4" />

@@ -36,14 +36,18 @@ export async function GET(request: Request) {
     let notifications: BasecampNotification[] = [];
 
     snap.docs.forEach((d) => {
-      const data = d.data() as BasecampNotification;
-      if (data.status !== 'deleted') {
+      const data = d.data() as any;
+      if (data && data.status !== 'deleted') {
+        const rawType = data.type || data.notificationType || 'system';
         notifications.push({
           ...data,
           id: d.id,
           notificationId: data.notificationId || d.id,
-          isRead: Boolean(data.isRead),
-          createdAt: data.createdAt || Date.now(),
+          type: rawType,
+          title: data.title || 'Notification',
+          message: data.message || '',
+          isRead: Boolean(data.isRead || data.read),
+          createdAt: typeof data.createdAt === 'number' ? data.createdAt : data.createdAt ? new Date(data.createdAt).getTime() : Date.now(),
         });
       }
     });

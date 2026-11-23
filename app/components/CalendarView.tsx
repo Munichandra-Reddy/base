@@ -122,7 +122,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   // 2. Map custom events for the currently viewed month
   const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
   Object.keys(customEvents).forEach((key) => {
-    if (key.startsWith(monthKey)) {
+    if (String(key || '').startsWith(monthKey)) {
       const dayPart = Number(key.split('-')[2]);
       if (dayPart >= 1 && dayPart <= daysInMonth) {
         if (!eventsByDay[dayPart]) eventsByDay[dayPart] = [];

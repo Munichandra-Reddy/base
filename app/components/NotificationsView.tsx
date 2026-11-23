@@ -53,11 +53,12 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
 
       // 2. Category Filter
       if (filterCategory !== 'all') {
-        if (filterCategory === 'tasks' && !n.type.startsWith('task_')) return false;
-        if (filterCategory === 'projects' && !n.type.startsWith('project_')) return false;
-        if (filterCategory === 'chat' && !n.type.startsWith('chat_')) return false;
-        if (filterCategory === 'calendar' && !n.type.startsWith('meeting_')) return false;
-        if (filterCategory === 'files' && !n.type.startsWith('file_')) return false;
+        const notifType = String(n.type || (n as any).notificationType || '').toLowerCase();
+        if (filterCategory === 'tasks' && !notifType.startsWith('task_')) return false;
+        if (filterCategory === 'projects' && !notifType.startsWith('project_')) return false;
+        if (filterCategory === 'chat' && !notifType.startsWith('chat_')) return false;
+        if (filterCategory === 'calendar' && !notifType.startsWith('meeting_')) return false;
+        if (filterCategory === 'files' && !notifType.startsWith('file_')) return false;
       }
 
       // 3. Search Query
@@ -80,36 +81,37 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
 
   const hasMore = paginatedNotifications.length < filteredNotifications.length;
 
-  const getNotificationIcon = (type: NotificationType) => {
-    if (type.startsWith('task_')) {
+  const getNotificationIcon = (type?: NotificationType | string) => {
+    const safeType = String(type || '').toLowerCase();
+    if (safeType.startsWith('task_')) {
       return (
         <div className="w-9 h-9 rounded-lg bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center shrink-0">
           <CheckSquareIcon className="w-4 h-4" />
         </div>
       );
     }
-    if (type.startsWith('project_')) {
+    if (safeType.startsWith('project_')) {
       return (
         <div className="w-9 h-9 rounded-lg bg-[#F3E8FF] text-[#9333EA] flex items-center justify-center shrink-0">
           <FolderIcon className="w-4 h-4" />
         </div>
       );
     }
-    if (type.startsWith('chat_')) {
+    if (safeType.startsWith('chat_')) {
       return (
         <div className="w-9 h-9 rounded-lg bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center shrink-0">
           <ChatIcon className="w-4 h-4" />
         </div>
       );
     }
-    if (type.startsWith('meeting_')) {
+    if (safeType.startsWith('meeting_')) {
       return (
         <div className="w-9 h-9 rounded-lg bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0">
           <CalendarIcon className="w-4 h-4" />
         </div>
       );
     }
-    if (type.startsWith('file_')) {
+    if (safeType.startsWith('file_')) {
       return (
         <div className="w-9 h-9 rounded-lg bg-[#EEF2FF] text-[#4F46E5] flex items-center justify-center shrink-0">
           <FileIcon className="w-4 h-4" />
@@ -123,20 +125,21 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
     );
   };
 
-  const getCategoryBadge = (type: NotificationType) => {
-    if (type.startsWith('task_')) {
+  const getCategoryBadge = (type?: NotificationType | string) => {
+    const safeType = String(type || '').toLowerCase();
+    if (safeType.startsWith('task_')) {
       return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#E0F2FE] text-[#0284C7]">Tasks</span>;
     }
-    if (type.startsWith('project_')) {
+    if (safeType.startsWith('project_')) {
       return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#F3E8FF] text-[#9333EA]">Projects</span>;
     }
-    if (type.startsWith('chat_')) {
+    if (safeType.startsWith('chat_')) {
       return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#DCFCE7] text-[#16A34A]">Campfire</span>;
     }
-    if (type.startsWith('meeting_')) {
+    if (safeType.startsWith('meeting_')) {
       return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#FEF3C7] text-[#D97706]">Calendar</span>;
     }
-    if (type.startsWith('file_')) {
+    if (safeType.startsWith('file_')) {
       return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#EEF2FF] text-[#4F46E5]">Docs & Files</span>;
     }
     return <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#F1F5F9] text-[#64748B]">System</span>;

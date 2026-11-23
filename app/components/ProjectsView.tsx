@@ -466,7 +466,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           return d < todayStr && p.status !== 'completed' && p.status !== 'cancelled';
         }
         if (dateFilter === 'this_month') {
-          return d.startsWith(currentYearMonth);
+          return Boolean(d && typeof d === 'string' && d.startsWith(currentYearMonth));
         }
         if (dateFilter === 'recent') {
           return d >= thirtyDaysAgo;
@@ -1693,8 +1693,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     (currentUser &&
                       (currentUser.uid === file.uploadedByUid ||
                         currentUser.email.toLowerCase() === (file.uploadedByEmail || '').toLowerCase()));
-                  const isImage = (file.contentType || '').startsWith('image/') || file.type === 'image';
-                  const isPdf = (file.contentType || '').includes('pdf') || file.type === 'pdf';
+                  const isImage = String(file?.contentType || '').startsWith('image/') || file?.type === 'image';
+                  const isPdf = String(file?.contentType || '').includes('pdf') || file?.type === 'pdf';
 
                   return (
                     <div
@@ -1824,7 +1824,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 </div>
               </div>
               <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-[#0F172A]/5 min-h-[350px]">
-                {((previewingProjectFile.contentType || '').startsWith('image/') || previewingProjectFile.type === 'image') ? (
+                {(String(previewingProjectFile?.contentType || '').startsWith('image/') || previewingProjectFile?.type === 'image') ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={previewingProjectFile.downloadUrl || previewingProjectFile.fileUrl || previewingProjectFile.url || ''}
