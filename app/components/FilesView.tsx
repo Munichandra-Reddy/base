@@ -201,24 +201,9 @@ export const FilesView: React.FC<FilesViewProps> = ({
     }
   };
 
-  // Helper for Category Icons
-  const renderCategoryIcon = (type: FileTypeCategory) => {
-    switch (type) {
-      case 'pdf':
-        return <span className="text-xl">📕</span>;
-      case 'image':
-        return <span className="text-xl">🖼️</span>;
-      case 'sheet':
-        return <span className="text-xl">📊</span>;
-      case 'presentation':
-        return <span className="text-xl">📽️</span>;
-      case 'archive':
-        return <span className="text-xl">🗜️</span>;
-      case 'code':
-        return <span className="text-xl">💻</span>;
-      default:
-        return <span className="text-xl">📄</span>;
-    }
+  // Helper for Category Icons - Uniform Document Icon (Image 2) for all
+  const renderCategoryIcon = (_type?: FileTypeCategory) => {
+    return <span className="text-xl">📄</span>;
   };
 
   return (
@@ -441,26 +426,6 @@ export const FilesView: React.FC<FilesViewProps> = ({
                       >
                         <EyeIcon className="w-4 h-4" />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => downloadProjectFile(file, userName)}
-                        className="p-1 rounded hover:bg-[#F4F6F8] text-[#595959] hover:text-[#049FD9] transition-colors cursor-pointer"
-                        title="Download File"
-                      >
-                        <DownloadIcon className="w-4 h-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDetailsFile(file);
-                          setDescInput(file.description || '');
-                          setIsEditingDesc(false);
-                        }}
-                        className="p-1 rounded hover:bg-[#F4F6F8] text-[#595959] hover:text-[#111827] transition-colors cursor-pointer"
-                        title="File Details & Access"
-                      >
-                        <span className="text-xs">ℹ️</span>
-                      </button>
                     </div>
                   </div>
 
@@ -556,26 +521,6 @@ export const FilesView: React.FC<FilesViewProps> = ({
                             title="Preview"
                           >
                             <EyeIcon className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => downloadProjectFile(file, userName)}
-                            className="p-1 text-[#049FD9] hover:bg-[#F0F9FF] rounded cursor-pointer"
-                            title="Download"
-                          >
-                            <DownloadIcon className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setDetailsFile(file);
-                              setDescInput(file.description || '');
-                              setIsEditingDesc(false);
-                            }}
-                            className="p-1 text-[#595959] hover:bg-[#F4F6F8] rounded cursor-pointer"
-                            title="Details"
-                          >
-                            <span>ℹ️</span>
                           </button>
                           {canDelete && (
                             <button

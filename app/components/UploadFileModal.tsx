@@ -308,17 +308,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-sm">
-                        {item.category === 'pdf'
-                          ? '📕'
-                          : item.category === 'image'
-                          ? '🖼️'
-                          : item.category === 'sheet'
-                          ? '📊'
-                          : item.category === 'archive'
-                          ? '🗜️'
-                          : '📄'}
-                      </span>
+                      <span className="text-sm">📄</span>
                       <div className="min-w-0">
                         <p className="font-semibold text-[#111827] truncate">{item.name}</p>
                         <p className="text-[10px] text-[#64748B]">{item.sizeFormatted}</p>

@@ -1704,8 +1704,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <div>
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center shrink-0 font-bold text-xs uppercase">
-                              {file.type ? file.type.slice(0, 3) : 'DOC'}
+                            <div className="w-8 h-8 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5] flex items-center justify-center shrink-0 text-base">
+                              📄
                             </div>
                             <div className="min-w-0">
                               <h5 className="font-semibold text-xs text-[#1E293B] truncate" title={file.name}>
