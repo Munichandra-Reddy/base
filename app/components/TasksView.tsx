@@ -1345,11 +1345,6 @@ export const TasksView: React.FC<TasksViewProps> = ({
                           >
                             {task.dueDate || '—'}
                           </span>
-                          {isOverdue && (
-                            <span className="px-1 py-0.2 bg-[#FEF2F2] text-[#DC2626] rounded text-[9px] font-extrabold border border-[#FCA5A5]">
-                              OVERDUE
-                            </span>
-                          )}
                         </div>
                       </td>
 
