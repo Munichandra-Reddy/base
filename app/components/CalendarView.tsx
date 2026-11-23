@@ -216,31 +216,37 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       {/* Header */}
       <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl font-semibold text-[#111827]">Workspace Schedule</h1>
-            <div className="flex items-center gap-1 bg-[#F4F6F8] px-1.5 py-0.5 rounded border border-[#E2E8F0]">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl font-semibold text-[#111827] leading-none">
+              Workspace Schedule
+            </h1>
+            <div className="inline-flex items-center gap-1 bg-[#F4F6F8] px-1.5 py-0.5 rounded-md border border-[#E2E8F0]">
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                className="w-5 h-5 flex items-center justify-center rounded text-[#595959] hover:text-[#111827] hover:bg-white text-xs font-bold transition-all cursor-pointer"
+                className="w-5 h-5 flex items-center justify-center rounded hover:bg-white text-[#595959] hover:text-[#111827] transition-all cursor-pointer"
                 title="Previous Month"
               >
-                ‹
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
-              <span className="text-xs font-bold text-[#111827] px-1">
+              <span className="text-xs font-bold text-[#111827] px-1 select-none whitespace-nowrap leading-none">
                 {monthName} {currentYear}
               </span>
               <button
                 type="button"
                 onClick={handleNextMonth}
-                className="w-5 h-5 flex items-center justify-center rounded text-[#595959] hover:text-[#111827] hover:bg-white text-xs font-bold transition-all cursor-pointer"
+                className="w-5 h-5 flex items-center justify-center rounded hover:bg-white text-[#595959] hover:text-[#111827] transition-all cursor-pointer"
                 title="Next Month"
               >
-                ›
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
           </div>
-          <p className="text-[#595959] text-xs font-normal mt-0.5">
+          <p className="text-[#595959] text-xs font-normal mt-1.5">
             {viewMode === 'month'
               ? `${monthName} ${currentYear} Milestone & Deliverables Calendar (Click any date for details)`
               : `Current Week (${monthName.slice(0, 3)} 1 - ${monthName.slice(0, 3)} 7, ${currentYear}) Schedule`}
