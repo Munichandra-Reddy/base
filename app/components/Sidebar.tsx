@@ -9,6 +9,7 @@ import {
   ChatIcon,
   FileIcon,
   UsersIcon,
+  ChartIcon,
 } from './Icons';
 
 export type NavTab =
@@ -90,6 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'chat' as NavTab, label: 'Campfire Chat', icon: ChatIcon, badge: chatCount },
     { id: 'files' as NavTab, label: 'Files', icon: FileIcon },
     { id: 'people' as NavTab, label: 'Employees', icon: UsersIcon },
+    { id: 'reports' as NavTab, label: 'Reports', icon: ChartIcon },
   ];
 
   const handleNavClick = (tab: NavTab) => {

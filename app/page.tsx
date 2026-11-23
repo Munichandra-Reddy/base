@@ -14,6 +14,7 @@ import { PeopleView } from './components/PeopleView';
 import { CreateModal } from './components/CreateModal';
 import { NotificationPanel } from './components/NotificationPanel';
 import { NotificationsView } from './components/NotificationsView';
+import { ReportsView } from './components/ReportsView';
 import { AuthView } from './components/AuthView';
 import {
   EmployeeDashboardSkeleton,
@@ -24,6 +25,7 @@ import {
   ChatSkeleton,
   FilesSkeleton,
   PeopleSkeleton,
+  ReportsSkeleton,
 } from './components/Skeletons';
 
 import {
@@ -1341,6 +1343,8 @@ export default function Home() {
               <ChatSkeleton />
             ) : activeTab === 'files' ? (
               <FilesSkeleton />
+            ) : activeTab === 'reports' ? (
+              <ReportsSkeleton />
             ) : (
               <PeopleSkeleton />
             )
@@ -1517,6 +1521,20 @@ export default function Home() {
                   onDeleteNotification={handleDeleteNotification}
                   currentUser={currentUser}
                   isAdmin={dashboardRole === 'admin'}
+                />
+              )}
+
+              {activeTab === 'reports' && (
+                <ReportsView
+                  tasks={tasks}
+                  projects={projects}
+                  people={people}
+                  activities={activities}
+                  currentUser={currentUser}
+                  isAdmin={dashboardRole === 'admin'}
+                  onNavigateToProject={(pId) => handleOpenProject(pId)}
+                  onNavigateToEmployee={() => handleTabChange('people')}
+                  onNavigateToTasks={() => handleTabChange('tasks')}
                 />
               )}
             </>
