@@ -1091,54 +1091,16 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
       {/* 2. FILTER TABS & SEARCH BAR */}
       <div className="bg-white p-3.5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3">
-        {/* Row A: Status Tabs */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none whitespace-nowrap bg-[#F4F6F8] p-1 rounded-lg">
-            {(
-              [
-                { id: 'all' as const, label: 'All Tasks', count: summaryMetrics.total, badgeColor: '' },
-                { id: 'pending' as const, label: 'Pending', count: summaryMetrics.pending, badgeColor: '' },
-                { id: 'in_progress' as const, label: 'In Progress', count: summaryMetrics.in_progress, badgeColor: '' },
-                { id: 'in_review' as const, label: 'Review Submissions', count: summaryMetrics.in_review, badgeColor: 'bg-[#2563EB] text-white' },
-                ...(summaryMetrics.changes_requested > 0
-                  ? [{ id: 'changes_requested' as const, label: 'Changes Requested', count: summaryMetrics.changes_requested, badgeColor: 'bg-[#E11D48] text-white' }]
-                  : []),
-                { id: 'completed' as const, label: 'Completed', count: summaryMetrics.completed, badgeColor: '' },
-                { id: 'overdue' as const, label: 'Overdue', count: summaryMetrics.overdue, badgeColor: 'bg-[#DC2626] text-white' },
-              ]
-            ).map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer inline-flex items-center gap-1.5 whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'bg-white text-[#111827] shadow-2xs'
-                    : 'text-[#595959] hover:text-[#111827]'
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span
-                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                    tab.badgeColor || 'bg-[#E5E5E5] text-[#334155]'
-                  }`}
-                >
-                  {tab.count}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {/* Search Box */}
-          <div className="relative w-full sm:w-72">
-            <SearchIcon className="w-3.5 h-3.5 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search by Title, ID, Project, Employee..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#CCCCCC] rounded-[4px] text-xs text-[#111827] font-medium placeholder-[#9CA3AF] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
-            />
-          </div>
+        {/* Search Box */}
+        <div className="relative w-full">
+          <SearchIcon className="w-3.5 h-3.5 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by Title, ID, Project, Employee..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-8 pr-3 py-1.5 bg-white border border-[#CCCCCC] rounded-[4px] text-xs text-[#111827] font-medium placeholder-[#9CA3AF] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
+          />
         </div>
 
         {/* Row B: Dropdown Filters & Sort (Single Line - All Fit in One Line) */}
