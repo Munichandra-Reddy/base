@@ -1316,7 +1316,14 @@ export default function Home() {
                 />
               )}
 
-              {activeTab === 'calendar' && <CalendarView />}
+              {activeTab === 'calendar' && (
+                <CalendarView
+                  tasks={tasks}
+                  projects={projects}
+                  currentUser={currentUser}
+                  isAdmin={dashboardRole === 'admin'}
+                />
+              )}
 
               {activeTab === 'chat' && (
                 <ChatView messages={chatMessages} onSendMessage={handleSendMessage} />

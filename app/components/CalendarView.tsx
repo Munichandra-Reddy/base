@@ -1,46 +1,76 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Task, Project } from '@/lib/types';
+import { isTaskOverdue, isTaskAssignedToEmployee } from '@/lib/dashboardCalculations';
 
-interface CalendarEvent {
+export interface CalendarEvent {
+  id?: string;
   title: string;
   time?: string;
-  color?: string;
+  project?: string;
+  status?: string;
+  priority?: string;
+  isTask?: boolean;
+  isOverdue?: boolean;
 }
 
-export const CalendarView: React.FC = () => {
+interface CalendarViewProps {
+  tasks?: Task[];
+  projects?: Project[];
+  currentUser?: { email: string; fullName: string; companyName: string } | null;
+  isAdmin?: boolean;
+}
+
+export const CalendarView: React.FC<CalendarViewProps> = ({
+  tasks = [],
+  projects = [],
+  currentUser,
+  isAdmin = false,
+}) => {
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
+
+  // Month navigation: default to October 2026 (matching system deliverable tasks and user screenshots)
+  const [currentYear, setCurrentYear] = useState<number>(2026);
+  const [currentMonth, setCurrentMonth] = useState<number>(9); // 0-indexed: 9 = October
+
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  const monthName = monthNames[currentMonth];
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  // Month Days (1 to 30)
-  const currentMonthDays = Array.from({ length: 30 }, (_, i) => i + 1);
+  // Days count for current month
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  // Week Days (Oct 1 to Oct 7)
+  // Week Days (Day 1 to Day 7 of selected month)
   const currentWeekDays = [
-    { dayNumber: 1, dayName: 'Sun', dateStr: 'Oct 1' },
-    { dayNumber: 2, dayName: 'Mon', dateStr: 'Oct 2' },
-    { dayNumber: 3, dayName: 'Tue', dateStr: 'Oct 3' },
-    { dayNumber: 4, dayName: 'Wed', dateStr: 'Oct 4' },
-    { dayNumber: 5, dayName: 'Thu', dateStr: 'Oct 5' },
-    { dayNumber: 6, dayName: 'Fri', dateStr: 'Oct 6' },
-    { dayNumber: 7, dayName: 'Sat', dateStr: 'Oct 7' },
+    { dayNumber: 1, dayName: 'Sun', dateStr: `${monthName.slice(0, 3)} 1` },
+    { dayNumber: 2, dayName: 'Mon', dateStr: `${monthName.slice(0, 3)} 2` },
+    { dayNumber: 3, dayName: 'Tue', dateStr: `${monthName.slice(0, 3)} 3` },
+    { dayNumber: 4, dayName: 'Wed', dateStr: `${monthName.slice(0, 3)} 4` },
+    { dayNumber: 5, dayName: 'Thu', dateStr: `${monthName.slice(0, 3)} 5` },
+    { dayNumber: 6, dayName: 'Fri', dateStr: `${monthName.slice(0, 3)} 6` },
+    { dayNumber: 7, dayName: 'Sat', dateStr: `${monthName.slice(0, 3)} 7` },
   ];
 
-  const initialMockEvents: Record<number, CalendarEvent[]> = {
-    1: [{ title: 'Weekly Planning', time: '09:00 AM' }],
-    2: [{ title: 'Homepage Design Signoff', time: '11:00 AM' }],
-    3: [{ title: 'Client Onboarding Sync', time: '02:30 PM' }],
-    4: [{ title: 'Database Migration Review', time: '04:00 PM' }],
-    5: [{ title: 'API Release v2.0', time: '10:00 AM' }],
-    6: [{ title: 'Frontend UI Polish', time: '01:00 PM' }],
-    7: [{ title: 'Team Catchup & QA', time: '05:00 PM' }],
-    12: [{ title: 'Sprint Demo & Retrospective', time: '03:00 PM' }],
-    18: [{ title: 'Q4 Strategy Sync', time: '10:30 AM' }],
-    25: [{ title: 'Infrastructure Maintenance', time: '11:00 PM' }],
-  };
+  // Custom User-Scheduled Events (persisted per workspace)
+  const [customEvents, setCustomEvents] = useState<Record<string, CalendarEvent[]>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('workorbit_calendar_custom_events');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object') return parsed;
+        } catch (e) {}
+      }
+    }
+    return {};
+  });
 
-  const [events, setEvents] = useState<Record<number, CalendarEvent[]>>(initialMockEvents);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -49,20 +79,83 @@ export const CalendarView: React.FC = () => {
   const [newEventTitle, setNewEventTitle] = useState('');
   const [newEventTime, setNewEventTime] = useState('10:00 AM');
 
+  // ==========================================
+  // ROLE-BASED TASK FILTERING & CALENDAR MAPPING
+  // Admin: Sees all workspace tasks & deliverables
+  // Employee: Sees strictly tasks assigned to them
+  // ==========================================
+  const authorizedTasks = tasks.filter((t) => {
+    if (t.status === 'cancelled') return false; // Exclude cancelled tasks
+    if (isAdmin) return true;
+    return isTaskAssignedToEmployee(t, currentUser);
+  });
+
+  // Build aggregated events map for the currently viewed month
+  const eventsByDay: Record<number, CalendarEvent[]> = {};
+
+  // 1. Map real tasks with dueDate to their respective calendar day
+  authorizedTasks.forEach((task) => {
+    if (!task.dueDate) return;
+    const parts = task.dueDate.split('-');
+    if (parts.length === 3) {
+      const tYear = Number(parts[0]);
+      const tMonth = Number(parts[1]) - 1; // 0-indexed
+      const tDay = Number(parts[2]);
+
+      if (tYear === currentYear && tMonth === currentMonth && tDay >= 1 && tDay <= daysInMonth) {
+        if (!eventsByDay[tDay]) eventsByDay[tDay] = [];
+        eventsByDay[tDay].push({
+          id: task.id,
+          title: task.title,
+          project: task.project,
+          time: task.dueDate,
+          status: task.status,
+          priority: task.priority,
+          isTask: true,
+          isOverdue: isTaskOverdue(task),
+        });
+      }
+    }
+  });
+
+  // 2. Map custom events for the currently viewed month
+  const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+  Object.keys(customEvents).forEach((key) => {
+    if (key.startsWith(monthKey)) {
+      const dayPart = Number(key.split('-')[2]);
+      if (dayPart >= 1 && dayPart <= daysInMonth) {
+        if (!eventsByDay[dayPart]) eventsByDay[dayPart] = [];
+        eventsByDay[dayPart].push(...customEvents[key]);
+      }
+    }
+  });
+
   // Submit handler for date pop-up form
   const handleAddEventForSelectedDay = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedDay || !newEventTitle.trim()) return;
 
     const newEvt: CalendarEvent = {
+      id: `evt-${Date.now()}`,
       title: newEventTitle.trim(),
       time: newEventTime.trim() || '10:00 AM',
+      isTask: false,
     };
 
-    setEvents((prev) => ({
-      ...prev,
-      [selectedDay]: [...(prev[selectedDay] || []), newEvt],
-    }));
+    const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(
+      selectedDay
+    ).padStart(2, '0')}`;
+
+    setCustomEvents((prev) => {
+      const updated = {
+        ...prev,
+        [dateKey]: [...(prev[dateKey] || []), newEvt],
+      };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workorbit_calendar_custom_events', JSON.stringify(updated));
+      }
+      return updated;
+    });
 
     setNewEventTitle('');
   };
@@ -73,31 +166,84 @@ export const CalendarView: React.FC = () => {
     if (!newEventTitle.trim()) return;
 
     const newEvt: CalendarEvent = {
+      id: `evt-${Date.now()}`,
       title: newEventTitle.trim(),
       time: newEventTime.trim() || '10:00 AM',
+      isTask: false,
     };
 
-    setEvents((prev) => ({
-      ...prev,
-      [targetDay]: [...(prev[targetDay] || []), newEvt],
-    }));
+    const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(
+      targetDay
+    ).padStart(2, '0')}`;
+
+    setCustomEvents((prev) => {
+      const updated = {
+        ...prev,
+        [dateKey]: [...(prev[dateKey] || []), newEvt],
+      };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('workorbit_calendar_custom_events', JSON.stringify(updated));
+      }
+      return updated;
+    });
 
     setNewEventTitle('');
     setIsAddModalOpen(false);
   };
 
-  const selectedDayEvents = selectedDay ? events[selectedDay] || [] : [];
+  const selectedDayEvents = selectedDay ? eventsByDay[selectedDay] || [] : [];
+
+  const handlePrevMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear((y) => y - 1);
+    } else {
+      setCurrentMonth((m) => m - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear((y) => y + 1);
+    } else {
+      setCurrentMonth((m) => m + 1);
+    }
+  };
 
   return (
     <div className="space-y-6 font-sans w-full">
       {/* Header */}
       <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-[#111827]">Workspace Schedule</h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl font-semibold text-[#111827]">Workspace Schedule</h1>
+            <div className="flex items-center gap-1 bg-[#F4F6F8] px-1.5 py-0.5 rounded border border-[#E2E8F0]">
+              <button
+                type="button"
+                onClick={handlePrevMonth}
+                className="w-5 h-5 flex items-center justify-center rounded text-[#595959] hover:text-[#111827] hover:bg-white text-xs font-bold transition-all cursor-pointer"
+                title="Previous Month"
+              >
+                ‹
+              </button>
+              <span className="text-xs font-bold text-[#111827] px-1">
+                {monthName} {currentYear}
+              </span>
+              <button
+                type="button"
+                onClick={handleNextMonth}
+                className="w-5 h-5 flex items-center justify-center rounded text-[#595959] hover:text-[#111827] hover:bg-white text-xs font-bold transition-all cursor-pointer"
+                title="Next Month"
+              >
+                ›
+              </button>
+            </div>
+          </div>
           <p className="text-[#595959] text-xs font-normal mt-0.5">
             {viewMode === 'month'
-              ? 'October 2026 Milestone & Deliverables Calendar (Click any date for details)'
-              : 'Current Week (Oct 1 - Oct 7, 2026) Schedule'}
+              ? `${monthName} ${currentYear} Milestone & Deliverables Calendar (Click any date for details)`
+              : `Current Week (${monthName.slice(0, 3)} 1 - ${monthName.slice(0, 3)} 7, ${currentYear}) Schedule`}
           </p>
         </div>
 
@@ -153,33 +299,44 @@ export const CalendarView: React.FC = () => {
               ))}
             </div>
             <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-[#E2E8F0]">
-              {currentMonthDays.map((day) => (
-                <div
-                  key={day}
-                  onClick={() => setSelectedDay(day)}
-                  className="min-h-[90px] sm:min-h-[110px] p-2 sm:p-2.5 bg-white hover:bg-[#EBF0F5] transition-colors cursor-pointer group"
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs sm:text-sm font-bold text-[#334155] group-hover:text-[#0F172A]">{day}</span>
-                    {events[day] && events[day].length > 0 && (
-                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-[#6CC04A] text-white">
-                        {events[day].length}
+              {currentMonthDays.map((day) => {
+                const dayItems = eventsByDay[day] || [];
+
+                return (
+                  <div
+                    key={day}
+                    onClick={() => setSelectedDay(day)}
+                    className="min-h-[90px] sm:min-h-[110px] p-2 sm:p-2.5 bg-white hover:bg-[#EBF0F5] transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs sm:text-sm font-bold text-[#334155] group-hover:text-[#0F172A]">
+                        {day}
                       </span>
-                    )}
-                  </div>
-                  {events[day] &&
-                    events[day].map((evt, idx) => (
+                      {dayItems.length > 0 && (
+                        <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-[#6CC04A] text-white">
+                          {dayItems.length}
+                        </span>
+                      )}
+                    </div>
+                    {dayItems.map((evt, idx) => (
                       <div
                         key={idx}
-                        title={evt.title}
+                        title={`${evt.title}${evt.project ? ` (${evt.project})` : ''}`}
                         onClick={() => setSelectedDay(day)}
-                        className="text-xs font-bold p-1.5 sm:p-2 rounded-lg mb-1 truncate shadow-2xs transition-all duration-150 cursor-pointer bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black"
+                        className={`text-xs font-bold p-1.5 sm:p-2 rounded-lg mb-1 truncate shadow-2xs transition-all duration-150 cursor-pointer ${
+                          evt.isOverdue
+                            ? 'bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]'
+                            : evt.status === 'completed'
+                            ? 'bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0]'
+                            : 'bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white'
+                        }`}
                       >
                         {evt.title}
                       </div>
                     ))}
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -191,41 +348,55 @@ export const CalendarView: React.FC = () => {
               {currentWeekDays.map((wDay) => (
                 <div key={wDay.dayNumber} className="flex flex-col items-center">
                   <span>{wDay.dayName}</span>
-                  <span className="text-[10px] sm:text-xs font-semibold text-[#64748B] mt-0.5">{wDay.dateStr}</span>
+                  <span className="text-[10px] sm:text-xs font-semibold text-[#64748B] mt-0.5">
+                    {wDay.dateStr}
+                  </span>
                 </div>
               ))}
             </div>
             <div className="grid grid-cols-7 divide-x divide-[#E2E8F0] bg-white min-h-[340px] sm:min-h-[360px]">
-              {currentWeekDays.map((wDay) => (
-                <div
-                  key={wDay.dayNumber}
-                  onClick={() => setSelectedDay(wDay.dayNumber)}
-                  className="p-2 sm:p-3 bg-white hover:bg-[#EBF0F5] transition-colors cursor-pointer space-y-2 group"
-                >
-                  <div className="text-xs font-extrabold text-[#64748B] group-hover:text-[#0F172A] mb-2 truncate">
-                    {wDay.dayName}, {wDay.dateStr}
-                  </div>
-                  {events[wDay.dayNumber] && events[wDay.dayNumber].length > 0 ? (
-                    events[wDay.dayNumber].map((evt, idx) => (
-                      <div
-                        key={idx}
-                        title={evt.title}
-                        onClick={() => setSelectedDay(wDay.dayNumber)}
-                        className="p-2 sm:p-2.5 rounded-xl space-y-1 shadow-2xs transition-all duration-150 cursor-pointer group/weekEvt bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white active:border-black"
-                      >
-                        {evt.time && (
-                          <div className="text-[10px] font-extrabold opacity-75 text-[#64748B] group-hover/weekEvt:text-white/80 transition-colors">
-                            {evt.time}
-                          </div>
-                        )}
-                        <div className="text-xs font-bold leading-tight">{evt.title}</div>
+              {currentWeekDays.map((wDay) => {
+                const dayItems = eventsByDay[wDay.dayNumber] || [];
+
+                return (
+                  <div
+                    key={wDay.dayNumber}
+                    onClick={() => setSelectedDay(wDay.dayNumber)}
+                    className="p-2 sm:p-3 bg-white hover:bg-[#EBF0F5] transition-colors cursor-pointer space-y-2 group"
+                  >
+                    <div className="text-xs font-extrabold text-[#64748B] group-hover:text-[#0F172A] mb-2 truncate">
+                      {wDay.dayName}, {wDay.dateStr}
+                    </div>
+                    {dayItems.length > 0 ? (
+                      dayItems.map((evt, idx) => (
+                        <div
+                          key={idx}
+                          title={`${evt.title}${evt.project ? ` (${evt.project})` : ''}`}
+                          onClick={() => setSelectedDay(wDay.dayNumber)}
+                          className={`p-2 sm:p-2.5 rounded-xl space-y-1 shadow-2xs transition-all duration-150 cursor-pointer group/weekEvt ${
+                            evt.isOverdue
+                              ? 'bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]'
+                              : evt.status === 'completed'
+                              ? 'bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0]'
+                              : 'bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white'
+                          }`}
+                        >
+                          {evt.time && (
+                            <div className="text-[10px] font-extrabold opacity-75 text-[#64748B] group-hover/weekEvt:text-white/80 transition-colors">
+                              {evt.time}
+                            </div>
+                          )}
+                          <div className="text-xs font-bold leading-tight">{evt.title}</div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-[11px] font-medium text-[#CBD5E1] italic pt-4 text-center">
+                        No events
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-[11px] font-medium text-[#CBD5E1] italic pt-4 text-center">No events</div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -244,10 +415,10 @@ export const CalendarView: React.FC = () => {
             <div className="p-4 sm:p-5 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F1F3F6]">
               <div>
                 <h3 className="text-base sm:text-lg font-extrabold text-[#0F172A]">
-                  October {selectedDay}, 2026 Schedule
+                  {monthName} {selectedDay}, {currentYear} Schedule
                 </h3>
                 <p className="text-xs font-semibold text-[#64748B] mt-0.5">
-                  Milestones, events, and task deadlines for this day.
+                  Milestones, events, and task deliverables for this day.
                 </p>
               </div>
               <button
@@ -262,7 +433,7 @@ export const CalendarView: React.FC = () => {
             <div className="p-4 sm:p-6 space-y-5 max-h-[75vh] overflow-y-auto">
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[#64748B] mb-3">
-                  Scheduled Events ({selectedDayEvents.length})
+                  Scheduled Deliverables & Events ({selectedDayEvents.length})
                 </h4>
                 {selectedDayEvents.length > 0 ? (
                   <div className="space-y-2.5">
@@ -271,19 +442,41 @@ export const CalendarView: React.FC = () => {
                         key={i}
                         className="p-3 sm:p-3.5 rounded-xl flex items-center justify-between shadow-2xs transition-all duration-150 cursor-pointer group/modalEvt bg-white text-[#111827] border border-[#E2E8F0] hover:bg-black hover:text-white hover:border-black active:bg-black active:text-white"
                       >
-                        <div className="font-bold text-xs sm:text-sm">{evt.title}</div>
-                        {evt.time && (
-                          <div className="text-[10px] sm:text-xs font-extrabold px-2 py-1 bg-[#F1F3F6] text-[#334155] group-hover/modalEvt:bg-white/20 group-hover/modalEvt:text-white rounded-md shrink-0 ml-3 transition-colors">
-                            {evt.time}
-                          </div>
-                        )}
+                        <div className="min-w-0 flex-1 pr-2">
+                          <div className="font-bold text-xs sm:text-sm truncate">{evt.title}</div>
+                          {evt.project && (
+                            <div className="text-[10px] sm:text-[11px] text-[#64748B] group-hover/modalEvt:text-white/80 font-medium truncate mt-0.5">
+                              {evt.project}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {evt.status && (
+                            <span
+                              className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase ${
+                                evt.isOverdue
+                                  ? 'bg-[#FEF2F2] text-[#DC2626] border border-[#FECACA]'
+                                  : evt.status === 'completed'
+                                  ? 'bg-[#F0FDF4] text-[#16A34A] border border-[#BBF7D0]'
+                                  : 'bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]'
+                              }`}
+                            >
+                              {evt.isOverdue ? 'Overdue' : evt.status}
+                            </span>
+                          )}
+                          {evt.time && (
+                            <div className="text-[10px] sm:text-xs font-extrabold px-2 py-1 bg-[#F1F3F6] text-[#334155] group-hover/modalEvt:bg-white/20 group-hover/modalEvt:text-white rounded-md shrink-0 transition-colors">
+                              {evt.time}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="p-5 text-center bg-[#F1F3F6] border border-dashed border-[#CBD5E1] rounded-xl">
                     <p className="text-xs sm:text-sm font-semibold text-[#64748B]">
-                      No events or deliverables scheduled for October {selectedDay}.
+                      No events or deliverables scheduled for {monthName} {selectedDay}.
                     </p>
                   </div>
                 )}
@@ -292,7 +485,7 @@ export const CalendarView: React.FC = () => {
               {/* Add New Event Form */}
               <form onSubmit={handleAddEventForSelectedDay} className="pt-4 border-t border-[#E5E5E5] space-y-3">
                 <h4 className="text-xs font-semibold text-[#111827]">
-                  + Add Event for Oct {selectedDay}
+                  + Add Event for {monthName.slice(0, 3)} {selectedDay}
                 </h4>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <input
@@ -357,7 +550,7 @@ export const CalendarView: React.FC = () => {
             <form onSubmit={handleAddEventGlobal} className="p-5 space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#222222] mb-1">
-                  Select Date (October 2026)
+                  Select Date ({monthName} {currentYear})
                 </label>
                 <select
                   value={targetDay}
@@ -366,7 +559,7 @@ export const CalendarView: React.FC = () => {
                 >
                   {currentMonthDays.map((d) => (
                     <option key={d} value={d}>
-                      October {d}, 2026
+                      {monthName} {d}, {currentYear}
                     </option>
                   ))}
                 </select>
