@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from './components/Header';
 import { Sidebar, NavTab } from './components/Sidebar';
 import { DashboardView } from './components/DashboardView';
@@ -13,6 +13,7 @@ import { FilesView } from './components/FilesView';
 import { PeopleView } from './components/PeopleView';
 import { CreateModal } from './components/CreateModal';
 import { NotificationPanel } from './components/NotificationPanel';
+import { NotificationsView } from './components/NotificationsView';
 import { AuthView } from './components/AuthView';
 import {
   EmployeeDashboardSkeleton,
@@ -60,6 +61,20 @@ import {
   updateEmployeePresence,
 } from '@/lib/firebaseServices';
 import { isPersonOnline, isTaskDueSoon } from '@/lib/dashboardCalculations';
+import { BasecampNotification } from '@/lib/types';
+import {
+  subscribeToUserNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  deleteNotification,
+  notifyTaskAssigned,
+  notifyTaskApproved,
+  notifyTaskChangesRequested,
+  notifyTaskReassigned,
+  notifyProjectMemberAdded,
+  notifyProjectUpdated,
+  runScheduledReminderScan,
+} from '@/lib/firebaseNotificationService';
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -205,7 +220,23 @@ export default function Home() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createModalType, setCreateModalType] = useState<'task' | 'project' | 'employee'>('task');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(3);
+  const [notifications, setNotifications] = useState<BasecampNotification[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('workorbit_user_notifications');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) return parsed;
+        } catch (e) {}
+      }
+    }
+    return [];
+  });
+
+  const unreadNotificationsCount = useMemo(() => {
+    return notifications.filter((n) => !n.isRead && n.status !== 'deleted').length;
+  }, [notifications]);
+
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [globalToast, setGlobalToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
@@ -253,6 +284,73 @@ export default function Home() {
       window.removeEventListener('scroll', handleUserActivity);
     };
   }, [isLoggedIn, currentUser]);
+
+  // Phase 9: Real-Time User Notifications Subscription & Reminder Scan
+  useEffect(() => {
+    const userEmail = currentUser?.email || (dashboardRole === 'admin' ? 'cr7156816@gmail.com' : '');
+    if (!userEmail) return;
+
+    const unsub = subscribeToUserNotifications(userEmail, (notifList) => {
+      setNotifications(notifList);
+    });
+
+    runScheduledReminderScan(tasks, projects, userEmail).catch(() => {});
+
+    const reminderInterval = setInterval(() => {
+      runScheduledReminderScan(tasks, projects, userEmail).catch(() => {});
+    }, 60000);
+
+    return () => {
+      unsub();
+      clearInterval(reminderInterval);
+    };
+  }, [currentUser?.email, dashboardRole, tasks.length, projects.length]);
+
+  const handleMarkNotificationAsRead = async (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isRead: true, readAt: Date.now() } : n))
+    );
+    await markNotificationAsRead(id);
+  };
+
+  const handleMarkAllNotificationsAsRead = async () => {
+    const userEmail = currentUser?.email || (dashboardRole === 'admin' ? 'cr7156816@gmail.com' : '');
+    setNotifications((prev) =>
+      prev.map((n) => ({ ...n, isRead: true, readAt: Date.now() }))
+    );
+    if (userEmail) {
+      await markAllNotificationsAsRead(userEmail);
+    }
+  };
+
+  const handleDeleteNotification = async (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    await deleteNotification(id);
+  };
+
+  const handleSelectNotification = (notif: BasecampNotification) => {
+    if (!notif.isRead) {
+      handleMarkNotificationAsRead(notif.id);
+    }
+
+    if (notif.relatedEntityType === 'task' || notif.taskId) {
+      handleTabChange('tasks');
+    } else if (notif.relatedEntityType === 'project' || notif.projectId) {
+      if (notif.projectId) {
+        handleOpenProject(notif.projectId);
+      } else {
+        handleTabChange('projects');
+      }
+    } else if (notif.relatedEntityType === 'chat' || notif.conversationId) {
+      handleTabChange('chat');
+    } else if (notif.relatedEntityType === 'calendar' || notif.eventId) {
+      handleTabChange('calendar');
+    } else if (notif.relatedEntityType === 'file' || notif.fileId) {
+      handleTabChange('files');
+    } else {
+      handleTabChange('notifications');
+    }
+  };
 
   // Load persisted state from localStorage on mount so page refreshes don't lose data!
   useEffect(() => {
@@ -407,14 +505,6 @@ export default function Home() {
         } catch (e) {}
       }
 
-      const savedUnread = localStorage.getItem('workorbit_unread_count');
-      if (savedUnread !== null) {
-        try {
-          const parsed = JSON.parse(savedUnread);
-          if (typeof parsed === 'number') setUnreadCount(parsed);
-        } catch (e) {}
-      }
-
       // Live Firestore Subscriptions & Initial Seeding
       try {
         seedInitialDataToFirebase();
@@ -526,6 +616,7 @@ export default function Home() {
         'people',
         'checkins',
         'reports',
+        'notifications',
       ];
 
       const state = window.history.state;
@@ -574,6 +665,7 @@ export default function Home() {
           'people',
           'checkins',
           'reports',
+          'notifications',
         ];
         if (validTabs.includes(hash as NavTab)) {
           setActiveTab(hash as NavTab);
@@ -772,6 +864,17 @@ export default function Home() {
 
     try {
       await toggleFirebaseTask(id, newStatus);
+      // Phase 9: Task approved notification if completed by Admin
+      if (dashboardRole === 'admin' && newStatus === true && targetTask?.assignedToEmail) {
+        notifyTaskApproved({
+          taskId: id,
+          taskTitle: targetTask.title,
+          projectId: targetTask.projectId,
+          projectName: targetTask.project,
+          submitterEmail: targetTask.assignedToEmail,
+          actorName: currentUser?.fullName || 'Workspace Admin',
+        }).catch(() => {});
+      }
     } catch (err) {}
   };
 
@@ -903,6 +1006,21 @@ export default function Home() {
       } catch (e) {}
     }
 
+    // Phase 9: Trigger Task Assigned Notification
+    const targetAssigneeEmail = matchedEmployee?.email || (assignedTo.includes('@') ? assignedTo : '');
+    if (targetAssigneeEmail) {
+      notifyTaskAssigned({
+        taskId: newTask.id,
+        taskTitle: title,
+        projectId: matchedProject ? matchedProject.id : '',
+        projectName: project,
+        assigneeEmail: targetAssigneeEmail,
+        assigneeName: assignedTo,
+        actorName: currentUser?.fullName || 'Workspace Administrator',
+        actorUid: currentUser?.email || 'Admin',
+      }).catch(() => {});
+    }
+
     setGlobalToast({
       message: `Task "${title}" has been assigned to ${assignedTo} successfully.`,
       type: 'success',
@@ -1016,6 +1134,16 @@ export default function Home() {
       const data = await res.json();
       if (data.success && data.project) {
         setProjects((prev) => [data.project, ...prev.filter((p) => p.id !== data.project.id)]);
+        // Phase 9: Project member added notification
+        (members || []).forEach((memberEmail) => {
+          notifyProjectMemberAdded({
+            projectId: data.project.id,
+            projectName: name,
+            memberEmail,
+            managerName: manager,
+            actorName: currentUser?.fullName || 'Workspace Admin',
+          }).catch(() => {});
+        });
       }
     } catch (e) {
       console.error('Error creating project via backend:', e);
@@ -1123,10 +1251,7 @@ export default function Home() {
   };
 
   const handleClearNotifications = () => {
-    setUnreadCount(0);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('workorbit_unread_count', '0');
-    }
+    handleMarkAllNotificationsAsRead();
   };
 
   const pendingTasksCount = tasks.filter((t) => !t.completed).length;
@@ -1141,7 +1266,7 @@ export default function Home() {
         }}
         onNavigate={handleTabChange}
         onToggleNotifications={() => setIsNotificationsOpen(!isNotificationsOpen)}
-        unreadNotifications={unreadCount}
+        unreadNotifications={unreadNotificationsCount}
         onLogout={handleLogout}
         currentUser={currentUser}
         currentRole={dashboardRole}
@@ -1171,8 +1296,14 @@ export default function Home() {
       <NotificationPanel
         isOpen={isNotificationsOpen}
         onClose={() => setIsNotificationsOpen(false)}
-        onClear={handleClearNotifications}
-        unreadCount={unreadCount}
+        onClear={handleMarkAllNotificationsAsRead}
+        unreadCount={unreadNotificationsCount}
+        items={notifications}
+        onSelectNotification={handleSelectNotification}
+        onMarkAsRead={handleMarkNotificationAsRead}
+        onMarkAllAsRead={handleMarkAllNotificationsAsRead}
+        onDeleteNotification={handleDeleteNotification}
+        onViewAll={() => handleTabChange('notifications')}
       />
 
       {/* Main Container */}
@@ -1374,6 +1505,18 @@ export default function Home() {
                   onUpdateEmployee={handleUpdateEmployee}
                   onDeleteEmployee={handleDeleteEmployee}
                   onNavigateToProjects={() => handleTabChange('projects')}
+                />
+              )}
+
+              {activeTab === 'notifications' && (
+                <NotificationsView
+                  notifications={notifications}
+                  onSelectNotification={handleSelectNotification}
+                  onMarkAsRead={handleMarkNotificationAsRead}
+                  onMarkAllAsRead={handleMarkAllNotificationsAsRead}
+                  onDeleteNotification={handleDeleteNotification}
+                  currentUser={currentUser}
+                  isAdmin={dashboardRole === 'admin'}
                 />
               )}
             </>

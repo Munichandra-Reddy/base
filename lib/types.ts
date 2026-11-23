@@ -77,6 +77,66 @@ export interface TaskActivity {
   timestamp: string;
 }
 
+export type NotificationType =
+  // Task events
+  | 'task_assigned'
+  | 'task_due_soon'
+  | 'task_overdue'
+  | 'task_approved'
+  | 'changes_requested'
+  | 'task_reassigned'
+  // Project events
+  | 'project_added'
+  | 'project_updated'
+  | 'project_deadline'
+  // Chat events
+  | 'chat_direct'
+  | 'chat_group'
+  | 'chat_project'
+  // Calendar events
+  | 'meeting_invite'
+  | 'meeting_reminder'
+  | 'meeting_updated'
+  | 'meeting_cancelled'
+  // File events
+  | 'file_uploaded'
+  | 'file_shared'
+  // General / System
+  | 'system';
+
+export interface BasecampNotification {
+  id: string;
+  notificationId?: string;
+  recipientUid: string;
+  recipientEmail: string;
+  actorUid?: string;
+  actorName?: string;
+  actorAvatar?: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  relatedEntityType: 'task' | 'project' | 'chat' | 'calendar' | 'file';
+  relatedEntityId?: string;
+  projectId?: string;
+  projectName?: string;
+  taskId?: string;
+  taskTitle?: string;
+  conversationId?: string;
+  conversationName?: string;
+  eventId?: string;
+  fileId?: string;
+  fileName?: string;
+  isRead: boolean;
+  readAt?: number;
+  createdAt: number;
+  timestampStr?: string;
+  deduplicationKey?: string;
+  status?: 'active' | 'deleted';
+  actionUrl?: string;
+}
+
+export type NotificationItem = BasecampNotification;
+
 export interface TaskNotification {
   id: string;
   recipientUid: string;

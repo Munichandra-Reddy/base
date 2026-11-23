@@ -20,7 +20,8 @@ export type NavTab =
   | 'files'
   | 'people'
   | 'checkins'
-  | 'reports';
+  | 'reports'
+  | 'notifications';
 
 interface SidebarProps {
   activeTab: NavTab;

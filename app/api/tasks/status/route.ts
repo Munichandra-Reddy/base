@@ -253,16 +253,25 @@ export async function POST(request: Request) {
         const notifId = `notif_${Date.now()}_appr`;
         await setDoc(doc(db, 'notifications', notifId), {
           id: notifId,
+          notificationId: notifId,
           recipientUid: taskData.assignedToId || taskData.assignedToEmail || taskData.assignedTo,
-          recipientEmail: taskData.assignedToEmail,
+          recipientEmail: (taskData.assignedToEmail || '').toLowerCase().trim(),
+          actorName: userName || 'Admin',
           taskId,
           taskDisplayId: taskData.taskId || taskId,
           taskTitle: taskData.title,
-          projectName: taskData.project,
-          notificationType: 'task_approved',
-          message: `Congratulations! Your task "${taskData.title}" was approved by Admin.`,
-          createdAt: nowIso,
+          projectId: taskData.projectId || '',
+          projectName: taskData.project || '',
+          type: 'task_approved',
+          title: 'Your work was approved.',
+          message: `Admin approved your work on task "${taskData.title}".`,
+          relatedEntityType: 'task',
+          relatedEntityId: taskId,
+          createdAt: Date.now(),
+          timestampStr: nowIso,
+          isRead: false,
           read: false,
+          status: 'active',
         });
       } catch (e) {}
 
@@ -332,16 +341,25 @@ export async function POST(request: Request) {
         const notifId = `notif_${Date.now()}_cr`;
         await setDoc(doc(db, 'notifications', notifId), {
           id: notifId,
+          notificationId: notifId,
           recipientUid: taskData.assignedToId || taskData.assignedToEmail || taskData.assignedTo,
-          recipientEmail: taskData.assignedToEmail,
+          recipientEmail: (taskData.assignedToEmail || '').toLowerCase().trim(),
+          actorName: userName || 'Admin',
           taskId,
           taskDisplayId: taskData.taskId || taskId,
           taskTitle: taskData.title,
-          projectName: taskData.project,
-          notificationType: 'task_changes_requested',
-          message: `Feedback received on "${taskData.title}": ${feedback.trim().substring(0, 80)}...`,
-          createdAt: nowIso,
+          projectId: taskData.projectId || '',
+          projectName: taskData.project || '',
+          type: 'changes_requested',
+          title: 'Changes have been requested on your task.',
+          message: feedback.trim() ? `Feedback on "${taskData.title}": ${feedback.trim()}` : `Admin requested changes on "${taskData.title}".`,
+          relatedEntityType: 'task',
+          relatedEntityId: taskId,
+          createdAt: Date.now(),
+          timestampStr: nowIso,
+          isRead: false,
           read: false,
+          status: 'active',
         });
       } catch (e) {}
 

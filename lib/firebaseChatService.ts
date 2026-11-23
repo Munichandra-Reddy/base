@@ -25,6 +25,7 @@ import {
   Person,
 } from './types';
 import { saveFileToDB } from './fileUtils';
+import { notifyChatMessage } from './firebaseNotificationService';
 
 // Helper to normalize user identifiers (email or UID)
 export const normalizeUserKey = (val?: string): string => {
@@ -489,6 +490,30 @@ export const sendCampfireMessage = async (
         updatedAt: now,
         unreadCounts,
       });
+
+      // Phase 9: Trigger Chat Notifications for eligible recipients
+      try {
+        const recipientEmails = (convData.memberUids || [])
+          .map((m) => {
+            const detail = convData.memberDetails?.[m];
+            return detail?.email || (m.includes('@') ? m : '');
+          })
+          .filter(Boolean);
+
+        notifyChatMessage({
+          conversationId,
+          conversationType: convData.type || 'direct',
+          conversationName: convData.name,
+          senderEmail: senderEmail || '',
+          senderName: senderName || 'Team Member',
+          recipientEmails,
+          previewText: previewText || 'Sent a message',
+          projectId: convData.projectId,
+          projectName: convData.projectName,
+        }).catch(() => {});
+      } catch (notifErr) {
+        console.warn('Chat notification notice:', notifErr);
+      }
     }
   } catch (err) {
     console.warn('Notice updating conversation lastMessage:', err);

@@ -21,6 +21,7 @@ import {
 import { db, storage } from './firebase';
 import { ProjectFile, FileTypeCategory } from './types';
 import { saveFileToDB, getDirectFileBlob } from './fileUtils';
+import { notifyFileUploaded } from './firebaseNotificationService';
 
 // Supported file extension mappings
 export const SUPPORTED_FILE_EXTENSIONS: Record<string, FileTypeCategory> = {
@@ -319,6 +320,26 @@ export const uploadProjectFile = async (
     });
   } catch (actErr) {
     console.warn('Activity logging notice:', actErr);
+  }
+
+  // Phase 9: Trigger Project File Notification
+  try {
+    const projSnap = await getDoc(doc(db, 'projects', projectId));
+    if (projSnap.exists()) {
+      const projData = projSnap.data();
+      const members: string[] = Array.isArray(projData.members) ? projData.members : [];
+      notifyFileUploaded({
+        fileId,
+        fileName: file.name,
+        projectId,
+        projectName,
+        uploaderEmail,
+        uploaderName,
+        projectMembers: members,
+      }).catch(() => {});
+    }
+  } catch (notifErr) {
+    console.warn('File notification notice:', notifErr);
   }
 
   return newFileRecord;

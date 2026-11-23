@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Task, Project } from '@/lib/types';
 import { isTaskOverdue, isTaskAssignedToEmployee } from '@/lib/dashboardCalculations';
+import { notifyMeetingInvited } from '@/lib/firebaseNotificationService';
 
 export interface CalendarEvent {
   id?: string;
@@ -157,6 +158,23 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       return updated;
     });
 
+    // Phase 9: Meeting invitation notification
+    const allMemberEmails = Array.from(
+      new Set(
+        projects.flatMap((p) => (p.members || []).map((m) => m.toLowerCase().trim()))
+      )
+    ).filter(Boolean);
+
+    notifyMeetingInvited({
+      eventId: newEvt.id || `evt-${Date.now()}`,
+      eventTitle: newEvt.title,
+      eventDate: dateKey,
+      eventTime: newEvt.time || '10:00 AM',
+      attendeeEmails: allMemberEmails,
+      organizerName: currentUser?.fullName || 'Meeting Organizer',
+      organizerEmail: currentUser?.email,
+    }).catch(() => {});
+
     setNewEventTitle('');
   };
 
@@ -186,6 +204,23 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       }
       return updated;
     });
+
+    // Phase 9: Meeting invitation notification
+    const allMemberEmails = Array.from(
+      new Set(
+        projects.flatMap((p) => (p.members || []).map((m) => m.toLowerCase().trim()))
+      )
+    ).filter(Boolean);
+
+    notifyMeetingInvited({
+      eventId: newEvt.id || `evt-${Date.now()}`,
+      eventTitle: newEvt.title,
+      eventDate: dateKey,
+      eventTime: newEvt.time || '10:00 AM',
+      attendeeEmails: allMemberEmails,
+      organizerName: currentUser?.fullName || 'Meeting Organizer',
+      organizerEmail: currentUser?.email,
+    }).catch(() => {});
 
     setNewEventTitle('');
     setIsAddModalOpen(false);
