@@ -1290,11 +1290,6 @@ export const TasksView: React.FC<TasksViewProps> = ({
                           >
                             {task.title}
                           </span>
-                          {task.description && (
-                            <span className="text-[11px] text-[#64748B] line-clamp-1 mt-0.5 max-w-xs font-normal">
-                              {task.description}
-                            </span>
-                          )}
                         </div>
                       </td>
 
