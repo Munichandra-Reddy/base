@@ -64,6 +64,48 @@ export const ChatView: React.FC<ChatViewProps> = ({
   const userName = currentUser?.fullName || (isAdmin ? 'Workspace Admin' : 'Employee');
   const userKey = normalizeUserKey(userEmail);
 
+  const WORKSPACE_ADMIN_EMAIL = 'cr7156816@gmail.com';
+
+  // Workspace Administrator profile representation for private direct chats
+  const adminContact: Person = useMemo(() => {
+    return {
+      id: 'admin_workspace',
+      employeeId: 'ADMIN-001',
+      name: 'Muni (Workspace Admin)',
+      email: WORKSPACE_ADMIN_EMAIL,
+      role: 'Workspace Administrator',
+      designation: 'Workspace Administrator',
+      status: 'active',
+      accessRole: 'admin',
+      avatar: 'M',
+      avatarBg: 'bg-[#011826] text-white',
+      projectsCount: projects.length,
+    };
+  }, [projects.length]);
+
+  // All contactable users for direct messaging:
+  // - If logged-in user is an employee: includes Workspace Admin (at the top) + fellow employees.
+  // - If logged-in user is admin: includes all employees.
+  const contactablePeople = useMemo(() => {
+    const list: Person[] = [];
+    const isCurrentUserAdmin = userEmail === WORKSPACE_ADMIN_EMAIL || isAdmin;
+
+    // If current user is an employee, add Workspace Admin at the top of the direct chat directory
+    if (!isCurrentUserAdmin) {
+      list.push(adminContact);
+    }
+
+    // Add all other employees (excluding the current user and any duplicate admin entry)
+    people.forEach((p) => {
+      const pEmail = (p.email || '').toLowerCase().trim();
+      if (pEmail && pEmail !== userEmail && pEmail !== WORKSPACE_ADMIN_EMAIL) {
+        list.push(p);
+      }
+    });
+
+    return list;
+  }, [people, userEmail, isAdmin, adminContact]);
+
   // Core State
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConvId, setSelectedConvId] = useState<string | null>(initialConversationId);
@@ -248,13 +290,18 @@ export const ChatView: React.FC<ChatViewProps> = ({
   // Handle Start Direct Message
   const handleStartDirect = async (targetPerson: Person) => {
     try {
+      const isTargetAdmin =
+        targetPerson.accessRole === 'admin' ||
+        targetPerson.email?.toLowerCase() === WORKSPACE_ADMIN_EMAIL;
+
       const targetUser: ConversationParticipant = {
         uid: normalizeUserKey(targetPerson.email || targetPerson.id),
-        name: targetPerson.name,
+        name: isTargetAdmin ? 'Muni (Workspace Admin)' : targetPerson.name,
         email: targetPerson.email,
-        avatar: targetPerson.avatar || targetPerson.name[0]?.toUpperCase() || 'U',
-        avatarBg: targetPerson.avatarBg || 'bg-blue-100 text-blue-800',
-        designation: targetPerson.role || targetPerson.designation,
+        avatar: isTargetAdmin ? 'M' : targetPerson.avatar || targetPerson.name[0]?.toUpperCase() || 'U',
+        avatarBg: isTargetAdmin ? 'bg-[#011826] text-white' : targetPerson.avatarBg || 'bg-blue-100 text-blue-800',
+        designation: isTargetAdmin ? 'Workspace Administrator' : targetPerson.role || targetPerson.designation,
+        role: isTargetAdmin ? 'admin' : targetPerson.accessRole || 'employee',
       };
 
       const myUser: ConversationParticipant = {
@@ -295,15 +342,17 @@ export const ChatView: React.FC<ChatViewProps> = ({
 
       const selectedParticipants: ConversationParticipant[] = groupSelectedMembers
         .map((uid) => {
-          const person = people.find((p) => normalizeUserKey(p.email || p.id) === uid);
+          const person = contactablePeople.find((p) => normalizeUserKey(p.email || p.id) === uid);
           if (!person) return null;
+          const isTargetAdmin = person.email?.toLowerCase() === WORKSPACE_ADMIN_EMAIL;
           return {
             uid: normalizeUserKey(person.email || person.id),
-            name: person.name,
+            name: isTargetAdmin ? 'Muni (Workspace Admin)' : person.name,
             email: person.email,
-            avatar: person.avatar || person.name[0]?.toUpperCase() || 'U',
-            avatarBg: person.avatarBg || 'bg-indigo-100 text-indigo-800',
+            avatar: isTargetAdmin ? 'M' : person.avatar || person.name[0]?.toUpperCase() || 'U',
+            avatarBg: isTargetAdmin ? 'bg-[#011826] text-white' : person.avatarBg || 'bg-indigo-100 text-indigo-800',
             designation: person.role || person.designation,
+            role: isTargetAdmin ? 'admin' : person.accessRole || 'employee',
           };
         })
         .filter(Boolean) as ConversationParticipant[];
@@ -359,11 +408,16 @@ export const ChatView: React.FC<ChatViewProps> = ({
         const otherKey = Object.keys(conv.memberDetails).find((k) => k !== userKey);
         if (otherKey && conv.memberDetails[otherKey]) {
           const p = conv.memberDetails[otherKey];
+          const isTargetAdmin =
+            otherKey === normalizeUserKey(WORKSPACE_ADMIN_EMAIL) ||
+            p.email?.toLowerCase() === WORKSPACE_ADMIN_EMAIL;
+
           return {
-            text: p.avatar || p.name[0]?.toUpperCase() || 'U',
-            bg: p.avatarBg || 'bg-blue-100 text-blue-800',
+            text: isTargetAdmin ? 'M' : p.avatar || p.name[0]?.toUpperCase() || 'U',
+            bg: isTargetAdmin ? 'bg-[#011826] text-white' : p.avatarBg || 'bg-blue-100 text-blue-800',
             isDirect: true,
             email: p.email,
+            isAdmin: isTargetAdmin,
           };
         }
       }
@@ -382,15 +436,30 @@ export const ChatView: React.FC<ChatViewProps> = ({
       const otherKey = Object.keys(activeConversation.memberDetails).find((k) => k !== userKey);
       if (otherKey) {
         const details = activeConversation.memberDetails[otherKey];
-        const fullPerson = people.find((p) => normalizeUserKey(p.email || p.id) === otherKey);
+        const isTargetAdmin =
+          otherKey === normalizeUserKey(WORKSPACE_ADMIN_EMAIL) ||
+          details.email?.toLowerCase() === WORKSPACE_ADMIN_EMAIL;
+
+        if (isTargetAdmin) {
+          return {
+            ...details,
+            name: details.name || 'Muni (Workspace Admin)',
+            designation: 'Workspace Administrator',
+            isOnline: true,
+            isAdmin: true,
+          };
+        }
+
+        const fullPerson = contactablePeople.find((p) => normalizeUserKey(p.email || p.id) === otherKey);
         return {
           ...details,
           isOnline: fullPerson ? isPersonOnline(fullPerson) : false,
+          isAdmin: false,
         };
       }
     }
     return null;
-  }, [activeConversation, userKey, people]);
+  }, [activeConversation, userKey, contactablePeople]);
 
   return (
     <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs h-[calc(100vh-140px)] min-h-[580px] max-h-[880px] flex overflow-hidden font-sans w-full">
@@ -952,7 +1021,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
             <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-sm text-[#111827]">New Direct Message</h3>
-                <p className="text-[11px] text-[#595959]">Start a private conversation with an employee</p>
+                <p className="text-[11px] text-[#595959]">Start a private conversation with Workspace Admin or an employee</p>
               </div>
               <button
                 type="button"
@@ -968,7 +1037,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 <SearchIcon className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
                 <input
                   type="text"
-                  placeholder="Search employees by name or email..."
+                  placeholder="Search by name, email, or 'admin'..."
                   value={directSearch}
                   onChange={(e) => setDirectSearch(e.target.value)}
                   className="w-full bg-white border border-[#E5E5E5] rounded-md pl-8 pr-3 py-1.5 text-xs text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -978,7 +1047,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
             </div>
 
             <div className="flex-1 overflow-y-auto p-2 divide-y divide-[#F0F0F0]">
-              {people
+              {contactablePeople
                 .filter((p) => {
                   if (p.email?.toLowerCase() === userEmail) return false;
                   if (!directSearch.trim()) return true;
@@ -986,26 +1055,35 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   return (
                     p.name.toLowerCase().includes(q) ||
                     (p.email || '').toLowerCase().includes(q) ||
-                    (p.role || '').toLowerCase().includes(q)
+                    (p.role || '').toLowerCase().includes(q) ||
+                    (p.designation || '').toLowerCase().includes(q)
                   );
                 })
                 .map((person) => {
-                  const online = isPersonOnline(person);
+                  const isTargetAdmin =
+                    person.accessRole === 'admin' ||
+                    person.email?.toLowerCase() === WORKSPACE_ADMIN_EMAIL;
+                  const online = isTargetAdmin || isPersonOnline(person);
+
                   return (
                     <button
                       key={person.id || person.email}
                       type="button"
                       onClick={() => handleStartDirect(person)}
-                      className="w-full text-left p-2.5 rounded-md hover:bg-[#F4F6F8] flex items-center justify-between gap-3 transition-colors cursor-pointer"
+                      className={`w-full text-left p-2.5 rounded-md hover:bg-[#F4F6F8] flex items-center justify-between gap-3 transition-colors cursor-pointer ${
+                        isTargetAdmin ? 'bg-[#F0F9FF]/50 border border-[#BAE6FD] my-1' : ''
+                      }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div className="relative shrink-0">
                           <div
                             className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ${
-                              person.avatarBg || 'bg-blue-100 text-blue-800'
+                              isTargetAdmin
+                                ? 'bg-[#011826] text-white'
+                                : person.avatarBg || 'bg-blue-100 text-blue-800'
                             }`}
                           >
-                            {person.avatar || person.name[0]?.toUpperCase() || 'U'}
+                            {isTargetAdmin ? 'M' : person.avatar || person.name[0]?.toUpperCase() || 'U'}
                           </div>
                           <span
                             className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ring-2 ring-white ${
@@ -1014,9 +1092,18 @@ export const ChatView: React.FC<ChatViewProps> = ({
                           />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold text-[#111827] truncate">{person.name}</p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-xs font-semibold text-[#111827] truncate">{person.name}</p>
+                            {isTargetAdmin && (
+                              <span className="text-[9px] bg-[#011826] text-white px-1.5 py-0.2 rounded font-bold uppercase tracking-wider">
+                                Admin
+                              </span>
+                            )}
+                          </div>
                           <p className="text-[11px] text-[#595959] truncate">
-                            {person.role || person.designation || person.email}
+                            {isTargetAdmin
+                              ? 'Workspace Administrator (Private Direct Chat)'
+                              : person.role || person.designation || person.email}
                           </p>
                         </div>
                       </div>
@@ -1100,7 +1187,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
 
             {/* Member Selection List */}
             <div className="flex-1 overflow-y-auto p-2 divide-y divide-[#F0F0F0]">
-              {people
+              {contactablePeople
                 .filter((p) => {
                   if (p.email?.toLowerCase() === userEmail) return false;
                   if (!groupSearch.trim()) return true;
@@ -1114,6 +1201,9 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 .map((person) => {
                   const uid = normalizeUserKey(person.email || person.id);
                   const isChecked = groupSelectedMembers.includes(uid);
+                  const isTargetAdmin =
+                    person.accessRole === 'admin' ||
+                    person.email?.toLowerCase() === WORKSPACE_ADMIN_EMAIL;
 
                   return (
                     <label
@@ -1123,13 +1213,22 @@ export const ChatView: React.FC<ChatViewProps> = ({
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div
                           className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] ${
-                            person.avatarBg || 'bg-blue-100 text-blue-800'
+                            isTargetAdmin
+                              ? 'bg-[#011826] text-white'
+                              : person.avatarBg || 'bg-blue-100 text-blue-800'
                           }`}
                         >
-                          {person.avatar || person.name[0]?.toUpperCase() || 'U'}
+                          {isTargetAdmin ? 'M' : person.avatar || person.name[0]?.toUpperCase() || 'U'}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold text-[#111827] truncate">{person.name}</p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-xs font-semibold text-[#111827] truncate">{person.name}</p>
+                            {isTargetAdmin && (
+                              <span className="text-[9px] bg-[#011826] text-white px-1 py-0.2 rounded font-bold uppercase">
+                                Admin
+                              </span>
+                            )}
+                          </div>
                           <p className="text-[10px] text-[#595959] truncate">{person.role || person.email}</p>
                         </div>
                       </div>
@@ -1203,8 +1302,8 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   onChange={(e) => setAddMemberUid(e.target.value)}
                   className="flex-1 px-2.5 py-1.5 text-xs bg-white border border-[#E5E5E5] rounded-md text-[#111827] focus:outline-none focus:border-[#049FD9]"
                 >
-                  <option value="">Select employee to add...</option>
-                  {people
+                  <option value="">Select team member or admin to add...</option>
+                  {contactablePeople
                     .filter((p) => {
                       const norm = normalizeUserKey(p.email || p.id);
                       return !activeConversation.memberUids?.includes(norm);
@@ -1219,7 +1318,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   type="button"
                   onClick={async () => {
                     if (!addMemberUid) return;
-                    const p = people.find((x) => normalizeUserKey(x.email || x.id) === addMemberUid);
+                    const p = contactablePeople.find((x) => normalizeUserKey(x.email || x.id) === addMemberUid);
                     if (!p) return;
                     try {
                       await updateGroupDetails(activeConversation.id, {
