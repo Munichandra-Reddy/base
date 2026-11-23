@@ -447,6 +447,14 @@ export default function Home() {
             }
           }
         });
+        const unsubFiles = subscribeToFiles((filesList) => {
+          if (filesList && filesList.length > 0) {
+            setFiles(filesList);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('workorbit_files', JSON.stringify(filesList));
+            }
+          }
+        });
 
         const loadingTimer = setTimeout(() => {
           setIsLoading(false);
@@ -458,6 +466,7 @@ export default function Home() {
           unsubEmp();
           unsubTasks();
           unsubProj();
+          unsubFiles();
         };
       } catch (err) {
         console.error('Firebase subscription error:', err);

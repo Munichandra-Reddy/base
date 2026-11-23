@@ -317,17 +317,47 @@ export interface CheckIn {
   responsesCount: number;
 }
 
+export type FileTypeCategory =
+  | 'pdf'
+  | 'image'
+  | 'code'
+  | 'document'
+  | 'sheet'
+  | 'presentation'
+  | 'archive'
+  | 'file'
+  | 'zip';
+
 export interface FileItem {
   id: string;
+  fileId?: string;
   name: string;
+  originalFileName?: string;
+  storagePath?: string;
   size: string;
+  bytes?: number;
+  contentType?: string;
   uploadedBy: string;
+  uploadedByEmail?: string;
+  uploadedByUid?: string;
   uploadedAt: string;
   createdAt?: number;
-  type: 'pdf' | 'image' | 'code' | 'document' | 'zip';
+  updatedAt?: number;
+  type: FileTypeCategory;
   project: string;
+  projectId?: string;
   fileUrl?: string;
+  downloadUrl?: string;
+  url?: string;
+  description?: string;
+  accessScope?: 'project' | 'workspace' | 'restricted';
+  status?: 'active' | 'deleted';
+  deletedAt?: number;
+  deletedByUid?: string;
+  deletedByName?: string;
 }
+
+export type ProjectFile = FileItem;
 
 export interface WorkspaceStats {
   projectsTotal: number;

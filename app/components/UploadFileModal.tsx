@@ -1,254 +1,404 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { FileItem } from '@/lib/types';
-import { saveFileToDB } from '@/lib/fileUtils';
+import React, { useState, useRef, useMemo } from 'react';
+import { ProjectFile } from '@/lib/types';
+import {
+  uploadProjectFile,
+  detectFileTypeCategory,
+  formatBytes,
+  DEFAULT_MAX_FILE_SIZE_BYTES,
+} from '@/lib/firebaseFilesService';
 
 interface UploadFileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpload: (file: FileItem) => void;
+  onUpload?: (file: ProjectFile) => void;
+  onUploadSuccess?: (file: ProjectFile) => void;
+  projects?: { id?: string; name: string; members?: string[]; manager?: string }[];
+  defaultProjectId?: string;
+  preselectedProjectId?: string;
+  currentUser?: { email: string; fullName: string; role?: string; uid?: string } | null;
+  isAdmin?: boolean;
+}
+
+interface StagedFile {
+  id: string;
+  file: File;
+  name: string;
+  sizeFormatted: string;
+  category: string;
+  status: 'pending' | 'uploading' | 'completed' | 'error';
+  progress: number;
+  errorMessage?: string;
 }
 
 export const UploadFileModal: React.FC<UploadFileModalProps> = ({
   isOpen,
   onClose,
   onUpload,
+  onUploadSuccess,
+  projects = [],
+  defaultProjectId,
+  preselectedProjectId,
+  currentUser,
+  isAdmin = false,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const [fileName, setFileName] = useState('');
-  const [fileSize, setFileSize] = useState('');
-  const [fileType, setFileType] = useState<'pdf' | 'image' | 'code' | 'document' | 'zip'>('pdf');
-  const [project, setProject] = useState('E-Commerce Website');
-  const [selectedFileObj, setSelectedFileObj] = useState<File | null>(null);
-  const [fileDataUrl, setFileDataUrl] = useState<string | null>(null);
+  const effectiveDefaultProject = preselectedProjectId || defaultProjectId;
+
+  // Accessible projects for the current user
+  const accessibleProjects = useMemo(() => {
+    if (isAdmin || !currentUser) return projects;
+    const nameLower = (currentUser.fullName || '').toLowerCase().trim();
+    const emailLower = (currentUser.email || '').toLowerCase().trim();
+
+    return projects.filter((p) => {
+      const members = (p.members || []).map((m) => m.toLowerCase());
+      const manager = (p.manager || '').toLowerCase();
+      return (
+        members.some((m) => m.includes(nameLower) || (emailLower && m.includes(emailLower))) ||
+        manager.includes(nameLower)
+      );
+    });
+  }, [projects, isAdmin, currentUser]);
+
+  // Selected project state
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(() => {
+    if (effectiveDefaultProject) return effectiveDefaultProject;
+    if (accessibleProjects.length > 0) return accessibleProjects[0].id || accessibleProjects[0].name;
+    return 'E-Commerce Website';
+  });
+
+  const [description, setDescription] = useState('');
+  const [stagedFiles, setStagedFiles] = useState<StagedFile[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [overallError, setOverallError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFileObj(file);
-      setFileName(file.name);
+  const currentProjectObj =
+    accessibleProjects.find(
+      (p) => p.id === selectedProjectId || p.name.toLowerCase() === selectedProjectId.toLowerCase()
+    ) || accessibleProjects[0];
 
-      if (typeof window !== 'undefined') {
-        (window as any).__WORKORBIT_FILE_STORE__ = (window as any).__WORKORBIT_FILE_STORE__ || {};
-        (window as any).__WORKORBIT_FILE_STORE__[file.name] = file;
-        (window as any).__WORKORBIT_FILE_STORE__[file.name.toLowerCase()] = file;
-        saveFileToDB(file.name, file);
+  const handleStageFiles = (fileList: FileList | null) => {
+    if (!fileList || fileList.length === 0) return;
+    setOverallError(null);
+
+    const newStaged: StagedFile[] = [];
+    const maxBytes = DEFAULT_MAX_FILE_SIZE_BYTES;
+
+    for (let i = 0; i < fileList.length; i++) {
+      const f = fileList[i];
+
+      // Validate size limit (50MB)
+      if (f.size > maxBytes) {
+        setOverallError(`"${f.name}" exceeds the maximum 50 MB limit.`);
+        continue;
       }
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result as string;
-        setFileDataUrl(dataUrl);
-
-        if (typeof window !== 'undefined') {
-          (window as any).__WORKORBIT_FILE_STORE__[file.name + '_dataurl'] = dataUrl;
-          (window as any).__WORKORBIT_FILE_STORE__[file.name.toLowerCase() + '_dataurl'] = dataUrl;
-
-          try {
-            const saved = JSON.parse(localStorage.getItem('workorbit_file_urls') || '{}');
-            saved[file.name] = dataUrl;
-            saved[file.name.toLowerCase()] = dataUrl;
-            localStorage.setItem('workorbit_file_urls', JSON.stringify(saved));
-          } catch (err) {}
-        }
-      };
-      reader.readAsDataURL(file);
-      
-      // Calculate file size
-      let sizeStr = '';
-      if (file.size >= 1024 * 1024) {
-        sizeStr = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
-      } else {
-        sizeStr = `${Math.round(file.size / 1024)} KB`;
-      }
-      setFileSize(sizeStr);
-
-      // Detect type
-      const ext = file.name.split('.').pop()?.toLowerCase() || '';
-      if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext)) {
-        setFileType('image');
-      } else if (['pdf'].includes(ext)) {
-        setFileType('pdf');
-      } else if (['js', 'ts', 'jsx', 'tsx', 'json', 'py', 'css', 'html'].includes(ext)) {
-        setFileType('code');
-      } else if (['zip', 'rar', 'tar', 'gz'].includes(ext)) {
-        setFileType('zip');
-      } else {
-        setFileType('document');
-      }
+      const cat = detectFileTypeCategory(f.name, f.type);
+      newStaged.push({
+        id: `staged_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 5)}`,
+        file: f,
+        name: f.name,
+        sizeFormatted: formatBytes(f.size),
+        category: cat,
+        status: 'pending',
+        progress: 0,
+      });
     }
+
+    setStagedFiles((prev) => [...prev, ...newStaged]);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleRemoveStaged = (id: string) => {
+    setStagedFiles((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleStartUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fileName.trim()) return;
-
-    const trimmedName = fileName.trim();
-
-    if (selectedFileObj && typeof window !== 'undefined') {
-      (window as any).__WORKORBIT_FILE_STORE__ = (window as any).__WORKORBIT_FILE_STORE__ || {};
-      (window as any).__WORKORBIT_FILE_STORE__[trimmedName] = selectedFileObj;
-      (window as any).__WORKORBIT_FILE_STORE__[trimmedName.toLowerCase()] = selectedFileObj;
-      saveFileToDB(trimmedName, selectedFileObj);
+    if (stagedFiles.length === 0) {
+      setOverallError('Please select at least one file to upload.');
+      return;
     }
 
-    const uploadTimestamp = Date.now();
-    const newFileItem: FileItem = {
-      id: `f-${uploadTimestamp}`,
-      name: trimmedName,
-      size: fileSize.trim() || '1.2 MB',
-      uploadedBy: 'Rahul Kumar',
-      uploadedAt: 'Just now',
-      createdAt: uploadTimestamp,
-      type: fileType,
-      project: project,
-      fileUrl: fileDataUrl || (selectedFileObj ? URL.createObjectURL(selectedFileObj) : undefined),
-    };
+    const projId = currentProjectObj?.id || selectedProjectId;
+    const projName = currentProjectObj?.name || selectedProjectId;
+    const uploaderName = currentUser?.fullName || (isAdmin ? 'Workspace Admin' : 'Employee');
+    const uploaderEmail = (currentUser?.email || 'admin@workorbit.com').toLowerCase().trim();
 
-    onUpload(newFileItem);
-    
-    // Reset form & close
-    setFileName('');
-    setFileSize('');
-    setSelectedFileObj(null);
-    setFileDataUrl(null);
-    onClose();
+    setIsUploading(true);
+    setOverallError(null);
+
+    for (let i = 0; i < stagedFiles.length; i++) {
+      const item = stagedFiles[i];
+      if (item.status === 'completed') continue;
+
+      setStagedFiles((prev) =>
+        prev.map((s) => (s.id === item.id ? { ...s, status: 'uploading', progress: 10 } : s))
+      );
+
+      try {
+        const uploadedFile = await uploadProjectFile({
+          file: item.file,
+          projectId: projId,
+          projectName: projName,
+          uploaderName,
+          uploaderEmail,
+          uploaderUid: uploaderEmail,
+          description: description.trim(),
+          onProgress: (pct) => {
+            setStagedFiles((prev) =>
+              prev.map((s) => (s.id === item.id ? { ...s, progress: pct } : s))
+            );
+          },
+        });
+
+        setStagedFiles((prev) =>
+          prev.map((s) => (s.id === item.id ? { ...s, status: 'completed', progress: 100 } : s))
+        );
+
+        if (onUpload) {
+          onUpload(uploadedFile);
+        }
+        if (onUploadSuccess) {
+          onUploadSuccess(uploadedFile);
+        }
+      } catch (err: any) {
+        setStagedFiles((prev) =>
+          prev.map((s) =>
+            s.id === item.id
+              ? { ...s, status: 'error', errorMessage: err.message || 'Upload failed' }
+              : s
+          )
+        );
+      }
+    }
+
+    setIsUploading(false);
+
+    // If all completed successfully, close modal after short delay
+    setTimeout(() => {
+      onClose();
+    }, 600);
   };
 
   return (
     <div
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget && !isUploading) onClose();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4 overflow-y-auto font-sans"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto font-sans"
     >
-      <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-auto">
-        <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between shrink-0">
+      <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-auto">
+        {/* Modal Header */}
+        <div className="p-4 border-b border-[#E5E5E5] flex items-center justify-between shrink-0 bg-white">
           <div>
-            <h3 className="text-base font-semibold text-[#111827]">Upload Project File</h3>
-            <p className="text-xs text-[#595959] font-normal">Add assets, specifications, or docs to project</p>
+            <h3 className="text-base font-bold text-[#111827]">Upload Project Files</h3>
+            <p className="text-xs text-[#595959]">
+              Store documents, specs, and deliverables in Firebase Storage
+            </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="w-7 h-7 rounded-md bg-[#F4F6F8] hover:bg-[#E5E5E5] text-[#595959] hover:text-[#111827] font-medium flex items-center justify-center text-xs transition-colors cursor-pointer"
+            disabled={isUploading}
+            className="w-7 h-7 rounded-md bg-[#F4F6F8] hover:bg-[#E5E5E5] text-[#595959] hover:text-[#111827] font-medium flex items-center justify-center text-xs transition-colors cursor-pointer disabled:opacity-50"
           >
             ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
-          {/* File Picker Zone */}
+        {/* Modal Form Body */}
+        <form onSubmit={handleStartUpload} className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
+          {/* Target Project Dropdown */}
+          <div>
+            <label className="block text-[11px] font-bold text-[#111827] uppercase tracking-wider mb-1">
+              Select Destination Project *
+            </label>
+            <select
+              value={selectedProjectId}
+              onChange={(e) => setSelectedProjectId(e.target.value)}
+              disabled={isUploading}
+              className="w-full px-3 py-2 text-xs bg-white border border-[#E5E5E5] rounded-md text-[#111827] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
+            >
+              {accessibleProjects.map((p) => (
+                <option key={p.id || p.name} value={p.id || p.name}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Drag & Drop Upload Zone */}
           <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDragging(false);
+              handleStageFiles(e.dataTransfer.files);
+            }}
             onClick={() => fileInputRef.current?.click()}
-            className="border border-dashed border-[#CBD5E1] hover:border-[#049FD9] bg-[#F4F6F8] hover:bg-[#EBF0F5] p-5 rounded-lg text-center cursor-pointer transition-colors space-y-2"
+            className={`border-2 border-dashed p-5 rounded-lg text-center cursor-pointer transition-all space-y-2 ${
+              isDragging
+                ? 'border-[#049FD9] bg-[#F0F9FF]'
+                : 'border-[#CBD5E1] hover:border-[#049FD9] bg-[#F8FAFC] hover:bg-[#F0F9FF]/30'
+            }`}
           >
             <input
               type="file"
               ref={fileInputRef}
-              onChange={handleFileChange}
+              multiple
+              onChange={(e) => handleStageFiles(e.target.files)}
               className="hidden"
             />
-            <div className="w-10 h-10 rounded-lg bg-[#049FD9] text-white font-bold flex items-center justify-center mx-auto text-base">
+            <div className="w-10 h-10 rounded-lg bg-[#049FD9] text-white font-bold flex items-center justify-center mx-auto text-base shadow-2xs">
               📁
             </div>
-            {selectedFileObj ? (
-              <div>
-                <p className="text-sm font-semibold text-[#111827]">{selectedFileObj.name}</p>
-                <p className="text-xs text-[#049FD9] font-medium">{fileSize}</p>
-              </div>
-            ) : (
-              <div>
-                <p className="text-xs font-semibold text-[#111827]">
-                  Click to browse or drop your file here
-                </p>
-                <p className="text-[11px] text-[#595959] font-normal">
-                  Supports PDF, Images, Code, Docs up to 50MB
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Manual Entry Inputs */}
-          <div>
-            <label className="block text-xs font-semibold text-[#222222] mb-1">
-              File Name
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. design_specification_v3.pdf"
-              value={fileName}
-              onChange={(e) => setFileName(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-sm text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#222222] mb-1">
-                File Type
-              </label>
-              <select
-                value={fileType}
-                onChange={(e) => setFileType(e.target.value as any)}
-                className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
-              >
-                <option value="pdf">PDF</option>
-                <option value="image">Image</option>
-                <option value="code">Code</option>
-                <option value="document">Document</option>
-                <option value="zip">ZIP / Archive</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[#222222] mb-1">
-                Project Space
-              </label>
-              <select
-                value={project}
-                onChange={(e) => setProject(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
-              >
-                <option value="E-Commerce Website">E-Commerce Website</option>
-                <option value="Mobile App v2">Mobile App v2</option>
-                <option value="Marketing Campaign">Marketing Campaign</option>
-                <option value="Customer Portal">Customer Portal</option>
-                <option value="Internal Ops">Internal Ops</option>
-              </select>
+              <p className="text-xs font-semibold text-[#111827]">
+                Click to browse or drag & drop files here
+              </p>
+              <p className="text-[11px] text-[#64748B] mt-0.5">
+                PDFs, Word, Excel, PowerPoint, Images, Code, and ZIP archives (Max 50 MB)
+              </p>
             </div>
           </div>
 
+          {/* Error Notice */}
+          {overallError && (
+            <div className="p-2.5 rounded-md bg-[#FEF2F2] border border-[#FECACA] text-xs text-[#991B1B] font-medium flex items-center justify-between">
+              <span>{overallError}</span>
+              <button
+                type="button"
+                onClick={() => setOverallError(null)}
+                className="font-bold hover:underline"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* Staged Files List */}
+          {stagedFiles.length > 0 && (
+            <div className="space-y-2 border border-[#E5E5E5] rounded-lg p-3 bg-[#FAFAFA] max-h-48 overflow-y-auto">
+              <div className="flex items-center justify-between text-[11px] font-bold text-[#595959] uppercase">
+                <span>Selected Files ({stagedFiles.length})</span>
+                {!isUploading && (
+                  <button
+                    type="button"
+                    onClick={() => setStagedFiles([])}
+                    className="text-[#EF4444] hover:underline normal-case font-semibold"
+                  >
+                    Clear All
+                  </button>
+                )}
+              </div>
+
+              {stagedFiles.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-2 bg-white rounded border border-[#E5E5E5] flex flex-col gap-1 text-xs"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm">
+                        {item.category === 'pdf'
+                          ? '📕'
+                          : item.category === 'image'
+                          ? '🖼️'
+                          : item.category === 'sheet'
+                          ? '📊'
+                          : item.category === 'archive'
+                          ? '🗜️'
+                          : '📄'}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-[#111827] truncate">{item.name}</p>
+                        <p className="text-[10px] text-[#64748B]">{item.sizeFormatted}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {item.status === 'completed' && (
+                        <span className="text-[10px] text-[#16A34A] font-bold">✓ Uploaded</span>
+                      )}
+                      {item.status === 'error' && (
+                        <span className="text-[10px] text-[#DC2626] font-bold">✕ Failed</span>
+                      )}
+                      {item.status === 'pending' && !isUploading && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveStaged(item.id);
+                          }}
+                          className="text-[#94A3B8] hover:text-[#DC2626] font-bold p-1 cursor-pointer"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Progress bar if uploading */}
+                  {item.status === 'uploading' && (
+                    <div className="w-full bg-[#E0F2FE] h-1.5 rounded-full overflow-hidden mt-1">
+                      <div
+                        className="bg-[#0284C7] h-full transition-all duration-150"
+                        style={{ width: `${item.progress}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Optional File Description */}
           <div>
-            <label className="block text-xs font-semibold text-[#222222] mb-1">
-              File Size
+            <label className="block text-[11px] font-bold text-[#111827] uppercase tracking-wider mb-1">
+              Description / Notes (Optional)
             </label>
             <input
               type="text"
-              placeholder="e.g. 2.4 MB"
-              value={fileSize}
-              onChange={(e) => setFileSize(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
+              placeholder="e.g. Approved wireframes, Q4 financial report"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={isUploading}
+              className="w-full px-3 py-1.5 text-xs bg-white border border-[#E5E5E5] rounded-md text-[#111827] focus:outline-none focus:border-[#049FD9]"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-[#E5E5E5]">
+          {/* Actions Bar */}
+          <div className="pt-3 border-t border-[#E5E5E5] flex items-center justify-end gap-2 bg-white">
             <button
               type="button"
               onClick={onClose}
-              className="btn-secondary"
+              disabled={isUploading}
+              className="btn-secondary text-xs py-1.5 px-3 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn-primary"
+              disabled={isUploading || stagedFiles.length === 0}
+              className="btn-primary text-xs py-1.5 px-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
             >
-              Upload File
+              {isUploading ? (
+                <>
+                  <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Uploading...</span>
+                </>
+              ) : (
+                <span>Upload {stagedFiles.length > 0 ? `(${stagedFiles.length})` : ''}</span>
+              )}
             </button>
           </div>
         </form>

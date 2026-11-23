@@ -60,6 +60,13 @@ service cloud.firestore {
       }
     }
 
+    // Phase 8: Files Management
+    match /files/{fileId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isAdmin() || (isAuthenticated() && request.auth.uid == resource.data.uploadedByUid);
+    }
+
     // Check-ins & Status updates
     match /checkins/{checkinId} {
       allow read, create: if true;
