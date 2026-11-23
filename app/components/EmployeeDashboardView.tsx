@@ -1,7 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Task, Project, Activity, Person, isTaskOverdue } from '@/lib/types';
+import { Task, Project, Activity, Person } from '@/lib/types';
+import {
+  isTaskOverdue,
+  isTaskDueSoon,
+  isPersonOnline,
+  calculateProjectProgress,
+  isTaskAssignedToEmployee,
+  isEmployeeInProject,
+} from '@/lib/dashboardCalculations';
 import {
   CheckSquareIcon,
   ClockIcon,
@@ -19,7 +27,13 @@ interface EmployeeDashboardViewProps {
   people?: Person[];
   currentUser?: { email: string; fullName: string; companyName: string } | null;
   onToggleTask: (id: string) => void;
-  onAddTask: (taskData: { title: string; project: string; assignedTo?: string; priority?: 'low' | 'medium' | 'high'; dueDate?: string }) => void;
+  onAddTask: (taskData: {
+    title: string;
+    project: string;
+    assignedTo?: string;
+    priority?: 'low' | 'medium' | 'high';
+    dueDate?: string;
+  }) => void;
   onViewProjects: () => void;
   onSelectProject?: (projectId: string) => void;
   onViewTasks: () => void;
@@ -45,47 +59,32 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
   onViewCheckins,
   onViewEmployees,
 }) => {
-  const employeeName = currentUser?.fullName || 'Priya Sharma';
-  const employeeEmail = currentUser?.email || 'priya@abctech.com';
-
-  const totalEmployeesCount = people?.length ?? 0;
-  const activeEmployeesCount = people?.filter((p) => (p.status || 'active') === 'active').length ?? 0;
-
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('pending');
 
-  // Filter tasks strictly belonging to this employee
-  const myTasks = tasks.filter((t) => {
-    if (!t.assignedTo) return false;
-    const assigned = t.assignedTo.toLowerCase().trim();
-    const current = employeeName.toLowerCase().trim();
-    const email = (currentUser?.email || '').toLowerCase().trim();
-    return (
-      assigned.includes(current) ||
-      current.includes(assigned) ||
-      assigned === 'you' ||
-      (t.assignedToEmail && t.assignedToEmail.toLowerCase() === email)
-    );
-  });
+  const totalEmployeesCount = people?.length ?? 0;
 
-  const displayedTasks = myTasks;
+  // ==========================================
+  // REAL-TIME FIRESTORE DATA FOR CURRENT EMPLOYEE
+  // Filter tasks strictly belonging to currently authenticated employee
+  // ==========================================
+  const myTasks = tasks.filter((t) => isTaskAssignedToEmployee(t, currentUser));
 
   const myTotalTasks = myTasks.length;
-  const myPendingTasks = myTasks.filter((t) => (t.status || 'pending') === 'pending' && !t.completed);
+  const myPendingTasks = myTasks.filter(
+    (t) => (t.status || 'pending') === 'pending' && !t.completed && t.status !== 'completed'
+  );
   const myInProgressTasks = myTasks.filter((t) => t.status === 'in_progress');
   const myInReviewTasks = myTasks.filter((t) => t.status === 'in_review');
   const myChangesRequestedTasks = myTasks.filter((t) => t.status === 'changes_requested');
   const myCompletedTasks = myTasks.filter((t) => t.status === 'completed' || t.completed);
   const myOverdueTasks = myTasks.filter((t) => isTaskOverdue(t));
+  const myDueSoonTasks = myTasks.filter((t) => isTaskDueSoon(t));
 
-  // Filter projects belonging to this employee
-  const myProjects = projects.filter((p) => {
-    if (!p.members || p.members.length === 0) return true;
-    return p.members.some((m) => m.toLowerCase().includes(employeeName.toLowerCase()) || employeeName.toLowerCase().includes(m.toLowerCase()));
-  });
-  const displayedProjects = myProjects.length > 0 ? myProjects : projects.slice(0, 3);
+  // Filter projects belonging to this employee (strictly authorized projects)
+  const myProjects = projects.filter((p) => isEmployeeInProject(p, currentUser, myTasks));
 
   // Filter tasks based on selected filter tab
-  const filteredTaskList = displayedTasks.filter((t) => {
+  const filteredTaskList = myTasks.filter((t) => {
     if (taskFilter === 'pending') return !t.completed && t.status !== 'completed';
     if (taskFilter === 'completed') return t.completed || t.status === 'completed';
     return true;
@@ -164,7 +163,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           </div>
         </div>
 
-        {/* Card 4: Changes Requested (or Review) */}
+        {/* Card 4: In Review / Changes Requested */}
         <div
           onClick={onViewTasks}
           className={`bg-white p-3 rounded-[4px] border shadow-2xs transition-all cursor-pointer group flex flex-col justify-between min-h-[82px] ${
@@ -174,7 +173,11 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           }`}
         >
           <div className="flex items-center justify-between mb-2 gap-1.5">
-            <span className={`text-xs font-semibold truncate ${myChangesRequestedTasks.length > 0 ? 'text-[#E11D48]' : 'text-[#595959]'}`}>
+            <span
+              className={`text-xs font-semibold truncate ${
+                myChangesRequestedTasks.length > 0 ? 'text-[#E11D48]' : 'text-[#595959]'
+              }`}
+            >
               {myChangesRequestedTasks.length > 0 ? 'Changes Needed' : 'In Review'}
             </span>
             <div className="w-7 h-7 rounded-lg bg-[#FFF1F2] text-[#E11D48] border border-[#FECDD3] flex items-center justify-center shrink-0">
@@ -183,7 +186,9 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           </div>
           <div>
             <div className="text-xl font-bold text-[#222222] leading-tight">
-              {myChangesRequestedTasks.length > 0 ? myChangesRequestedTasks.length : myInReviewTasks.length}
+              {myChangesRequestedTasks.length > 0
+                ? myChangesRequestedTasks.length
+                : myInReviewTasks.length}
             </div>
             <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
               {myChangesRequestedTasks.length > 0 ? 'revisions required' : 'awaiting approval'}
@@ -242,7 +247,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 3. MAIN WORKSTATION (Split 2-Column + 1-Column Grid) */}
+      {/* 2. MAIN WORKSTATION (Split 2-Column + 1-Column Grid) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 w-full">
         {/* LEFT 2 COLUMNS */}
         <div className="lg:col-span-2 space-y-4 lg:space-y-6">
@@ -259,7 +264,9 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   type="button"
                   onClick={() => setTaskFilter('pending')}
                   className={`px-3 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap ${
-                    taskFilter === 'pending' ? 'bg-white text-[#222222] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#222222]'
+                    taskFilter === 'pending'
+                      ? 'bg-white text-[#222222] shadow-2xs font-semibold'
+                      : 'text-[#595959] hover:text-[#222222]'
                   }`}
                 >
                   Pending ({myPendingTasks.length})
@@ -268,16 +275,20 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   type="button"
                   onClick={() => setTaskFilter('all')}
                   className={`px-3 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap ${
-                    taskFilter === 'all' ? 'bg-white text-[#222222] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#222222]'
+                    taskFilter === 'all'
+                      ? 'bg-white text-[#222222] shadow-2xs font-semibold'
+                      : 'text-[#595959] hover:text-[#222222]'
                   }`}
                 >
-                  All ({displayedTasks.length})
+                  All ({myTasks.length})
                 </button>
                 <button
                   type="button"
                   onClick={() => setTaskFilter('completed')}
                   className={`px-3 py-1.5 rounded-md transition-all cursor-pointer whitespace-nowrap ${
-                    taskFilter === 'completed' ? 'bg-white text-[#222222] shadow-2xs font-semibold' : 'text-[#595959] hover:text-[#222222]'
+                    taskFilter === 'completed'
+                      ? 'bg-white text-[#222222] shadow-2xs font-semibold'
+                      : 'text-[#595959] hover:text-[#222222]'
                   }`}
                 >
                   Completed ({myCompletedTasks.length})
@@ -295,7 +306,7 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                 filteredTaskList.map((task) => {
                   const priority = task.priority || 'medium';
                   const priorityBadge =
-                    priority === 'high'
+                    priority === 'high' || priority === 'critical'
                       ? 'bg-[#FEF2F2] text-[#EF4444] border-[#EF4444]/20'
                       : priority === 'medium'
                       ? 'bg-[#FFFBEB] text-[#F59E0B] border-[#F59E0B]/20'
@@ -318,7 +329,12 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                         >
                           {task.completed && (
                             <svg className="w-3.5 h-3.5 stroke-current" fill="none" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="3"
+                                d="M5 13l4 4L19 7"
+                              />
                             </svg>
                           )}
                         </div>
@@ -332,14 +348,16 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                             {task.title}
                           </h4>
                           <div className="flex items-center gap-2 text-[10px] font-semibold text-[#64748B] mt-0.5">
-                            <span>Due {task.dueDate || 'Today'}</span>
+                            <span>Due {task.dueDate || 'No deadline'}</span>
                             <span>•</span>
                             <span
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (onSelectProject) {
                                   const p = projects.find(
-                                    (proj) => proj.name.toLowerCase().trim() === task.project.toLowerCase().trim()
+                                    (proj) =>
+                                      proj.name.toLowerCase().trim() ===
+                                      task.project.toLowerCase().trim()
                                   );
                                   onSelectProject(p ? p.id : task.project);
                                 } else {
@@ -356,7 +374,9 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${priorityBadge}`}>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${priorityBadge}`}
+                        >
                           {priority}
                         </span>
                       </div>
@@ -372,7 +392,9 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <div>
                 <h3 className="text-sm font-semibold text-[#111827]">My Active Projects</h3>
-                <p className="text-xs text-[#595959] font-normal">Projects you are actively contributing to in this workspace.</p>
+                <p className="text-xs text-[#595959] font-normal">
+                  Projects you are actively contributing to in this workspace.
+                </p>
               </div>
               <button
                 onClick={onViewProjects}
@@ -382,50 +404,68 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {displayedProjects.map((project) => (
-                <div
-                  key={project.id}
-                  onClick={() => {
-                    if (onSelectProject) {
-                      onSelectProject(project.id);
-                    } else {
-                      onViewProjects();
-                    }
-                  }}
-                  className="p-4 rounded-[4px] border border-[#E5E5E5] bg-white hover:border-[#049FD9] hover:shadow-xs transition-all cursor-pointer space-y-3 group"
-                >
-                  <div className="flex items-start justify-between gap-2 min-w-0">
-                    <h4 className="font-extrabold text-xs text-[#222222] group-hover:underline truncate" title={project.name}>
-                      {project.name}
-                    </h4>
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#F0FDF4] text-[#238823] border border-[#238823]/20 uppercase shrink-0">
-                      {project.status}
-                    </span>
-                  </div>
+            {myProjects.length === 0 ? (
+              <div className="p-6 text-center text-xs text-[#64748B] bg-[#F8FAFC] rounded-lg border border-dashed border-[#E2E8F0]">
+                You are not currently assigned to any active projects.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {myProjects.map((project) => {
+                  const pCalc = calculateProjectProgress(tasks, project.id, project.name);
 
-                  <p
-                    className="text-[11px] text-[#595959] font-medium truncate cursor-default"
-                    title={project.description || 'Sprint deliverables and active milestone tracking.'}
-                  >
-                    {project.description || 'Sprint deliverables and active milestone tracking.'}
-                  </p>
+                  return (
+                    <div
+                      key={project.id}
+                      onClick={() => {
+                        if (onSelectProject) {
+                          onSelectProject(project.id);
+                        } else {
+                          onViewProjects();
+                        }
+                      }}
+                      className="p-4 rounded-[4px] border border-[#E5E5E5] bg-white hover:border-[#049FD9] hover:shadow-xs transition-all cursor-pointer space-y-3 group"
+                    >
+                      <div className="flex items-start justify-between gap-2 min-w-0">
+                        <h4
+                          className="font-extrabold text-xs text-[#222222] group-hover:underline truncate"
+                          title={project.name}
+                        >
+                          {project.name}
+                        </h4>
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#F0FDF4] text-[#238823] border border-[#238823]/20 uppercase shrink-0">
+                          {project.status || 'Active'}
+                        </span>
+                      </div>
 
-                  <div>
-                    <div className="flex items-center justify-between text-[10px] font-bold text-[#595959] mb-1">
-                      <span>Sprint Progress</span>
-                      <span className="text-[#222222]">{project.progress}%</span>
+                      <p
+                        className="text-[11px] text-[#595959] font-medium truncate cursor-default"
+                        title={project.description || 'Sprint deliverables and active milestone tracking.'}
+                      >
+                        {project.description || 'Sprint deliverables and active milestone tracking.'}
+                      </p>
+
+                      <div>
+                        <div className="flex items-center justify-between text-[10px] font-bold text-[#595959] mb-1">
+                          <span>Sprint Progress</span>
+                          <span
+                            className="text-[#222222]"
+                            title={`${pCalc.completed} / ${pCalc.totalEligible} tasks completed`}
+                          >
+                            {pCalc.progress}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-[#F4F6F8] rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className="bg-[#049FD9] h-full rounded-full transition-all duration-500"
+                            style={{ width: `${pCalc.progress}%` }}
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="w-full bg-[#F4F6F8] rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className="bg-[#049FD9] h-full rounded-full transition-all duration-500"
-                        style={{ width: `${project.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
@@ -435,7 +475,10 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
           <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5]">
               <h3 className="font-semibold text-[#222222] text-sm">Today's Schedule</h3>
-              <button onClick={onViewCalendar} className="text-xs font-medium text-[#049FD9] hover:underline cursor-pointer">
+              <button
+                onClick={onViewCalendar}
+                className="text-xs font-medium text-[#049FD9] hover:underline cursor-pointer"
+              >
                 Calendar
               </button>
             </div>
@@ -447,8 +490,15 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   <span className="text-[8px] uppercase">AM</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h5 className="font-semibold text-[#111827] truncate" title="Sprint Daily Standup">Sprint Daily Standup</h5>
-                  <p className="text-[10px] text-[#595959] font-normal mt-0.5 truncate" title="Campfire Audio & Video Room">Campfire Audio & Video Room</p>
+                  <h5 className="font-semibold text-[#111827] truncate" title="Sprint Daily Standup">
+                    Sprint Daily Standup
+                  </h5>
+                  <p
+                    className="text-[10px] text-[#595959] font-normal mt-0.5 truncate"
+                    title="Campfire Audio & Video Room"
+                  >
+                    Campfire Audio & Video Room
+                  </p>
                 </div>
               </div>
 
@@ -458,8 +508,15 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   <span className="text-[8px] uppercase">PM</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h5 className="font-semibold text-[#111827] truncate" title="UI / UX Design Review">UI / UX Design Review</h5>
-                  <p className="text-[10px] text-[#595959] font-normal mt-0.5 truncate" title="E-Commerce Website wireframes">E-Commerce Website wireframes</p>
+                  <h5 className="font-semibold text-[#111827] truncate" title="UI / UX Design Review">
+                    UI / UX Design Review
+                  </h5>
+                  <p
+                    className="text-[10px] text-[#595959] font-normal mt-0.5 truncate"
+                    title="E-Commerce Website wireframes"
+                  >
+                    E-Commerce Website wireframes
+                  </p>
                 </div>
               </div>
 
@@ -469,14 +526,21 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
                   <span className="text-[8px] uppercase">PM</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h5 className="font-semibold text-[#111827] truncate" title="Daily Sprint Wrap-up">Daily Sprint Wrap-up</h5>
-                  <p className="text-[10px] text-[#595959] font-normal mt-0.5 truncate" title="Team sync & milestone progress review">Team sync & milestone progress review</p>
+                  <h5 className="font-semibold text-[#111827] truncate" title="Daily Sprint Wrap-up">
+                    Daily Sprint Wrap-up
+                  </h5>
+                  <p
+                    className="text-[10px] text-[#595959] font-normal mt-0.5 truncate"
+                    title="Team sync & milestone progress review"
+                  >
+                    Team sync & milestone progress review
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Card 4: My Project Collaborators (Online) */}
+          {/* Card 4: Project Squad with Real Online Presence */}
           <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-4 sm:p-5 shadow-2xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5] flex-wrap gap-2">
               <div className="flex items-center gap-2">
@@ -487,11 +551,17 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 {onViewEmployees && (
-                  <button onClick={onViewEmployees} className="text-xs font-medium text-[#049FD9] hover:underline cursor-pointer">
+                  <button
+                    onClick={onViewEmployees}
+                    className="text-xs font-medium text-[#049FD9] hover:underline cursor-pointer"
+                  >
                     View All ({totalEmployeesCount})
                   </button>
                 )}
-                <button onClick={onViewChat} className="text-xs font-medium text-[#049FD9] hover:underline cursor-pointer">
+                <button
+                  onClick={onViewChat}
+                  className="text-xs font-medium text-[#049FD9] hover:underline cursor-pointer"
+                >
                   Campfire
                 </button>
               </div>
@@ -499,33 +569,49 @@ export const EmployeeDashboardView: React.FC<EmployeeDashboardViewProps> = ({
 
             <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
               {people && people.length > 0 ? (
-                people.map((member) => (
-                  <div key={member.id} className="flex items-center justify-between gap-3 text-xs">
-                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <div className={`w-7 h-7 rounded-full ${member.avatarBg || 'bg-slate-800 text-white'} flex items-center justify-center font-black text-xs shrink-0`}>
-                        {member.avatar}
-                      </div>
-                      <div className="min-w-0 flex-1">
+                people.map((member) => {
+                  const online = isPersonOnline(member);
+
+                  return (
+                    <div key={member.id} className="flex items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
                         <div
-                          className="font-bold text-[#0F172A] leading-tight truncate cursor-default"
-                          title={member.name}
+                          className={`w-7 h-7 rounded-full ${
+                            member.avatarBg || 'bg-slate-800 text-white'
+                          } flex items-center justify-center font-black text-xs shrink-0`}
                         >
-                          {member.name}
+                          {member.avatar}
                         </div>
-                        <div
-                          className="text-[10px] text-[#64748B] font-medium truncate cursor-default"
-                          title={member.role}
-                        >
-                          {member.role}
+                        <div className="min-w-0 flex-1">
+                          <div
+                            className="font-bold text-[#0F172A] leading-tight truncate cursor-default"
+                            title={member.name}
+                          >
+                            {member.name}
+                          </div>
+                          <div
+                            className="text-[10px] text-[#64748B] font-medium truncate cursor-default"
+                            title={member.role}
+                          >
+                            {member.role}
+                          </div>
                         </div>
                       </div>
+
+                      {online ? (
+                        <span className="flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#10B981]/20 shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                          Online
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-[10px] font-medium text-[#64748B] bg-[#F1F5F9] px-2 py-0.5 rounded-full border border-[#E2E8F0] shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#94A3B8]" />
+                          Offline
+                        </span>
+                      )}
                     </div>
-                    <span className="flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#10B981]/20 shrink-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-                      Online
-                    </span>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="p-3 text-center text-[11px] text-[#64748B] bg-[#F8FAFC] rounded-xl border border-dashed border-[#E2E8F0]">
                   No other employees registered yet.

@@ -266,6 +266,32 @@ export const updateFirebaseEmployee = async (email: string, updates: Partial<Per
   }
 };
 
+export const updateEmployeePresence = async (user?: { email?: string; fullName?: string } | null) => {
+  if (typeof window === 'undefined' || !user || !user.email) return;
+  try {
+    const cleanEmail = user.email.toLowerCase().trim();
+    const docId = cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
+    const nowIso = new Date().toISOString();
+    const nowMs = Date.now();
+
+    const empRef = doc(db, 'employees', docId);
+    await setDoc(
+      empRef,
+      {
+        email: cleanEmail,
+        name: user.fullName || cleanEmail.split('@')[0],
+        lastSeenAt: nowIso,
+        lastSeenMs: nowMs,
+        isOnline: true,
+        updatedAt: nowIso,
+      },
+      { merge: true }
+    );
+  } catch (error) {
+    // Fail silently without disrupting user experience if network is offline
+  }
+};
+
 export const deleteFirebaseEmployee = async (email: string) => {
   try {
     const cleanEmail = email.toLowerCase().trim();

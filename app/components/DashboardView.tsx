@@ -1,15 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Task, Activity, WorkspaceStats, Person, Project, isTaskOverdue } from '@/lib/types';
+import { Task, Activity, WorkspaceStats, Person, Project } from '@/lib/types';
+import {
+  isTaskOverdue,
+  isTaskDueSoon,
+  isPersonOnline,
+  calculateOverallProgress,
+  calculateProjectProgress,
+  formatUpcomingDeadlines,
+  isTaskAssignedToEmployee,
+} from '@/lib/dashboardCalculations';
 import {
   FolderIcon,
   CheckSquareIcon,
   ClockIcon,
   UsersIcon,
   CalendarIcon,
-  ChatIcon,
-  FileIcon,
 } from './Icons';
 
 interface DashboardViewProps {
@@ -33,7 +40,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   stats,
   tasks,
   activities,
-  people,
+  people = [],
   projects = [],
   onToggleTask,
   onOpenAddTask,
@@ -47,18 +54,55 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 }) => {
   const [taskFilter, setTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
 
+  // ==========================================
+  // REAL-TIME FIRESTORE DATA CALCULATIONS
+  // ==========================================
+  // 1. Employees & Team Online
   const totalEmployeesCount = people?.length ?? 0;
   const activeEmployeesCount = people?.filter((p) => (p.status || 'active') === 'active').length ?? 0;
+  const onlineEmployeesCount = people?.filter((p) => isPersonOnline(p)).length ?? 0;
 
-  // Dynamic Task Statistics
+  // 2. Projects
+  const totalProjectsCount = projects.length;
+  const activeProjectsCount = projects.filter(
+    (p) => (p.status || '').toLowerCase() === 'active'
+  ).length;
+
+  // 3. Tasks Metrics (Workspace level)
   const dynamicTotalTasks = tasks.length;
-  const dynamicPendingTasks = tasks.filter((t) => (t.status || 'pending') === 'pending' && !t.completed).length;
+  const dynamicPendingTasks = tasks.filter(
+    (t) => (t.status || 'pending') === 'pending' && !t.completed && t.status !== 'completed'
+  ).length;
   const dynamicInProgressTasks = tasks.filter((t) => t.status === 'in_progress').length;
   const dynamicInReviewTasks = tasks.filter((t) => t.status === 'in_review').length;
+  const dynamicChangesRequestedTasks = tasks.filter((t) => t.status === 'changes_requested').length;
   const dynamicCompletedTasks = tasks.filter((t) => t.status === 'completed' || t.completed).length;
   const dynamicOverdueTasks = tasks.filter((t) => isTaskOverdue(t)).length;
+  const dynamicDueSoonTasks = tasks.filter((t) => isTaskDueSoon(t)).length;
 
-  const filteredTasks = tasks.filter((t) => {
+  // 4. Overall Project Progress (Completed Tasks / Total Eligible Tasks * 100)
+  const {
+    totalEligible,
+    completed: overallCompleted,
+    inProgress: overallInProgress,
+    pending: overallPending,
+    inReview: overallInReview,
+    changesRequested: overallChangesRequested,
+    overallProgress,
+  } = calculateOverallProgress(tasks);
+
+  // SVG Donut slices (Perimeter = 100)
+  const completedDash = totalEligible > 0 ? (overallCompleted / totalEligible) * 100 : 0;
+  const inProgressDash = totalEligible > 0 ? (overallInProgress / totalEligible) * 100 : 0;
+
+  // 5. Upcoming Deadlines (Incomplete tasks sorted nearest first)
+  const upcomingDeadlines = formatUpcomingDeadlines(tasks, 4);
+
+  // 6. Admin Personal Tasks Filter
+  const adminMyTasks = tasks.filter((t) => isTaskAssignedToEmployee(t, currentUser));
+  const displayedAdminTasks = adminMyTasks.length > 0 ? adminMyTasks : tasks;
+
+  const filteredTasks = displayedAdminTasks.filter((t) => {
     if (taskFilter === 'pending') return !t.completed && t.status !== 'completed';
     if (taskFilter === 'completed') return t.completed || t.status === 'completed';
     return true;
@@ -66,8 +110,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-6 font-sans w-full">
-
-      {/* 2. TOP METRICS CARDS BAR (6 Cards Grid: Responsive 1-2 Mobile, 2-3 Tablet, 6 Desktop) */}
+      {/* 1. TOP METRICS CARDS BAR (6 Cards Grid: Responsive 1-2 Mobile, 2-3 Tablet, 6 Desktop) */}
       <div className="grid grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3 lg:gap-4 w-full">
         {/* Card 1: Total Projects */}
         <div
@@ -84,10 +127,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div>
             <div className="text-xl font-bold text-[#222222] leading-tight">
-              {stats.projectsTotal || 6}
+              {totalProjectsCount}
             </div>
             <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
-              {stats.projectsActive || 2} active
+              {activeProjectsCount} active
             </div>
           </div>
         </div>
@@ -130,7 +173,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div>
             <div className="text-xl font-bold text-[#222222] leading-tight">
-              {stats.dueSoon || 8}
+              {dynamicDueSoonTasks}
             </div>
             <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
               due this week
@@ -153,7 +196,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div>
             <div className="text-xl font-bold text-[#222222] leading-tight">
-              {stats.teamOnline !== undefined ? stats.teamOnline : activeEmployeesCount}
+              {onlineEmployeesCount}
             </div>
             <div className="text-[11px] font-medium text-[#595959] mt-0.5 truncate">
               active now
@@ -206,13 +249,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 3. MAIN DASHBOARD GRID (Split Layout) */}
+      {/* 2. MAIN DASHBOARD GRID (Split Layout) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 w-full">
         {/* LEFT 2 COLUMNS */}
         <div className="lg:col-span-2 space-y-4 lg:space-y-6">
           {/* ROW 1 CARDS: Project Progress & Upcoming Deadlines */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-            {/* Card 1: Project Progress */}
+            {/* Card 1: Project Progress Donut Widget */}
             <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-[#222222] text-sm">Project Progress</h3>
@@ -225,7 +268,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               <div className="flex items-center justify-between gap-3 sm:gap-4 py-2 flex-wrap sm:flex-nowrap">
-                {/* SVG Donut Chart */}
+                {/* Dynamic SVG Donut Chart */}
                 <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center shrink-0">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                     <path
@@ -235,28 +278,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       fill="none"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
-                    <path
-                      className="text-[#011826]"
-                      strokeDasharray="68, 100"
-                      strokeWidth="4.5"
-                      strokeLinecap="round"
-                      stroke="currentColor"
-                      fill="none"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    />
-                    <path
-                      className="text-[#049FD9]"
-                      strokeDasharray="25, 100"
-                      strokeDashoffset="-68"
-                      strokeWidth="4.5"
-                      strokeLinecap="round"
-                      stroke="currentColor"
-                      fill="none"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    />
+                    {completedDash > 0 && (
+                      <path
+                        className="text-[#011826]"
+                        strokeDasharray={`${completedDash}, 100`}
+                        strokeWidth="4.5"
+                        strokeLinecap="round"
+                        stroke="currentColor"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                    )}
+                    {inProgressDash > 0 && (
+                      <path
+                        className="text-[#049FD9]"
+                        strokeDasharray={`${inProgressDash}, 100`}
+                        strokeDashoffset={`${-completedDash}`}
+                        strokeWidth="4.5"
+                        strokeLinecap="round"
+                        stroke="currentColor"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                    )}
                   </svg>
                   <div className="absolute text-center leading-tight">
-                    <div className="text-xl font-bold text-[#222222]">68%</div>
+                    <div className="text-xl font-bold text-[#222222]">{overallProgress}%</div>
                     <div className="text-[10px] font-medium text-[#595959]">Overall Progress</div>
                   </div>
                 </div>
@@ -268,28 +315,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span className="w-2.5 h-2.5 rounded-full bg-[#011826]" />
                       <span>Completed</span>
                     </div>
-                    <span className="font-semibold text-[#222222]">4</span>
+                    <span className="font-semibold text-[#222222]">{overallCompleted}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-[#049FD9]" />
                       <span>In Progress</span>
                     </div>
-                    <span className="font-semibold text-[#222222]">2</span>
+                    <span className="font-semibold text-[#222222]">{overallInProgress}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-[#CBD5E1]" />
                       <span>Not Started</span>
                     </div>
-                    <span className="font-semibold text-[#0F172A]">0</span>
+                    <span className="font-semibold text-[#0F172A]">{overallPending}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-                      <span>On Hold</span>
+                      <span>In Review</span>
                     </div>
-                    <span className="font-semibold text-[#0F172A]">0</span>
+                    <span className="font-semibold text-[#0F172A]">
+                      {overallInReview + overallChangesRequested}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -309,83 +358,55 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               <div className="space-y-2.5">
-                {/* Deadline Item 1 */}
-                <div className="flex items-center justify-between py-2 px-1 rounded-lg hover:bg-[#F4F6F8] transition-colors">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-[#F4F6F8] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0">
-                      <span>10</span>
-                      <span className="text-[9px] uppercase mt-0.5">Oct</span>
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-xs text-[#0F172A] truncate">Mobile App v2</div>
-                      <div className="text-[11px] text-[#64748B] font-medium truncate">UI Design Review</div>
-                    </div>
+                {upcomingDeadlines.length === 0 ? (
+                  <div className="py-6 text-center text-[11px] text-[#64748B] bg-[#F8FAFC] rounded-lg border border-dashed border-[#E2E8F0]">
+                    No upcoming deadlines on schedule.
                   </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#EF4444] border border-[#EF4444]/20 shrink-0 whitespace-nowrap">
-                    Overdue
-                  </span>
-                </div>
-
-                {/* Deadline Item 2 */}
-                <div className="flex items-center justify-between py-2 px-1 rounded-lg hover:bg-[#F4F6F8] transition-colors">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-[#F4F6F8] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0">
-                      <span>12</span>
-                      <span className="text-[9px] uppercase mt-0.5">Oct</span>
+                ) : (
+                  upcomingDeadlines.map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={onViewAllTasks}
+                      className="flex items-center justify-between py-2 px-1 rounded-lg hover:bg-[#F4F6F8] transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-9 h-9 rounded-xl bg-[#F4F6F8] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0">
+                          <span>{item.dayNum}</span>
+                          <span className="text-[9px] uppercase mt-0.5">{item.monthStr}</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-bold text-xs text-[#0F172A] truncate" title={item.title}>
+                            {item.title}
+                          </div>
+                          <div className="text-[11px] text-[#64748B] font-medium truncate" title={`${item.project} • ${item.assignedTo}`}>
+                            {item.project} <span className="text-[#94A3B8]">•</span> {item.assignedTo}
+                          </div>
+                        </div>
+                      </div>
+                      <span
+                        className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border shrink-0 whitespace-nowrap ${
+                          item.isOverdue
+                            ? 'bg-[#FEF2F2] text-[#EF4444] border-[#EF4444]/20'
+                            : item.daysDiff === 0
+                            ? 'bg-[#FFFBEB] text-[#D97706] border-[#D97706]/20'
+                            : 'bg-[#EFF6FF] text-[#2563EB] border-[#2563EB]/20'
+                        }`}
+                      >
+                        {item.remainingText}
+                      </span>
                     </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-xs text-[#0F172A] truncate">Marketing Campaign Q4</div>
-                      <div className="text-[11px] text-[#64748B] font-medium truncate">Content Finalization</div>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/20 shrink-0 whitespace-nowrap">
-                    2 days left
-                  </span>
-                </div>
-
-                {/* Deadline Item 3 */}
-                <div className="flex items-center justify-between py-2 px-1 rounded-lg hover:bg-[#F4F6F8] transition-colors">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-[#F4F6F8] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0">
-                      <span>15</span>
-                      <span className="text-[9px] uppercase mt-0.5">Oct</span>
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-xs text-[#0F172A] truncate">E-Commerce Website</div>
-                      <div className="text-[11px] text-[#64748B] font-medium truncate">Backend Development</div>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#FFFBEB] text-[#F59E0B] border border-[#F59E0B]/20 shrink-0 whitespace-nowrap">
-                    5 days left
-                  </span>
-                </div>
-
-                {/* Deadline Item 4 */}
-                <div className="flex items-center justify-between py-2 px-1 rounded-lg hover:bg-[#F4F6F8] transition-colors">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-[#F4F6F8] text-[#0F172A] font-extrabold text-[11px] flex flex-col items-center justify-center leading-none shrink-0">
-                      <span>18</span>
-                      <span className="text-[9px] uppercase mt-0.5">Oct</span>
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-bold text-xs text-[#0F172A] truncate">Design homepage</div>
-                      <div className="text-[11px] text-[#64748B] font-medium truncate">Client Presentation</div>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#EFF6FF] text-[#2563EB] border border-[#2563EB]/20 shrink-0 whitespace-nowrap">
-                    8 days left
-                  </span>
-                </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
 
-          {/* ROW 2 CARDS: Top Projects & Task Status / Team Workload */}
+          {/* ROW 2 CARDS: Project Progress Table & Task Status */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-            {/* Card 3: Top Projects Table */}
-            <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-[#222222] text-sm">Top Projects</h3>
+            {/* Card 3: Project Progress Table */}
+            <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-[#222222] text-sm">Projects Progress</h3>
                 <button
                   onClick={onViewProjects}
                   className="text-xs font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
@@ -405,52 +426,68 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E5E5E5] font-medium text-[#595959]">
-                    {(projects && projects.length > 0
-                      ? projects.slice(0, 5)
-                      : [
-                          { id: 'p-1', name: 'E-Commerce Website', progress: 68, deadline: 'Oct 30, 2026', status: 'Active' },
-                          { id: 'p-2', name: 'Mobile App v2', progress: 45, deadline: 'Nov 15, 2026', status: 'Active' },
-                          { id: 'p-3', name: 'Marketing Campaign Q4', progress: 82, deadline: 'Oct 25, 2026', status: 'Active' },
-                          { id: 'p-4', name: 'Customer Portal', progress: 32, deadline: 'Nov 10, 2026', status: 'On Hold' },
-                          { id: 'p-5', name: 'Internal Ops & Automation', progress: 60, deadline: 'Dec 05, 2026', status: 'Active' },
-                        ]
-                    ).map((proj) => (
-                      <tr
-                        key={proj.id}
-                        onClick={() => {
-                          if (onSelectProject) {
-                            onSelectProject(proj.id);
-                          } else if (onViewProjects) {
-                            onViewProjects();
-                          }
-                        }}
-                        className="hover:bg-[#F4F6F8] transition-colors cursor-pointer group"
-                      >
-                        <td className="py-2.5 font-semibold text-[#111827] group-hover:text-[#049FD9] group-hover:underline whitespace-nowrap pr-3">
-                          <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">{proj.name}</span>
-                        </td>
-                        <td className="py-2.5 whitespace-nowrap pr-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
-                              <div className="bg-[#049FD9] h-full rounded-full" style={{ width: `${proj.progress}%` }} />
-                            </div>
-                            <span className="text-[10px] font-semibold text-[#595959]">{proj.progress}%</span>
-                          </div>
-                        </td>
-                        <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">{proj.deadline || 'Oct 30, 2026'}</td>
-                        <td className="py-2.5 text-right whitespace-nowrap pl-2">
-                          <span
-                            className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded border whitespace-nowrap ${
-                              (proj.status || '').toLowerCase().includes('hold')
-                                ? 'bg-[#FFFBEB] text-[#F59E0B] border-[#F59E0B]/20'
-                                : 'bg-[#ECFDF5] text-[#10B981] border-[#10B981]/20'
-                            }`}
+                    {projects && projects.length > 0 ? (
+                      projects.slice(0, 5).map((proj) => {
+                        const pStats = calculateProjectProgress(tasks, proj.id, proj.name);
+                        return (
+                          <tr
+                            key={proj.id}
+                            onClick={() => {
+                              if (onSelectProject) {
+                                onSelectProject(proj.id);
+                              } else if (onViewProjects) {
+                                onViewProjects();
+                              }
+                            }}
+                            className="hover:bg-[#F4F6F8] transition-colors cursor-pointer group"
                           >
-                            {proj.status || 'Active'}
-                          </span>
+                            <td className="py-2.5 font-semibold text-[#111827] group-hover:text-[#049FD9] group-hover:underline whitespace-nowrap pr-3">
+                              <span className="truncate max-w-[140px] sm:max-w-[180px] xl:max-w-none block">
+                                {proj.name}
+                              </span>
+                            </td>
+                            <td className="py-2.5 whitespace-nowrap pr-3">
+                              <div
+                                className="flex items-center gap-2"
+                                title={`${pStats.completed} / ${pStats.totalEligible} tasks completed (${pStats.progress}%)`}
+                              >
+                                <div className="w-16 sm:w-20 lg:w-24 bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden shrink-0">
+                                  <div
+                                    className="bg-[#049FD9] h-full rounded-full transition-all duration-300"
+                                    style={{ width: `${pStats.progress}%` }}
+                                  />
+                                </div>
+                                <span className="text-[10px] font-semibold text-[#595959]">
+                                  {pStats.progress}%
+                                </span>
+                              </div>
+                            </td>
+                            <td className="py-2.5 text-[11px] text-[#595959] font-medium whitespace-nowrap pr-3">
+                              {proj.deadline || proj.endDate || 'No deadline'}
+                            </td>
+                            <td className="py-2.5 text-right whitespace-nowrap pl-2">
+                              <span
+                                className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded border whitespace-nowrap ${
+                                  (proj.status || '').toLowerCase().includes('hold')
+                                    ? 'bg-[#FFFBEB] text-[#F59E0B] border-[#F59E0B]/20'
+                                    : (proj.status || '').toLowerCase().includes('complete')
+                                    ? 'bg-[#F0FDF4] text-[#16A34A] border-[#BBF7D0]'
+                                    : 'bg-[#ECFDF5] text-[#10B981] border-[#10B981]/20'
+                                }`}
+                              >
+                                {proj.status || 'Active'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="py-4 text-center text-[11px] text-[#64748B]">
+                          No projects registered in workspace.
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -472,25 +509,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         fill="none"
                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       />
-                      <path
-                        className="text-[#10B981]"
-                        strokeDasharray="43, 100"
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                      <path
-                        className="text-[#2563EB]"
-                        strokeDasharray="29, 100"
-                        strokeDashoffset="-43"
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
+                      {dynamicTotalTasks > 0 && dynamicCompletedTasks > 0 && (
+                        <path
+                          className="text-[#10B981]"
+                          strokeDasharray={`${(dynamicCompletedTasks / dynamicTotalTasks) * 100}, 100`}
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                          stroke="currentColor"
+                          fill="none"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        />
+                      )}
+                      {dynamicTotalTasks > 0 && dynamicInProgressTasks > 0 && (
+                        <path
+                          className="text-[#2563EB]"
+                          strokeDasharray={`${(dynamicInProgressTasks / dynamicTotalTasks) * 100}, 100`}
+                          strokeDashoffset={`${-((dynamicCompletedTasks / dynamicTotalTasks) * 100)}`}
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                          stroke="currentColor"
+                          fill="none"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        />
+                      )}
                     </svg>
                     <div className="absolute text-center leading-tight">
                       <div className="text-base font-black text-[#0F172A]">{dynamicTotalTasks}</div>
@@ -542,7 +583,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {/* Team Workload */}
               <div className="pt-3 border-t border-[#E5E5E5]">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-xs text-[#222222] uppercase tracking-wider">Team Workload</h4>
+                  <h4 className="font-semibold text-xs text-[#222222] uppercase tracking-wider">
+                    Team Workload
+                  </h4>
                   <button
                     onClick={onViewEmployees}
                     className="text-[11px] font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
@@ -553,36 +596,58 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                 <div className="space-y-2 text-xs max-h-56 overflow-y-auto pr-1">
                   {people && people.length > 0 ? (
-                    people.map((member) => (
-                      <div key={member.id} className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <div className={`w-6 h-6 rounded-full ${member.avatarBg || 'bg-[#049FD9] text-white'} font-bold text-[10px] flex items-center justify-center shrink-0`}>
-                            {member.avatar}
+                    people.map((member) => {
+                      const memberTasks = tasks.filter((t) => isTaskAssignedToEmployee(t, member));
+                      const memberCompleted = memberTasks.filter(
+                        (t) => t.completed || t.status === 'completed'
+                      ).length;
+                      const memberPercent =
+                        memberTasks.length > 0
+                          ? Math.round((memberCompleted / memberTasks.length) * 100)
+                          : 0;
+
+                      return (
+                        <div key={member.id} className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <div
+                              className={`w-6 h-6 rounded-full ${
+                                member.avatarBg || 'bg-[#049FD9] text-white'
+                              } font-bold text-[10px] flex items-center justify-center shrink-0`}
+                            >
+                              {member.avatar}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div
+                                className="font-semibold text-[#111827] text-[11px] leading-tight truncate cursor-default"
+                                title={member.name}
+                              >
+                                {member.name}
+                              </div>
+                              <div
+                                className="text-[9px] text-[#595959] font-normal truncate cursor-default"
+                                title={member.role}
+                              >
+                                {member.role}
+                              </div>
+                            </div>
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <div
-                              className="font-semibold text-[#111827] text-[11px] leading-tight truncate cursor-default"
-                              title={member.name}
-                            >
-                              {member.name}
+                          <div className="flex items-center gap-2 flex-1 max-w-[160px] sm:max-w-[190px] shrink-0">
+                            <span className="text-[10px] font-normal text-[#595959] whitespace-nowrap">
+                              {memberTasks.length} {memberTasks.length === 1 ? 'task' : 'tasks'}
+                            </span>
+                            <div className="w-full bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden">
+                              <div
+                                className="bg-[#049FD9] h-full rounded-full transition-all duration-300"
+                                style={{ width: `${memberPercent}%` }}
+                              />
                             </div>
-                            <div
-                              className="text-[9px] text-[#595959] font-normal truncate cursor-default"
-                              title={member.role}
-                            >
-                              {member.role}
-                            </div>
+                            <span className="text-[10px] font-semibold text-[#222222]">
+                              {memberPercent}%
+                            </span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-1 max-w-[160px] sm:max-w-[190px] shrink-0">
-                          <span className="text-[10px] font-normal text-[#595959] whitespace-nowrap">{member.projectsCount || 1} tasks</span>
-                          <div className="w-full bg-[#E5E5E5] rounded-full h-1.5 overflow-hidden">
-                            <div className="bg-[#049FD9] h-full rounded-full" style={{ width: `${Math.min(100, (member.projectsCount || 1) * 35)}%` }} />
-                          </div>
-                          <span className="text-[10px] font-semibold text-[#222222]">{Math.min(100, (member.projectsCount || 1) * 35)}%</span>
-                        </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className="p-3 text-center text-[11px] text-[#595959] bg-[#F4F6F8] rounded-lg border border-dashed border-[#E5E5E5]">
                       No employee accounts registered yet.
@@ -644,60 +709,71 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             {/* Task Checklist Items */}
             <div className="space-y-2.5">
-              {filteredTasks.slice(0, 5).map((task, index) => {
-                const priority = task.priority || (index === 0 ? 'high' : index < 3 ? 'medium' : 'low');
-                let prioBadge = 'bg-[#F0FDFA] text-[#0D9488] border-[#0D9488]/20';
+              {filteredTasks.length === 0 ? (
+                <div className="py-6 text-center text-[11px] text-[#64748B] bg-[#F8FAFC] rounded-lg border border-dashed border-[#E2E8F0]">
+                  No tasks found in this view.
+                </div>
+              ) : (
+                filteredTasks.slice(0, 5).map((task, index) => {
+                  const priority = task.priority || (index === 0 ? 'high' : index < 3 ? 'medium' : 'low');
+                  let prioBadge = 'bg-[#F0FDFA] text-[#0D9488] border-[#0D9488]/20';
 
-                if (priority === 'high') {
-                  prioBadge = 'bg-[#FEF2F2] text-[#EF4444] border-[#EF4444]/20';
-                } else if (priority === 'medium') {
-                  prioBadge = 'bg-[#FFFBEB] text-[#F59E0B] border-[#F59E0B]/20';
-                }
+                  if (priority === 'high' || priority === 'critical') {
+                    prioBadge = 'bg-[#FEF2F2] text-[#EF4444] border-[#EF4444]/20';
+                  } else if (priority === 'medium') {
+                    prioBadge = 'bg-[#FFFBEB] text-[#F59E0B] border-[#F59E0B]/20';
+                  }
 
-                const dueDateStr = task.dueDate || 'Oct 14, 2026';
+                  const dueDateStr = task.dueDate || 'No deadline';
 
-                return (
-                  <div
-                    key={task.id}
-                    onClick={() => onToggleTask(task.id)}
-                    className="py-2.5 px-2 rounded-lg hover:bg-[#F4F6F8] transition-all cursor-pointer flex items-center justify-between gap-3 group"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div
-                        className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
-                          task.completed
-                            ? 'bg-black border-black text-white'
-                            : 'border-[#CCCCCC] group-hover:border-black bg-white'
-                        }`}
-                      >
-                        {task.completed && (
-                          <svg className="w-3 h-3 stroke-current" fill="none" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </div>
-                      <div className="min-w-0">
+                  return (
+                    <div
+                      key={task.id}
+                      onClick={() => onToggleTask(task.id)}
+                      className="py-2.5 px-2 rounded-lg hover:bg-[#F4F6F8] transition-all cursor-pointer flex items-center justify-between gap-3 group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
                         <div
-                          className={`text-xs font-medium truncate transition-colors ${
-                            task.completed ? 'line-through text-[#8C8C8C]' : 'text-[#222222]'
+                          className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
+                            task.completed
+                              ? 'bg-black border-black text-white'
+                              : 'border-[#CCCCCC] group-hover:border-black bg-white'
                           }`}
                         >
-                          {task.title}
+                          {task.completed && (
+                            <svg className="w-3 h-3 stroke-current" fill="none" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="3"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          )}
                         </div>
-                        <div className="text-[10px] font-normal text-[#595959] truncate mt-0.5">
-                          {dueDateStr}
+                        <div className="min-w-0">
+                          <div
+                            className={`text-xs font-medium truncate transition-colors ${
+                              task.completed ? 'line-through text-[#8C8C8C]' : 'text-[#222222]'
+                            }`}
+                          >
+                            {task.title}
+                          </div>
+                          <div className="text-[10px] font-normal text-[#595959] truncate mt-0.5">
+                            {dueDateStr}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${prioBadge}`}>
-                        {task.project}
-                      </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${prioBadge}`}>
+                          {task.project}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
 

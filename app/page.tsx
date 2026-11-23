@@ -57,7 +57,9 @@ import {
   deduplicateEmployees,
   updateFirebaseEmployee,
   deleteFirebaseEmployee,
+  updateEmployeePresence,
 } from '@/lib/firebaseServices';
+import { isPersonOnline, isTaskDueSoon } from '@/lib/dashboardCalculations';
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -214,6 +216,42 @@ export default function Home() {
       return () => clearTimeout(timer);
     }
   }, [globalToast]);
+
+  // Real-Time Employee Presence Heartbeat & Activity Tracking (5-Minute Threshold)
+  useEffect(() => {
+    if (!isLoggedIn || !currentUser || !currentUser.email) return;
+
+    // 1. Immediate presence update
+    updateEmployeePresence(currentUser);
+
+    // 2. Periodic heartbeat every 2 minutes
+    const heartbeat = setInterval(() => {
+      updateEmployeePresence(currentUser);
+    }, 120_000);
+
+    // 3. User interaction listener (throttled to once per minute)
+    let lastActivityTime = Date.now();
+    const handleUserActivity = () => {
+      const now = Date.now();
+      if (now - lastActivityTime > 60_000) {
+        lastActivityTime = now;
+        updateEmployeePresence(currentUser);
+      }
+    };
+
+    window.addEventListener('mousemove', handleUserActivity);
+    window.addEventListener('keydown', handleUserActivity);
+    window.addEventListener('click', handleUserActivity);
+    window.addEventListener('scroll', handleUserActivity);
+
+    return () => {
+      clearInterval(heartbeat);
+      window.removeEventListener('mousemove', handleUserActivity);
+      window.removeEventListener('keydown', handleUserActivity);
+      window.removeEventListener('click', handleUserActivity);
+      window.removeEventListener('scroll', handleUserActivity);
+    };
+  }, [isLoggedIn, currentUser]);
 
   // Load persisted state from localStorage on mount so page refreshes don't lose data!
   useEffect(() => {
@@ -393,10 +431,20 @@ export default function Home() {
           }
         });
         const unsubTasks = subscribeToTasks((tasksList) => {
-          if (tasksList && tasksList.length > 0) setTasks(tasksList);
+          if (tasksList) {
+            setTasks(tasksList);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('workorbit_tasks', JSON.stringify(tasksList));
+            }
+          }
         });
         const unsubProj = subscribeToProjects((projList) => {
-          if (projList && projList.length > 0) setProjects(projList);
+          if (projList) {
+            setProjects(projList);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('workorbit_projects', JSON.stringify(projList));
+            }
+          }
         });
 
         const loadingTimer = setTimeout(() => {
@@ -1160,11 +1208,19 @@ export default function Home() {
               {activeTab === 'dashboard' && dashboardRole === 'admin' && (
                 <DashboardView
                   stats={{
-                    ...initialStats,
                     projectsTotal: projects.length,
-                    projectsActive: projects.filter((p) => p.status === 'active').length,
-                    teamOnline: people.filter((p) => p.status === 'active').length,
+                    projectsActive: projects.filter(
+                      (p) => (p.status || '').toLowerCase() === 'active'
+                    ).length,
+                    todosTotal: tasks.length,
+                    todosInProgress: tasks.filter((t) => t.status === 'in_progress').length,
+                    dueSoon: tasks.filter((t) => isTaskDueSoon(t)).length,
+                    teamOnline: people.filter(
+                      (p) => (p.status || 'active') === 'active' && isPersonOnline(p)
+                    ).length,
                     employeesTotal: people.length,
+                    storageUsedGB: 7.5,
+                    storageTotalGB: 10,
                   }}
                   tasks={tasks}
                   activities={activities}
