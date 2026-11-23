@@ -48,6 +48,18 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // Phase 7: Campfire Chat Conversations & Real-Time Messages
+    match /conversations/{conversationId} {
+      allow read, create, update: if true;
+      allow delete: if isAdmin();
+
+      // Messages Subcollection: Real-Time messages within the channel
+      match /messages/{messageId} {
+        allow read, create: if true;
+        allow update, delete: if isAdmin();
+      }
+    }
+
     // Check-ins & Status updates
     match /checkins/{checkinId} {
       allow read, create: if true;

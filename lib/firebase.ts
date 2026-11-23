@@ -69,6 +69,17 @@ if (typeof window !== 'undefined') {
   authInstance = getAuth(app);
 }
 
+import { getStorage, FirebaseStorage } from 'firebase/storage';
+
+// Initialize Storage safely
+let storageInstance: FirebaseStorage | null = null;
+try {
+  storageInstance = getStorage(app);
+} catch (e) {
+  // Graceful fallback for SSR or environments without direct storage
+}
+
 export const db = firestoreDb;
 export const auth = authInstance;
+export const storage = storageInstance;
 export default app;

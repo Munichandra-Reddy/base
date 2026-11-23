@@ -147,6 +147,7 @@ export default function Home() {
     return initialProjects;
   });
 
+  const [campfireUnreadCount, setCampfireUnreadCount] = useState<number>(0);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('workorbit_chat_messages');
@@ -1172,7 +1173,7 @@ export default function Home() {
           activeTab={activeTab}
           setActiveTab={handleTabChange}
           tasksCount={pendingTasksCount}
-          chatCount={3}
+          chatCount={campfireUnreadCount}
           storageUsedGB={initialStats.storageUsedGB}
           storageTotalGB={initialStats.storageTotalGB}
           isAdmin={dashboardRole === 'admin'}
@@ -1326,7 +1327,15 @@ export default function Home() {
               )}
 
               {activeTab === 'chat' && (
-                <ChatView messages={chatMessages} onSendMessage={handleSendMessage} />
+                <ChatView
+                  currentUser={currentUser}
+                  isAdmin={dashboardRole === 'admin'}
+                  people={people}
+                  projects={projects}
+                  onUpdateUnreadCount={(cnt) => setCampfireUnreadCount(cnt)}
+                  messages={chatMessages}
+                  onSendMessage={handleSendMessage}
+                />
               )}
 
               {activeTab === 'files' && (

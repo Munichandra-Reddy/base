@@ -197,6 +197,75 @@ export interface ChatMessage {
   channel: string;
 }
 
+export type ConversationType = 'direct' | 'group' | 'project';
+
+export interface ChatAttachment {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  storagePath?: string;
+  fileType: 'image' | 'pdf' | 'doc' | 'sheet' | 'archive' | 'file';
+  fileSize: string;
+  bytes?: number;
+}
+
+export interface CampfireMessage {
+  id: string;
+  conversationId: string;
+  senderUid: string;
+  senderName: string;
+  senderEmail: string;
+  senderAvatar?: string;
+  senderAvatarBg?: string;
+  messageType: 'text' | 'file' | 'image';
+  text: string;
+  attachments?: ChatAttachment[];
+  createdAt: number;
+  timestampStr?: string;
+  dateStr?: string;
+  readBy?: string[];
+  status?: 'sent' | 'delivered' | 'read';
+  failed?: boolean;
+}
+
+export interface ConversationParticipant {
+  uid: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  avatarBg?: string;
+  role?: string;
+  designation?: string;
+  isOnline?: boolean;
+}
+
+export interface Conversation {
+  id: string;
+  type: ConversationType;
+  name: string;
+  description?: string;
+  projectId?: string;
+  projectName?: string;
+  memberUids: string[];
+  memberDetails?: Record<string, ConversationParticipant>;
+  createdBy: string;
+  createdByName?: string;
+  createdAt: number;
+  updatedAt: number;
+  lastMessage?: {
+    text: string;
+    senderUid: string;
+    senderName: string;
+    timestamp: string;
+    createdAt: number;
+    messageType?: 'text' | 'file' | 'image';
+  };
+  lastMessageAt: number;
+  unreadCount?: number;
+  unreadCounts?: Record<string, number>;
+  readReceipts?: Record<string, { lastReadAt: number; lastReadMessageId?: string }>;
+}
+
 export type EmployeeStatus = 'invited' | 'active' | 'inactive' | 'suspended' | 'away' | 'offline';
 export type AccessRole = 'admin' | 'employee';
 

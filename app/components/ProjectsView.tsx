@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Project, Task, FileItem, Person, ProjectStatus, ProjectPriority, EmployeeActivityLog } from '@/lib/types';
+import { Project, Task, FileItem, Person, ProjectStatus, ProjectPriority, EmployeeActivityLog, CampfireMessage } from '@/lib/types';
 import {
   FolderIcon,
   FileIcon,
@@ -24,6 +24,12 @@ import {
 } from './Icons';
 import { getDirectFileBlobUrl, openProtectedDocument } from '@/lib/fileUtils';
 import { deduplicateEmployees } from '@/lib/firebaseServices';
+import {
+  getProjectConversationId,
+  subscribeToConversationMessages,
+  sendCampfireMessage,
+  normalizeUserKey,
+} from '@/lib/firebaseChatService';
 
 // ==========================================
 // 1. CUSTOM FILTER DROPDOWN (Strictly Opens Below)
@@ -287,9 +293,47 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
   // Collaboration state (Campfire & Updates)
   const [chatInputText, setChatInputText] = useState('');
+  const [realtimeProjectMessages, setRealtimeProjectMessages] = useState<CampfireMessage[]>([]);
   const [customMessages, setCustomMessages] = useState<Record<string, Array<{ id: string; sender: string; text: string; time: string }>>>({});
   const [newUpdateText, setNewUpdateText] = useState('');
   const [customUpdates, setCustomUpdates] = useState<Array<{ id: string; project: string; author: string; role: string; timeAgo: string; text: string; category: string }>>([]);
+
+  // Subscribe to Project Campfire chat messages in real-time
+  useEffect(() => {
+    if (!selectedProject?.id || detailsTab !== 'messages') return;
+    const convId = getProjectConversationId(selectedProject.id);
+    const unsub = subscribeToConversationMessages(convId, (msgs) => {
+      setRealtimeProjectMessages(msgs);
+    });
+    return () => unsub();
+  }, [selectedProject?.id, detailsTab]);
+
+  // Send Project Campfire message
+  const handleSendProjectMessage = async () => {
+    if (!chatInputText.trim() || !selectedProject?.id) return;
+    const convId = getProjectConversationId(selectedProject.id);
+    const textToSend = chatInputText.trim();
+    setChatInputText('');
+
+    const userEmail = (currentUser?.email || 'admin@workorbit.com').toLowerCase().trim();
+    const userName = currentUser?.fullName || (isAdmin ? 'Workspace Admin' : 'Employee');
+    const userKey = normalizeUserKey(userEmail);
+
+    try {
+      await sendCampfireMessage({
+        conversationId: convId,
+        senderUid: userKey,
+        senderName: userName,
+        senderEmail: userEmail,
+        senderAvatar: userName[0]?.toUpperCase() || 'U',
+        senderAvatarBg: isAdmin ? 'bg-[#011826] text-white' : 'bg-blue-100 text-blue-800',
+        text: textToSend,
+        messageType: 'text',
+      });
+    } catch (e) {
+      console.warn('Error sending project chat message:', e);
+    }
+  };
 
   // Sync selectedProject with prop
   useEffect(() => {
@@ -1423,24 +1467,34 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         {/* TAB 4: CAMPFIRE MESSAGES */}
         {detailsTab === 'messages' && (
           <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-4">
-            <h3 className="font-bold text-base text-[#111827]">Campfire Project Chat</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-base text-[#111827]">Campfire Project Chat</h3>
+              <span className="text-[10px] text-[#049FD9] bg-[#F0F9FF] px-2 py-0.5 rounded border border-[#BAE6FD] font-semibold">
+                Real-Time Firestore Sync
+              </span>
+            </div>
             <div className="h-64 border border-[#E2E8F0] rounded-lg p-4 overflow-y-auto space-y-3 bg-[#F8FAFC] text-xs">
-              {(customMessages[selectedProject.id] || [
-                {
-                  id: 'init-1',
-                  sender: selectedProject.manager || 'Workspace Admin',
-                  text: `Welcome to the ${selectedProject.name} workspace! Use this channel to coordinate objectives and milestones.`,
-                  time: '10:00 AM',
-                },
-              ]).map((msg) => (
-                <div key={msg.id} className="p-3 bg-white rounded-lg border border-[#E2E8F0] shadow-2xs">
+              {realtimeProjectMessages.length === 0 ? (
+                <div className="p-3 bg-white rounded-lg border border-[#E2E8F0] shadow-2xs">
                   <div className="flex items-center justify-between text-[11px] font-semibold text-[#111827] mb-1">
-                    <span>{msg.sender}</span>
-                    <span className="text-[#94A3B8] font-normal">{msg.time}</span>
+                    <span>{selectedProject.manager || 'Workspace Admin'}</span>
+                    <span className="text-[#94A3B8] font-normal">10:00 AM</span>
                   </div>
-                  <p className="text-xs text-[#334155]">{msg.text}</p>
+                  <p className="text-xs text-[#334155]">
+                    Welcome to the {selectedProject.name} workspace! Use this channel to coordinate objectives and milestones.
+                  </p>
                 </div>
-              ))}
+              ) : (
+                realtimeProjectMessages.map((msg) => (
+                  <div key={msg.id} className="p-3 bg-white rounded-lg border border-[#E2E8F0] shadow-2xs">
+                    <div className="flex items-center justify-between text-[11px] font-semibold text-[#111827] mb-1">
+                      <span className="font-bold text-[#111827]">{msg.senderName}</span>
+                      <span className="text-[#94A3B8] font-normal">{msg.timestampStr}</span>
+                    </div>
+                    <p className="text-xs text-[#334155]">{msg.text}</p>
+                  </div>
+                ))
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -1451,39 +1505,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 onChange={(e) => setChatInputText(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    if (!chatInputText.trim()) return;
-                    const newMsg = {
-                      id: `msg-${Date.now()}`,
-                      sender: currentUser?.fullName || 'Admin',
-                      text: chatInputText.trim(),
-                      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    };
-                    setCustomMessages((prev) => ({
-                      ...prev,
-                      [selectedProject.id]: [...(prev[selectedProject.id] || []), newMsg],
-                    }));
-                    setChatInputText('');
+                    e.preventDefault();
+                    handleSendProjectMessage();
                   }
                 }}
                 className="flex-1 px-3 py-2 border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
               />
               <button
                 type="button"
-                onClick={() => {
-                  if (!chatInputText.trim()) return;
-                  const newMsg = {
-                    id: `msg-${Date.now()}`,
-                    sender: currentUser?.fullName || 'Admin',
-                    text: chatInputText.trim(),
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                  };
-                  setCustomMessages((prev) => ({
-                    ...prev,
-                    [selectedProject.id]: [...(prev[selectedProject.id] || []), newMsg],
-                  }));
-                  setChatInputText('');
-                }}
-                className="btn-primary py-2 px-4 text-xs font-semibold cursor-pointer"
+                onClick={handleSendProjectMessage}
+                disabled={!chatInputText.trim()}
+                className="btn-primary py-2 px-4 text-xs font-semibold cursor-pointer disabled:opacity-50"
               >
                 Send
               </button>
