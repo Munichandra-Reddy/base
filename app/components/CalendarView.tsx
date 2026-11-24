@@ -532,7 +532,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   + Add Event for {monthName.slice(0, 3)} {selectedDay}
                 </h4>
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <input
+                  <input id="calendarview-new-event-title-1" name="newEventTitle"
                     type="text"
                     required
                     placeholder="Event title or milestone..."
@@ -540,7 +540,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     onChange={(e) => setNewEventTitle(e.target.value)}
                     className="flex-1 px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#222222] font-medium focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
                   />
-                  <input
+                  <input id="calendarview-new-event-time-2" name="newEventTime"
                     type="text"
                     placeholder="10:00 AM"
                     value={newEventTime}
@@ -596,7 +596,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 <label className="block text-xs font-semibold text-[#222222] mb-1">
                   Select Date ({monthName} {currentYear})
                 </label>
-                <select
+                <select id="calendarview-target-day-3" name="targetDay"
                   value={targetDay}
                   onChange={(e) => setTargetDay(Number(e.target.value))}
                   className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
@@ -613,7 +613,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 <label className="block text-xs font-semibold text-[#222222] mb-1">
                   Event Title / Milestone Name
                 </label>
-                <input
+                <input id="calendarview-new-event-title-4" name="newEventTitle"
                   type="text"
                   required
                   placeholder="e.g. Q4 Strategy Review & Release"
@@ -627,7 +627,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 <label className="block text-xs font-semibold text-[#222222] mb-1">
                   Time
                 </label>
-                <input
+                <input id="calendarview-new-event-time-5" name="newEventTime"
                   type="text"
                   placeholder="e.g. 10:00 AM"
                   value={newEventTime}

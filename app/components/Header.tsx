@@ -109,6 +109,8 @@ export const Header: React.FC<HeaderProps> = ({
             />
             <input
               ref={searchInputRef}
+              id="global-search"
+              name="search"
               type="text"
               value={searchQuery}
               onChange={(e) => {

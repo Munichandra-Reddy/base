@@ -1022,7 +1022,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   <div>
                     <label className="block text-sm font-semibold text-[#222222] mb-1">New Password (min 6 characters) *</label>
                     <div className="relative">
-                      <input
+                      <input id="authview-new-password-1" name="newPassword"
                         type={showNewPassword ? 'text' : 'password'}
                         required
                         value={newPassword}
@@ -1044,7 +1044,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   <div>
                     <label className="block text-sm font-semibold text-[#222222] mb-1">Confirm New Password *</label>
                     <div className="relative">
-                      <input
+                      <input id="authview-confirm-new-password-2" name="confirmNewPassword"
                         type={showConfirmNewPassword ? 'text' : 'password'}
                         required
                         value={confirmNewPassword}
@@ -1079,7 +1079,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   <label className="block text-sm font-semibold text-[#222222] mb-1.5">
                     Registered Email Address
                   </label>
-                  <input
+                  <input id="authview-email-3" name="email"
                     type="email"
                     required
                     value={email}
@@ -1125,7 +1125,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
               <>
                 <div>
                   <label className="block text-sm font-semibold text-[#222222] mb-1">Full name *</label>
-                  <input
+                  <input id="authview-full-name-4" name="fullName"
                     type="text"
                     required
                     value={fullName}
@@ -1137,7 +1137,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
 
                 <div>
                   <label className="block text-sm font-semibold text-[#222222] mb-1">Employee Work Email *</label>
-                  <input
+                  <input id="authview-email-5" name="email"
                     type="email"
                     required
                     value={email}
@@ -1150,7 +1150,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2.5">
                   <div>
                     <label className="block text-sm font-semibold text-[#222222] mb-1">Role / Title *</label>
-                    <input
+                    <input id="authview-designation-6" name="designation"
                       type="text"
                       required
                       value={designation}
@@ -1161,7 +1161,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-[#222222] mb-1">Company *</label>
-                    <input
+                    <input id="authview-company-name-7" name="companyName"
                       type="text"
                       required
                       value={companyName}
@@ -1175,7 +1175,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 <div>
                   <label className="block text-sm font-semibold text-[#222222] mb-1">Password (min 6 characters) *</label>
                   <div className="relative">
-                    <input
+                    <input id="authview-password-8" name="password"
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={password}
@@ -1197,7 +1197,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                 <div>
                   <label className="block text-sm font-semibold text-[#222222] mb-1">Confirm password *</label>
                   <div className="relative">
-                    <input
+                    <input id="authview-confirm-password-9" name="confirmPassword"
                       type={showConfirmPassword ? 'text' : 'password'}
                       required
                       value={confirmPassword}
@@ -1238,7 +1238,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                   <label className="block text-sm font-semibold text-[#222222] mb-1.5">
                     Email Address
                   </label>
-                  <input
+                  <input id="authview-email-10" name="email"
                     type="email"
                     required
                     value={email}
@@ -1260,7 +1260,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ onLogin, people = [] }) => {
                     </button>
                   </div>
                   <div className="relative">
-                    <input
+                    <input id="authview-password-11" name="password"
                       type={showPassword ? 'text' : 'password'}
                       required
                       value={password}

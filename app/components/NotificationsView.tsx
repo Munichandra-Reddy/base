@@ -231,6 +231,8 @@ export const NotificationsView: React.FC<NotificationsViewProps> = ({
         <div className="relative min-w-[220px]">
           <SearchIcon className="w-4 h-4 text-[#94A3B8] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
+            id="notifications-search"
+            name="notificationsSearch"
             type="text"
             placeholder="Search notifications..."
             value={searchQuery}

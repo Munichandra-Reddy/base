@@ -948,7 +948,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <SearchIcon className="w-3.5 h-3.5 text-[#9CA3AF] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
+            <input id="tasksview-search-query-1" name="searchQuery"
               type="text"
               placeholder="Search by Title, ID, Project, Employee..."
               value={searchQuery}
@@ -1475,7 +1475,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                             <label>Update Work Progress:</label>
                             <span className="font-bold text-[#049FD9]">{progressSlider}%</span>
                           </div>
-                          <input
+                          <input id="tasksview-progress-slider-2" name="progressSlider"
                             type="range"
                             min="0"
                             max="99"
@@ -1486,7 +1486,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                         </div>
 
                         <div className="flex gap-2">
-                          <input
+                          <input id="tasksview-progress-note-3" name="progressNote"
                             type="text"
                             placeholder="Optional progress update note..."
                             value={progressNote}
@@ -1585,7 +1585,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 </div>
 
                 <form onSubmit={handleAddComment} className="flex gap-2">
-                  <textarea
+                  <textarea id="tasksview-new-comment-text-4" name="newCommentText"
                     rows={2}
                     placeholder="Type a comment or instruction..."
                     value={newCommentText}
@@ -1687,7 +1687,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 <label className="block font-bold text-[#0F172A] mb-1">
                   Task Title <span className="text-[#DC2626]">*</span>
                 </label>
-                <input
+                <input id="tasksview-title-5" name="title"
                   type="text"
                   required
                   placeholder="e.g. Design homepage hero banner"
@@ -1705,6 +1705,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 <textarea
                   rows={2}
                   required
+                  id="task-description"
+                  name="taskDescription"
                   placeholder="Explain scope, goals, and specifications..."
                   value={taskDescription}
                   onChange={(e) => setTaskDescription(e.target.value)}
@@ -1719,7 +1721,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   <label className="block font-bold text-[#0F172A] mb-1">
                     Project Name <span className="text-[#DC2626]">*</span>
                   </label>
-                  <input
+                  <input id="tasksview-project-6" name="project"
                     type="text"
                     list="tasks-project-suggestions"
                     required
@@ -1749,7 +1751,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     Assign Employee <span className="text-[#DC2626]">*</span>
                   </label>
                   <div className="relative">
-                    <input
+                    <input id="tasksview-text_field-7" name="text_field"
                       type="text"
                       value={
                         isTaskAssigneeDropdownOpen
@@ -1880,6 +1882,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     Work Stream (Optional)
                   </label>
                   <select
+                    id="task-stream"
+                    name="taskStream"
                     value={taskStream}
                     onChange={(e) => setTaskStream(e.target.value as any)}
                     className="w-full p-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
@@ -1897,6 +1901,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     Sprint / Target Week
                   </label>
                   <select
+                    id="task-sprint-week"
+                    name="taskSprintWeek"
                     value={taskSprintWeek}
                     onChange={(e) => setTaskSprintWeek(e.target.value)}
                     className="w-full p-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
@@ -1917,6 +1923,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     Priority <span className="text-[#DC2626]">*</span>
                   </label>
                   <select
+                    id="task-priority"
+                    name="taskPriority"
                     value={taskPriority}
                     onChange={(e) => setTaskPriority(e.target.value as any)}
                     className="w-full p-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
@@ -1935,6 +1943,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   <input
                     type="date"
                     required
+                    id="task-start-date"
+                    name="taskStartDate"
                     value={taskStartDate}
                     onChange={(e) => setTaskStartDate(e.target.value)}
                     className="w-full p-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -1948,6 +1958,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   <input
                     type="date"
                     required
+                    id="task-due-date"
+                    name="taskDueDate"
                     value={taskDueDate}
                     onChange={(e) => setTaskDueDate(e.target.value)}
                     className="w-full p-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -1962,6 +1974,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 </label>
                 <textarea
                   rows={2}
+                  id="task-instructions"
+                  name="taskInstructions"
                   placeholder="Specific requirements, checklist items, links..."
                   value={taskInstructions}
                   onChange={(e) => setTaskInstructions(e.target.value)}
@@ -1974,7 +1988,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 <label className="block font-bold text-[#0F172A] mb-1">
                   Internal Admin Notes <span className="text-[#64748B] font-normal">(Hidden from employees)</span>
                 </label>
-                <textarea
+                <textarea id="tasksview-admin-notes-8" name="adminNotes"
                   rows={2}
                   placeholder="Private notes, budget, confidential review criteria..."
                   value={taskAdminNotes}
@@ -2046,7 +2060,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     <label className="block font-bold text-[#0F172A] mb-1">
                       Approval Note <span className="text-[#64748B] font-normal">(Optional)</span>
                     </label>
-                    <textarea
+                    <textarea id="tasksview-review-feedback-9" name="reviewFeedback"
                       rows={2}
                       placeholder="e.g. Great work, meets all requirements!"
                       value={reviewFeedback}
@@ -2065,7 +2079,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     <label className="block font-bold text-[#0F172A] mb-1">
                       Revision Instructions <span className="text-[#DC2626]">*</span>
                     </label>
-                    <textarea
+                    <textarea id="tasksview-review-feedback-10" name="reviewFeedback"
                       rows={3}
                       required
                       placeholder="e.g. Please fix the header spacing and ensure responsiveness on mobile."
@@ -2127,7 +2141,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 <label className="block font-bold text-[#0F172A] mb-1">
                   Work Completion Summary <span className="text-[#DC2626]">*</span>
                 </label>
-                <textarea
+                <textarea id="tasksview-submission-summary-11" name="submissionSummary"
                   rows={3}
                   required
                   placeholder="Summarize the work done, components modified, deliverables completed..."
@@ -2141,7 +2155,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 <label className="block font-bold text-[#0F172A] mb-1">
                   Additional Notes for Reviewer <span className="text-[#64748B] font-normal">(Optional)</span>
                 </label>
-                <input
+                <input id="tasksview-submission-comment-12" name="submissionComment"
                   type="text"
                   placeholder="Any testing instructions or access details..."
                   value={submissionComment}
@@ -2200,6 +2214,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
                 </label>
                 <select
                   required
+                  id="reassign-employee"
+                  name="reassignEmployee"
                   value={reassignEmployee}
                   onChange={(e) => setReassignEmployee(e.target.value)}
                   className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"

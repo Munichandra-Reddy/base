@@ -508,7 +508,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
           {/* Search Bar */}
           <div className="relative mb-2.5">
             <SearchIcon className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
-            <input
+            <input id="chatview-search-query-1" name="searchQuery"
               type="text"
               placeholder="Search conversations..."
               value={searchQuery}
@@ -951,7 +951,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
               className="p-3 sm:p-4 border-t border-[#E5E5E5] bg-white flex items-center gap-2 sm:gap-3 shrink-0"
             >
               {/* File Attachment Button */}
-              <input
+              <input id="chatview-file_field-2" name="file_field"
                 type="file"
                 ref={fileInputRef}
                 onChange={(e) => {
@@ -978,7 +978,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
 
               {/* Text Input */}
               <div className="flex-1 min-w-0">
-                <input
+                <input id="chatview-message-text-3" name="messageText"
                   type="text"
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
@@ -1035,7 +1035,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
             <div className="p-4 border-b border-[#E5E5E5] bg-[#FAFAFA]">
               <div className="relative">
                 <SearchIcon className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
-                <input
+                <input id="chatview-direct-search-4" name="directSearch"
                   type="text"
                   placeholder="Search by name, email, or 'admin'..."
                   value={directSearch}
@@ -1145,7 +1145,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 <label className="block text-[11px] font-bold text-[#111827] uppercase mb-1">
                   Group Name *
                 </label>
-                <input
+                <input id="chatview-group-name-5" name="groupName"
                   type="text"
                   placeholder="e.g. Design Sprint Team, Marketing Sync"
                   value={groupName}
@@ -1159,7 +1159,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 <label className="block text-[11px] font-bold text-[#111827] uppercase mb-1">
                   Description (Optional)
                 </label>
-                <input
+                <input id="chatview-group-desc-6" name="groupDesc"
                   type="text"
                   placeholder="What is this channel for?"
                   value={groupDesc}
@@ -1174,7 +1174,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 </label>
                 <div className="relative mb-2">
                   <SearchIcon className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
-                  <input
+                  <input id="chatview-group-search-7" name="groupSearch"
                     type="text"
                     placeholder="Filter team members..."
                     value={groupSearch}
@@ -1233,7 +1233,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                         </div>
                       </div>
 
-                      <input
+                      <input id="chatview-checkbox_field-8" name="checkbox_field"
                         type="checkbox"
                         checked={isChecked}
                         onChange={(e) => {
@@ -1297,7 +1297,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
             {/* Add Member form if Group and user is admin or creator */}
             {activeConversation.type === 'group' && (isAdmin || activeConversation.createdBy === userKey) && (
               <div className="p-3 border-b border-[#E5E5E5] bg-[#FAFAFA] flex items-center gap-2">
-                <select
+                <select id="chatview-add-member-uid-9" name="addMemberUid"
                   value={addMemberUid}
                   onChange={(e) => setAddMemberUid(e.target.value)}
                   className="flex-1 px-2.5 py-1.5 text-xs bg-white border border-[#E5E5E5] rounded-md text-[#111827] focus:outline-none focus:border-[#049FD9]"

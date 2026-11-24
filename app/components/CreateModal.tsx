@@ -590,6 +590,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   Employee Full Name <span className="text-[#EF4444] font-normal">*</span>
                 </label>
                 <input
+                  id="emp-name"
+                  name="empName"
                   type="text"
                   required
                   placeholder="e.g. John Doe"
@@ -605,6 +607,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   Work Email Address <span className="text-[#EF4444] font-normal">*</span>
                 </label>
                 <input
+                  id="emp-email"
+                  name="empEmail"
                   type="email"
                   required
                   placeholder="e.g. john@company.com"
@@ -621,6 +625,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     Access Role <span className="text-[#EF4444] font-normal">*</span>
                   </label>
                   <select
+                    id="emp-access-role"
+                    name="empAccessRole"
                     value={empAccessRole}
                     onChange={(e) => setEmpAccessRole(e.target.value as any)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] cursor-pointer"
@@ -636,6 +642,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     Department <span className="text-[#EF4444] font-normal">*</span>
                   </label>
                   <select
+                    id="emp-department"
+                    name="empDepartment"
                     value={empDepartment}
                     onChange={(e) => setEmpDepartment(e.target.value)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] cursor-pointer"
@@ -660,6 +668,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   Designation / Job Title <span className="text-[#EF4444] font-normal">*</span>
                 </label>
                 <input
+                  id="emp-designation"
+                  name="empDesignation"
                   type="text"
                   required
                   placeholder="e.g. Senior Software Engineer, UI/UX Designer"
@@ -686,6 +696,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     </button>
                   </div>
                   <input
+                    id="emp-id"
+                    name="empId"
                     type="text"
                     required
                     placeholder="e.g. EMP-1004"
@@ -703,6 +715,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   <input
                     type="date"
                     required
+                    id="emp-joining-date"
+                    name="empJoiningDate"
                     value={empJoiningDate}
                     onChange={(e) => setEmpJoiningDate(e.target.value)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] cursor-pointer"
@@ -717,6 +731,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   Phone Number <span className="text-[#64748B] font-normal">(Optional)</span>
                 </label>
                 <input
+                  id="emp-phone"
+                  name="empPhone"
                   type="tel"
                   placeholder="e.g. +1 (555) 234-5678"
                   value={empPhone}
@@ -740,6 +756,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <input
                   type="text"
                   required
+                  id="task-title"
+                  name="taskTitle"
                   placeholder="e.g. Design homepage hero banner"
                   value={taskTitle}
                   onChange={(e) => setTaskTitle(e.target.value)}
@@ -752,6 +770,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <label className="block text-xs font-semibold text-[#222222] mb-1">Task Description</label>
                 <textarea
                   rows={2}
+                  id="task-desc"
+                  name="taskDesc"
                   placeholder="Provide task details, instructions, or scope..."
                   value={taskDesc}
                   onChange={(e) => setTaskDesc(e.target.value)}
@@ -766,6 +786,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 </label>
                 <input
                   type="text"
+                  id="task-project"
+                  name="taskProject"
                   list="create-modal-project-suggestions"
                   required
                   placeholder="Type or select project name..."
@@ -793,6 +815,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <label className="block text-xs font-semibold text-[#222222] mb-1">Team Member (Assignee)</label>
                 <div className="relative">
                   <input
+                    id="task-assignee"
+                    name="taskAssignee"
                     type="text"
                     value={
                       isTaskAssigneeDropdownOpen
@@ -907,6 +931,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] mb-1">Priority</label>
                   <select
+                    id="task-priority"
+                    name="taskPriority"
                     value={taskPriority}
                     onChange={(e) => setTaskPriority(e.target.value as any)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] cursor-pointer"
@@ -921,6 +947,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   <label className="block text-xs font-semibold text-[#222222] mb-1">Deadline / Due Date</label>
                   <input
                     type="date"
+                    id="task-due-date"
+                    name="taskDueDate"
                     value={taskDueDate}
                     onChange={(e) => setTaskDueDate(e.target.value)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] cursor-pointer"
@@ -933,6 +961,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] mb-1">Sprint / Target Week</label>
                   <select
+                    id="task-sprint-week"
+                    name="taskSprintWeek"
                     value={taskSprintWeek}
                     onChange={(e) => setTaskSprintWeek(e.target.value)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] cursor-pointer"
@@ -948,6 +978,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] mb-1">Work Stream</label>
                   <select
+                    id="task-stream"
+                    name="taskStream"
                     value={taskStream}
                     onChange={(e) => setTaskStream(e.target.value as any)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] cursor-pointer"
@@ -979,6 +1011,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <input
                   type="text"
                   required
+                  id="project-name"
+                  name="projectName"
                   placeholder="e.g. AI Customer Service Agent"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
@@ -991,6 +1025,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <label className="block text-xs font-extrabold text-[#0F172A] mb-1">Project Description</label>
                 <textarea
                   rows={2}
+                  id="project-desc"
+                  name="projectDesc"
                   placeholder="Project scope, objectives, key deliverables..."
                   value={projectDesc}
                   onChange={(e) => setProjectDesc(e.target.value)}
@@ -1003,6 +1039,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] mb-1">Category</label>
                   <select
+                    id="project-category"
+                    name="projectCategory"
                     value={projectCategory}
                     onChange={(e) => setFormProjectCategory(e.target.value)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#222222] focus:outline-none focus:border-[#049FD9]"
@@ -1020,6 +1058,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] mb-1">Priority</label>
                   <select
+                    id="project-priority"
+                    name="projectPriority"
                     value={projectPriority}
                     onChange={(e) => setProjectPriority(e.target.value as any)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#222222] focus:outline-none focus:border-[#049FD9]"
@@ -1040,6 +1080,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <input
                   type="text"
                   required
+                  id="project-team-name"
+                  name="projectTeamName"
                   placeholder="e.g. Kaling, Alpha Squad, Core Engineers..."
                   value={projectTeamName}
                   onChange={(e) => setProjectTeamName(e.target.value)}
@@ -1077,6 +1119,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     </svg>
                   </span>
                   <input
+                    id="team-member-search"
+                    name="teamMemberSearch"
                     type="text"
                     value={teamMemberSearch}
                     onChange={(e) => setTeamMemberSearch(e.target.value)}
@@ -1114,6 +1158,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                           <div className="flex items-center gap-2.5">
                             <input
                               type="checkbox"
+                              id={`member-check-${emp.id}`}
+                              name="projectMembers"
                               checked={isChecked}
                               onChange={() => toggleProjectMember(emp.name)}
                               className="w-4 h-4 rounded text-[#049FD9] focus:ring-[#049FD9] accent-[#049FD9] cursor-pointer"
@@ -1142,6 +1188,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   <input
                     type="date"
                     required
+                    id="project-start-date"
+                    name="projectStartDate"
                     value={projectStartDate}
                     onChange={(e) => setProjectStartDate(e.target.value)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9]"
@@ -1153,6 +1201,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   <input
                     type="date"
                     required
+                    id="project-deadline"
+                    name="projectDeadline"
                     value={projectDeadline}
                     onChange={(e) => setProjectDeadline(e.target.value)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] cursor-pointer"
@@ -1165,6 +1215,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] mb-1">Initial Status</label>
                   <select
+                    id="project-status"
+                    name="projectStatus"
                     value={projectStatus}
                     onChange={(e) => setProjectStatus(e.target.value as any)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#222222] focus:outline-none focus:border-[#049FD9]"
@@ -1177,6 +1229,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 <div>
                   <label className="block text-xs font-semibold text-[#222222] mb-1">Project Notes</label>
                   <input
+                    id="project-notes"
+                    name="projectNotes"
                     type="text"
                     placeholder="Confidential notes or details..."
                     value={projectNotes}
@@ -1193,6 +1247,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   <div className="flex gap-2">
                     <input
                       type="text"
+                      id="doc-input-text"
+                      name="docInputText"
                       placeholder="Doc name (e.g. PRD.pdf, Design_Spec.fig)"
                       value={docInputText}
                       onChange={(e) => setDocInputText(e.target.value)}
@@ -1212,6 +1268,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                       <FolderIcon className="w-4 h-4 text-[#334155]" />
                       <span>Upload Document Files</span>
                       <input
+                        id="project-doc-file-upload"
+                        name="projectDocFileUpload"
                         type="file"
                         multiple
                         onChange={handleFileUpload}

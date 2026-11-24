@@ -903,7 +903,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
       <div className="bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3">
         {/* Full-Width Search Input (Never Squeezed) */}
         <div className="relative w-full">
-          <input
+          <input id="peopleview-search-query-1" name="searchQuery"
             type="text"
             placeholder="Search by employee name, email, Employee ID, designation, department..."
             value={searchQuery}
@@ -1785,7 +1785,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Full Name <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input id="peopleview-edit-name-2" name="editName"
                   type="text"
                   required
                   value={editName}
@@ -1799,7 +1799,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Work Email Address <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input id="peopleview-edit-email-3" name="editEmail"
                   type="email"
                   required
                   value={editEmail}
@@ -1812,7 +1812,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Department</label>
-                  <select
+                  <select id="peopleview-edit-department-4" name="editDepartment"
                     value={editDepartment}
                     onChange={(e) => setEditDepartment(e.target.value)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -1827,7 +1827,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
 
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Designation</label>
-                  <select
+                  <select id="peopleview-edit-designation-5" name="editDesignation"
                     value={editDesignation}
                     onChange={(e) => setEditDesignation(e.target.value)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -1845,7 +1845,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Phone Number</label>
-                  <input
+                  <input id="peopleview-edit-phone-6" name="editPhone"
                     type="tel"
                     value={editPhone}
                     onChange={(e) => setEditPhone(e.target.value)}
@@ -1856,7 +1856,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
 
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Joining Date</label>
-                  <input
+                  <input id="peopleview-edit-joining-date-7" name="editJoiningDate"
                     type="date"
                     value={editJoiningDate}
                     onChange={(e) => setEditJoiningDate(e.target.value)}
@@ -1871,7 +1871,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
                   <label className="block text-xs font-semibold text-[#111827] mb-1">
                     Access Role (Permissions)
                   </label>
-                  <select
+                  <select id="peopleview-edit-access-role-8" name="editAccessRole"
                     value={editAccessRole}
                     onChange={(e) => setEditAccessRole(e.target.value as AccessRole)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -1959,7 +1959,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
               <div className="space-y-4 text-xs">
                 {/* Add new department form */}
                 <form onSubmit={handleAddDepartment} className="flex gap-2">
-                  <input
+                  <input id="peopleview-new-dept-name-9" name="newDeptName"
                     type="text"
                     placeholder="New department name..."
                     value={newDeptName}
@@ -2000,7 +2000,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
               <div className="space-y-4 text-xs">
                 {/* Add new designation form */}
                 <form onSubmit={handleAddDesignation} className="flex gap-2">
-                  <input
+                  <input id="peopleview-new-desig-name-10" name="newDesigName"
                     type="text"
                     placeholder="New designation / job title..."
                     value={newDesigName}

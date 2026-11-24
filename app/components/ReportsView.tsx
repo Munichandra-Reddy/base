@@ -980,7 +980,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="relative w-full sm:w-80">
               <SearchIcon className="w-4 h-4 text-[#595959] absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
+              <input id="reportsview-loyee-search-1" name="loyeeSearch"
                 type="text"
                 placeholder="Search employee by name, email, ID..."
                 value={employeeSearch}
@@ -991,7 +991,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <span className="text-xs font-semibold text-[#595959] shrink-0">Department:</span>
-              <select
+              <select id="reportsview-loyee-dept-filter-2" name="loyeeDeptFilter"
                 value={employeeDeptFilter}
                 onChange={(e) => setEmployeeDeptFilter(e.target.value)}
                 className="px-3 py-1.5 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg text-xs font-semibold text-[#111827] focus:outline-hidden"
@@ -1127,7 +1127,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="relative w-full sm:w-80">
               <SearchIcon className="w-4 h-4 text-[#595959] absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
+              <input id="reportsview-search-3" name="search"
                 type="text"
                 placeholder="Search project name, manager..."
                 value={projectSearch}
@@ -1138,7 +1138,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <span className="text-xs font-semibold text-[#595959] shrink-0">Status:</span>
-              <select
+              <select id="reportsview-status-filter-4" name="statusFilter"
                 value={projectStatusFilter}
                 onChange={(e) => setProjectStatusFilter(e.target.value)}
                 className="px-3 py-1.5 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg text-xs font-semibold text-[#111827] focus:outline-hidden"
@@ -1278,7 +1278,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="relative w-full sm:w-80">
                 <SearchIcon className="w-4 h-4 text-[#595959] absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
+                <input id="reportsview-pending-search-5" name="pendingSearch"
                   type="text"
                   placeholder="Search pending tasks..."
                   value={pendingSearch}
@@ -1289,7 +1289,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
               <div className="flex items-center gap-2 self-start sm:self-auto text-xs font-semibold text-[#595959]">
                 <span>Sort by:</span>
-                <select
+                <select id="reportsview-pending-sort-by-6" name="pendingSortBy"
                   value={pendingSortBy}
                   onChange={(e) => setPendingSortBy(e.target.value as any)}
                   className="px-3 py-1.5 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg text-xs font-semibold text-[#111827] focus:outline-hidden"
@@ -1306,7 +1306,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2 border-t border-[#E5E5E5] text-xs">
               <div>
                 <label className="text-[10px] font-bold text-[#595959] uppercase block mb-1">Project</label>
-                <select
+                <select id="reportsview-pending-project-filter-7" name="pendingProjectFilter"
                   value={pendingProjectFilter}
                   onChange={(e) => setPendingProjectFilter(e.target.value)}
                   className="w-full px-2.5 py-1.5 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg text-xs text-[#111827]"
@@ -1322,7 +1322,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
               <div>
                 <label className="text-[10px] font-bold text-[#595959] uppercase block mb-1">Department</label>
-                <select
+                <select id="reportsview-pending-dept-filter-8" name="pendingDeptFilter"
                   value={pendingDeptFilter}
                   onChange={(e) => setPendingDeptFilter(e.target.value)}
                   className="w-full px-2.5 py-1.5 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg text-xs text-[#111827]"
@@ -1338,7 +1338,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
               <div>
                 <label className="text-[10px] font-bold text-[#595959] uppercase block mb-1">Priority</label>
-                <select
+                <select id="reportsview-pending-priority-filter-9" name="pendingPriorityFilter"
                   value={pendingPriorityFilter}
                   onChange={(e) => setPendingPriorityFilter(e.target.value)}
                   className="w-full px-2.5 py-1.5 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg text-xs text-[#111827]"
@@ -1353,7 +1353,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
               <div>
                 <label className="text-[10px] font-bold text-[#595959] uppercase block mb-1">Status</label>
-                <select
+                <select id="reportsview-pending-status-filter-10" name="pendingStatusFilter"
                   value={pendingStatusFilter}
                   onChange={(e) => setPendingStatusFilter(e.target.value)}
                   className="w-full px-2.5 py-1.5 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg text-xs text-[#111827]"
@@ -1453,7 +1453,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="relative w-full sm:w-80">
               <SearchIcon className="w-4 h-4 text-[#595959] absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
+              <input id="reportsview-overdue-search-11" name="overdueSearch"
                 type="text"
                 placeholder="Search overdue tasks..."
                 value={overdueSearch}
@@ -1465,7 +1465,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-semibold text-[#595959]">Project:</span>
-                <select
+                <select id="reportsview-overdue-project-filter-12" name="overdueProjectFilter"
                   value={overdueProjectFilter}
                   onChange={(e) => setOverdueProjectFilter(e.target.value)}
                   className="px-2.5 py-1.5 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg text-xs font-semibold text-[#111827]"
@@ -1481,7 +1481,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-semibold text-[#595959]">Priority:</span>
-                <select
+                <select id="reportsview-overdue-priority-filter-13" name="overduePriorityFilter"
                   value={overduePriorityFilter}
                   onChange={(e) => setOverduePriorityFilter(e.target.value)}
                   className="px-2.5 py-1.5 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg text-xs font-semibold text-[#111827]"
@@ -1572,7 +1572,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             {/* Month Dropdown / Selection */}
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-[#595959]">Select Month:</span>
-              <select
+              <select id="reportsview-selected-month-key-14" name="selectedMonthKey"
                 value={selectedMonthKey}
                 onChange={(e) => setSelectedMonthKey(e.target.value)}
                 className="px-3 py-1.5 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg text-xs font-bold text-[#111827] focus:outline-hidden"
@@ -1782,7 +1782,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <div className="p-3 border-b border-[#E5E5E5] flex flex-wrap items-center justify-between gap-3 bg-[#F8FAFC]">
               <span className="font-bold text-xs text-[#111827]">Active Assignments by Employee</span>
               <div className="flex items-center gap-2">
-                <select
+                <select id="reportsview-workload-dept-filter-15" name="workloadDeptFilter"
                   value={workloadDeptFilter}
                   onChange={(e) => setWorkloadDeptFilter(e.target.value)}
                   className="px-2.5 py-1 bg-white border border-[#E5E5E5] rounded-md text-xs font-semibold text-[#111827]"
@@ -1795,7 +1795,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                   ))}
                 </select>
 
-                <select
+                <select id="reportsview-workload-status-filter-16" name="workloadStatusFilter"
                   value={workloadStatusFilter}
                   onChange={(e) => setWorkloadStatusFilter(e.target.value as any)}
                   className="px-2.5 py-1 bg-white border border-[#E5E5E5] rounded-md text-xs font-semibold text-[#111827]"
@@ -1904,7 +1904,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-[#595959]">Manager:</span>
-              <select
+              <select id="reportsview-history-manager-filter-17" name="historyManagerFilter"
                 value={historyManagerFilter}
                 onChange={(e) => setHistoryManagerFilter(e.target.value)}
                 className="px-2.5 py-1 bg-[#F4F6F8] border border-[#E5E5E5] rounded-lg text-xs font-semibold text-[#111827]"

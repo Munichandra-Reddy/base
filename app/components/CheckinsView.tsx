@@ -41,6 +41,8 @@ export const CheckinsView: React.FC<CheckinsViewProps> = ({ checkins, onAddCheck
         <form onSubmit={handleSubmit} className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-4">
           <h3 className="text-base font-semibold text-[#111827]">What did you complete today?</h3>
           <textarea
+            id="checkin-answer"
+            name="checkinAnswer"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             rows={3}

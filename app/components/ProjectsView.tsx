@@ -2159,7 +2159,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         </div>
                         <p className="text-[10px] text-[#64748B]">Assign one employee</p>
                         {isAdmin ? (
-                          <select
+                          <select id="projectsview-select_1-1" name="select_1"
                             value={selectedProject.learningPlan?.streamAssignments?.frontend || ''}
                             onChange={(e) => handleUpdateStreamAssignment('frontend', e.target.value)}
                             className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
@@ -2185,7 +2185,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         </div>
                         <p className="text-[10px] text-[#64748B]">Assign one employee</p>
                         {isAdmin ? (
-                          <select
+                          <select id="projectsview-select_2-2" name="select_2"
                             value={selectedProject.learningPlan?.streamAssignments?.backend || ''}
                             onChange={(e) => handleUpdateStreamAssignment('backend', e.target.value)}
                             className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
@@ -2211,7 +2211,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         </div>
                         <p className="text-[10px] text-[#64748B]">Assign one employee</p>
                         {isAdmin ? (
-                          <select
+                          <select id="projectsview-select_3-3" name="select_3"
                             value={selectedProject.learningPlan?.streamAssignments?.database || ''}
                             onChange={(e) => handleUpdateStreamAssignment('database', e.target.value)}
                             className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
@@ -2237,7 +2237,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         </div>
                         <p className="text-[10px] text-[#64748B]">Assign one employee</p>
                         {isAdmin ? (
-                          <select
+                          <select id="projectsview-select_4-4" name="select_4"
                             value={selectedProject.learningPlan?.streamAssignments?.testing || ''}
                             onChange={(e) => handleUpdateStreamAssignment('testing', e.target.value)}
                             className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
@@ -2805,7 +2805,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <input
+              <input id="projectsview-chat-input-text-5" name="chatInputText"
                 type="text"
                 placeholder="Type a message to project team..."
                 value={chatInputText}
@@ -2856,7 +2856,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-4 text-xs">
             <h3 className="font-bold text-base text-[#111827]">Work Updates & Check-ins</h3>
             <div className="space-y-2">
-              <textarea
+              <textarea id="projectsview-new-update-text-6" name="newUpdateText"
                 rows={2}
                 placeholder="Share a project progress update with the team..."
                 value={newUpdateText}
@@ -2918,7 +2918,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="flex items-center gap-2">
                 <div className="relative">
                   <SearchIcon className="w-3.5 h-3.5 text-[#94A3B8] absolute left-2.5 top-1/2 -translate-y-1/2" />
-                  <input
+                  <input id="projectsview-file-search-7" name="fileSearch"
                     type="text"
                     placeholder="Search project files..."
                     value={projectFileSearch}
@@ -3152,7 +3152,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Scope Document URL or Design Link (Optional)
                 </label>
-                <input
+                <input id="projectsview-doc-url-8" name="docUrl"
                   type="text"
                   placeholder="https://docs.google.com/... or Figma PRD link / doc reference"
                   value={scopeDocUrl}
@@ -3165,7 +3165,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Key Project Objectives <span className="text-red-500">*</span>
                 </label>
-                <textarea
+                <textarea id="projectsview-objectives-9" name="objectives"
                   rows={2}
                   required
                   placeholder="What core problems does this system solve? e.g. Customer Portal with real-time updates..."
@@ -3179,7 +3179,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Proposed Tech Stack &amp; Libraries <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input id="projectsview-proposed-tech-stack-10" name="proposedTechStack"
                   type="text"
                   required
                   placeholder="e.g. Next.js, Tailwind CSS, Firebase, Express, PostgreSQL"
@@ -3193,7 +3193,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Planned Deliverables
                 </label>
-                <textarea
+                <textarea id="projectsview-deliverables-11" name="deliverables"
                   rows={2}
                   placeholder="1. UI Brand Kit &amp; Wireframes 2. Responsive Web/Mobile App 3. Backend APIs..."
                   value={scopeDeliverables}
@@ -3206,7 +3206,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Executive Summary &amp; Architecture Notes
                 </label>
-                <textarea
+                <textarea id="projectsview-content-12" name="content"
                   rows={3}
                   placeholder="Provide additional details regarding system architecture, module boundaries, target audience..."
                   value={scopeContent}
@@ -3306,7 +3306,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Assign to Employee / Team Member <span className="text-red-500">*</span>
                 </label>
-                <select
+                <select id="projectsview-member-13" name="member"
                   required
                   value={streamTaskMember}
                   onChange={(e) => setStreamTaskMember(e.target.value)}
@@ -3332,7 +3332,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Sprint / Target Week</label>
-                  <select
+                  <select id="projectsview-sprint-week-14" name="sprintWeek"
                     value={streamTaskSprintWeek}
                     onChange={(e) => setStreamTaskSprintWeek(e.target.value)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -3347,7 +3347,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Task Priority</label>
-                  <select
+                  <select id="projectsview-priority-15" name="priority"
                     value={streamTaskPriority}
                     onChange={(e) => setStreamTaskPriority(e.target.value as ProjectPriority)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -3365,7 +3365,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Task Title <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input id="projectsview-title-16" name="title"
                   type="text"
                   required
                   placeholder="e.g. Design responsive dashboard brand kit &amp; navigation"
@@ -3380,7 +3380,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Target Due Date (Weekend Review) <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input id="projectsview-due-date-17" name="dueDate"
                   type="date"
                   required
                   value={streamTaskDueDate}
@@ -3394,7 +3394,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Work Requirements &amp; Guidelines <span className="text-red-500">*</span>
                 </label>
-                <textarea
+                <textarea id="projectsview-description-18" name="description"
                   rows={2}
                   required
                   placeholder="Specific requirements, expected commits, deliverables for the upcoming weekend meet..."
@@ -3461,7 +3461,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Upcoming Weekend Meeting Date <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input id="projectsview-meeting-date-input-19" name="meetingDateInput"
                   type="date"
                   required
                   value={meetingDateInput}
@@ -3474,7 +3474,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Sprint Agenda &amp; Milestones to Demonstrate
                 </label>
-                <textarea
+                <textarea id="projectsview-meeting-agenda-input-20" name="meetingAgendaInput"
                   rows={2}
                   placeholder="e.g. Review UI/UX brand kit prototypes, inspect React API integration, evaluate database indexes..."
                   value={meetingAgendaInput}
@@ -3487,7 +3487,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Mentor Meeting Notes &amp; Action Items
                 </label>
-                <textarea
+                <textarea id="projectsview-meeting-notes-input-21" name="meetingNotesInput"
                   rows={3}
                   placeholder="Client/Mentor observations from the meeting, decisions taken, next sprint guidance..."
                   value={meetingNotesInput}
@@ -3553,7 +3553,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   What changes or additions are needed before tech stack lock? <span className="text-red-500">*</span>
                 </label>
-                <textarea
+                <textarea id="projectsview-revision-notes-input-22" name="revisionNotesInput"
                   rows={4}
                   required
                   placeholder="e.g. Please clarify database schema for multi-tenant support and specify component library in tech stack..."
@@ -3621,7 +3621,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Live Production URL <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input id="projectsview-live-url-input-23" name="liveUrlInput"
                   type="url"
                   required
                   placeholder="https://my-project.vercel.app or Play Store link"
@@ -3635,7 +3635,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Final Project Document / Report URL
                 </label>
-                <input
+                <input id="projectsview-final-report-url-input-24" name="finalReportUrlInput"
                   type="url"
                   placeholder="https://drive.google.com/... (Comprehensive Project Report)"
                   value={finalReportUrlInput}
@@ -3785,7 +3785,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Project Name <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input id="projectsview-name-25" name="name"
                   type="text"
                   required
                   placeholder="e.g. Mobile Banking App v2"
@@ -3800,7 +3800,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Project Description <span className="text-red-500">*</span>
                 </label>
-                <textarea
+                <textarea id="projectsview-description-26" name="description"
                   rows={2}
                   required
                   placeholder="Key deliverables, business goals, requirements..."
@@ -3814,7 +3814,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Category</label>
-                  <select
+                  <select id="projectsview-category-27" name="category"
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -3831,7 +3831,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Priority <span className="text-red-500">*</span></label>
-                  <select
+                  <select id="projectsview-priority-28" name="priority"
                     value={formPriority}
                     onChange={(e) => setFormPriority(e.target.value as ProjectPriority)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -3870,7 +3870,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </span>
-                  <input
+                  <input id="projectsview-team-search-29" name="teamSearch"
                     type="text"
                     value={formTeamSearch}
                     onChange={(e) => setFormTeamSearch(e.target.value)}
@@ -3906,7 +3906,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           }`}
                         >
                           <div className="flex items-center gap-2">
-                            <input
+                            <input id="projectsview-checkbox_field-30" name="checkbox_field"
                               type="checkbox"
                               checked={isChecked}
                               disabled={isPM}
@@ -3932,7 +3932,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <label className="block text-xs font-semibold text-[#111827] mb-1">
                     Start Date <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <input id="projectsview-start-date-31" name="startDate"
                     type="date"
                     required
                     value={formStartDate}
@@ -3945,7 +3945,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <label className="block text-xs font-semibold text-[#111827] mb-1">
                     End Date / Deadline <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <input id="projectsview-end-date-32" name="endDate"
                     type="date"
                     required
                     value={formEndDate}
@@ -3958,7 +3958,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Initial Status */}
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Initial Status</label>
-                <select
+                <select id="projectsview-status-33" name="status"
                   value={formStatus}
                   onChange={(e) => setFormStatus(e.target.value as ProjectStatus)}
                   className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -3971,7 +3971,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Project Notes */}
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Project Notes (Optional)</label>
-                <textarea
+                <textarea id="projectsview-notes-34" name="notes"
                   rows={2}
                   placeholder="Confidential notes, special client considerations..."
                   value={formNotes}
@@ -3997,7 +3997,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <label className="block text-xs font-semibold text-[#166534] mb-1">
                       Team / Group Name <span className="text-red-500">*</span>
                     </label>
-                    <input
+                    <input id="projectsview-team-name-35" name="teamName"
                       type="text"
                       required
                       placeholder="e.g. Kaling"
@@ -4011,7 +4011,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <label className="block text-xs font-semibold text-[#166534] mb-1">
                       Project Platform / Type
                     </label>
-                    <select
+                    <select id="projectsview-project-type-36" name="projectType"
                       value={formProjectType}
                       onChange={(e) => setFormProjectType(e.target.value as 'website' | 'app')}
                       className="w-full px-3 py-1.5 bg-white border border-[#86EFAC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#16A34A]"
@@ -4030,7 +4030,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
                       <span className="text-[10px] text-[#15803D] font-medium block">1. UI/UX [Brand Kit]</span>
-                      <input
+                      <input id="projectsview-tech-stack-ui-ux-37" name="techStackUiUx"
                         type="text"
                         value={formTechStackUiUx}
                         onChange={(e) => setFormTechStackUiUx(e.target.value)}
@@ -4040,7 +4040,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     </div>
                     <div>
                       <span className="text-[10px] text-[#15803D] font-medium block">2. Frontend [React JS]</span>
-                      <input
+                      <input id="projectsview-tech-stack-frontend-38" name="techStackFrontend"
                         type="text"
                         value={formTechStackFrontend}
                         onChange={(e) => setFormTechStackFrontend(e.target.value)}
@@ -4050,7 +4050,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     </div>
                     <div>
                       <span className="text-[10px] text-[#15803D] font-medium block">3. Backend &amp; APIs</span>
-                      <input
+                      <input id="projectsview-tech-stack-backend-39" name="techStackBackend"
                         type="text"
                         value={formTechStackBackend}
                         onChange={(e) => setFormTechStackBackend(e.target.value)}
@@ -4060,7 +4060,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     </div>
                     <div>
                       <span className="text-[10px] text-[#15803D] font-medium block">4. Database &amp; Cloud</span>
-                      <input
+                      <input id="projectsview-tech-stack-database-40" name="techStackDatabase"
                         type="text"
                         value={formTechStackDatabase}
                         onChange={(e) => setFormTechStackDatabase(e.target.value)}
@@ -4076,7 +4076,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <label className="block text-xs font-semibold text-[#166534] mb-1">
                     First Weekend Review Meeting Date
                   </label>
-                  <input
+                  <input id="projectsview-weekend-meeting-date-41" name="weekendMeetingDate"
                     type="date"
                     value={formWeekendMeetingDate}
                     onChange={(e) => setFormWeekendMeetingDate(e.target.value)}
@@ -4151,7 +4151,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Project Name <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input id="projectsview-name-42" name="name"
                   type="text"
                   required
                   value={formName}
@@ -4163,7 +4163,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Description */}
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Project Description</label>
-                <textarea
+                <textarea id="projectsview-description-43" name="description"
                   rows={2}
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
@@ -4175,7 +4175,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Category</label>
-                  <select
+                  <select id="projectsview-category-44" name="category"
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -4192,7 +4192,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Priority</label>
-                  <select
+                  <select id="projectsview-priority-45" name="priority"
                     value={formPriority}
                     onChange={(e) => setFormPriority(e.target.value as ProjectPriority)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -4208,7 +4208,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Status */}
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Project Status</label>
-                <select
+                <select id="projectsview-status-46" name="status"
                   value={formStatus}
                   onChange={(e) => setFormStatus(e.target.value as ProjectStatus)}
                   className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -4227,7 +4227,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <label className="block text-xs font-semibold text-[#111827] mb-1">
                     Start Date <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <input id="projectsview-start-date-47" name="startDate"
                     type="date"
                     required
                     value={formStartDate}
@@ -4240,7 +4240,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <label className="block text-xs font-semibold text-[#111827] mb-1">
                     End Date / Deadline <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <input id="projectsview-end-date-48" name="endDate"
                     type="date"
                     required
                     value={formEndDate}
@@ -4253,7 +4253,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Initial Status */}
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Initial Status</label>
-                <select
+                <select id="projectsview-status-49" name="status"
                   value={formStatus}
                   onChange={(e) => setFormStatus(e.target.value as ProjectStatus)}
                   className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -4266,7 +4266,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Project Notes */}
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Project Notes (Optional)</label>
-                <textarea
+                <textarea id="projectsview-notes-50" name="notes"
                   rows={2}
                   placeholder="Confidential notes, special client considerations..."
                   value={formNotes}
@@ -4292,7 +4292,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <label className="block text-xs font-semibold text-[#166534] mb-1">
                       Team / Group Name <span className="text-red-500">*</span>
                     </label>
-                    <input
+                    <input id="projectsview-team-name-51" name="teamName"
                       type="text"
                       required
                       placeholder="e.g. Kaling"
@@ -4306,7 +4306,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <label className="block text-xs font-semibold text-[#166534] mb-1">
                       Project Platform / Type
                     </label>
-                    <select
+                    <select id="projectsview-project-type-52" name="projectType"
                       value={formProjectType}
                       onChange={(e) => setFormProjectType(e.target.value as 'website' | 'app')}
                       className="w-full px-3 py-1.5 bg-white border border-[#86EFAC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#16A34A]"
@@ -4325,7 +4325,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
                       <span className="text-[10px] text-[#15803D] font-medium block">1. UI/UX [Brand Kit]</span>
-                      <input
+                      <input id="projectsview-tech-stack-ui-ux-53" name="techStackUiUx"
                         type="text"
                         value={formTechStackUiUx}
                         onChange={(e) => setFormTechStackUiUx(e.target.value)}
@@ -4335,7 +4335,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     </div>
                     <div>
                       <span className="text-[10px] text-[#15803D] font-medium block">2. Frontend [React JS]</span>
-                      <input
+                      <input id="projectsview-tech-stack-frontend-54" name="techStackFrontend"
                         type="text"
                         value={formTechStackFrontend}
                         onChange={(e) => setFormTechStackFrontend(e.target.value)}
@@ -4345,7 +4345,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     </div>
                     <div>
                       <span className="text-[10px] text-[#15803D] font-medium block">3. Backend &amp; APIs</span>
-                      <input
+                      <input id="projectsview-tech-stack-backend-55" name="techStackBackend"
                         type="text"
                         value={formTechStackBackend}
                         onChange={(e) => setFormTechStackBackend(e.target.value)}
@@ -4355,7 +4355,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     </div>
                     <div>
                       <span className="text-[10px] text-[#15803D] font-medium block">4. Database &amp; Cloud</span>
-                      <input
+                      <input id="projectsview-tech-stack-database-56" name="techStackDatabase"
                         type="text"
                         value={formTechStackDatabase}
                         onChange={(e) => setFormTechStackDatabase(e.target.value)}
@@ -4371,7 +4371,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <label className="block text-xs font-semibold text-[#166534] mb-1">
                     First Weekend Review Meeting Date
                   </label>
-                  <input
+                  <input id="projectsview-weekend-meeting-date-57" name="weekendMeetingDate"
                     type="date"
                     value={formWeekendMeetingDate}
                     onChange={(e) => setFormWeekendMeetingDate(e.target.value)}
@@ -4446,7 +4446,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Project Name <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input id="projectsview-name-58" name="name"
                   type="text"
                   required
                   value={formName}
@@ -4458,7 +4458,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Description */}
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Project Description</label>
-                <textarea
+                <textarea id="projectsview-description-59" name="description"
                   rows={2}
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
@@ -4470,7 +4470,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Category</label>
-                  <select
+                  <select id="projectsview-category-60" name="category"
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -4487,7 +4487,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Priority</label>
-                  <select
+                  <select id="projectsview-priority-61" name="priority"
                     value={formPriority}
                     onChange={(e) => setFormPriority(e.target.value as ProjectPriority)}
                     className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -4503,7 +4503,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Status */}
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Project Status</label>
-                <select
+                <select id="projectsview-status-62" name="status"
                   value={formStatus}
                   onChange={(e) => setFormStatus(e.target.value as ProjectStatus)}
                   className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -4520,7 +4520,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="relative" ref={editPMDropdownRef}>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Project Manager</label>
                 <div className="relative">
-                  <input
+                  <input id="projectsview-text_field-63" name="text_field"
                     type="text"
                     value={
                       isEditPMDropdownOpen
@@ -4638,7 +4638,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">Start Date</label>
-                  <input
+                  <input id="projectsview-start-date-64" name="startDate"
                     type="date"
                     value={formStartDate}
                     onChange={(e) => setFormStartDate(e.target.value)}
@@ -4648,7 +4648,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                 <div>
                   <label className="block text-xs font-semibold text-[#111827] mb-1">End Date / Deadline</label>
-                  <input
+                  <input id="projectsview-end-date-65" name="endDate"
                     type="date"
                     value={formEndDate}
                     onChange={(e) => setFormEndDate(e.target.value)}
@@ -4660,7 +4660,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Notes */}
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">Project Notes</label>
-                <textarea
+                <textarea id="projectsview-notes-66" name="notes"
                   rows={2}
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
@@ -4731,7 +4731,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <span className="font-bold text-[#111827] text-sm">{managingTeamProject.manager}</span>
               </div>
               <div className="flex items-center gap-2">
-                <select
+                <select id="projectsview-selected-new-p-m-67" name="selectedNewPM"
                   value={selectedNewPM}
                   onChange={(e) => setSelectedNewPM(e.target.value)}
                   className="px-2 py-1 text-xs bg-white border border-[#BAE6FD] rounded-md font-medium text-[#111827]"
@@ -4759,7 +4759,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="space-y-1.5 pt-2">
               <label className="block text-xs font-semibold text-[#111827]">Add Active Employee to Team</label>
               <div className="w-full">
-                <select
+                <select id="projectsview-select_68-68" name="select_68"
                   value=""
                   onChange={(e) => {
                     if (e.target.value) {

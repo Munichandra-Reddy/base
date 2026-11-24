@@ -281,7 +281,7 @@ export const FilesView: React.FC<FilesViewProps> = ({
           {/* Search Box */}
           <div className="relative flex-1 min-w-[200px]">
             <SearchIcon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
-            <input
+            <input id="filesview-search-query-1" name="searchQuery"
               type="text"
               placeholder="Search by file name, project, or uploader..."
               value={searchQuery}
@@ -293,7 +293,7 @@ export const FilesView: React.FC<FilesViewProps> = ({
           {/* Project & Sort Dropdowns */}
           <div className="flex items-center gap-2 flex-wrap">
             {/* Project Filter */}
-            <select
+            <select id="filesview-selected-project-filter-2" name="selectedProjectFilter"
               value={selectedProjectFilter}
               onChange={(e) => setSelectedProjectFilter(e.target.value)}
               className="px-3 py-2 text-xs bg-[#F4F6F8] border border-[#E5E5E5] rounded-md text-[#111827] font-medium focus:outline-none focus:border-[#049FD9]"
@@ -307,7 +307,7 @@ export const FilesView: React.FC<FilesViewProps> = ({
             </select>
 
             {/* Sort Dropdown */}
-            <select
+            <select id="filesview-sort-by-3" name="sortBy"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
               className="px-3 py-2 text-xs bg-[#F4F6F8] border border-[#E5E5E5] rounded-md text-[#111827] font-medium focus:outline-none focus:border-[#049FD9]"
@@ -743,7 +743,7 @@ export const FilesView: React.FC<FilesViewProps> = ({
                 </div>
 
                 {isEditingDesc ? (
-                  <textarea
+                  <textarea id="filesview-desc-input-4" name="descInput"
                     value={descInput}
                     onChange={(e) => setDescInput(e.target.value)}
                     placeholder="Enter file description or notes..."

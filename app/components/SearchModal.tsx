@@ -32,6 +32,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
         <div className="p-3.5 border-b border-[#E5E5E5] flex items-center gap-3">
           <SearchIcon className="w-4 h-4 text-[#595959]" />
           <input
+            id="search-modal-input"
+            name="searchQuery"
             type="text"
             autoFocus
             value={query}

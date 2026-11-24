@@ -252,6 +252,8 @@ function SetupPasswordForm() {
               </label>
               <div className="relative">
                 <input
+                  id="new-password"
+                  name="newPassword"
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={newPassword}
@@ -294,6 +296,8 @@ function SetupPasswordForm() {
               </label>
               <div className="relative">
                 <input
+                  id="confirm-password"
+                  name="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   required
                   value={confirmPassword}

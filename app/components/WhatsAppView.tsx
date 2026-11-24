@@ -513,7 +513,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                   </div>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
-                  <input
+                  <input id="whatsappview-checkbox_field-1" name="checkbox_field"
                     type="checkbox"
                     checked={preferences.taskAssignments}
                     onChange={(e) =>
@@ -534,7 +534,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                   </div>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
-                  <input
+                  <input id="whatsappview-checkbox_field-2" name="checkbox_field"
                     type="checkbox"
                     checked={preferences.upcomingDeadlines}
                     onChange={(e) =>
@@ -555,7 +555,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                   </div>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
-                  <input
+                  <input id="whatsappview-checkbox_field-3" name="checkbox_field"
                     type="checkbox"
                     checked={preferences.overdueTasks}
                     onChange={(e) =>
@@ -576,7 +576,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                   </div>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
-                  <input
+                  <input id="whatsappview-checkbox_field-4" name="checkbox_field"
                     type="checkbox"
                     checked={preferences.projectUpdates}
                     onChange={(e) =>
@@ -652,7 +652,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                     Workspace Notification Recipient Phone (E.164 Format)
                   </label>
                   <div className="relative">
-                    <input
+                    <input id="whatsappview-recipient-phone-5" name="recipientPhone"
                       type="text"
                       value={preferences.recipientPhone}
                       onChange={(e) =>
@@ -747,7 +747,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                 <label className="block text-xs font-bold text-[#334155] mb-1">
                   Template Event Type
                 </label>
-                <select
+                <select id="whatsappview-test-event-type-6" name="testEventType"
                   value={testEventType}
                   onChange={(e) => setTestEventType(e.target.value as any)}
                   className="w-full px-3.5 py-2.5 bg-white border border-[#E2E8F0] rounded-lg text-sm font-semibold text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
@@ -765,7 +765,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                 <label className="block text-xs font-bold text-[#334155] mb-1">
                   Sample Project
                 </label>
-                <select
+                <select id="whatsappview-test-selected-project-7" name="testSelectedProject"
                   value={testSelectedProject}
                   onChange={(e) => setTestSelectedProject(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-white border border-[#E2E8F0] rounded-lg text-sm font-semibold text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0B192C]"
@@ -783,7 +783,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                 <label className="block text-xs font-bold text-[#334155] mb-1">
                   Recipient Phone Number
                 </label>
-                <input
+                <input id="whatsappview-test-phone-8" name="testPhone"
                   type="text"
                   value={testPhone}
                   onChange={(e) => setTestPhone(e.target.value)}
@@ -1121,7 +1121,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                   <label className="block text-xs font-bold text-[#0F172A] uppercase tracking-wider mb-1">
                     Phone Number ID
                   </label>
-                  <input
+                  <input id="whatsappview-connect-phone-id-9" name="connectPhoneId"
                     type="text"
                     value={connectPhoneId}
                     onChange={(e) => setConnectPhoneId(e.target.value)}
@@ -1135,7 +1135,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                   <label className="block text-xs font-bold text-[#0F172A] uppercase tracking-wider mb-1">
                     WhatsApp Business Account ID
                   </label>
-                  <input
+                  <input id="whatsappview-connect-account-id-10" name="connectAccountId"
                     type="text"
                     value={connectAccountId}
                     onChange={(e) => setConnectAccountId(e.target.value)}
@@ -1149,7 +1149,7 @@ export const WhatsAppView: React.FC<WhatsAppViewProps> = ({ projects }) => {
                   <label className="block text-xs font-bold text-[#0F172A] uppercase tracking-wider mb-1">
                     Meta Access Token (Bearer Token)
                   </label>
-                  <input
+                  <input id="whatsappview-connect-token-11" name="connectToken"
                     type="password"
                     value={connectToken}
                     onChange={(e) => setConnectToken(e.target.value)}

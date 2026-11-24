@@ -219,6 +219,8 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
               Select Destination Project *
             </label>
             <select
+              id="upload-destination-project"
+              name="destinationProject"
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
               disabled={isUploading}
@@ -252,6 +254,8 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
             }`}
           >
             <input
+              id="upload-file-input"
+              name="uploadedFiles"
               type="file"
               ref={fileInputRef}
               multiple
@@ -357,6 +361,8 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
               Description / Notes (Optional)
             </label>
             <input
+              id="upload-file-description"
+              name="fileDescription"
               type="text"
               placeholder="e.g. Approved wireframes, Q4 financial report"
               value={description}
