@@ -15,6 +15,8 @@ interface CreateModalProps {
     assignedTo?: string;
     priority?: 'low' | 'medium' | 'high';
     dueDate?: string;
+    sprintWeek?: string;
+    stream?: string;
   } | string, projectArg?: string) => void;
   onAddProject: (projectData: {
     name: string;
@@ -66,7 +68,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       const pName = String(p.name || '').trim();
       const prjId = String(p.projectId || '').trim();
       if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1', 'p-1791616801241', 'p-1791624872977', 'p-1791618846792'].includes(id)) return false;
-      if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync', 'kalinq', 'muni', 'anurag 2'].includes(pName)) return false;
+      if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return false;
       if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return false;
       return true;
     });
@@ -126,6 +128,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   const [assignedMember, setAssignedMember] = useState('');
   const [taskPriority, setTaskPriority] = useState<'high' | 'medium' | 'low'>('medium');
   const [taskDueDate, setTaskDueDate] = useState('');
+  const [taskSprintWeek, setTaskSprintWeek] = useState('Sprint 1 (Week 1)');
+  const [taskStream, setTaskStream] = useState<'frontend' | 'backend' | 'database' | 'testing' | 'ui_ux' | 'general'>('frontend');
 
   // Task Project and Assignee Dropdown states (Strictly Opens Below with Search)
   const [isTaskProjectDropdownOpen, setIsTaskProjectDropdownOpen] = useState(false);
@@ -216,7 +220,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   const [projectManager, setProjectManager] = useState('');
   const [projectMembers, setProjectMembers] = useState<string[]>([]);
   const [projectStartDate, setProjectStartDate] = useState(new Date().toISOString().split('T')[0]);
-  const [projectDeadline, setProjectDeadline] = useState('');
+  const [projectDeadline, setProjectDeadline] = useState(() => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
   const [projectPriority, setProjectPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   const [projectStatus, setProjectStatus] = useState<'planning' | 'active'>('planning');
   const [projectNotes, setProjectNotes] = useState('');
@@ -291,6 +295,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       assignedTo: assignedMember.trim() || undefined,
       priority: taskPriority,
       dueDate: taskDueDate || undefined,
+      sprintWeek: taskSprintWeek,
+      stream: taskStream,
     });
 
     setTaskTitle('');
@@ -316,7 +322,15 @@ export const CreateModal: React.FC<CreateModalProps> = ({
     const defaultManager = projectManager.trim() || 'Workspace Admin';
     const membersSet = new Set<string>();
     if (defaultManager) membersSet.add(defaultManager);
-    projectMembers.forEach((m) => membersSet.add(m));
+    projectMembers.forEach((m) => {
+      membersSet.add(m);
+      const found = employeeList.find(
+        (e: any) => (e.name && e.name.toLowerCase() === m.toLowerCase()) || (e.fullName && e.fullName.toLowerCase() === m.toLowerCase())
+      );
+      if (found?.email) membersSet.add(found.email.toLowerCase().trim());
+      if (found?.name) membersSet.add(found.name.trim());
+      if ((found as any)?.fullName) membersSet.add((found as any).fullName.trim());
+    });
 
     onAddProject({
       name: projectName.trim(),
@@ -911,6 +925,40 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     onChange={(e) => setTaskDueDate(e.target.value)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] cursor-pointer"
                   />
+                </div>
+              </div>
+
+              {/* 7. Weekly Sprint & Work Stream */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#222222] mb-1">Sprint / Target Week</label>
+                  <select
+                    value={taskSprintWeek}
+                    onChange={(e) => setTaskSprintWeek(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+                  >
+                    <option value="Sprint 1 (Week 1)">Sprint 1 (Week 1)</option>
+                    <option value="Sprint 2 (Week 2)">Sprint 2 (Week 2)</option>
+                    <option value="Sprint 3 (Week 3)">Sprint 3 (Week 3)</option>
+                    <option value="Sprint 4 (Week 4)">Sprint 4 (Week 4)</option>
+                    <option value="Sprint 5 (Week 5)">Sprint 5 (Week 5)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#222222] mb-1">Work Stream</label>
+                  <select
+                    value={taskStream}
+                    onChange={(e) => setTaskStream(e.target.value as any)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+                  >
+                    <option value="frontend">💻 Frontend Development</option>
+                    <option value="backend">⚙️ Backend Development</option>
+                    <option value="database">☁️ Database Management</option>
+                    <option value="testing">🧪 Testing (QA)</option>
+                    <option value="ui_ux">🎨 UI/UX Design</option>
+                    <option value="general">📁 General</option>
+                  </select>
                 </div>
               </div>
             </form>

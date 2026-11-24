@@ -169,7 +169,7 @@ export default function Home() {
               const pName = String(p.name || '').trim();
               const prjId = String(p.projectId || '').trim();
               if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1', 'p-1791616801241', 'p-1791624872977', 'p-1791618846792'].includes(id)) return false;
-              if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync', 'kalinq', 'muni', 'anurag 2'].includes(pName)) return false;
+              if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return false;
               if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return false;
               return true;
             });
@@ -454,7 +454,7 @@ export default function Home() {
               const pName = String(p.name || '').trim();
               const prjId = String(p.projectId || '').trim();
               if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1', 'p-1791616801241', 'p-1791624872977', 'p-1791618846792'].includes(id)) return false;
-              if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync', 'kalinq', 'muni', 'anurag 2'].includes(pName)) return false;
+              if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return false;
               if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return false;
               return true;
             });
@@ -568,7 +568,7 @@ export default function Home() {
               const pName = String(p.name || '').trim();
               const prjId = String(p.projectId || '').trim();
               if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1', 'p-1791616801241', 'p-1791624872977', 'p-1791618846792'].includes(id)) return false;
-              if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync', 'kalinq', 'muni', 'anurag 2'].includes(pName)) return false;
+              if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return false;
               if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return false;
               return true;
             });
@@ -945,6 +945,8 @@ export default function Home() {
     let startDate = new Date().toISOString().split('T')[0];
     let instructions = '';
     let adminNotes = '';
+    let sprintWeek = 'Sprint 1 (Week 1)';
+    let stream = 'frontend';
 
     if (typeof taskData === 'object') {
       title = taskData.title;
@@ -956,6 +958,8 @@ export default function Home() {
       startDate = taskData.startDate || startDate;
       instructions = taskData.instructions || '';
       adminNotes = taskData.adminNotes || '';
+      sprintWeek = (taskData as any).sprintWeek || sprintWeek;
+      stream = (taskData as any).stream || stream;
     } else {
       title = taskData;
       if (projectArg) project = projectArg;
@@ -987,6 +991,8 @@ export default function Home() {
       assignedByName: currentUser?.fullName || 'Workspace Administrator',
       startDate,
       dueDate,
+      sprintWeek,
+      stream,
       progress: 0,
       instructions,
       adminNotes,

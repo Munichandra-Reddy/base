@@ -436,7 +436,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       const pName = String(p.name || '').trim();
       const prjId = String(p.projectId || '').trim();
       if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1', 'p-1791616801241', 'p-1791624872977', 'p-1791618846792'].includes(id)) return false;
-      if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync', 'kalinq', 'muni', 'anurag 2'].includes(pName)) return false;
+      if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return false;
       if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return false;
       return true;
     });
@@ -3150,12 +3150,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <form onSubmit={handleSaveScopeSubmission} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
-                  Scope Document URL or Design Link <span className="text-red-500">*</span>
+                  Scope Document URL or Design Link (Optional)
                 </label>
                 <input
-                  type="url"
-                  required
-                  placeholder="https://docs.google.com/... or Figma PRD link"
+                  type="text"
+                  placeholder="https://docs.google.com/... or Figma PRD link / doc reference"
                   value={scopeDocUrl}
                   onChange={(e) => setScopeDocUrl(e.target.value)}
                   className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
@@ -3178,10 +3177,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
-                  Proposed Tech Stack &amp; Libraries
+                  Proposed Tech Stack &amp; Libraries <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
+                  required
                   placeholder="e.g. Next.js, Tailwind CSS, Firebase, Express, PostgreSQL"
                   value={scopeProposedTechStack}
                   onChange={(e) => setScopeProposedTechStack(e.target.value)}
