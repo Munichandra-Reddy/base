@@ -3929,142 +3929,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 </div>
               </div>
 
-              {/* Project Manager Selection */}
-              <div className="relative" ref={formPMDropdownRef}>
-                <label className="block text-xs font-semibold text-[#111827] mb-1">
-                  Project Manager <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={
-                      isFormPMDropdownOpen
-                        ? formPMSearch
-                        : formManager
-                        ? (() => {
-                            const emp = activeEmployees.find((p) => p.name.toLowerCase() === formManager.toLowerCase());
-                            return emp ? `${emp.name} (${emp.role || emp.designation} • ${emp.department})` : formManager;
-                          })()
-                        : ''
-                    }
-                    onChange={(e) => {
-                      setFormPMSearch(e.target.value);
-                      if (!isFormPMDropdownOpen) setIsFormPMDropdownOpen(true);
-                    }}
-                    onFocus={() => {
-                      setIsFormPMDropdownOpen(true);
-                      setFormPMSearch('');
-                    }}
-                    placeholder="Select Project Manager..."
-                    className={`w-full px-3 py-2 pr-14 bg-white border rounded-md text-xs font-medium text-[#111827] placeholder-[#888888] focus:outline-none transition-all cursor-pointer ${
-                      isFormPMDropdownOpen
-                        ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
-                        : 'border-[#CCCCCC] hover:border-[#999999]'
-                    }`}
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center gap-1.5">
-                    {formManager && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFormManager('');
-                          setFormManagerEmail('');
-                          setFormPMSearch('');
-                        }}
-                        className="text-[#888888] hover:text-[#111827] text-xs p-0.5 cursor-pointer"
-                        title="Clear manager"
-                      >
-                        ✕
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsFormPMDropdownOpen((prev) => !prev);
-                        if (!isFormPMDropdownOpen) setFormPMSearch('');
-                      }}
-                      className="text-[#888888] hover:text-[#111827] p-0.5 cursor-pointer"
-                    >
-                      <svg
-                        className={`w-4 h-4 transition-transform duration-150 ${
-                          isFormPMDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
-                        }`}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Dropdown Menu - Strictly Opens Below (Single box only!) */}
-                {isFormPMDropdownOpen && (
-                  <div
-                    className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-52 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
-                    style={{ top: '100%' }}
-                  >
-                    <button
-                      type="button"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        setFormManager('');
-                        setFormManagerEmail('');
-                        setIsFormPMDropdownOpen(false);
-                        setFormPMSearch('');
-                      }}
-                      className="w-full text-left px-3 py-2 text-xs text-[#888888] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
-                    >
-                      Select Project Manager...
-                    </button>
-                    {filteredFormPMEmp.length === 0 ? (
-                      <div className="py-4 text-center text-xs text-[#888888]">
-                        No employees match &ldquo;{formPMSearch}&rdquo;
-                      </div>
-                    ) : (
-                      filteredFormPMEmp.map((emp) => {
-                        const isChosen = emp.name.toLowerCase() === formManager.toLowerCase();
-                        return (
-                          <button
-                            key={emp.id}
-                            type="button"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              setFormManager(emp.name);
-                              setFormManagerEmail(emp.email || '');
-                              if (!formMembers.includes(emp.name)) {
-                                setFormMembers([...formMembers, emp.name]);
-                              }
-                              setIsFormPMDropdownOpen(false);
-                              setFormPMSearch('');
-                            }}
-                            className={`w-full text-left px-3 py-2.5 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-                              isChosen
-                                ? 'bg-[#E0F2FE] text-[#0284C7] font-semibold'
-                                : 'text-[#111827] hover:bg-[#F8FAFC]'
-                            }`}
-                          >
-                            <div>
-                              <span className="font-semibold block">{emp.name}</span>
-                              <span className="text-[10px] text-[#64748B]">
-                                {emp.role || emp.designation}
-                                {emp.department ? ` • ${emp.department}` : ''}
-                              </span>
-                            </div>
-                            {isChosen && <span className="text-[#0284C7] font-bold text-xs shrink-0">✓</span>}
-                          </button>
-                        );
-                      })
-                    )}
-                  </div>
-                )}
-                <span className="text-[10px] text-[#64748B] mt-0.5 block">
-                  Only active employees from Employee Management can lead projects.
-                </span>
-              </div>
-
               {/* Team Members Multi-Select */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
@@ -4145,6 +4009,301 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     })
                   )}
                 </div>
+              </div>
+
+              {/* Start Date & End Date */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">
+                    Start Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formStartDate}
+                    onChange={(e) => setFormStartDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">
+                    End Date / Deadline <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formEndDate}
+                    onChange={(e) => setFormEndDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  />
+                </div>
+              </div>
+
+              {/* Initial Status */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Initial Status</label>
+                <select
+                  value={formStatus}
+                  onChange={(e) => setFormStatus(e.target.value as ProjectStatus)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                >
+                  <option value="planning">Planning (Default)</option>
+                  <option value="active">Active</option>
+                </select>
+              </div>
+
+              {/* Project Notes */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Project Notes (Optional)</label>
+                <textarea
+                  rows={2}
+                  placeholder="Confidential notes, special client considerations..."
+                  value={formNotes}
+                  onChange={(e) => setFormNotes(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              {/* Project-Based Learning (PBL) Setup */}
+              <div className="p-3.5 bg-[#F0FDF4] border border-[#BBF7D0] rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-base">🎓</span>
+                    <span className="text-xs font-bold text-[#166534]">Project-Based Learning Setup</span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-[#15803D] bg-[#DCFCE7] px-2 py-0.5 rounded-full">
+                    Mentor &amp; Team Workflow
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#166534] mb-1">
+                      Team / Group Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Kaling"
+                      value={formTeamName}
+                      onChange={(e) => setFormTeamName(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-white border border-[#86EFAC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#166534] mb-1">
+                      Project Platform / Type
+                    </label>
+                    <select
+                      value={formProjectType}
+                      onChange={(e) => setFormProjectType(e.target.value as 'website' | 'app')}
+                      className="w-full px-3 py-1.5 bg-white border border-[#86EFAC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                    >
+                      <option value="website">Software Development [Website]</option>
+                      <option value="app">Mobile Application [APP]</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Tech Stack 4 Streams */}
+                <div>
+                  <label className="block text-[11px] font-bold text-[#166534] mb-1">
+                    Target Tech Stack (Locks upon Scope Approval)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-[10px] text-[#15803D] font-medium block">1. UI/UX [Brand Kit]</span>
+                      <input
+                        type="text"
+                        value={formTechStackUiUx}
+                        onChange={(e) => setFormTechStackUiUx(e.target.value)}
+                        placeholder="Figma, Brand Kit, Design Tokens"
+                        className="w-full px-2.5 py-1 bg-white border border-[#86EFAC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#15803D] font-medium block">2. Frontend [React JS]</span>
+                      <input
+                        type="text"
+                        value={formTechStackFrontend}
+                        onChange={(e) => setFormTechStackFrontend(e.target.value)}
+                        placeholder="React.js / Next.js, Tailwind CSS"
+                        className="w-full px-2.5 py-1 bg-white border border-[#86EFAC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#15803D] font-medium block">3. Backend &amp; APIs</span>
+                      <input
+                        type="text"
+                        value={formTechStackBackend}
+                        onChange={(e) => setFormTechStackBackend(e.target.value)}
+                        placeholder="Node.js, Express, REST APIs"
+                        className="w-full px-2.5 py-1 bg-white border border-[#86EFAC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#15803D] font-medium block">4. Database &amp; Cloud</span>
+                      <input
+                        type="text"
+                        value={formTechStackDatabase}
+                        onChange={(e) => setFormTechStackDatabase(e.target.value)}
+                        placeholder="Firebase Cloud / PostgreSQL, Vercel"
+                        className="w-full px-2.5 py-1 bg-white border border-[#86EFAC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Weekend Review Meeting */}
+                <div>
+                  <label className="block text-xs font-semibold text-[#166534] mb-1">
+                    First Weekend Review Meeting Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formWeekendMeetingDate}
+                    onChange={(e) => setFormWeekendMeetingDate(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-white border border-[#86EFAC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                  />
+                  <p className="text-[10px] text-[#15803D] mt-0.5">
+                    Team creates Scope of Document first, then submits to Admin/Mentor (who acts as Client) for approval.
+                  </p>
+                </div>
+              </div>
+
+
+              {/* Modal Buttons */}
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="px-4 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="btn-primary py-2 px-5 text-xs font-semibold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {isProcessing ? (
+                    <>
+                      <RefreshCwIcon className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>Save Project</span>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 2: EDIT PROJECT                                    */}
+      {/* ======================================================== */}
+      {editingProject && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingProject(null);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans overflow-y-auto"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-lg p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <h3 className="text-base font-bold text-[#111827]">Edit Project Information</h3>
+                <p className="text-xs text-[#64748B] font-mono">
+                  {editingProject.projectId || editingProject.id} • {editingProject.name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingProject(null)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-3.5">
+              {/* Project Name */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Project Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Project Description</label>
+                <textarea
+                  rows={2}
+                  value={formDescription}
+                  onChange={(e) => setFormDescription(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              {/* Category & Priority */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Category</label>
+                  <select
+                    value={formCategory}
+                    onChange={(e) => setFormCategory(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    <option value="Web Development">Web Development</option>
+                    <option value="Mobile Apps">Mobile Apps</option>
+                    <option value="UI/UX Design">UI/UX Design</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="DevOps & Cloud">DevOps & Cloud</option>
+                    <option value="Internal Operations">Internal Operations</option>
+                    <option value="General">General</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Priority</label>
+                  <select
+                    value={formPriority}
+                    onChange={(e) => setFormPriority(e.target.value as ProjectPriority)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">Project Status</label>
+                <select
+                  value={formStatus}
+                  onChange={(e) => setFormStatus(e.target.value as ProjectStatus)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                >
+                  <option value="planning">Planning</option>
+                  <option value="active">Active</option>
+                  <option value="on_hold">On Hold</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
               </div>
 
               {/* Start Date & End Date */}
