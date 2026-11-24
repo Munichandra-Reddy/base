@@ -3790,16 +3790,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               </button>
             )}
           </div>
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={handleOpenCreate}
-              className="btn-primary shrink-0 flex items-center gap-1.5 text-xs py-2 px-3.5 cursor-pointer whitespace-nowrap shadow-2xs"
-            >
-              <PlusIcon className="w-4 h-4" />
-              <span>Create Project</span>
-            </button>
-          )}
         </div>
 
         {/* Filter Controls Row (All in single line without wrapping) */}
