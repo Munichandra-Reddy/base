@@ -227,12 +227,15 @@ export const TasksView: React.FC<TasksViewProps> = ({
   };
 
   // -------------------------------------------------------------
-  // Filter active eligible employees (excluding admin)
+  // Filter active registered employees (exclude admin & dummy accounts)
   // -------------------------------------------------------------
   const activeEmployees = useMemo(() => {
     return people.filter((p) => {
-      const email = (p.email || '').toLowerCase();
+      const email = (p.email || '').toLowerCase().trim();
+      const name = (p.name || '').toLowerCase().trim();
       if (email === 'cr7156816@gmail.com') return false;
+      if (name === 'rahul kumar' || email.includes('rahul@')) return false;
+      if (p.id?.startsWith('dummy-') || p.id?.startsWith('emp-dummy')) return false;
       return (p.status || 'active') === 'active';
     });
   }, [people]);
@@ -242,40 +245,17 @@ export const TasksView: React.FC<TasksViewProps> = ({
     return projects.filter((p) => (p.status || '').toLowerCase() !== 'cancelled');
   }, [projects]);
 
-  // Project members for selected project in Create/Edit
-  const projectEligibleEmployees = useMemo(() => {
-    if (!taskProject) return activeEmployees;
-    const proj = projects.find((p) => p.name === taskProject || p.id === taskProject);
-    if (!proj || !proj.members || proj.members.length === 0) return activeEmployees;
-
-    const memberSet = new Set(proj.members.map((m) => m.toLowerCase().trim()));
-    const matched = activeEmployees.filter(
-      (emp) =>
-        memberSet.has(emp.name.toLowerCase().trim()) ||
-        memberSet.has(emp.email.toLowerCase().trim())
-    );
-    return matched.length > 0 ? matched : activeEmployees;
-  }, [taskProject, projects, activeEmployees]);
-
-  const filteredValidProjects = useMemo(() => {
-    if (!taskProjectSearch.trim()) return validProjects;
-    const q = taskProjectSearch.toLowerCase().trim();
-    return validProjects.filter((p) =>
-      (p.name || '').toLowerCase().includes(q) ||
-      (p.projectId || p.id || '').toLowerCase().includes(q)
-    );
-  }, [validProjects, taskProjectSearch]);
-
+  // Show all active employees in assignee dropdown (searchable across all registered employees)
   const filteredProjectEligibleEmployees = useMemo(() => {
-    if (!taskAssigneeSearch.trim()) return projectEligibleEmployees;
+    if (!taskAssigneeSearch.trim()) return activeEmployees;
     const q = taskAssigneeSearch.toLowerCase().trim();
-    return projectEligibleEmployees.filter((emp) =>
+    return activeEmployees.filter((emp) =>
       (emp.name || '').toLowerCase().includes(q) ||
       (emp.role || emp.designation || '').toLowerCase().includes(q) ||
       (emp.department || '').toLowerCase().includes(q) ||
       (emp.email || '').toLowerCase().includes(q)
     );
-  }, [projectEligibleEmployees, taskAssigneeSearch]);
+  }, [activeEmployees, taskAssigneeSearch]);
 
   // Close Task Project / Assignee dropdowns on outside click
   useEffect(() => {
@@ -475,7 +455,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const handleOpenCreateModal = () => {
     setTaskTitle('');
     setTaskDescription('');
-    setTaskProject(validProjects.length > 0 ? validProjects[0].name : 'E-Commerce Website');
+    setTaskProject('');
     setTaskAssignedTo('');
     setTaskAssignedToId('');
     setTaskAssignedToEmail('');
@@ -1701,110 +1681,22 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
               {/* Project Selection & Assigned Employee (Strictly Opens Below with Single Searchable Box) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* 1. Project Selection */}
-                <div className="relative" ref={taskProjectRef}>
+                {/* 1. Project Name */}
+                <div>
                   <label className="block font-bold text-[#0F172A] mb-1">
-                    Select Project <span className="text-[#DC2626]">*</span>
+                    Project Name <span className="text-[#DC2626]">*</span>
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={isTaskProjectDropdownOpen ? taskProjectSearch : taskProject}
-                      onChange={(e) => {
-                        setTaskProjectSearch(e.target.value);
-                        if (!isTaskProjectDropdownOpen) setIsTaskProjectDropdownOpen(true);
-                      }}
-                      onFocus={() => {
-                        setIsTaskProjectDropdownOpen(true);
-                        setTaskProjectSearch('');
-                      }}
-                      placeholder="Search project..."
-                      className={`w-full p-2.5 pr-14 bg-white border rounded-md text-xs text-[#111827] placeholder-[#9CA3AF] focus:outline-none transition-all cursor-pointer ${
-                        isTaskProjectDropdownOpen
-                          ? 'border-[#049FD9] ring-1 ring-[#049FD9]'
-                          : 'border-[#CCCCCC] hover:border-[#999999]'
-                      }`}
-                    />
-                    <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center gap-1.5">
-                      {taskProject && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setTaskProject('');
-                            setTaskProjectSearch('');
-                          }}
-                          className="text-[#888888] hover:text-[#222222] text-xs p-0.5 cursor-pointer"
-                          title="Clear project"
-                        >
-                          ✕
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsTaskProjectDropdownOpen((prev) => !prev);
-                          if (!isTaskProjectDropdownOpen) setTaskProjectSearch('');
-                        }}
-                        className="text-[#888888] hover:text-[#222222] p-0.5 cursor-pointer"
-                      >
-                        <svg
-                          className={`w-3.5 h-3.5 transition-transform duration-150 ${
-                            isTaskProjectDropdownOpen ? 'rotate-180 text-[#049FD9]' : ''
-                          }`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Dropdown Menu - Strictly Opens Below */}
-                  {isTaskProjectDropdownOpen && (
-                    <div
-                      className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-[#CCCCCC] rounded-md shadow-xl z-50 max-h-52 overflow-y-auto divide-y divide-[#F1F5F9] font-sans animate-in fade-in zoom-in-95 duration-100"
-                      style={{ top: '100%' }}
-                    >
-                      {filteredValidProjects.length === 0 ? (
-                        <div className="p-3 text-center text-xs text-[#888888]">
-                          No matching projects found
-                        </div>
-                      ) : (
-                        filteredValidProjects.map((p) => {
-                          const isSelected = p.name === taskProject;
-                          return (
-                            <button
-                              key={p.id}
-                              type="button"
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                setTaskProject(p.name);
-                                setIsTaskProjectDropdownOpen(false);
-                                setTaskProjectSearch('');
-                              }}
-                              className={`w-full text-left px-3 py-2 flex items-center justify-between text-xs transition-colors cursor-pointer ${
-                                isSelected
-                                  ? 'bg-[#EBF7FD] text-[#049FD9] font-semibold'
-                                  : 'hover:bg-[#F8FAFC] text-[#222222]'
-                              }`}
-                            >
-                              <div className="truncate">
-                                <span className="font-semibold">{p.name}</span>{' '}
-                                <span className="text-[10px] text-[#64748B]">({p.projectId || p.id})</span>
-                              </div>
-                              {isSelected && <span className="text-[#049FD9] font-bold">✓</span>}
-                            </button>
-                          );
-                        })
-                      )}
-                    </div>
-                  )}
+                  <input
+                    type="text"
+                    required
+                    placeholder="Enter project name (e.g. kaling, Mobile App v2)..."
+                    value={taskProject}
+                    onChange={(e) => setTaskProject(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] placeholder-[#9CA3AF] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
+                  />
                 </div>
 
-                {/* 2. Assigned Employee (Project Members) */}
+                {/* 2. Assigned Employee */}
                 <div className="relative" ref={taskAssigneeRef}>
                   <label className="block font-bold text-[#0F172A] mb-1">
                     Assign Employee <span className="text-[#DC2626]">*</span>
@@ -1817,8 +1709,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
                           ? taskAssigneeSearch
                           : taskAssignedTo
                           ? `${taskAssignedTo}${
-                              projectEligibleEmployees.find((e) => e.name === taskAssignedTo)
-                                ? ` (${projectEligibleEmployees.find((e) => e.name === taskAssignedTo)?.role || projectEligibleEmployees.find((e) => e.name === taskAssignedTo)?.designation || 'Team Member'})`
+                              activeEmployees.find((e) => e.name === taskAssignedTo)
+                                ? ` (${activeEmployees.find((e) => e.name === taskAssignedTo)?.role || activeEmployees.find((e) => e.name === taskAssignedTo)?.designation || 'Team Member'})`
                                 : ''
                             }`
                           : ''
