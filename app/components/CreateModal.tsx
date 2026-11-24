@@ -19,6 +19,7 @@ interface CreateModalProps {
   onAddProject: (projectData: {
     name: string;
     description: string;
+    teamName?: string;
     manager?: string;
     managerEmail?: string;
     members?: string[];
@@ -131,8 +132,14 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   const [taskAssigneeSearch, setTaskAssigneeSearch] = useState('');
   const taskAssigneeRef = useRef<HTMLDivElement>(null);
 
+  const matchedTaskProject = useMemo(() => {
+    if (!taskProject.trim()) return null;
+    const q = taskProject.toLowerCase().trim();
+    return projects?.find((p) => (p.name || '').toLowerCase().trim() === q || p.id.toLowerCase() === q);
+  }, [taskProject, projects]);
+
   const eligibleTaskEmployees = useMemo(() => {
-    return employeeList.filter((e) => {
+    const activeEmps = employeeList.filter((e) => {
       const email = (e.email || '').toLowerCase().trim();
       const name = (e.name || '').toLowerCase().trim();
       if (email === 'cr7156816@gmail.com') return false;
@@ -140,7 +147,17 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       if (e.id?.startsWith('dummy-') || e.id?.startsWith('emp-dummy')) return false;
       return (e.status || 'active') === 'active';
     });
-  }, [employeeList]);
+
+    if (matchedTaskProject && matchedTaskProject.members && matchedTaskProject.members.length > 0) {
+      const memberSet = new Set(matchedTaskProject.members.map((m) => m.toLowerCase().trim()));
+      const teamEmps = activeEmps.filter(
+        (e) => memberSet.has(e.name.toLowerCase().trim()) || memberSet.has(e.email.toLowerCase().trim())
+      );
+      if (teamEmps.length > 0) return teamEmps;
+    }
+
+    return activeEmps;
+  }, [matchedTaskProject, employeeList]);
 
   // Close task dropdowns on outside click
   useEffect(() => {
@@ -199,6 +216,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   const [projectPriority, setProjectPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   const [projectStatus, setProjectStatus] = useState<'planning' | 'active'>('planning');
   const [projectNotes, setProjectNotes] = useState('');
+  const [projectTeamName, setProjectTeamName] = useState('Kaling');
   const [docInputText, setDocInputText] = useState('');
   const [requiredDocs, setRequiredDocs] = useState<string[]>([]);
   const [isPMDropdownOpen, setIsPMDropdownOpen] = useState(false);
@@ -300,6 +318,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
       name: projectName.trim(),
       description: projectDesc.trim(),
       category: projectCategory,
+      teamName: projectTeamName.trim() || 'Team',
       manager: defaultManager,
       members: Array.from(membersSet),
       startDate: projectStartDate,
@@ -729,12 +748,26 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 </label>
                 <input
                   type="text"
+                  list="create-modal-project-suggestions"
                   required
-                  placeholder="Enter project name..."
+                  placeholder="Type or select project name..."
                   value={taskProject}
                   onChange={(e) => setTaskProject(e.target.value)}
                   className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] placeholder-[#888888] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all"
                 />
+                <datalist id="create-modal-project-suggestions">
+                  {(projects || []).map((p) => (
+                    <option key={p.id} value={p.name} />
+                  ))}
+                </datalist>
+                {matchedTaskProject && (
+                  <div className="mt-1.5 p-2 bg-[#E0F2FE] border border-[#BAE6FD] rounded text-xs text-[#0369A1] flex items-center justify-between">
+                    <span>👥 <strong>Dedicated Team:</strong> {matchedTaskProject.teamName || 'Team'} ({eligibleTaskEmployees.length} members)</span>
+                    <span className="text-[10px] bg-white px-1.5 py-0.5 rounded border border-[#BAE6FD] font-semibold">
+                      {matchedTaskProject.learningPlan?.scopeOfDocument?.status === 'approved' ? '✓ Scope Approved' : '⏳ Scope Pending'}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* 4. Team Member (Assignee) - Single Searchable Box (Strictly Opens Below) */}
@@ -945,6 +978,24 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     <option value="critical">Critical</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Dedicated Team Name */}
+              <div>
+                <label className="block text-xs font-semibold text-[#222222] mb-1">
+                  Dedicated Team Name <span className="text-[#DC2626]">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Kaling, Alpha Squad, Core Engineers..."
+                  value={projectTeamName}
+                  onChange={(e) => setProjectTeamName(e.target.value)}
+                  className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all"
+                />
+                <p className="text-[11px] text-[#64748B] mt-0.5">
+                  Only employees assigned to this dedicated team will be able to access and view the project.
+                </p>
               </div>
 
               {/* 4. Team Members Checklist with Search Box */}

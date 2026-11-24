@@ -243,6 +243,12 @@ export interface ProjectLearningPlan {
     database?: string;
     notes?: string;
   };
+  streamAssignments?: {
+    frontend?: string; // Assign one employee for Frontend Development
+    backend?: string;  // Assign one employee for Backend Development
+    database?: string; // Assign one employee for Database Management
+    testing?: string;  // Assign one employee for Testing
+  };
   workDivisionStatus?: 'pending' | 'in_progress' | 'completed';
   currentSprint?: string; // e.g. "Sprint 1 (Week 1)"
   weekendMeeting?: {

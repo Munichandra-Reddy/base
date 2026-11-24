@@ -62,7 +62,7 @@ import {
   deleteFirebaseEmployee,
   updateEmployeePresence,
 } from '@/lib/firebaseServices';
-import { isPersonOnline, isTaskDueSoon } from '@/lib/dashboardCalculations';
+import { isPersonOnline, isTaskDueSoon, isTaskAssignedToEmployee } from '@/lib/dashboardCalculations';
 import { BasecampNotification } from '@/lib/types';
 import {
   subscribeToUserNotifications,
@@ -451,7 +451,7 @@ export default function Home() {
           if (Array.isArray(parsed) && parsed.length > 0) {
             const normalized = parsed.map((f: FileItem, idx: number) => {
               let createdAt = f.createdAt;
-              if (!createdAt && f.id && f.id.startsWith('f-')) {
+              if (!createdAt && f.id && typeof f.id === 'string' && f.id.startsWith('f-')) {
                 const numericPart = Number(f.id.replace('f-', ''));
                 if (!isNaN(numericPart) && numericPart > 1600000000000) {
                   createdAt = numericPart;
@@ -1143,6 +1143,7 @@ export default function Home() {
           status,
           category,
           notes,
+          teamName: (typeof projectData === 'object' && (projectData as any).teamName) ? (projectData as any).teamName : 'Team',
         }),
       });
 
@@ -1273,17 +1274,17 @@ export default function Home() {
     if (dashboardRole === 'admin') {
       return tasks.filter((t) => !t.completed && (t.status || 'pending') !== 'completed').length;
     }
-    const email = (currentUser?.email || '').toLowerCase().trim();
-    const name = (currentUser?.fullName || '').toLowerCase().trim();
-    const uid = (currentUser as any)?.uid || '';
-    return tasks.filter((t) => {
-      if (t.completed || (t.status || 'pending') === 'completed') return false;
-      if (uid && t.assignedToId === uid) return true;
-      if (t.assignedToEmail && t.assignedToEmail.toLowerCase() === email) return true;
-      if (t.assignedTo && name && t.assignedTo.toLowerCase().includes(name)) return true;
-      if (t.assignedTo && email && t.assignedTo.toLowerCase().includes(email)) return true;
-      return false;
-    }).length;
+    return tasks.filter(
+      (t) =>
+        !t.completed &&
+        (t.status || 'pending') !== 'completed' &&
+        isTaskAssignedToEmployee(t, {
+          email: currentUser?.email,
+          fullName: currentUser?.fullName,
+          id: (currentUser as any)?.uid || (currentUser as any)?.id,
+          employeeId: (currentUser as any)?.employeeId,
+        })
+    ).length;
   })();
 
   return (

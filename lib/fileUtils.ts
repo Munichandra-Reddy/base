@@ -277,7 +277,7 @@ export const getFileRelativeTime = (file: { createdAt?: number | string; uploade
   }
 
   // If no explicit createdAt, extract from numeric id (e.g. f-1730812345678)
-  if (!timestamp && file.id && file.id.startsWith('f-')) {
+  if (!timestamp && file.id && typeof file.id === 'string' && file.id.startsWith('f-')) {
     const numericPart = Number(file.id.replace('f-', ''));
     if (!isNaN(numericPart) && numericPart > 1600000000000) {
       timestamp = numericPart;

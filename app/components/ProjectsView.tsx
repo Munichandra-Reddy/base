@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Project, Task, FileItem, Person, ProjectStatus, ProjectPriority, EmployeeActivityLog, CampfireMessage } from '@/lib/types';
+import { Project, Task, FileItem, Person, ProjectStatus, ProjectPriority, EmployeeActivityLog, CampfireMessage, ProjectLearningPlan } from '@/lib/types';
 import {
   FolderIcon,
   FileIcon,
@@ -996,6 +996,47 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     }
   };
 
+  // Assign specific stream responsibility to dedicated team member
+  const handleUpdateStreamAssignment = async (role: 'frontend' | 'backend' | 'database' | 'testing', memberName: string) => {
+    if (!selectedProject) return;
+    const currentLP: ProjectLearningPlan = selectedProject.learningPlan || { techStackLocked: true };
+    const currentAssignments = currentLP.streamAssignments || {};
+    const updatedAssignments = {
+      ...currentAssignments,
+      [role]: memberName,
+    };
+
+    try {
+      const res = await fetch('/api/projects/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          id: selectedProject.id,
+          learningPlan: {
+            ...currentLP,
+            streamAssignments: updatedAssignments,
+          },
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.project) {
+        setSelectedProject(data.project);
+        if (onUpdateProject) onUpdateProject(data.project);
+        const roleLabel = role === 'frontend' ? 'Frontend Development' : role === 'backend' ? 'Backend Development' : role === 'database' ? 'Database Management' : 'Testing';
+        setActionNotice({
+          type: 'success',
+          message: memberName ? `Assigned ${memberName} to ${roleLabel}.` : `Cleared assignment for ${roleLabel}.`,
+        });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Failed to update responsibility.' });
+    }
+  };
+
   // Work Division: Create & Assign Stream Task
   const handleSaveStreamTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1385,6 +1426,40 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   // VIEW 1: DEDICATED PROJECT DETAILS PAGE ("Next Page")
   // ==========================================
   if (selectedProject) {
+    // Role-based Dedicated Team Access Guard: Only employees in this project's dedicated team can access it
+    if (!isAdmin && currentUser) {
+      const userEmail = (currentUser.email || '').toLowerCase().trim();
+      const userName = (currentUser.fullName || '').toLowerCase().trim();
+      const members = (selectedProject.members || []).map((m) => m.toLowerCase().trim());
+      const isMember = members.some(
+        (m) =>
+          m === userName ||
+          m === userEmail ||
+          (userName && (m.includes(userName) || userName.includes(m))) ||
+          (userEmail && (m.includes(userEmail) || userEmail.includes(m)))
+      );
+      if (!isMember) {
+        return (
+          <div className="bg-white rounded-xl border border-[#E5E5E5] p-8 text-center max-w-lg mx-auto mt-12 shadow-sm space-y-4 font-sans">
+            <div className="w-14 h-14 rounded-full bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center mx-auto text-2xl font-bold">
+              🔒
+            </div>
+            <h3 className="text-lg font-bold text-[#111827]">Access Restricted</h3>
+            <p className="text-xs text-[#595959] leading-relaxed">
+              You are not an assigned member of this project team. Only dedicated team members assigned to <strong>{selectedProject.name}</strong> can access and view this project.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSelectedProject(null)}
+              className="btn-primary text-xs py-2 px-4 cursor-pointer inline-flex items-center gap-1.5"
+            >
+              <span>Back to My Projects</span>
+            </button>
+          </div>
+        );
+      }
+    }
+
     const taskMetrics = getProjectTaskMetrics(selectedProject);
     const pmProfile = getMemberProfile(selectedProject.manager || selectedProject.managerEmail || '');
     const todayStr = new Date().toISOString().split('T')[0];
@@ -1988,33 +2063,200 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div>
                   <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
                     <span>Stage 3: Teams &rarr; Work Divide</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
-                      {taskMetrics.total} tasks divided
-                    </span>
+                    {selectedProject.learningPlan?.scopeOfDocument?.status === 'approved' ? (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0]">
+                        ✓ Development Unlocked
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]">
+                        🔒 Development Locked
+                      </span>
+                    )}
                   </h4>
                   <p className="text-xs text-[#64748B] mt-0.5">
-                    Client/Mentor divides project work among team members across the 4 key learning streams for weekly sprints.
+                    Client/Mentor assigns core development responsibilities and divides weekly sprint tasks across the dedicated team.
                   </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStreamTaskMember(selectedProject.members?.[0] || '');
-                      setStreamTaskDueDate(new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0]);
-                      setIsDivideWorkModalOpen(true);
-                    }}
-                    className="btn-primary py-1.5 px-3.5 text-xs font-bold cursor-pointer flex items-center gap-1.5 shadow-2xs"
-                  >
-                    <PlusIcon className="w-3.5 h-3.5" />
-                    <span>+ Divide Work / Assign Task</span>
-                  </button>
                 </div>
               </div>
 
-              {/* 4-Stream Tasks Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+              {/* DEVELOPMENT LOCK GATE: Requires Project Scope Document Approval first */}
+              {selectedProject.learningPlan?.scopeOfDocument?.status !== 'approved' ? (
+                <div className="p-4 bg-[#FEF2F2] border border-[#FCA5A5] rounded-lg text-xs text-[#991B1B] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-2xl">🔒</span>
+                    <div>
+                      <strong className="block font-bold text-sm">Development Work Locked</strong>
+                      <p className="text-[11px] text-[#B91C1C] mt-0.5">
+                        Before starting development, the assigned team must first submit the <strong>Project Scope Document</strong> containing project requirements, planned features, technologies, and proposed tech stack. Until the Admin reviews and approves the document, the tech stack remains locked and no development work can begin.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setScopeObjectives(selectedProject.learningPlan?.scopeOfDocument?.objectives || '');
+                      setScopeDeliverables(selectedProject.learningPlan?.scopeOfDocument?.deliverables || '');
+                      setScopeProposedTechStack(selectedProject.learningPlan?.scopeOfDocument?.proposedTechStack || 'React.js, Node.js, Express, PostgreSQL/Firebase');
+                      setScopeDocUrl(selectedProject.learningPlan?.scopeOfDocument?.documentUrl || '');
+                      setScopeContent(selectedProject.learningPlan?.scopeOfDocument?.content || '');
+                      setIsScopeModalOpen(true);
+                    }}
+                    className="px-3.5 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded font-bold text-xs shrink-0 cursor-pointer shadow-2xs flex items-center gap-1.5"
+                  >
+                    <span>📄</span>
+                    <span>{selectedProject.learningPlan?.scopeOfDocument?.submitted ? 'Review Scope Document' : 'Submit Scope Document'}</span>
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* DEDICATED TEAM STREAM RESPONSIBILITIES (Frontend, Backend, Database, Testing) */}
+                  <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#E2E8F0]">
+                      <div>
+                        <h5 className="font-bold text-[#111827] text-xs flex items-center gap-1.5">
+                          <span>🎯</span>
+                          <span>Assign Stream Responsibilities (Team Roles)</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0]">
+                            ✓ Scope Approved
+                          </span>
+                        </h5>
+                        <p className="text-[11px] text-[#64748B] mt-0.5">
+                          Admin assigns individual team members from <strong>{selectedProject.teamName || 'Dedicated Team'}</strong> to specific project streams:
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-semibold text-[#0369A1] bg-[#E0F2FE] px-2.5 py-1 rounded-md border border-[#BAE6FD]">
+                        👥 Team Members: {selectedProject.members?.length || 0}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                      {/* 1. Frontend Development */}
+                      <div className="p-3 bg-white border border-[#E2E8F0] rounded-lg space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[#0369A1] flex items-center gap-1">
+                            <span>💻</span> Frontend Development
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-[#64748B]">Assign one employee</p>
+                        {isAdmin ? (
+                          <select
+                            value={selectedProject.learningPlan?.streamAssignments?.frontend || ''}
+                            onChange={(e) => handleUpdateStreamAssignment('frontend', e.target.value)}
+                            className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+                          >
+                            <option value="">Assign one employee...</option>
+                            {(selectedProject.members || []).map((m) => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <div className="font-bold text-xs text-[#0369A1] p-1.5 bg-[#E0F2FE] rounded">
+                            {selectedProject.learningPlan?.streamAssignments?.frontend || 'Unassigned'}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 2. Backend Development */}
+                      <div className="p-3 bg-white border border-[#E2E8F0] rounded-lg space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[#0284C7] flex items-center gap-1">
+                            <span>⚙️</span> Backend Development
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-[#64748B]">Assign one employee</p>
+                        {isAdmin ? (
+                          <select
+                            value={selectedProject.learningPlan?.streamAssignments?.backend || ''}
+                            onChange={(e) => handleUpdateStreamAssignment('backend', e.target.value)}
+                            className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+                          >
+                            <option value="">Assign one employee...</option>
+                            {(selectedProject.members || []).map((m) => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <div className="font-bold text-xs text-[#0284C7] p-1.5 bg-[#E0F2FE] rounded">
+                            {selectedProject.learningPlan?.streamAssignments?.backend || 'Unassigned'}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 3. Database Management */}
+                      <div className="p-3 bg-white border border-[#E2E8F0] rounded-lg space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-emerald-700 flex items-center gap-1">
+                            <span>☁️</span> Database Management
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-[#64748B]">Assign one employee</p>
+                        {isAdmin ? (
+                          <select
+                            value={selectedProject.learningPlan?.streamAssignments?.database || ''}
+                            onChange={(e) => handleUpdateStreamAssignment('database', e.target.value)}
+                            className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+                          >
+                            <option value="">Assign one employee...</option>
+                            {(selectedProject.members || []).map((m) => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <div className="font-bold text-xs text-emerald-700 p-1.5 bg-emerald-50 rounded">
+                            {selectedProject.learningPlan?.streamAssignments?.database || 'Unassigned'}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 4. Testing */}
+                      <div className="p-3 bg-white border border-[#E2E8F0] rounded-lg space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-purple-700 flex items-center gap-1">
+                            <span>🧪</span> Testing (QA)
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-[#64748B]">Assign one employee</p>
+                        {isAdmin ? (
+                          <select
+                            value={selectedProject.learningPlan?.streamAssignments?.testing || ''}
+                            onChange={(e) => handleUpdateStreamAssignment('testing', e.target.value)}
+                            className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+                          >
+                            <option value="">Assign one employee...</option>
+                            {(selectedProject.members || []).map((m) => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <div className="font-bold text-xs text-purple-700 p-1.5 bg-purple-50 rounded">
+                            {selectedProject.learningPlan?.streamAssignments?.testing || 'Unassigned'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SPRINT TASK DIVISION HEADER & ACTION */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-2 gap-2">
+                    <span className="font-bold text-xs text-[#111827]">
+                      Sprint Tasks ({taskMetrics.total} tasks divided)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStreamTaskMember(selectedProject.members?.[0] || '');
+                        setStreamTaskDueDate(new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0]);
+                        setIsDivideWorkModalOpen(true);
+                      }}
+                      className="btn-primary py-1.5 px-3.5 text-xs font-bold cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                    >
+                      <PlusIcon className="w-3.5 h-3.5" />
+                      <span>+ Divide Work / Assign Task</span>
+                    </button>
+                  </div>
+
+                  {/* 4-Stream Tasks Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
                 {(['ui_ux', 'frontend', 'backend', 'database_cloud'] as const).map((streamKey) => {
                   const streamTasks = taskMetrics.pTasks.filter((t) => t.stream === streamKey || (!t.stream && streamKey === 'frontend'));
                   return (
@@ -2057,6 +2299,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   );
                 })}
               </div>
+                </>
+              )}
             </div>
 
             {/* 5. STAGE 4: WEEKLY SPRINTS & WEEKEND MEETINGS */}

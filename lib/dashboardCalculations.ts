@@ -50,25 +50,33 @@ export const isTaskDueSoon = (task: Task): boolean => {
 // 3. EMPLOYEE TASK MATCHING (ROLE-BASED PERMISSIONS)
 export const isTaskAssignedToEmployee = (
   task: Task,
-  employee?: { email?: string; fullName?: string; id?: string; employeeId?: string } | null
+  employee?: { email?: string; fullName?: string; id?: string; employeeId?: string; uid?: string } | null
 ): boolean => {
   if (!task || !employee) return false;
   const empEmail = (employee.email || '').toLowerCase().trim();
   const empName = (employee.fullName || '').toLowerCase().trim();
-  const empId = employee.id || employee.employeeId;
+  const empId = employee.id || employee.employeeId || (employee as any).uid;
 
-  if (task.assignedToEmail && empEmail && task.assignedToEmail.toLowerCase().trim() === empEmail) {
-    return true;
+  if (task.assignedToEmail && empEmail) {
+    const taskEmail = task.assignedToEmail.toLowerCase().trim();
+    if (taskEmail === empEmail || taskEmail.includes(empEmail) || empEmail.includes(taskEmail)) {
+      return true;
+    }
   }
 
-  if (task.assignedToId && empId && task.assignedToId === empId) {
-    return true;
+  if (task.assignedToId && empId) {
+    if (task.assignedToId === empId || String(task.assignedToId).toLowerCase() === String(empId).toLowerCase()) {
+      return true;
+    }
   }
 
   if (task.assignedTo) {
     const assigned = task.assignedTo.toLowerCase().trim();
     if (assigned === 'you') return true;
     if (empName && (assigned === empName || assigned.includes(empName) || empName.includes(assigned))) {
+      return true;
+    }
+    if (empEmail && (assigned === empEmail || assigned.includes(empEmail) || empEmail.includes(assigned))) {
       return true;
     }
   }

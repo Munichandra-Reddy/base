@@ -120,7 +120,7 @@ export const FilesView: React.FC<FilesViewProps> = ({
         if (selectedProjectFilter !== 'all') {
           const matchProj =
             f.projectId === selectedProjectFilter ||
-            f.project.toLowerCase() === selectedProjectFilter.toLowerCase();
+            (f.project || '').toLowerCase() === selectedProjectFilter.toLowerCase();
           if (!matchProj) return false;
         }
 
@@ -132,8 +132,8 @@ export const FilesView: React.FC<FilesViewProps> = ({
         // Search Query
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase().trim();
-          const matchName = f.name.toLowerCase().includes(q);
-          const matchProj = f.project.toLowerCase().includes(q);
+          const matchName = (f.name || '').toLowerCase().includes(q);
+          const matchProj = (f.project || '').toLowerCase().includes(q);
           const matchUploader = (f.uploadedBy || '').toLowerCase().includes(q);
           const matchDesc = (f.description || '').toLowerCase().includes(q);
           if (!matchName && !matchProj && !matchUploader && !matchDesc) return false;
@@ -773,7 +773,7 @@ export const FilesView: React.FC<FilesViewProps> = ({
                   {(() => {
                     const matchedProj = projects.find(
                       (p) =>
-                        p.name.toLowerCase() === detailsFile.project.toLowerCase() ||
+                        (p.name || '').toLowerCase() === (detailsFile.project || '').toLowerCase() ||
                         p.id === detailsFile.projectId
                     );
                     const members = matchedProj?.members || [];

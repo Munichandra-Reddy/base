@@ -459,7 +459,7 @@ export const downloadProjectFile = async (
   try {
     // If URL is direct download URL or data URL
     let blob: Blob | null = null;
-    if (file.fileUrl) {
+    if (file.fileUrl && typeof file.fileUrl === 'string') {
       if (file.fileUrl.startsWith('data:')) {
         const res = await fetch(file.fileUrl);
         blob = await res.blob();

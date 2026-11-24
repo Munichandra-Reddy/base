@@ -56,10 +56,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const desktopProfileRef = useRef<HTMLDivElement>(null);
   const mobileProfileRef = useRef<HTMLDivElement>(null);
 
-  const userName = currentUser?.fullName || (currentRole === 'employee' ? 'HARI KISHORE REDDY' : 'Muni');
-  const userEmail = currentUser?.email || (currentRole === 'employee' ? 'employee@company.com' : 'cr7156816@gmail.com');
-  const userRole = currentRole === 'employee' ? 'Product Designer' : 'Workspace Admin';
-  const userAvatar = (userName[0] || (currentRole === 'employee' ? 'H' : 'M')).toUpperCase();
+  const userName = currentUser?.fullName || (currentRole === 'employee' ? 'Employee' : 'Muni');
+  const userEmail = currentUser?.email || (currentRole === 'employee' ? '' : 'cr7156816@gmail.com');
+  const userRole = (currentUser as any)?.designation || (currentUser as any)?.role || (currentRole === 'employee' ? 'Team Member' : 'Workspace Admin');
+  const userAvatar = (userName[0] || (currentRole === 'employee' ? 'E' : 'M')).toUpperCase();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

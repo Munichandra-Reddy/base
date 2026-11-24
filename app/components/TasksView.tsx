@@ -12,6 +12,7 @@ import {
   TaskActivity,
   TaskSubmission,
 } from '@/lib/types';
+import { isTaskAssignedToEmployee } from '@/lib/dashboardCalculations';
 import {
   CheckSquareIcon,
   PlusIcon,
@@ -245,17 +246,38 @@ export const TasksView: React.FC<TasksViewProps> = ({
     return projects.filter((p) => (p.status || '').toLowerCase() !== 'cancelled');
   }, [projects]);
 
-  // Show all active employees in assignee dropdown (searchable across all registered employees)
+  // Find currently matched project for task creation
+  const matchedProject = useMemo(() => {
+    if (!taskProject.trim()) return null;
+    const q = taskProject.toLowerCase().trim();
+    return validProjects.find((p) => (p.name || '').toLowerCase().trim() === q || p.id.toLowerCase() === q);
+  }, [taskProject, validProjects]);
+
+  // When a project is selected, automatically display ONLY the employees belonging to that project's team!
+  const projectTeamEmployees = useMemo(() => {
+    if (matchedProject && matchedProject.members && matchedProject.members.length > 0) {
+      const memberSet = new Set(matchedProject.members.map((m) => m.toLowerCase().trim()));
+      const teamEmps = activeEmployees.filter(
+        (emp) =>
+          memberSet.has(emp.name.toLowerCase().trim()) ||
+          memberSet.has(emp.email.toLowerCase().trim())
+      );
+      if (teamEmps.length > 0) return teamEmps;
+    }
+    return activeEmployees;
+  }, [matchedProject, activeEmployees]);
+
+  // Search filter across the eligible project team employees
   const filteredProjectEligibleEmployees = useMemo(() => {
-    if (!taskAssigneeSearch.trim()) return activeEmployees;
+    if (!taskAssigneeSearch.trim()) return projectTeamEmployees;
     const q = taskAssigneeSearch.toLowerCase().trim();
-    return activeEmployees.filter((emp) =>
+    return projectTeamEmployees.filter((emp) =>
       (emp.name || '').toLowerCase().includes(q) ||
       (emp.role || emp.designation || '').toLowerCase().includes(q) ||
       (emp.department || '').toLowerCase().includes(q) ||
       (emp.email || '').toLowerCase().includes(q)
     );
-  }, [activeEmployees, taskAssigneeSearch]);
+  }, [projectTeamEmployees, taskAssigneeSearch]);
 
   // Close Task Project / Assignee dropdowns on outside click
   useEffect(() => {
@@ -292,13 +314,14 @@ export const TasksView: React.FC<TasksViewProps> = ({
     // If employee view, consider only tasks assigned to the employee
     const baseList = isAdmin
       ? taskList
-      : taskList.filter((t) => {
-          if (userUid && t.assignedToId === userUid) return true;
-          if (t.assignedToEmail && t.assignedToEmail.toLowerCase() === userEmail) return true;
-          if (t.assignedTo && userName && t.assignedTo.toLowerCase().includes(userName.toLowerCase())) return true;
-          if (t.assignedTo && userEmail && t.assignedTo.toLowerCase().includes(userEmail)) return true;
-          return false;
-        });
+      : taskList.filter((t) =>
+          isTaskAssignedToEmployee(t, {
+            email: userEmail,
+            fullName: userName,
+            id: userUid,
+            employeeId: (currentUser as any)?.employeeId,
+          })
+        );
 
     const total = baseList.length;
     const pending = baseList.filter((t) => (t.status || 'pending') === 'pending' && !t.completed).length;
@@ -309,7 +332,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
     const overdue = baseList.filter((t) => isTaskOverdue(t)).length;
 
     return { total, pending, in_progress, in_review, changes_requested, completed, overdue, baseCount: baseList.length };
-  }, [taskList, isAdmin, userUid, userEmail, userName]);
+  }, [taskList, isAdmin, userUid, userEmail, userName, currentUser]);
 
   // -------------------------------------------------------------
   // Filtered Tasks for Data Table
@@ -320,11 +343,12 @@ export const TasksView: React.FC<TasksViewProps> = ({
     return taskList.filter((task) => {
       // 1. Role-based isolation for employees
       if (!isAdmin) {
-        const isMine =
-          (userUid && task.assignedToId === userUid) ||
-          (task.assignedToEmail && task.assignedToEmail.toLowerCase() === userEmail) ||
-          (task.assignedTo && userName && task.assignedTo.toLowerCase().includes(userName.toLowerCase())) ||
-          (task.assignedTo && userEmail && task.assignedTo.toLowerCase().includes(userEmail));
+        const isMine = isTaskAssignedToEmployee(task, {
+          email: userEmail,
+          fullName: userName,
+          id: userUid,
+          employeeId: (currentUser as any)?.employeeId,
+        });
         if (!isMine) return false;
       }
 
@@ -1688,12 +1712,26 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   </label>
                   <input
                     type="text"
+                    list="tasks-project-suggestions"
                     required
-                    placeholder="Enter project name (e.g. kaling, Mobile App v2)..."
+                    placeholder="Type or select project name..."
                     value={taskProject}
                     onChange={(e) => setTaskProject(e.target.value)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] placeholder-[#9CA3AF] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9]"
                   />
+                  <datalist id="tasks-project-suggestions">
+                    {validProjects.map((p) => (
+                      <option key={p.id} value={p.name} />
+                    ))}
+                  </datalist>
+                  {matchedProject && (
+                    <div className="mt-1.5 p-2 bg-[#E0F2FE] border border-[#BAE6FD] rounded text-xs text-[#0369A1] flex items-center justify-between">
+                      <span>👥 <strong>Dedicated Team:</strong> {matchedProject.teamName || 'Team'} ({projectTeamEmployees.length} members)</span>
+                      <span className="text-[10px] bg-white text-[#0369A1] px-1.5 py-0.5 rounded border border-[#BAE6FD] font-semibold">
+                        {matchedProject.learningPlan?.scopeOfDocument?.status === 'approved' ? '✓ Scope Approved' : '⏳ Scope Pending'}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* 2. Assigned Employee */}
@@ -1803,8 +1841,17 @@ export const TasksView: React.FC<TasksViewProps> = ({
                               <div className="min-w-0 pr-2">
                                 <div className="font-semibold truncate">{emp.name}</div>
                                 <div className="text-[10px] text-[#64748B] truncate">
-                                  {emp.role || emp.designation || 'Team Member'}
-                                  {emp.department ? ` • ${emp.department}` : ''}
+                                  {(() => {
+                                    const sa = matchedProject?.learningPlan?.streamAssignments;
+                                    const roles: string[] = [];
+                                    const isMatch = (val?: string) => val && (val.toLowerCase() === emp.name.toLowerCase() || val.toLowerCase() === (emp.email || '').toLowerCase());
+                                    if (isMatch(sa?.frontend)) roles.push('💻 Frontend');
+                                    if (isMatch(sa?.backend)) roles.push('⚙️ Backend');
+                                    if (isMatch(sa?.database)) roles.push('☁️ Database');
+                                    if (isMatch(sa?.testing)) roles.push('🧪 Testing');
+                                    if (roles.length > 0) return `${roles.join(', ')} • ${emp.department || 'Team Member'}`;
+                                    return `${emp.role || emp.designation || 'Team Member'}${emp.department ? ` • ${emp.department}` : ''}`;
+                                  })()}
                                 </div>
                               </div>
                               {isSelected && <span className="text-[#049FD9] font-bold">✓</span>}

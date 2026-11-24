@@ -296,7 +296,7 @@ export const calculateMonthlyProductivity = (
   // Overdue in selected month
   const overdueInMonth = tasks.filter((t) => {
     if (t.status === 'completed' || t.status === 'cancelled' || t.completed) return false;
-    return t.dueDate && t.dueDate.startsWith(selectedMonthKey) && isTaskOverdue(t);
+    return t.dueDate && typeof t.dueDate === 'string' && t.dueDate.startsWith(selectedMonthKey) && isTaskOverdue(t);
   });
 
   const completionPercentage =
