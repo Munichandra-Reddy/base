@@ -1511,6 +1511,16 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         {/* Top Breadcrumb & Action Header */}
         <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="min-w-0">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedProject(null);
+                if (onSelectProject) onSelectProject(null);
+              }}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#049FD9] hover:text-[#0380af] mb-2 cursor-pointer transition-colors"
+            >
+              <span>← Back to Projects</span>
+            </button>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl font-bold text-[#111827]">{selectedProject.name}</h1>
               {selectedProject.teamName && (
@@ -3674,75 +3684,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   // ==========================================
   return (
     <div className="space-y-5 font-sans w-full">
-      {/* 1. TOP SUMMARY METRIC CARDS (Dynamic From Firestore) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {/* Total Projects */}
-        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
-          <div>
-            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Total Projects</div>
-            <div className="text-xl sm:text-2xl font-bold text-[#111827] mt-0.5">{summaryMetrics.total}</div>
-          </div>
-          <div className="w-9 h-9 rounded-lg bg-[#E0F2FE] text-[#049FD9] flex items-center justify-center shrink-0">
-            <FolderIcon className="w-4 h-4" />
-          </div>
-        </div>
-
-        {/* Active Projects */}
-        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
-          <div>
-            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Active</div>
-            <div className="text-xl sm:text-2xl font-bold text-[#10B981] mt-0.5">{summaryMetrics.active}</div>
-          </div>
-          <div className="w-9 h-9 rounded-lg bg-[#DCFCE7] text-[#10B981] flex items-center justify-center shrink-0">
-            <FolderIcon className="w-4 h-4" />
-          </div>
-        </div>
-
-        {/* Planning Projects */}
-        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
-          <div>
-            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Planning</div>
-            <div className="text-xl sm:text-2xl font-bold text-[#3B82F6] mt-0.5">{summaryMetrics.planning}</div>
-          </div>
-          <div className="w-9 h-9 rounded-lg bg-[#EFF6FF] text-[#3B82F6] flex items-center justify-center shrink-0">
-            <ClockIcon className="w-4 h-4" />
-          </div>
-        </div>
-
-        {/* On Hold Projects */}
-        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
-          <div>
-            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">On Hold</div>
-            <div className="text-xl sm:text-2xl font-bold text-[#D97706] mt-0.5">{summaryMetrics.onHold}</div>
-          </div>
-          <div className="w-9 h-9 rounded-lg bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0">
-            <ClockIcon className="w-4 h-4" />
-          </div>
-        </div>
-
-        {/* Completed Projects */}
-        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
-          <div>
-            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Completed</div>
-            <div className="text-xl sm:text-2xl font-bold text-[#16A34A] mt-0.5">{summaryMetrics.completed}</div>
-          </div>
-          <div className="w-9 h-9 rounded-lg bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center shrink-0">
-            <CheckSquareIcon className="w-4 h-4" />
-          </div>
-        </div>
-
-        {/* Overdue Projects */}
-        <div className="bg-white rounded-lg p-3.5 border border-[#E5E5E5] shadow-2xs flex items-center justify-between">
-          <div>
-            <div className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] uppercase tracking-wider">Overdue</div>
-            <div className="text-xl sm:text-2xl font-bold text-[#EF4444] mt-0.5">{summaryMetrics.overdue}</div>
-          </div>
-          <div className="w-9 h-9 rounded-lg bg-[#FEF2F2] text-[#EF4444] flex items-center justify-center shrink-0">
-            <AlertCircleIcon className="w-4 h-4" />
-          </div>
-        </div>
-      </div>
-
       {/* Action Notification Alert */}
       {actionNotice && (
         <div
@@ -3766,320 +3707,50 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </div>
       )}
 
-      {/* 2. SEARCH, FILTERS & CONTROLS BAR (All Dropdowns Strictly Open Below) */}
-      <div className="bg-white p-4 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3">
-        {/* Search Input & Action Button */}
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder="Search projects by name, Project ID, manager, or category..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-9 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] focus:bg-white transition-all shadow-2xs"
-            />
-            <SearchIcon className="w-4 h-4 text-[#94A3B8] absolute left-3 top-2.5 pointer-events-none" />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-2 text-[#94A3B8] hover:text-[#111827] text-xs font-bold p-1 cursor-pointer"
-                title="Clear search"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Filter Controls Row (All in single line without wrapping) */}
-        <div className="pt-2 border-t border-[#F1F5F9] flex items-center gap-2 text-xs text-[#334155] overflow-x-auto scrollbar-none flex-nowrap">
-          {/* Status Filter */}
-          <FilterDropdown
-            label="Status"
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={[
-              { value: 'all', label: 'All Statuses' },
-              { value: 'planning', label: 'Planning' },
-              { value: 'active', label: 'Active' },
-              { value: 'on_hold', label: 'On Hold' },
-              { value: 'completed', label: 'Completed' },
-              { value: 'cancelled', label: 'Cancelled' },
-            ]}
-          />
-
-          {/* Priority Filter */}
-          <FilterDropdown
-            label="Priority"
-            value={priorityFilter}
-            onChange={setPriorityFilter}
-            options={[
-              { value: 'all', label: 'All Priorities' },
-              { value: 'critical', label: 'Critical' },
-              { value: 'high', label: 'High' },
-              { value: 'medium', label: 'Medium' },
-              { value: 'low', label: 'Low' },
-            ]}
-          />
-
-          {/* Project Manager Filter */}
-          <FilterDropdown
-            label="Manager"
-            value={managerFilter}
-            onChange={setManagerFilter}
-            options={[
-              { value: 'all', label: 'All Managers' },
-              ...projectManagerOptions.map((pm) => ({ value: pm, label: pm })),
-            ]}
-          />
-
-          {/* Date Range Filter */}
-          <FilterDropdown
-            label="Timeline"
-            value={dateFilter}
-            onChange={setDateFilter}
-            options={[
-              { value: 'all', label: 'All Timelines' },
-              { value: 'overdue', label: 'Overdue Only' },
-              { value: 'this_month', label: 'Due This Month' },
-              { value: 'recent', label: 'Last 30 Days' },
-            ]}
-          />
-
-          {/* Sort Controls (Placed directly beside Timeline) */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span className="text-[11px] font-semibold text-[#64748B]">Sort:</span>
-            <FilterDropdown
-              align="left"
-              value={sortBy}
-              onChange={(val) => setSortBy(val as any)}
-              options={[
-                { value: 'date_desc', label: 'Deadline (Newest)' },
-                { value: 'date_asc', label: 'Deadline (Oldest)' },
-                { value: 'name_asc', label: 'Name (A → Z)' },
-                { value: 'name_desc', label: 'Name (Z → A)' },
-                { value: 'priority', label: 'Priority (High → Low)' },
-                { value: 'progress', label: 'Progress (%)' },
-              ]}
-            />
-          </div>
-
-          {/* Reset Filters */}
-          {(searchQuery ||
-            statusFilter !== 'all' ||
-            priorityFilter !== 'all' ||
-            managerFilter !== 'all' ||
-            dateFilter !== 'all' ||
-            sortBy !== 'date_desc') && (
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="px-2.5 py-1.5 rounded-md bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#EF4444] text-xs font-semibold cursor-pointer transition-colors border border-[#EF4444]/20 flex items-center gap-1 shrink-0 whitespace-nowrap"
-              title="Reset all filters"
-            >
-              <span>✕</span>
-              <span>Reset</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* 4. PROFESSIONAL 10-COLUMN ENTERPRISE TABLE VIEW */}
+      {/* Projects List: Displays ONLY Project Name */}
       <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-[#F8FAFC] border-b border-[#E5E5E5] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
-                  <th className="py-3 px-3.5 whitespace-nowrap">Project ID</th>
-                  <th className="py-3 px-3.5 whitespace-nowrap">Project Name</th>
-                  <th className="py-3 px-3.5 whitespace-nowrap">Project Manager</th>
-                  <th className="py-3 px-3.5 whitespace-nowrap">Assigned Employees</th>
-                  <th className="py-3 px-3.5 whitespace-nowrap">Start Date</th>
-                  <th className="py-3 px-3.5 whitespace-nowrap">End Date</th>
-                  <th className="py-3 px-3.5 whitespace-nowrap">Priority</th>
-                  <th className="py-3 px-3.5 whitespace-nowrap">Status</th>
-                  <th className="py-3 px-3.5 whitespace-nowrap">Progress</th>
-                  <th className="py-3 px-3.5 text-right whitespace-nowrap">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E5E5E5] font-medium text-[#334155]">
-                {displayedProjects.length === 0 ? (
-                  <tr>
-                    <td colSpan={10} className="py-12 text-center text-[#64748B]">
-                      <p className="font-semibold text-sm text-[#111827]">No projects found</p>
-                      <p className="text-xs text-[#94A3B8] mt-1">Try adjusting your search criteria or filters.</p>
-                      <button
-                        type="button"
-                        onClick={handleResetFilters}
-                        className="mt-3 px-3 py-1.5 bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] font-semibold text-xs rounded-md border border-[#E5E5E5] cursor-pointer"
-                      >
-                        Reset All Filters
-                      </button>
-                    </td>
-                  </tr>
-                ) : (
-                  displayedProjects.map((proj) => {
-                    const taskMetrics = getProjectTaskMetrics(proj);
-                    const membersList = proj.members || [];
-                    const pmName = proj.manager || 'Workspace Admin';
-
-                    return (
-                      <tr key={proj.id} className="hover:bg-[#F8FAFC] transition-colors">
-                        {/* Project ID */}
-                        <td className="py-3 px-3.5 font-mono font-bold text-[#049FD9] whitespace-nowrap">
-                          {proj.projectId || proj.id}
-                        </td>
-
-                        {/* Project Name */}
-                        <td className="py-3 px-3.5 font-bold text-[#111827]">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedProject(proj);
-                              if (onSelectProject) onSelectProject(proj);
-                            }}
-                            className="text-left hover:text-[#049FD9] hover:underline cursor-pointer flex flex-col"
-                          >
-                            <span className="truncate max-w-[200px]">{proj.name}</span>
-                            <span className="text-[10px] text-[#94A3B8] font-normal truncate max-w-[200px]">
-                              {proj.category || 'General'}
-                            </span>
-                          </button>
-                        </td>
-
-                        {/* Project Manager */}
-                        <td className="py-3 px-3.5 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-[#E0F2FE] text-[#049FD9] font-bold text-[10px] flex items-center justify-center shrink-0">
-                              {pmName[0]?.toUpperCase() || 'M'}
-                            </div>
-                            <span className="font-semibold text-[#111827]">{pmName}</span>
-                          </div>
-                        </td>
-
-                        {/* Assigned Employees */}
-                        <td className="py-3 px-3.5 whitespace-nowrap">
-                          <div className="flex items-center -space-x-1.5 overflow-hidden">
-                            {membersList.slice(0, 4).map((m, idx) => {
-                              const emp = getMemberProfile(m);
-                              return (
-                                <div
-                                  key={idx}
-                                  title={emp?.name || m}
-                                  className={`w-6 h-6 rounded-full border border-white flex items-center justify-center text-[10px] font-bold text-white shadow-2xs ${
-                                    emp?.avatarBg || 'bg-[#049FD9]'
-                                  }`}
-                                >
-                                  {emp?.avatar || m[0]?.toUpperCase() || 'E'}
-                                </div>
-                              );
-                            })}
-                            {membersList.length > 4 && (
-                              <div className="w-6 h-6 rounded-full bg-[#E2E8F0] border border-white flex items-center justify-center text-[9px] font-bold text-[#475569]">
-                                +{membersList.length - 4}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-
-                        {/* Start Date */}
-                        <td className="py-3 px-3.5 text-[#64748B] whitespace-nowrap">
-                          {proj.startDate || '—'}
-                        </td>
-
-                        {/* End Date */}
-                        <td className="py-3 px-3.5 text-[#64748B] whitespace-nowrap">
-                          {proj.endDate || proj.deadline || '—'}
-                        </td>
-
-                        {/* Priority */}
-                        <td className="py-3 px-3.5 whitespace-nowrap">
-                          {renderPriorityBadge(proj.priority)}
-                        </td>
-
-                        {/* Project Status */}
-                        <td className="py-3 px-3.5 whitespace-nowrap">
-                          {renderStatusBadge(proj.status)}
-                        </td>
-
-                        {/* Progress */}
-                        <td className="py-3 px-3.5 whitespace-nowrap">
-                          <div className="w-24">
-                            <div className="flex items-center justify-between text-[10px] font-semibold text-[#475569] mb-1">
-                              <span>{taskMetrics.completionRate}%</span>
-                              <span className="text-[9px] text-[#94A3B8]">({taskMetrics.completed}/{taskMetrics.total})</span>
-                            </div>
-                            <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-[#10B981] rounded-full"
-                                style={{ width: `${taskMetrics.completionRate}%` }}
-                              />
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Actions */}
-                        <td className="py-3 px-3.5 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedProject(proj);
-                                if (onSelectProject) onSelectProject(proj);
-                              }}
-                              className="px-2.5 py-1 rounded bg-[#E0F2FE] hover:bg-[#BAE6FD] text-[#0284C7] font-semibold text-[11px] cursor-pointer transition-colors"
-                              title="View full project details"
-                            >
-                              View
-                            </button>
-
-                            {isAdmin && (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() => handleOpenEdit(proj)}
-                                  className="px-2.5 py-1 rounded bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-semibold text-[11px] cursor-pointer transition-colors"
-                                  title="Edit project"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setManagingTeamProject(proj)}
-                                  className="px-2.5 py-1 rounded bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-semibold text-[11px] cursor-pointer transition-colors"
-                                  title="Manage team members"
-                                >
-                                  Team
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setStatusChangeProject(proj)}
-                                  className="px-2.5 py-1 rounded bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#334155] font-semibold text-[11px] cursor-pointer transition-colors"
-                                  title="Change status"
-                                >
-                                  Status
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setArchivingProject(proj)}
-                                  className="px-2 py-1 rounded text-[#94A3B8] hover:text-[#EF4444] hover:bg-[#FEF2F2] text-[11px] cursor-pointer transition-colors"
-                                  title="Archive project"
-                                >
-                                  ✕
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+        <div className="bg-[#F8FAFC] border-b border-[#E5E5E5] px-5 py-3.5">
+          <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
+            Project Name
+          </span>
         </div>
+
+        {accessibleProjects.length === 0 ? (
+          <div className="py-14 text-center text-[#64748B]">
+            <div className="w-12 h-12 rounded-xl bg-[#F8FAFC] border border-[#E5E5E5] text-[#94A3B8] flex items-center justify-center mx-auto mb-3">
+              <FolderIcon className="w-6 h-6" />
+            </div>
+            <p className="font-semibold text-sm text-[#111827]">No projects found</p>
+            <p className="text-xs text-[#94A3B8] mt-1">Projects created will appear here.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-[#E5E5E5]">
+            {accessibleProjects.map((proj) => (
+              <div
+                key={proj.id}
+                onClick={() => {
+                  setSelectedProject(proj);
+                  if (onSelectProject) onSelectProject(proj);
+                }}
+                className="px-5 py-4 flex items-center justify-between hover:bg-[#F8FAFC] transition-colors cursor-pointer group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#E0F2FE] text-[#049FD9] flex items-center justify-center shrink-0 group-hover:bg-[#049FD9] group-hover:text-white transition-colors">
+                    <FolderIcon className="w-4 h-4" />
+                  </div>
+                  <span className="font-bold text-sm text-[#111827] group-hover:text-[#049FD9] transition-colors">
+                    {proj.name}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#049FD9] opacity-80 group-hover:opacity-100 transition-opacity">
+                  <span>View Details</span>
+                  <span className="text-sm">→</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
 
 
