@@ -16,9 +16,13 @@ export async function GET(request: Request) {
 
     snap.docs.forEach((d) => {
       const data = d.data();
-      // Skip legacy dummy projects
-      if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6'].includes(d.id)) return;
-      if (data.name === 'E-Commerce Website' && d.id.startsWith('p-')) return;
+      // Skip all legacy, automated testing, and dummy projects
+      const id = String(d.id || '').trim();
+      const pName = String(data.name || '').trim();
+      const prjId = String(data.projectId || '').trim();
+      if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1'].includes(id)) return;
+      if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return;
+      if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return;
 
       projectList.push({
         id: d.id,

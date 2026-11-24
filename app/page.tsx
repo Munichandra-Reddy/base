@@ -164,7 +164,15 @@ export default function Home() {
         try {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const clean = parsed.filter((p: any) => !['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6'].includes(p.id) && p.name !== 'E-Commerce Website');
+            const clean = parsed.filter((p: any) => {
+              const id = String(p.id || '').trim();
+              const pName = String(p.name || '').trim();
+              const prjId = String(p.projectId || '').trim();
+              if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1'].includes(id)) return false;
+              if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return false;
+              if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return false;
+              return true;
+            });
             return clean;
           }
         } catch (e) {}
@@ -440,7 +448,18 @@ export default function Home() {
       if (savedProjects) {
         try {
           const parsed = JSON.parse(savedProjects);
-          if (Array.isArray(parsed) && parsed.length > 0) setProjects(parsed);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const clean = parsed.filter((p: any) => {
+              const id = String(p.id || '').trim();
+              const pName = String(p.name || '').trim();
+              const prjId = String(p.projectId || '').trim();
+              if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1'].includes(id)) return false;
+              if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return false;
+              if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return false;
+              return true;
+            });
+            setProjects(clean);
+          }
         } catch (e) {}
       }
 
@@ -544,7 +563,15 @@ export default function Home() {
         });
         const unsubProj = subscribeToProjects((projList) => {
           if (projList) {
-            const cleanProj = projList.filter((p) => !['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6'].includes(p.id) && p.name !== 'E-Commerce Website');
+            const cleanProj = projList.filter((p: any) => {
+              const id = String(p.id || '').trim();
+              const pName = String(p.name || '').trim();
+              const prjId = String(p.projectId || '').trim();
+              if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1'].includes(id)) return false;
+              if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return false;
+              if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return false;
+              return true;
+            });
             setProjects(cleanProj);
             if (typeof window !== 'undefined') {
               localStorage.setItem('workorbit_projects', JSON.stringify(cleanProj));
@@ -910,9 +937,9 @@ export default function Home() {
     projectArg?: string
   ) => {
     let title = '';
-    let project = 'E-Commerce Website';
+    let project = projects[0]?.name || 'Project';
     let description = '';
-    let assignedTo = currentUser?.fullName || 'Rahul Kumar';
+    let assignedTo = currentUser?.fullName || 'Employee';
     let priority: 'low' | 'medium' | 'high' | 'critical' = 'medium';
     let dueDate = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
     let startDate = new Date().toISOString().split('T')[0];

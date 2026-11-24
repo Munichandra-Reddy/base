@@ -66,7 +66,7 @@ export const UploadFileModal: React.FC<UploadFileModalProps> = ({
   const [selectedProjectId, setSelectedProjectId] = useState<string>(() => {
     if (effectiveDefaultProject) return effectiveDefaultProject;
     if (accessibleProjects.length > 0) return accessibleProjects[0].id || accessibleProjects[0].name;
-    return 'E-Commerce Website';
+    return '';
   });
 
   const [description, setDescription] = useState('');

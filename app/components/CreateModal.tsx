@@ -60,14 +60,18 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   isAdmin = false,
 }) => {
   const employeeList = (people && people.length > 0) ? people : [];
-  const projectList = (projects && projects.length > 0) ? projects.map(p => p.name) : [
-    'E-Commerce Website',
-    'Mobile App v2',
-    'Marketing Campaign Q4',
-    'Customer Portal',
-    'Internal Ops & Automation',
-    'Brand Identity Refresh'
-  ];
+  const cleanProjects = useMemo(() => {
+    return (projects || []).filter((p) => {
+      const id = String(p.id || '').trim();
+      const pName = String(p.name || '').trim();
+      const prjId = String(p.projectId || '').trim();
+      if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1'].includes(id)) return false;
+      if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return false;
+      if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return false;
+      return true;
+    });
+  }, [projects]);
+  const projectList = cleanProjects.map((p) => p.name);
 
   const [activeType, setActiveType] = useState<'task' | 'project' | 'employee'>('task');
 

@@ -241,9 +241,18 @@ export const TasksView: React.FC<TasksViewProps> = ({
     });
   }, [people]);
 
-  // Active valid projects (exclude cancelled)
+  // Active valid projects (exclude cancelled & dummy projects)
   const validProjects = useMemo(() => {
-    return projects.filter((p) => (p.status || '').toLowerCase() !== 'cancelled');
+    return projects.filter((p) => {
+      if ((p.status || '').toLowerCase() === 'cancelled') return false;
+      const id = String(p.id || '').trim();
+      const pName = String(p.name || '').trim();
+      const prjId = String(p.projectId || '').trim();
+      if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1'].includes(id)) return false;
+      if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return false;
+      if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return false;
+      return true;
+    });
   }, [projects]);
 
   // Find currently matched project for task creation

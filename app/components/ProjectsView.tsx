@@ -429,14 +429,24 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       });
   }, [selectedProject?.id]);
 
-  // Employee Role-Based Access: Non-admin employees see ONLY assigned projects
+  // Role-Based Access: Filter out dummy/hardcoded projects; employees see ONLY their assigned projects
   const accessibleProjects = useMemo(() => {
-    if (isAdmin) return projects;
+    const validProjects = (projects || []).filter((p) => {
+      const id = String(p.id || '').trim();
+      const pName = String(p.name || '').trim();
+      const prjId = String(p.projectId || '').trim();
+      if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1'].includes(id)) return false;
+      if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return false;
+      if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return false;
+      return true;
+    });
+
+    if (isAdmin) return validProjects;
 
     const userEmail = (currentUser?.email || '').toLowerCase().trim();
     const userName = (currentUser?.fullName || '').toLowerCase().trim();
 
-    return projects.filter((p) => {
+    return validProjects.filter((p) => {
       const isPM =
         (p.managerEmail && p.managerEmail.toLowerCase() === userEmail) ||
         (p.manager && p.manager.toLowerCase().includes(userName));
