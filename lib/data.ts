@@ -1,309 +1,33 @@
 import { Task, Project, Activity, ChatMessage, Person, CheckIn, FileItem, WorkspaceStats } from './types';
 
 export const initialStats: WorkspaceStats = {
-  projectsTotal: 12,
-  projectsActive: 8,
-  todosTotal: 120,
-  todosInProgress: 35,
-  dueSoon: 8,
+  projectsTotal: 0,
+  projectsActive: 0,
+  todosTotal: 0,
+  todosInProgress: 0,
+  dueSoon: 0,
   teamOnline: 0,
-  storageUsedGB: 7.5,
+  storageUsedGB: 0,
   storageTotalGB: 10,
 };
 
-export const initialTasks: Task[] = [
-  {
-    id: 't-1',
-    title: 'Design homepage',
-    project: 'E-Commerce Website',
-    completed: false,
-    dueDate: '2026-10-02',
-    assignedTo: 'Rahul Kumar',
-    priority: 'high',
-  },
-  {
-    id: 't-2',
-    title: 'Complete API integration',
-    project: 'E-Commerce Website',
-    completed: false,
-    dueDate: '2026-09-30',
-    assignedTo: 'Rahul Kumar',
-    priority: 'high',
-  },
-  {
-    id: 't-3',
-    title: 'Review brand guidelines',
-    project: 'Marketing Campaign',
-    completed: false,
-    dueDate: '2026-10-05',
-    assignedTo: 'Rahul Kumar',
-    priority: 'medium',
-  },
-  {
-    id: 't-4',
-    title: 'Set up CI/CD pipeline',
-    project: 'Mobile App v2',
-    completed: false,
-    dueDate: '2026-10-01',
-    assignedTo: 'Rahul Kumar',
-    priority: 'high',
-  },
-  {
-    id: 't-5',
-    title: 'Draft sprint retrospective',
-    project: 'Internal Ops',
-    completed: false,
-    dueDate: '2026-10-04',
-    assignedTo: 'Rahul Kumar',
-    priority: 'low',
-  },
-  {
-    id: 't-6',
-    title: 'Configure Auth0 SSO & OAuth2',
-    project: 'Customer Portal',
-    completed: false,
-    dueDate: '2026-10-06',
-    assignedTo: 'Rahul Kumar',
-    priority: 'medium',
-  },
-];
+// No hardcoded tasks - tasks are created by Admin/Mentors and assigned to real employees
+export const initialTasks: Task[] = [];
 
-export const initialActivities: Activity[] = [
-  {
-    id: 'act-1',
-    userName: 'Rahul Kumar',
-    userAvatar: 'R',
-    avatarBg: 'bg-[#6CC04A] text-white',
-    action: 'completed',
-    target: 'Login API',
-    timeAgo: '10 min ago',
-    timestamp: '13:00',
-  },
-  {
-    id: 'act-2',
-    userName: 'Priya Sharma',
-    userAvatar: 'P',
-    avatarBg: 'bg-slate-200 text-slate-900',
-    action: 'uploaded',
-    target: 'design.pdf',
-    timeAgo: '25 min ago',
-    timestamp: '12:45',
-  },
-  {
-    id: 'act-3',
-    userName: 'Chandra Reddy',
-    userAvatar: 'C',
-    avatarBg: 'bg-slate-100 text-slate-800',
-    action: 'created',
-    target: 'E-Commerce Website',
-    timeAgo: '1 hour ago',
-    timestamp: '12:10',
-  },
-  {
-    id: 'act-4',
-    userName: 'Ananya Verma',
-    userAvatar: 'A',
-    avatarBg: 'bg-slate-300 text-slate-900',
-    action: 'commented on',
-    target: 'Database Schema v2',
-    timeAgo: '2 hours ago',
-    timestamp: '11:15',
-  },
-  {
-    id: 'act-5',
-    userName: 'Michael Chen',
-    userAvatar: 'M',
-    avatarBg: 'bg-slate-200 text-slate-800',
-    action: 'posted check-in',
-    target: 'What did you complete today?',
-    timeAgo: '3 hours ago',
-    timestamp: '10:30',
-  },
-];
+// No hardcoded activities - populated from live database actions
+export const initialActivities: Activity[] = [];
 
-export const initialProjects: Project[] = [
-  {
-    id: 'p-1',
-    name: 'E-Commerce Website',
-    status: 'Active',
-    progress: 68,
-    openToDos: 18,
-    members: ['Rahul Kumar', 'Priya Sharma', 'Chandra Reddy'],
-    description: '',
-    updatedAt: '2 hours ago',
-    startDate: '16/07/2024',
-    deadline: '24/10/2024',
-    currency: '$$$',
-    priority: 'high',
-  },
-  {
-    id: 'p-2',
-    name: 'Mobile App v2',
-    status: 'Active',
-    progress: 45,
-    openToDos: 24,
-    members: ['Rahul Kumar', 'Ananya Verma', 'Michael Chen'],
-    description: '',
-    updatedAt: '4 hours ago',
-    startDate: '16/07/2024',
-    deadline: '24/10/2024',
-    currency: '$$$',
-    priority: 'medium',
-  },
-  {
-    id: 'p-3',
-    name: 'Marketing Campaign Q4',
-    status: 'Design',
-    progress: 82,
-    openToDos: 6,
-    members: ['Priya Sharma', 'Kavita Patel'],
-    description: '',
-    updatedAt: '1 day ago',
-    startDate: '16/07/2024',
-    deadline: '24/10/2024',
-    currency: '---',
-    priority: 'low',
-  },
-  {
-    id: 'p-4',
-    name: 'Customer Portal',
-    status: 'Active',
-    progress: 30,
-    openToDos: 32,
-    members: ['Rahul Kumar', 'Chandra Reddy'],
-    description: '',
-    updatedAt: '3 days ago',
-    startDate: '16/07/2024',
-    deadline: '24/10/2024',
-    currency: '---',
-    priority: 'medium',
-  },
-  {
-    id: 'p-5',
-    name: 'Internal Ops & Automation',
-    status: 'Brief',
-    progress: 90,
-    openToDos: 4,
-    members: ['Michael Chen', 'Rahul Kumar'],
-    description: '',
-    updatedAt: '5 hours ago',
-    startDate: '16/07/2024',
-    deadline: '24/10/2024',
-    currency: '$$$',
-    priority: 'medium',
-  },
-  {
-    id: 'p-6',
-    name: 'Brand Identity Refresh',
-    status: 'Design',
-    progress: 100,
-    openToDos: 0,
-    members: ['Priya Sharma', 'Ananya Verma'],
-    description: '',
-    updatedAt: '1 week ago',
-    startDate: '16/07/2024',
-    deadline: '24/10/2024',
-    currency: '---',
-    priority: 'high',
-  },
-];
+// No hardcoded projects - projects are created dynamically by Admin
+export const initialProjects: Project[] = [];
 
-export const initialChatMessages: ChatMessage[] = [
-  {
-    id: 'c-1',
-    sender: 'Chandra Reddy',
-    senderAvatar: 'C',
-    avatarBg: 'bg-slate-200 text-slate-800',
-    content: 'Hey team! The E-Commerce API endpoints have been deployed to staging.',
-    timestamp: '11:42 AM',
-    channel: 'general',
-  },
-  {
-    id: 'c-2',
-    sender: 'Priya Sharma',
-    senderAvatar: 'P',
-    avatarBg: 'bg-slate-300 text-slate-900',
-    content: 'Awesome! I uploaded the updated Figma UI mockups for review.',
-    timestamp: '11:45 AM',
-    channel: 'general',
-  },
-  {
-    id: 'c-3',
-    sender: 'Rahul Kumar',
-    senderAvatar: 'R',
-    avatarBg: 'bg-[#6CC04A] text-white',
-    content: 'Great work! I am tackling the homepage frontend components now.',
-    timestamp: '11:50 AM',
-    channel: 'general',
-  },
-];
+// No hardcoded chat messages - synced live via Firebase Campfire
+export const initialChatMessages: ChatMessage[] = [];
 
+// Real registered employees only
 export const initialPeople: Person[] = [];
 
-export const initialCheckIns: CheckIn[] = [
-  {
-    id: 'chk-1',
-    question: 'What did you complete today and what are your top priorities for tomorrow?',
-    author: 'Rahul Kumar',
-    authorAvatar: 'R',
-    avatarBg: 'bg-[#6CC04A] text-white',
-    answer: 'Completed Login API integrations and started working on the dashboard widgets.',
-    timeAgo: '3 hours ago',
-    responsesCount: 4,
-  },
-  {
-    id: 'chk-2',
-    question: 'Are there any blockers preventing your progress on current tasks?',
-    author: 'Michael Chen',
-    authorAvatar: 'M',
-    avatarBg: 'bg-slate-400 text-white',
-    answer: 'No major blockers. Waiting on final SSL certificates for staging domain.',
-    timeAgo: 'Yesterday',
-    responsesCount: 5,
-  },
-];
+// Real checkins only
+export const initialCheckIns: CheckIn[] = [];
 
-const initialFileBaseTime = Date.now();
-
-export const initialFiles: FileItem[] = [
-  {
-    id: 'f-1',
-    name: 'design.pdf',
-    size: '4.2 MB',
-    uploadedBy: 'Priya Sharma',
-    uploadedAt: '25 min ago',
-    createdAt: initialFileBaseTime - 25 * 60 * 1000,
-    type: 'pdf',
-    project: 'E-Commerce Website',
-  },
-  {
-    id: 'f-2',
-    name: 'api_endpoints_v2.json',
-    size: '184 KB',
-    uploadedBy: 'Chandra Reddy',
-    uploadedAt: '2 hours ago',
-    createdAt: initialFileBaseTime - 2 * 60 * 60 * 1000,
-    type: 'code',
-    project: 'E-Commerce Website',
-  },
-  {
-    id: 'f-3',
-    name: 'q4_marketing_deck.pdf',
-    size: '12.5 MB',
-    uploadedBy: 'Priya Sharma',
-    uploadedAt: '1 day ago',
-    createdAt: initialFileBaseTime - 24 * 60 * 60 * 1000,
-    type: 'pdf',
-    project: 'Marketing Campaign',
-  },
-  {
-    id: 'f-4',
-    name: 'brand_guidelines_2026.png',
-    size: '8.1 MB',
-    uploadedBy: 'Priya Sharma',
-    uploadedAt: '3 days ago',
-    createdAt: initialFileBaseTime - 3 * 24 * 60 * 60 * 1000,
-    type: 'image',
-    project: 'Brand Identity Refresh',
-  },
-];
+// Real user files only
+export const initialFiles: FileItem[] = [];

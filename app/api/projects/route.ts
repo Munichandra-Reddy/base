@@ -16,6 +16,10 @@ export async function GET(request: Request) {
 
     snap.docs.forEach((d) => {
       const data = d.data();
+      // Skip legacy dummy projects
+      if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6'].includes(d.id)) return;
+      if (data.name === 'E-Commerce Website' && d.id.startsWith('p-')) return;
+
       projectList.push({
         id: d.id,
         projectId: data.projectId || d.id,
@@ -39,6 +43,12 @@ export async function GET(request: Request) {
         createdAt: data.createdAt || '',
         updatedAt: data.updatedAt || '',
         archived: Boolean(data.archived),
+        // Project Based Learning Fields
+        teamName: data.teamName || '',
+        projectType: data.projectType || 'website',
+        mentorName: data.mentorName || data.manager || 'Workspace Admin',
+        mentorEmail: data.mentorEmail || data.managerEmail || '',
+        learningPlan: data.learningPlan || undefined,
       });
     });
 
@@ -155,7 +165,60 @@ export async function POST(request: Request) {
 
     const finalMembers = Array.from(membersSet);
 
-    // 4. Create Project document
+    // 4. Project-Based Learning Plan & Metadata
+    const teamName = String(body.teamName || '').trim() || 'Team';
+    const projectType = String(body.projectType || 'website').trim();
+    const mentorName = String(body.mentorName || managerName || 'Admin Mentor').trim();
+    const mentorEmail = String(body.mentorEmail || managerEmail || '').trim();
+
+    const targetTechStack = body.targetTechStack || body.techStack || {
+      uiUx: body.techStackUiUx || 'Brand Kit, Figma Design System',
+      frontend: body.techStackFrontend || (projectType === 'app' ? 'React Native / Flutter' : 'React.js / Next.js, Tailwind CSS'),
+      backend: body.techStackBackend || 'Node.js, Express, REST APIs',
+      databaseCloud: body.techStackDatabase || 'PostgreSQL / Firebase Cloud, Vercel',
+      notes: body.techStackNotes || '',
+    };
+
+    const learningPlan: any = body.learningPlan || {
+      teamName,
+      projectType,
+      mentorName,
+      mentorEmail,
+      scopeOfDocument: {
+        submitted: false,
+        status: 'pending',
+        objectives: '',
+        deliverables: '',
+        proposedTechStack: '',
+        documentUrl: '',
+        content: '',
+      },
+      techStackLocked: false,
+      techStack: targetTechStack,
+      stage: 'scope_pending',
+      workDivisionStatus: 'pending',
+      currentSprint: 'Sprint 1 (Week 1)',
+      weekendMeeting: {
+        scheduledDate: body.weekendMeetingDate || '',
+        agenda: 'Weekly Sprint Kickoff & Scope Alignment',
+        meetingNotes: '',
+        status: 'scheduled',
+      },
+      testingReport: {
+        status: 'pending',
+        testCasesCount: 0,
+        notes: '',
+      },
+      finalDocumentReport: {
+        submitted: false,
+        reportUrl: '',
+        summary: '',
+      },
+      liveUrl: '',
+      resources: [],
+    };
+
+    // 5. Create Project document
     const docId = `prj_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const newProject: Project = {
       id: docId,
@@ -179,9 +242,59 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       archived: false,
+      // Project Based Learning
+      teamName,
+      projectType,
+      mentorName,
+      mentorEmail,
+      learningPlan,
     };
 
     await setDoc(doc(db, 'projects', docId), newProject);
+
+    // 6. Create Dedicated Team Group Chat Conversation for Project
+    try {
+      const convId = `project_${docId}`;
+      const memberUids = finalMembers.map((m) => m.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+      const memberDetails: Record<string, any> = {};
+      finalMembers.forEach((m) => {
+        const u = m.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        memberDetails[u] = {
+          uid: u,
+          name: m,
+          email: m.includes('@') ? m : '',
+          role: m === managerName || m === managerEmail ? 'admin' : 'member',
+          avatar: m[0].toUpperCase(),
+          avatarBg: 'bg-emerald-100 text-emerald-800',
+        };
+      });
+
+      await setDoc(
+        doc(db, 'conversations', convId),
+        {
+          id: convId,
+          type: 'project',
+          projectId: docId,
+          projectName: name,
+          name: `${teamName ? `${teamName} - ` : ''}${name}`,
+          description: `Project team discussion for ${name} (${teamName}) with Mentor ${mentorName}.`,
+          memberUids,
+          memberDetails,
+          createdBy: {
+            uid: adminEmail.replace(/[^a-z0-9]/g, '_'),
+            name: managerName,
+            email: adminEmail,
+            role: 'admin',
+          },
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          unreadCountByMember: {},
+        },
+        { merge: true }
+      );
+    } catch (chatErr) {
+      console.warn('Project team conversation creation warning:', chatErr);
+    }
 
     // 5. Record activity in Firestore activityLogs
     try {

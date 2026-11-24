@@ -61,31 +61,67 @@ export const deduplicateEmployees = (peopleList: Person[]): Person[] => {
 };
 
 // ==========================================
-// AUTO-SEED INITIAL DATA TO FIREBASE FIRESTORE
+// PURGE LEGACY DUMMY / HARDCODED DATA FROM FIRESTORE
 // ==========================================
 export const seedInitialDataToFirebase = async () => {
   if (typeof window === 'undefined') return;
-  if (localStorage.getItem('workorbit_firebase_seeded') === 'true') return;
   try {
-    for (const t of initialTasks) {
-      await setDoc(doc(db, 'tasks', t.id), t, { merge: true });
+    // 1. Purge legacy dummy tasks
+    const dummyTaskIds = ['t-1', 't-2', 't-3', 't-4', 't-5', 't-6', 'TSK-1001', 'TSK-1002', 'TSK-1003', 'TSK-1004', 'TSK-1005', 'TSK-1006', 'TSK-1007', 'TSK-1008'];
+    for (const tid of dummyTaskIds) {
+      try {
+        await deleteDoc(doc(db, 'tasks', tid));
+      } catch (e) {}
     }
-    for (const pr of initialProjects) {
-      await setDoc(doc(db, 'projects', pr.id), pr, { merge: true });
+
+    // 2. Purge legacy dummy projects
+    const dummyProjIds = ['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6'];
+    for (const pid of dummyProjIds) {
+      try {
+        await deleteDoc(doc(db, 'projects', pid));
+      } catch (e) {}
     }
-    for (const c of initialChatMessages) {
-      await setDoc(doc(db, 'chat_messages', c.id), c, { merge: true });
+
+    // 3. Purge legacy dummy chat messages, checkins, files
+    const dummyChatIds = ['c-1', 'c-2', 'c-3'];
+    for (const cid of dummyChatIds) {
+      try {
+        await deleteDoc(doc(db, 'chat_messages', cid));
+      } catch (e) {}
     }
-    // Purge any legacy dummy employee documents from Firestore
-    const dummyIds = ['usr-1', 'usr-2', 'usr-3', 'usr-4', 'usr-5', 'usr-6', 'usr-7', 'cr7156816_gmail_com'];
-    for (const id of dummyIds) {
+
+    const dummyCheckinIds = ['chk-1', 'chk-2'];
+    for (const chkId of dummyCheckinIds) {
+      try {
+        await deleteDoc(doc(db, 'checkins', chkId));
+      } catch (e) {}
+    }
+
+    const dummyFileIds = ['f-1', 'f-2', 'f-3', 'f-4'];
+    for (const fid of dummyFileIds) {
+      try {
+        await deleteDoc(doc(db, 'files', fid));
+      } catch (e) {}
+    }
+
+    // 4. Purge legacy dummy employees
+    const dummyEmpIds = ['usr-1', 'usr-2', 'usr-3', 'usr-4', 'usr-5', 'usr-6', 'usr-7', 'cr7156816_gmail_com'];
+    for (const id of dummyEmpIds) {
       try {
         await deleteDoc(doc(db, 'employees', id));
       } catch (e) {}
     }
-    localStorage.setItem('workorbit_firebase_seeded', 'true');
+
+    // Clean legacy localStorage caches if they contain dummy items
+    ['workorbit_tasks', 'workorbit_projects', 'workorbit_chat_messages', 'workorbit_activities', 'workorbit_checkins', 'workorbit_files'].forEach((key) => {
+      const val = localStorage.getItem(key);
+      if (val && (val.includes('Rahul Kumar') || val.includes('t-1') || val.includes('p-1'))) {
+        localStorage.removeItem(key);
+      }
+    });
+    localStorage.setItem('workorbit_dummy_purged_v2', 'true');
   } catch (e) {
-    console.error('Firebase seeding error:', e);
+    console.error('Firebase dummy purge notice:', e);
   }
 };
 

@@ -154,6 +154,7 @@ interface ProjectsViewProps {
   onUpdateProject?: (project: Project) => void;
   onDeleteProject?: (id: string) => void;
   onNavigateToEmployee?: (email: string) => void;
+  onNavigateToChat?: (conversationId?: string) => void;
 }
 
 export const ProjectsView: React.FC<ProjectsViewProps> = ({
@@ -169,6 +170,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   onUpdateProject,
   onDeleteProject,
   onNavigateToEmployee,
+  onNavigateToChat,
 }) => {
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -192,8 +194,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     return null;
   });
 
-  // Project Details sub-tab: 'overview' | 'team' | 'tasks' | 'messages' | 'meetings' | 'updates' | 'files'
-  const [detailsTab, setDetailsTab] = useState<'overview' | 'team' | 'tasks' | 'messages' | 'meetings' | 'updates' | 'files'>('overview');
+  // Project Details sub-tab: 'learning' | 'overview' | 'team' | 'tasks' | 'messages' | 'meetings' | 'updates' | 'files'
+  const [detailsTab, setDetailsTab] = useState<'learning' | 'overview' | 'team' | 'tasks' | 'messages' | 'meetings' | 'updates' | 'files'>('learning');
 
   // Phase 8: Project Files states
   const [isProjectUploadModalOpen, setIsProjectUploadModalOpen] = useState(false);
@@ -220,6 +222,45 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   const [formPriority, setFormPriority] = useState<ProjectPriority>('medium');
   const [formStatus, setFormStatus] = useState<ProjectStatus>('planning');
   const [formNotes, setFormNotes] = useState('');
+
+  // Project-Based Learning (PBL) Form Fields
+  const [formTeamName, setFormTeamName] = useState('Kaling');
+  const [formProjectType, setFormProjectType] = useState<'website' | 'app'>('website');
+  const [formTechStackUiUx, setFormTechStackUiUx] = useState('Brand Kit, Figma Design System');
+  const [formTechStackFrontend, setFormTechStackFrontend] = useState('React.js / Next.js, Tailwind CSS');
+  const [formTechStackBackend, setFormTechStackBackend] = useState('Node.js, Express, REST APIs');
+  const [formTechStackDatabase, setFormTechStackDatabase] = useState('PostgreSQL / Firebase Cloud, Vercel');
+  const [formWeekendMeetingDate, setFormWeekendMeetingDate] = useState('');
+
+  // Project-Based Learning Modals & Controls State
+  const [isScopeModalOpen, setIsScopeModalOpen] = useState(false);
+  const [scopeObjectives, setScopeObjectives] = useState('');
+  const [scopeDeliverables, setScopeDeliverables] = useState('');
+  const [scopeProposedTechStack, setScopeProposedTechStack] = useState('');
+  const [scopeDocUrl, setScopeDocUrl] = useState('');
+  const [scopeContent, setScopeContent] = useState('');
+
+  const [isDivideWorkModalOpen, setIsDivideWorkModalOpen] = useState(false);
+  const [streamTaskStream, setStreamTaskStream] = useState<'ui_ux' | 'frontend' | 'backend' | 'database_cloud'>('ui_ux');
+  const [streamTaskMember, setStreamTaskMember] = useState('');
+  const [streamTaskTitle, setStreamTaskTitle] = useState('');
+  const [streamTaskDescription, setStreamTaskDescription] = useState('');
+  const [streamTaskSprintWeek, setStreamTaskSprintWeek] = useState('Sprint 1 (Week 1)');
+  const [streamTaskDueDate, setStreamTaskDueDate] = useState('');
+  const [streamTaskPriority, setStreamTaskPriority] = useState<ProjectPriority>('medium');
+
+  const [isWeekendMeetingModalOpen, setIsWeekendMeetingModalOpen] = useState(false);
+  const [meetingDateInput, setMeetingDateInput] = useState('');
+  const [meetingAgendaInput, setMeetingAgendaInput] = useState('');
+  const [meetingNotesInput, setMeetingNotesInput] = useState('');
+
+  const [isRevisionModalOpen, setIsRevisionModalOpen] = useState(false);
+  const [revisionNotesInput, setRevisionNotesInput] = useState('');
+
+  const [isLiveModalOpen, setIsLiveModalOpen] = useState(false);
+  const [liveUrlInput, setLiveUrlInput] = useState('');
+  const [finalReportUrlInput, setFinalReportUrlInput] = useState('');
+
   const [isFormPMDropdownOpen, setIsFormPMDropdownOpen] = useState(false);
   const [formPMSearch, setFormPMSearch] = useState('');
   const [formTeamSearch, setFormTeamSearch] = useState('');
@@ -624,12 +665,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     const now = new Date();
     const start = now.toISOString().split('T')[0];
     const end = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const nextWeekend = new Date();
+    nextWeekend.setDate(nextWeekend.getDate() + ((6 - nextWeekend.getDay() + 7) % 7 || 7));
 
     setFormName('');
     setFormDescription('');
     setFormCategory('Web Development');
-    const defaultPM = activeEmployees[0]?.name || currentUser?.fullName || 'Workspace Admin';
-    const defaultPMEmail = activeEmployees[0]?.email || currentUser?.email || '';
+    const defaultPM = currentUser?.fullName || activeEmployees[0]?.name || 'Workspace Admin';
+    const defaultPMEmail = currentUser?.email || activeEmployees[0]?.email || '';
     setFormManager(defaultPM);
     setFormManagerEmail(defaultPMEmail);
     setFormMembers([defaultPM]);
@@ -638,6 +681,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     setFormPriority('medium');
     setFormStatus('planning');
     setFormNotes('');
+    setFormTeamName('Kaling');
+    setFormProjectType('website');
+    setFormTechStackUiUx('Brand Kit, Figma Design System');
+    setFormTechStackFrontend('React.js / Next.js, Tailwind CSS');
+    setFormTechStackBackend('Node.js, Express, REST APIs');
+    setFormTechStackDatabase('PostgreSQL / Firebase Cloud, Vercel');
+    setFormWeekendMeetingDate(nextWeekend.toISOString().split('T')[0]);
     setIsCreateModalOpen(true);
   };
 
@@ -672,6 +722,15 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           priority: formPriority,
           status: formStatus,
           notes: formNotes.trim(),
+          teamName: formTeamName.trim() || 'Team',
+          projectType: formProjectType,
+          mentorName: formManager.trim() || currentUser?.fullName || 'Workspace Admin',
+          mentorEmail: formManagerEmail.trim() || currentUser?.email || '',
+          techStackUiUx: formTechStackUiUx,
+          techStackFrontend: formTechStackFrontend,
+          techStackBackend: formTechStackBackend,
+          techStackDatabase: formTechStackDatabase,
+          weekendMeetingDate: formWeekendMeetingDate,
         }),
       });
 
@@ -680,7 +739,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         setIsCreateModalOpen(false);
         setActionNotice({
           type: 'success',
-          message: data.message || `Project "${formName}" has been created successfully.`,
+          message: data.message || `Project "${formName}" with Team "${formTeamName}" has been created successfully.`,
         });
       } else {
         setActionNotice({ type: 'error', message: data.error || 'Failed to create project.' });
@@ -706,6 +765,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     setFormPriority((project.priority as ProjectPriority) || 'medium');
     setFormStatus((project.status as ProjectStatus) || 'planning');
     setFormNotes(project.notes || '');
+    setFormTeamName(project.teamName || 'Kaling');
+    setFormProjectType((project.projectType as 'website' | 'app') || 'website');
   };
 
   // Save Edit Project
@@ -741,6 +802,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           priority: formPriority,
           status: formStatus,
           notes: formNotes.trim(),
+          teamName: formTeamName.trim() || editingProject.teamName || 'Team',
+          projectType: formProjectType || editingProject.projectType || 'website',
         }),
       });
 
@@ -757,6 +820,318 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       }
     } catch (err: any) {
       setActionNotice({ type: 'error', message: err?.message || 'Network error updating project.' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // ==========================================
+  // PROJECT-BASED LEARNING (PBL) ACTIONS
+  // ==========================================
+  const getStreamLabel = (stream?: string) => {
+    switch (stream) {
+      case 'ui_ux':
+        return 'UI/UX [Brand Kit]';
+      case 'frontend':
+        return 'Frontend [React.js]';
+      case 'backend':
+        return 'Backend [APIs]';
+      case 'database_cloud':
+        return 'Database & Cloud';
+      default:
+        return stream || 'General Stream';
+    }
+  };
+
+  // Submit Scope of Document (Team Members)
+  const handleSaveScopeSubmission = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProject) return;
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    const updatedLP = {
+      ...(selectedProject.learningPlan || {}),
+      teamName: selectedProject.teamName || selectedProject.learningPlan?.teamName || 'Team',
+      projectType: selectedProject.projectType || selectedProject.learningPlan?.projectType || 'website',
+      scopeOfDocument: {
+        submitted: true,
+        submittedBy: currentUser?.email || '',
+        submittedByName: currentUser?.fullName || 'Team Member',
+        submittedAt: new Date().toISOString(),
+        objectives: scopeObjectives.trim(),
+        deliverables: scopeDeliverables.trim(),
+        proposedTechStack: scopeProposedTechStack.trim(),
+        documentUrl: scopeDocUrl.trim(),
+        content: scopeContent.trim(),
+        status: 'submitted' as const,
+      },
+      stage: 'scope_submitted' as const,
+      techStack: {
+        uiUx: selectedProject.learningPlan?.techStack?.uiUx || 'Brand Kit, Figma Design System',
+        frontend: selectedProject.learningPlan?.techStack?.frontend || (scopeProposedTechStack.includes('React') ? 'React.js' : 'Frontend Framework'),
+        backend: selectedProject.learningPlan?.techStack?.backend || 'Node.js, Express, REST APIs',
+        databaseCloud: selectedProject.learningPlan?.techStack?.databaseCloud || 'PostgreSQL / Firebase Cloud',
+        notes: scopeProposedTechStack,
+      },
+    };
+
+    try {
+      const res = await fetch('/api/projects/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          id: selectedProject.id,
+          learningPlan: updatedLP,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.project) {
+        if (onUpdateProject) onUpdateProject(data.project);
+        setSelectedProject(data.project);
+        setIsScopeModalOpen(false);
+        setActionNotice({ type: 'success', message: 'Scope of Document submitted to Project Manager (Mentor/Client) for review!' });
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to submit scope document.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Error submitting scope document.' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Mentor Review: Approve Scope & Lock Tech Stack
+  const handleApproveScopeAndLockTechStack = async () => {
+    if (!selectedProject) return;
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    const updatedLP = {
+      ...(selectedProject.learningPlan || {}),
+      scopeOfDocument: {
+        ...(selectedProject.learningPlan?.scopeOfDocument || {}),
+        status: 'approved' as const,
+        reviewedAt: new Date().toISOString(),
+      },
+      techStackLocked: true,
+      stage: 'tech_stack_locked' as const,
+      workDivisionStatus: 'in_progress' as const,
+    };
+
+    try {
+      const res = await fetch('/api/projects/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          id: selectedProject.id,
+          status: 'active',
+          learningPlan: updatedLP,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.project) {
+        if (onUpdateProject) onUpdateProject(data.project);
+        setSelectedProject(data.project);
+        setActionNotice({
+          type: 'success',
+          message: 'Scope approved & Tech Stack LOCKED! Project work can now be divided into UI/UX, Frontend, Backend, and Database Cloud streams.',
+        });
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to lock tech stack.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Error approving scope.' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Mentor Review: Request Revisions
+  const handleRequestScopeRevisions = async (feedbackNotes: string) => {
+    if (!selectedProject || !feedbackNotes.trim()) return;
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    const updatedLP = {
+      ...(selectedProject.learningPlan || {}),
+      scopeOfDocument: {
+        ...(selectedProject.learningPlan?.scopeOfDocument || {}),
+        status: 'revisions_requested' as const,
+        mentorFeedback: feedbackNotes.trim(),
+        reviewedAt: new Date().toISOString(),
+      },
+      stage: 'scope_pending' as const,
+    };
+
+    try {
+      const res = await fetch('/api/projects/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          id: selectedProject.id,
+          learningPlan: updatedLP,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.project) {
+        if (onUpdateProject) onUpdateProject(data.project);
+        setSelectedProject(data.project);
+        setIsRevisionModalOpen(false);
+        setActionNotice({ type: 'success', message: 'Revision feedback sent to team.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Error sending revision feedback.' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Work Division: Create & Assign Stream Task
+  const handleSaveStreamTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProject || !streamTaskTitle.trim() || !streamTaskMember) return;
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    const assignedEmp = activeEmployees.find((p) => p.name.toLowerCase() === streamTaskMember.toLowerCase());
+
+    try {
+      const res = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          title: streamTaskTitle.trim(),
+          description: streamTaskDescription.trim() || `Stream: ${streamTaskStream.toUpperCase()} deliverable for ${streamTaskSprintWeek}`,
+          project: selectedProject.name,
+          projectId: selectedProject.id,
+          assignedTo: streamTaskMember,
+          assignedToEmail: assignedEmp?.email || '',
+          assignedToId: assignedEmp?.id || '',
+          assignedToRole: assignedEmp?.role || assignedEmp?.designation || '',
+          assignedToDept: assignedEmp?.department || '',
+          startDate: new Date().toISOString().split('T')[0],
+          dueDate: streamTaskDueDate || new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
+          priority: streamTaskPriority,
+          stream: streamTaskStream,
+          streamName: getStreamLabel(streamTaskStream),
+          sprintWeek: streamTaskSprintWeek,
+          weekendMeetingReview: true,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsDivideWorkModalOpen(false);
+        setStreamTaskTitle('');
+        setStreamTaskDescription('');
+        setActionNotice({
+          type: 'success',
+          message: `Task successfully assigned to ${streamTaskMember} under stream [${getStreamLabel(streamTaskStream)}].`,
+        });
+      } else {
+        setActionNotice({ type: 'error', message: data.error || 'Failed to create stream task.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Error creating stream task.' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Weekend Meeting Update
+  const handleSaveWeekendMeeting = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProject) return;
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    const updatedLP = {
+      ...(selectedProject.learningPlan || {}),
+      weekendMeeting: {
+        scheduledDate: meetingDateInput.trim(),
+        agenda: meetingAgendaInput.trim(),
+        meetingNotes: meetingNotesInput.trim(),
+        status: 'scheduled' as const,
+      },
+    };
+
+    try {
+      const res = await fetch('/api/projects/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          id: selectedProject.id,
+          learningPlan: updatedLP,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.project) {
+        if (onUpdateProject) onUpdateProject(data.project);
+        setSelectedProject(data.project);
+        setIsWeekendMeetingModalOpen(false);
+        setActionNotice({ type: 'success', message: 'Weekend Sprint review meeting updated successfully.' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Error updating weekend meeting.' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Testing & Final Report & Live URL
+  const handleSaveLiveAndReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProject) return;
+    setIsProcessing(true);
+    setActionNotice(null);
+
+    const updatedLP = {
+      ...(selectedProject.learningPlan || {}),
+      liveUrl: liveUrlInput.trim(),
+      finalDocumentReport: {
+        submitted: Boolean(finalReportUrlInput.trim()),
+        reportUrl: finalReportUrlInput.trim(),
+      },
+      stage: liveUrlInput.trim() ? ('live' as const) : ('final_report' as const),
+    };
+
+    try {
+      const res = await fetch('/api/projects/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-email': currentUser?.email || 'admin@basecamp.com',
+        },
+        body: JSON.stringify({
+          id: selectedProject.id,
+          status: liveUrlInput.trim() ? 'completed' : selectedProject.status,
+          learningPlan: updatedLP,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.project) {
+        if (onUpdateProject) onUpdateProject(data.project);
+        setSelectedProject(data.project);
+        setIsLiveModalOpen(false);
+        setActionNotice({ type: 'success', message: 'Project status, Final Report & Live URL updated!' });
+      }
+    } catch (err: any) {
+      setActionNotice({ type: 'error', message: err?.message || 'Error updating status.' });
     } finally {
       setIsProcessing(false);
     }
@@ -1051,11 +1426,35 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         {/* Top Breadcrumb & Action Header */}
         <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-xl font-bold text-[#111827]">{selectedProject.name}</h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl font-bold text-[#111827]">{selectedProject.name}</h1>
+              {selectedProject.teamName && (
+                <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
+                  👥 Team: {selectedProject.teamName}
+                </span>
+              )}
+              <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
+                {selectedProject.projectType === 'app' ? '📱 Mobile App' : '💻 Website'}
+              </span>
+              <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
+                🎓 Mentor: {selectedProject.mentorName || selectedProject.manager || 'Admin'}
+              </span>
+            </div>
           </div>
 
-          {/* Quick Actions (Admin only) */}
+          {/* Quick Actions */}
           <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            {/* Open Team Group Chat Button */}
+            <button
+              type="button"
+              onClick={() => onNavigateToChat ? onNavigateToChat(`project_${selectedProject.id}`) : setDetailsTab('messages')}
+              className="px-3 py-1.5 rounded-md bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] text-xs font-semibold border border-[#BFDBFE] transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+              title="Open Project Team Group Chat"
+            >
+              <ChatIcon className="w-3.5 h-3.5 text-[#2563EB]" />
+              <span>Team Group Chat</span>
+            </button>
+
             {isAdmin && (
               <>
                 <button
@@ -1111,6 +1510,23 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
         {/* Sub-tabs Navigation */}
         <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs px-4 flex items-center gap-2 overflow-x-auto text-xs font-semibold">
+          <button
+            type="button"
+            onClick={() => setDetailsTab('learning')}
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+              detailsTab === 'learning'
+                ? 'border-[#049FD9] text-[#049FD9] font-bold'
+                : 'border-transparent text-[#64748B] hover:text-[#111827]'
+            }`}
+          >
+            <span className="text-sm">🎓</span>
+            <span>Project Learning Plan (PBL)</span>
+            {selectedProject.learningPlan?.techStackLocked && (
+              <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                🔒 Stack Locked
+              </span>
+            )}
+          </button>
           <button
             type="button"
             onClick={() => setDetailsTab('overview')}
@@ -1202,6 +1618,596 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             </span>
           </button>
         </div>
+
+        {/* TAB 0: PROJECT-BASED LEARNING (PBL) ROADMAP & EXECUTION */}
+        {detailsTab === 'learning' && (
+          <div className="space-y-5">
+            {/* 1. VISUAL LEARNING LIFECYCLE PIPELINE */}
+            <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h3 className="text-sm font-bold text-[#111827] flex items-center gap-2">
+                    <span>Project-Based Learning Lifecycle</span>
+                    <span className="text-[11px] font-normal text-[#64748B]">
+                      (Admin Mentor/Client &rarr; Team &ldquo;{selectedProject.teamName || 'Team'}&rdquo;)
+                    </span>
+                  </h3>
+                  <p className="text-xs text-[#64748B] mt-0.5">
+                    Follows the structured PBL roadmap: Scope of Document &rarr; Tech Stack Lock &rarr; Work Division (4 Streams) &rarr; Weekly Sprints &amp; Weekend Meets &rarr; Testing &amp; Live Product.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => onNavigateToChat ? onNavigateToChat(`project_${selectedProject.id}`) : setDetailsTab('messages')}
+                  className="px-3 py-1.5 rounded-md bg-[#049FD9] text-white hover:bg-[#038bbd] text-xs font-semibold shadow-2xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                >
+                  <ChatIcon className="w-3.5 h-3.5" />
+                  <span>Open Team Group Chat</span>
+                </button>
+              </div>
+
+              {/* 5-Step Visual Stepper */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-2">
+                {/* Step 1: Scope of Document */}
+                <div className={`p-3 rounded-lg border text-xs space-y-1 ${
+                  selectedProject.learningPlan?.scopeOfDocument?.status === 'approved'
+                    ? 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'
+                    : selectedProject.learningPlan?.scopeOfDocument?.status === 'submitted'
+                    ? 'bg-[#EFF6FF] border-[#2563EB]/30 text-[#1D4ED8]'
+                    : 'bg-[#FFFBEB] border-[#D97706]/30 text-[#92400E]'
+                }`}>
+                  <div className="flex items-center justify-between font-bold text-[11px]">
+                    <span>1. Scope of Document</span>
+                    <span>
+                      {selectedProject.learningPlan?.scopeOfDocument?.status === 'approved'
+                        ? '✓ Done'
+                        : selectedProject.learningPlan?.scopeOfDocument?.status === 'submitted'
+                        ? '⏳ In Review'
+                        : '⚠️ Required'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] opacity-80">
+                    {selectedProject.learningPlan?.scopeOfDocument?.status === 'approved'
+                      ? 'Approved by Mentor/Client'
+                      : selectedProject.learningPlan?.scopeOfDocument?.status === 'submitted'
+                      ? 'Submitted for Client approval'
+                      : 'Team must submit scope'}
+                  </p>
+                </div>
+
+                {/* Step 2: Tech Stack Lock */}
+                <div className={`p-3 rounded-lg border text-xs space-y-1 ${
+                  selectedProject.learningPlan?.techStackLocked
+                    ? 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'
+                    : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B]'
+                }`}>
+                  <div className="flex items-center justify-between font-bold text-[11px]">
+                    <span>2. Tech Stack [Lock]</span>
+                    <span>{selectedProject.learningPlan?.techStackLocked ? '🔒 Locked' : 'Pending'}</span>
+                  </div>
+                  <p className="text-[10px] opacity-80">
+                    {selectedProject.learningPlan?.techStackLocked
+                      ? 'Tech Stack locked by Client'
+                      : 'Locked after Scope review'}
+                  </p>
+                </div>
+
+                {/* Step 3: Work Division (4 Streams) */}
+                <div className={`p-3 rounded-lg border text-xs space-y-1 ${
+                  taskMetrics.total > 0
+                    ? 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'
+                    : selectedProject.learningPlan?.techStackLocked
+                    ? 'bg-[#EFF6FF] border-[#2563EB]/30 text-[#1D4ED8]'
+                    : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B]'
+                }`}>
+                  <div className="flex items-center justify-between font-bold text-[11px]">
+                    <span>3. Work Division</span>
+                    <span>{taskMetrics.total > 0 ? `✓ ${taskMetrics.total} Tasks` : 'Ready'}</span>
+                  </div>
+                  <p className="text-[10px] opacity-80">
+                    UI/UX, Frontend, Backend, Cloud
+                  </p>
+                </div>
+
+                {/* Step 4: Sprints & Weekend Meet */}
+                <div className={`p-3 rounded-lg border text-xs space-y-1 ${
+                  selectedProject.learningPlan?.weekendMeeting?.scheduledDate
+                    ? 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'
+                    : 'bg-[#EFF6FF] border-[#2563EB]/30 text-[#1D4ED8]'
+                }`}>
+                  <div className="flex items-center justify-between font-bold text-[11px]">
+                    <span>4. Weekly Sprints</span>
+                    <span>Weekend Meet</span>
+                  </div>
+                  <p className="text-[10px] opacity-80">
+                    {selectedProject.learningPlan?.currentSprint || 'Weekly Sprint'}
+                  </p>
+                </div>
+
+                {/* Step 5: Product Live */}
+                <div className={`p-3 rounded-lg border text-xs space-y-1 ${
+                  selectedProject.learningPlan?.liveUrl
+                    ? 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'
+                    : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B]'
+                }`}>
+                  <div className="flex items-center justify-between font-bold text-[11px]">
+                    <span>5. Product Live</span>
+                    <span>{selectedProject.learningPlan?.liveUrl ? '🚀 Live' : 'Testing/Report'}</span>
+                  </div>
+                  <p className="text-[10px] opacity-80">
+                    Testing &rarr; Report &rarr; Live
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. STAGE 1: SCOPE OF DOCUMENT REVIEW / SUBMISSION */}
+            <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3.5">
+              <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
+                <div>
+                  <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
+                    <span>Stage 1: Scope of Document</span>
+                    {selectedProject.learningPlan?.scopeOfDocument?.status === 'approved' && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0]">
+                        ✓ Approved by Client / Mentor
+                      </span>
+                    )}
+                    {selectedProject.learningPlan?.scopeOfDocument?.status === 'submitted' && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DBEAFE] text-[#1D4ED8] border border-[#93C5FD]">
+                        ⏳ Submitted (Pending Review)
+                      </span>
+                    )}
+                    {(!selectedProject.learningPlan?.scopeOfDocument?.status || selectedProject.learningPlan?.scopeOfDocument?.status === 'pending' || selectedProject.learningPlan?.scopeOfDocument?.status === 'revisions_requested') && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
+                        ⚠️ Scope Submission Required
+                      </span>
+                    )}
+                  </h4>
+                  <p className="text-xs text-[#64748B] mt-0.5">
+                    Team prepares the Scope of Document (SRS, architecture, features, proposed tech stack) and submits to Project Manager (acting as Client).
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setScopeObjectives(selectedProject.learningPlan?.scopeOfDocument?.objectives || '');
+                      setScopeDeliverables(selectedProject.learningPlan?.scopeOfDocument?.deliverables || '');
+                      setScopeProposedTechStack(selectedProject.learningPlan?.scopeOfDocument?.proposedTechStack || 'React.js, Node.js, Express, PostgreSQL/Firebase');
+                      setScopeDocUrl(selectedProject.learningPlan?.scopeOfDocument?.documentUrl || '');
+                      setScopeContent(selectedProject.learningPlan?.scopeOfDocument?.content || '');
+                      setIsScopeModalOpen(true);
+                    }}
+                    className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>📄</span>
+                    <span>{selectedProject.learningPlan?.scopeOfDocument?.submitted ? 'Update Scope Doc' : 'Submit Scope of Document'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Scope Content Details */}
+              {selectedProject.learningPlan?.scopeOfDocument?.submitted ? (
+                <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-xs space-y-2.5">
+                  <div className="flex items-center justify-between text-[11px] text-[#64748B] pb-2 border-b border-[#E2E8F0]">
+                    <span>
+                      Submitted by: <strong className="text-[#111827]">{selectedProject.learningPlan.scopeOfDocument.submittedByName || selectedProject.learningPlan.scopeOfDocument.submittedBy}</strong>
+                    </span>
+                    <span>
+                      {selectedProject.learningPlan.scopeOfDocument.submittedAt ? new Date(selectedProject.learningPlan.scopeOfDocument.submittedAt).toLocaleString() : 'Recently'}
+                    </span>
+                  </div>
+
+                  {selectedProject.learningPlan.scopeOfDocument.objectives && (
+                    <div>
+                      <span className="font-bold text-[#111827] block text-[11px]">Objectives &amp; Scope:</span>
+                      <p className="text-[#334155] whitespace-pre-wrap mt-0.5">{selectedProject.learningPlan.scopeOfDocument.objectives}</p>
+                    </div>
+                  )}
+
+                  {selectedProject.learningPlan.scopeOfDocument.deliverables && (
+                    <div>
+                      <span className="font-bold text-[#111827] block text-[11px]">Key Deliverables:</span>
+                      <p className="text-[#334155] whitespace-pre-wrap mt-0.5">{selectedProject.learningPlan.scopeOfDocument.deliverables}</p>
+                    </div>
+                  )}
+
+                  {selectedProject.learningPlan.scopeOfDocument.proposedTechStack && (
+                    <div>
+                      <span className="font-bold text-[#111827] block text-[11px]">Proposed Tech Stack:</span>
+                      <p className="text-[#334155] mt-0.5">{selectedProject.learningPlan.scopeOfDocument.proposedTechStack}</p>
+                    </div>
+                  )}
+
+                  {selectedProject.learningPlan.scopeOfDocument.documentUrl && (
+                    <div className="pt-1">
+                      <a
+                        href={selectedProject.learningPlan.scopeOfDocument.documentUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-[#049FD9] hover:underline font-bold"
+                      >
+                        <span>📎 View Scope of Document Attachment / Link</span>
+                        <span>&nearr;</span>
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Mentor Feedback / Revision notice */}
+                  {selectedProject.learningPlan.scopeOfDocument.mentorFeedback && (
+                    <div className="p-2.5 bg-[#FEF2F2] border border-[#FCA5A5] rounded text-xs text-[#991B1B]">
+                      <strong>Mentor Revision Feedback:</strong> {selectedProject.learningPlan.scopeOfDocument.mentorFeedback}
+                    </div>
+                  )}
+
+                  {/* Admin / Client Review Actions */}
+                  {isAdmin && !selectedProject.learningPlan?.techStackLocked && (
+                    <div className="pt-2 flex items-center gap-2 border-t border-[#E2E8F0] flex-wrap">
+                      <button
+                        type="button"
+                        onClick={handleApproveScopeAndLockTechStack}
+                        disabled={isProcessing}
+                        className="px-3.5 py-1.5 rounded-md bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold shadow-2xs cursor-pointer flex items-center gap-1.5"
+                      >
+                        <span>🔒</span>
+                        <span>Approve Scope &amp; Lock Tech Stack (Client Approval)</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsRevisionModalOpen(true)}
+                        disabled={isProcessing}
+                        className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] cursor-pointer"
+                      >
+                        Request Scope Revisions
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg text-xs text-[#92400E] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <strong className="block font-bold">Scope of Document Not Yet Submitted</strong>
+                    <p className="text-[11px] opacity-90 mt-0.5">
+                      The team has not yet submitted the Scope of Document for client review. Team members or mentor can click &ldquo;Submit Scope of Document&rdquo; to proceed.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsScopeModalOpen(true)}
+                    className="btn-primary py-1.5 px-3.5 text-xs font-semibold cursor-pointer shrink-0 whitespace-nowrap"
+                  >
+                    Submit Scope Now
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* 3. STAGE 2: TECH STACK LOCKED */}
+            <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3.5">
+              <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
+                <div>
+                  <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
+                    <span>Stage 2: Tech Stack [Lock]</span>
+                    {selectedProject.learningPlan?.techStackLocked ? (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0] flex items-center gap-1">
+                        <span>🔒</span>
+                        <span>LOCKED BY CLIENT / MENTOR</span>
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0]">
+                        ⏳ Unlocked (Awaiting Scope Approval)
+                      </span>
+                    )}
+                  </h4>
+                  <p className="text-xs text-[#64748B] mt-0.5">
+                    Locked technical specifications agreed between the Client/Mentor and the Team.
+                  </p>
+                </div>
+
+                {isAdmin && !selectedProject.learningPlan?.techStackLocked && (
+                  <button
+                    type="button"
+                    onClick={handleApproveScopeAndLockTechStack}
+                    className="px-3 py-1.5 rounded-md bg-[#049FD9] text-white hover:bg-[#038bbd] text-xs font-bold cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>🔒 Lock Tech Stack</span>
+                  </button>
+                )}
+              </div>
+
+              {/* 4 Stream Tech Stack Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                {/* 1. UI/UX [Brand Kit] */}
+                <div className="p-3.5 rounded-lg border border-purple-200 bg-purple-50/40 space-y-1.5">
+                  <div className="flex items-center justify-between text-purple-900 font-bold text-[11px]">
+                    <span className="flex items-center gap-1.5">
+                      <span>🎨</span>
+                      <span>UI/UX [Brand Kit]</span>
+                    </span>
+                    {selectedProject.learningPlan?.techStackLocked && <span className="text-[10px]">🔒</span>}
+                  </div>
+                  <p className="font-semibold text-[#111827] text-xs">
+                    {selectedProject.learningPlan?.techStack?.uiUx || 'Brand Kit, Figma Design System'}
+                  </p>
+                  <span className="text-[10px] text-[#64748B] block">Wireframes, brand colors, UI components</span>
+                </div>
+
+                {/* 2. Frontend */}
+                <div className="p-3.5 rounded-lg border border-blue-200 bg-blue-50/40 space-y-1.5">
+                  <div className="flex items-center justify-between text-blue-900 font-bold text-[11px]">
+                    <span className="flex items-center gap-1.5">
+                      <span>💻</span>
+                      <span>Frontend</span>
+                    </span>
+                    {selectedProject.learningPlan?.techStackLocked && <span className="text-[10px]">🔒</span>}
+                  </div>
+                  <p className="font-semibold text-[#111827] text-xs">
+                    {selectedProject.learningPlan?.techStack?.frontend || 'React.js / Next.js, Tailwind CSS'}
+                  </p>
+                  <span className="text-[10px] text-[#64748B] block">Web app screens, state management</span>
+                </div>
+
+                {/* 3. Backend */}
+                <div className="p-3.5 rounded-lg border border-amber-200 bg-amber-50/40 space-y-1.5">
+                  <div className="flex items-center justify-between text-amber-900 font-bold text-[11px]">
+                    <span className="flex items-center gap-1.5">
+                      <span>⚙️</span>
+                      <span>Backend</span>
+                    </span>
+                    {selectedProject.learningPlan?.techStackLocked && <span className="text-[10px]">🔒</span>}
+                  </div>
+                  <p className="font-semibold text-[#111827] text-xs">
+                    {selectedProject.learningPlan?.techStack?.backend || 'Node.js, Express, REST APIs'}
+                  </p>
+                  <span className="text-[10px] text-[#64748B] block">Server logic, auth, business APIs</span>
+                </div>
+
+                {/* 4. Database Cloud */}
+                <div className="p-3.5 rounded-lg border border-emerald-200 bg-emerald-50/40 space-y-1.5">
+                  <div className="flex items-center justify-between text-emerald-900 font-bold text-[11px]">
+                    <span className="flex items-center gap-1.5">
+                      <span>☁️</span>
+                      <span>Database Cloud</span>
+                    </span>
+                    {selectedProject.learningPlan?.techStackLocked && <span className="text-[10px]">🔒</span>}
+                  </div>
+                  <p className="font-semibold text-[#111827] text-xs">
+                    {selectedProject.learningPlan?.techStack?.databaseCloud || 'PostgreSQL / Firebase Cloud'}
+                  </p>
+                  <span className="text-[10px] text-[#64748B] block">Cloud DB schema, deployment hosting</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. STAGE 3: WORK DIVISION (Teams -> work divide) */}
+            <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-[#F1F5F9] gap-3">
+                <div>
+                  <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
+                    <span>Stage 3: Teams &rarr; Work Divide</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
+                      {taskMetrics.total} tasks divided
+                    </span>
+                  </h4>
+                  <p className="text-xs text-[#64748B] mt-0.5">
+                    Client/Mentor divides project work among team members across the 4 key learning streams for weekly sprints.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStreamTaskMember(selectedProject.members?.[0] || '');
+                      setStreamTaskDueDate(new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0]);
+                      setIsDivideWorkModalOpen(true);
+                    }}
+                    className="btn-primary py-1.5 px-3.5 text-xs font-bold cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                  >
+                    <PlusIcon className="w-3.5 h-3.5" />
+                    <span>+ Divide Work / Assign Task</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 4-Stream Tasks Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                {(['ui_ux', 'frontend', 'backend', 'database_cloud'] as const).map((streamKey) => {
+                  const streamTasks = taskMetrics.pTasks.filter((t) => t.stream === streamKey || (!t.stream && streamKey === 'frontend'));
+                  return (
+                    <div key={streamKey} className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-2">
+                      <div className="flex items-center justify-between pb-1.5 border-b border-[#E2E8F0]">
+                        <span className="font-bold text-[#111827] text-xs">{getStreamLabel(streamKey)}</span>
+                        <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-white text-[#475569] border border-[#E2E8F0]">
+                          {streamTasks.length}
+                        </span>
+                      </div>
+
+                      {streamTasks.length === 0 ? (
+                        <div className="py-6 text-center text-[#94A3B8] text-[11px]">
+                          No tasks assigned to this stream yet.
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {streamTasks.map((t) => (
+                            <div key={t.id} className="p-2.5 bg-white border border-[#E5E5E5] rounded shadow-2xs space-y-1.5">
+                              <div className="flex items-center justify-between gap-1 text-[10px]">
+                                <span className="font-mono text-[#049FD9] font-bold">{t.taskId || t.id}</span>
+                                {t.sprintWeek && (
+                                  <span className="px-1 py-0.2 bg-[#F1F5F9] text-[#475569] rounded font-semibold text-[9px]">
+                                    {t.sprintWeek}
+                                  </span>
+                                )}
+                              </div>
+                              <p className={`font-semibold text-xs leading-snug ${t.completed ? 'line-through text-[#94A3B8]' : 'text-[#111827]'}`}>
+                                {t.title}
+                              </p>
+                              <div className="flex items-center justify-between pt-1 border-t border-[#F8FAFC] text-[10px]">
+                                <span className="text-[#64748B] truncate max-w-[90px]">👤 {t.assignedTo}</span>
+                                <div>{renderStatusBadge(t.status || 'pending')}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 5. STAGE 4: WEEKLY SPRINTS & WEEKEND MEETINGS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Card A: Sprint Week Target */}
+              <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3 text-xs">
+                <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
+                  <h4 className="font-bold text-[#111827] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <span>🏃 Weekly Sprint Cycle</span>
+                  </h4>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#E0F2FE] text-[#0369A1]">
+                    {selectedProject.learningPlan?.currentSprint || 'Sprint 1 (Week 1)'}
+                  </span>
+                </div>
+                <p className="text-[#64748B]">
+                  Work is organized into target sprint weeks. Team members execute their module tasks and demo deliverables during the weekend meeting.
+                </p>
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-[#64748B]">Current Sprint:</span>
+                    <strong className="text-[#111827]">{selectedProject.learningPlan?.currentSprint || 'Sprint 1 (Week 1)'}</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#64748B]">Total Sprint Tasks:</span>
+                    <span className="font-bold text-[#049FD9]">{taskMetrics.total} tasks</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#64748B]">Completed This Sprint:</span>
+                    <span className="font-bold text-[#16A34A]">{taskMetrics.completed} tasks ({taskMetrics.completionRate}%)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card B: Weekend Meeting (weekend Meet) */}
+              <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3 text-xs">
+                <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
+                  <h4 className="font-bold text-[#111827] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <span>📅 Weekend Review Meeting</span>
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMeetingDateInput(selectedProject.learningPlan?.weekendMeeting?.scheduledDate || '');
+                      setMeetingAgendaInput(selectedProject.learningPlan?.weekendMeeting?.agenda || 'Weekly sprint review & stream demos');
+                      setMeetingNotesInput(selectedProject.learningPlan?.weekendMeeting?.meetingNotes || '');
+                      setIsWeekendMeetingModalOpen(true);
+                    }}
+                    className="text-[#049FD9] hover:underline font-bold text-xs cursor-pointer"
+                  >
+                    Edit Meeting
+                  </button>
+                </div>
+                <p className="text-[#64748B]">
+                  Every weekend meeting aligns team members with Project Manager / Client to review UI/UX, Frontend, Backend, and Cloud work.
+                </p>
+                <div className="p-3 bg-[#F0FDF4] border border-[#16A34A]/30 rounded-lg space-y-2 text-[#166534]">
+                  <div className="flex justify-between font-bold text-xs">
+                    <span>Scheduled Date:</span>
+                    <span>{selectedProject.learningPlan?.weekendMeeting?.scheduledDate || 'This Weekend (Sat/Sun)'}</span>
+                  </div>
+                  <div className="text-[11px]">
+                    <strong>Agenda:</strong> {selectedProject.learningPlan?.weekendMeeting?.agenda || 'Sprint review, module demo, blockers & next week targets.'}
+                  </div>
+                  {selectedProject.learningPlan?.weekendMeeting?.meetingNotes && (
+                    <div className="text-[11px] pt-1 border-t border-[#16A34A]/20">
+                      <strong>Mentor Notes:</strong> {selectedProject.learningPlan.weekendMeeting.meetingNotes}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 6. STAGE 5: PRODUCT LIFECYCLE (Testing -> Final Report -> Live) */}
+            <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3.5">
+              <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
+                <div>
+                  <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
+                    <span>Stage 5: Testing &rarr; Final Document &rarr; Live</span>
+                    {selectedProject.learningPlan?.liveUrl && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0]">
+                        🚀 Live Product
+                      </span>
+                    )}
+                  </h4>
+                  <p className="text-xs text-[#64748B] mt-0.5">
+                    Final deliverables: QA testing, Project Report documentation, and live deployment link.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLiveUrlInput(selectedProject.learningPlan?.liveUrl || '');
+                    setFinalReportUrlInput(selectedProject.learningPlan?.finalDocumentReport?.reportUrl || '');
+                    setIsLiveModalOpen(true);
+                  }}
+                  className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] cursor-pointer"
+                >
+                  Update Report &amp; Live URL
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                {/* Product Testing */}
+                <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-1">
+                  <span className="text-[#64748B] font-bold block text-[10px] uppercase">1. Product Testing</span>
+                  <span className="font-semibold text-[#111827] block">
+                    {taskMetrics.completed > 0 ? `QA in progress (${taskMetrics.completed} verified)` : 'Pre-testing setup'}
+                  </span>
+                  <span className="text-[10px] text-[#64748B]">Automated tests &amp; manual validation</span>
+                </div>
+
+                {/* Final Document (Project Report) */}
+                <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-1">
+                  <span className="text-[#64748B] font-bold block text-[10px] uppercase">2. Final Document (Project Report)</span>
+                  {selectedProject.learningPlan?.finalDocumentReport?.reportUrl ? (
+                    <a
+                      href={selectedProject.learningPlan.finalDocumentReport.reportUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[#049FD9] font-bold hover:underline block"
+                    >
+                      📎 View Final Project Report &nearr;
+                    </a>
+                  ) : (
+                    <span className="text-[#94A3B8]">Pending report submission</span>
+                  )}
+                  <span className="text-[10px] text-[#64748B]">Complete project documentation &amp; specs</span>
+                </div>
+
+                {/* Live Product */}
+                <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-1">
+                  <span className="text-[#64748B] font-bold block text-[10px] uppercase">3. Live Deployment</span>
+                  {selectedProject.learningPlan?.liveUrl ? (
+                    <a
+                      href={selectedProject.learningPlan.liveUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[#16A34A] font-bold hover:underline block"
+                    >
+                      🚀 Open Live Website / App &nearr;
+                    </a>
+                  ) : (
+                    <span className="text-[#94A3B8]">Deployment pending</span>
+                  )}
+                  <span className="text-[10px] text-[#64748B]">Production URL for client demonstration</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* TAB 1: OVERVIEW & METRICS */}
         {detailsTab === 'overview' && (
@@ -1842,6 +2848,569 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             </div>
           </div>
         )}
+
+{/* ======================================================== */}
+      {/* PBL MODAL A: SUBMIT / EDIT SCOPE OF DOCUMENT             */}
+      {/* ======================================================== */}
+      {isScopeModalOpen && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsScopeModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans overflow-y-auto"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-2xl w-full max-w-lg p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">📄</span>
+                  <h3 className="text-base font-bold text-[#111827]">
+                    {selectedProject?.learningPlan?.scopeOfDocument?.status === 'approved'
+                      ? 'Update Scope of Document'
+                      : 'Submit Scope of Document'}
+                  </h3>
+                </div>
+                <p className="text-xs text-[#64748B]">
+                  Team <span className="font-semibold text-[#0284C7]">{selectedProject?.teamName || 'Kaling'}</span> submits specifications for Mentor review &amp; tech stack locking.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsScopeModalOpen(false)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveScopeSubmission} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Scope Document URL or Design Link <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://docs.google.com/... or Figma PRD link"
+                  value={scopeDocUrl}
+                  onChange={(e) => setScopeDocUrl(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Key Project Objectives <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  rows={2}
+                  required
+                  placeholder="What core problems does this system solve? e.g. Customer Portal with real-time updates..."
+                  value={scopeObjectives}
+                  onChange={(e) => setScopeObjectives(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Proposed Tech Stack &amp; Libraries
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Next.js, Tailwind CSS, Firebase, Express, PostgreSQL"
+                  value={scopeProposedTechStack}
+                  onChange={(e) => setScopeProposedTechStack(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Planned Deliverables
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="1. UI Brand Kit &amp; Wireframes 2. Responsive Web/Mobile App 3. Backend APIs..."
+                  value={scopeDeliverables}
+                  onChange={(e) => setScopeDeliverables(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Executive Summary &amp; Architecture Notes
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Provide additional details regarding system architecture, module boundaries, target audience..."
+                  value={scopeContent}
+                  onChange={(e) => setScopeContent(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              <div className="p-3 bg-[#F0FDF4] border border-[#BBF7D0] rounded-md text-[11px] text-[#166534]">
+                💡 <strong>Next Step:</strong> Once submitted, the Project Manager / Mentor (who also acts as the Client) will review this scope and lock the official Tech Stack before dividing work.
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+                <button
+                  type="button"
+                  onClick={() => setIsScopeModalOpen(false)}
+                  className="px-4 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="btn-primary py-2 px-5 text-xs font-semibold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {isProcessing ? 'Submitting...' : 'Submit Scope to Mentor →'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* PBL MODAL B: DIVIDE WORK INTO STREAMS & SPRINTS           */}
+      {/* ======================================================== */}
+      {isDivideWorkModalOpen && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsDivideWorkModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans overflow-y-auto"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-2xl w-full max-w-lg p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">⚡</span>
+                  <h3 className="text-base font-bold text-[#111827]">Divide Work to Team Members</h3>
+                </div>
+                <p className="text-xs text-[#64748B]">
+                  Assign sprint tasks across the 4 work streams for{' '}
+                  <span className="font-semibold text-[#0284C7]">{selectedProject?.name}</span>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDivideWorkModalOpen(false)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveStreamTask} className="space-y-3.5">
+              {/* Stream Selector */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Architectural Work Stream <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { key: 'ui_ux', label: '🎨 1. UI/UX [Brand Kit]', desc: selectedProject?.learningPlan?.techStack?.uiUx || 'Figma' },
+                    { key: 'frontend', label: '💻 2. Frontend [React JS]', desc: selectedProject?.learningPlan?.techStack?.frontend || 'React/Next.js' },
+                    { key: 'backend', label: '⚙️ 3. Backend & APIs', desc: selectedProject?.learningPlan?.techStack?.backend || 'Node/Express' },
+                    { key: 'database_cloud', label: '☁️ 4. Database Cloud', desc: selectedProject?.learningPlan?.techStack?.databaseCloud || selectedProject?.learningPlan?.techStack?.database || 'Firebase/Cloud' },
+                  ].map((s) => (
+                    <button
+                      key={s.key}
+                      type="button"
+                      onClick={() => setStreamTaskStream(s.key as any)}
+                      className={`p-2.5 text-left rounded-lg border transition-all cursor-pointer ${
+                        streamTaskStream === s.key
+                          ? 'border-[#0284C7] bg-[#E0F2FE] text-[#0369A1] font-bold shadow-sm'
+                          : 'border-[#E2E8F0] hover:border-[#CBD5E1] text-[#475569]'
+                      }`}
+                    >
+                      <div className="text-xs">{s.label}</div>
+                      <div className="text-[10px] text-[#64748B] truncate mt-0.5">{s.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Assignee Selection */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Assign to Employee / Team Member <span className="text-red-500">*</span>
+                </label>
+                <select
+                  required
+                  value={streamTaskMember}
+                  onChange={(e) => setStreamTaskMember(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                >
+                  <option value="">Select team member...</option>
+                  {(selectedProject?.members && selectedProject.members.length > 0
+                    ? activeEmployees.filter((emp) =>
+                        selectedProject.members.some(
+                          (m) => m.toLowerCase() === emp.name.toLowerCase() || m.toLowerCase() === (emp.email || '').toLowerCase()
+                        )
+                      )
+                    : activeEmployees
+                  ).map((emp) => (
+                    <option key={emp.id} value={emp.name}>
+                      {emp.name} ({emp.role || emp.designation || 'Member'})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sprint Week & Priority */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Sprint / Target Week</label>
+                  <select
+                    value={streamTaskSprintWeek}
+                    onChange={(e) => setStreamTaskSprintWeek(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    <option value="Sprint 1 (Week 1)">Sprint 1 (Week 1)</option>
+                    <option value="Sprint 2 (Week 2)">Sprint 2 (Week 2)</option>
+                    <option value="Sprint 3 (Week 3)">Sprint 3 (Week 3)</option>
+                    <option value="Sprint 4 (Week 4)">Sprint 4 (Week 4)</option>
+                    <option value="Sprint 5 (Week 5)">Sprint 5 (Week 5)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#111827] mb-1">Task Priority</label>
+                  <select
+                    value={streamTaskPriority}
+                    onChange={(e) => setStreamTaskPriority(e.target.value as ProjectPriority)}
+                    className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Task Title */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Task Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Design responsive dashboard brand kit &amp; navigation"
+                  value={streamTaskTitle}
+                  onChange={(e) => setStreamTaskTitle(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                />
+              </div>
+
+              {/* Due Date */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Target Due Date (Weekend Review) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={streamTaskDueDate}
+                  onChange={(e) => setStreamTaskDueDate(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                />
+              </div>
+
+              {/* Task Description */}
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Work Requirements &amp; Guidelines <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  rows={2}
+                  required
+                  placeholder="Specific requirements, expected commits, deliverables for the upcoming weekend meet..."
+                  value={streamTaskDescription}
+                  onChange={(e) => setStreamTaskDescription(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+                <button
+                  type="button"
+                  onClick={() => setIsDivideWorkModalOpen(false)}
+                  className="px-4 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="btn-primary py-2 px-5 text-xs font-semibold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {isProcessing ? 'Assigning...' : 'Assign Task to Employee →'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* PBL MODAL C: SCHEDULE / EDIT WEEKEND SPRINT MEETING       */}
+      {/* ======================================================== */}
+      {isWeekendMeetingModalOpen && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsWeekendMeetingModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans overflow-y-auto"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-2xl w-full max-w-lg p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">📅</span>
+                  <h3 className="text-base font-bold text-[#111827]">Weekly Sprint &amp; Weekend Meeting</h3>
+                </div>
+                <p className="text-xs text-[#64748B]">
+                  Schedule sprint target review and record mentor feedback for{' '}
+                  <span className="font-semibold text-[#0284C7]">{selectedProject?.name}</span>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsWeekendMeetingModalOpen(false)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveWeekendMeeting} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Upcoming Weekend Meeting Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={meetingDateInput}
+                  onChange={(e) => setMeetingDateInput(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Sprint Agenda &amp; Milestones to Demonstrate
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Review UI/UX brand kit prototypes, inspect React API integration, evaluate database indexes..."
+                  value={meetingAgendaInput}
+                  onChange={(e) => setMeetingAgendaInput(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Mentor Meeting Notes &amp; Action Items
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Client/Mentor observations from the meeting, decisions taken, next sprint guidance..."
+                  value={meetingNotesInput}
+                  onChange={(e) => setMeetingNotesInput(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+                <button
+                  type="button"
+                  onClick={() => setIsWeekendMeetingModalOpen(false)}
+                  className="px-4 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="btn-primary py-2 px-5 text-xs font-semibold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {isProcessing ? 'Saving...' : 'Save Meeting Schedule &amp; Notes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* PBL MODAL D: REQUEST SCOPE REVISIONS (MENTOR ACTION)     */}
+      {/* ======================================================== */}
+      {isRevisionModalOpen && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsRevisionModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans overflow-y-auto"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-2xl w-full max-w-lg p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">✏️</span>
+                  <h3 className="text-base font-bold text-[#111827]">Request Scope Document Revisions</h3>
+                </div>
+                <p className="text-xs text-[#64748B]">
+                  Project Mentor / Client feedback for{' '}
+                  <span className="font-semibold text-[#0284C7]">{selectedProject?.teamName || 'Team'}</span>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsRevisionModalOpen(false)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  What changes or additions are needed before tech stack lock? <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="e.g. Please clarify database schema for multi-tenant support and specify component library in tech stack..."
+                  value={revisionNotesInput}
+                  onChange={(e) => setRevisionNotesInput(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9] resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+                <button
+                  type="button"
+                  onClick={() => setIsRevisionModalOpen(false)}
+                  className="px-4 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isProcessing || !revisionNotesInput.trim()}
+                  onClick={() => handleRequestScopeRevisions(revisionNotesInput)}
+                  className="py-2 px-5 rounded-md bg-[#D97706] hover:bg-[#B45309] text-white text-xs font-semibold cursor-pointer disabled:opacity-50"
+                >
+                  {isProcessing ? 'Sending...' : 'Send Feedback to Team →'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* PBL MODAL E: PRODUCT TESTING, FINAL REPORT & GO LIVE      */}
+      {/* ======================================================== */}
+      {isLiveModalOpen && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsLiveModalOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans overflow-y-auto"
+        >
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-2xl w-full max-w-lg p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🚀</span>
+                  <h3 className="text-base font-bold text-[#111827]">Product Testing, Report &amp; Go Live</h3>
+                </div>
+                <p className="text-xs text-[#64748B]">
+                  Final milestone delivery for{' '}
+                  <span className="font-semibold text-[#0284C7]">{selectedProject?.name}</span>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsLiveModalOpen(false)}
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveLiveAndReport} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Live Production URL <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://my-project.vercel.app or Play Store link"
+                  value={liveUrlInput}
+                  onChange={(e) => setLiveUrlInput(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#111827] mb-1">
+                  Final Project Document / Report URL
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://drive.google.com/... (Comprehensive Project Report)"
+                  value={finalReportUrlInput}
+                  onChange={(e) => setFinalReportUrlInput(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
+                />
+              </div>
+
+              <div className="p-3 bg-[#ECFDF5] border border-[#A7F3D0] rounded-md text-xs text-[#065F46] space-y-1">
+                <div className="font-bold flex items-center gap-1.5">
+                  <span>✅</span> Final Deliverable Checklist:
+                </div>
+                <p className="text-[11px]">
+                  • Product QA Testing passed across UI/UX, Frontend, Backend, Cloud.<br />
+                  • Final Project Report submitted.<br />
+                  • Live deployment accessible to client and evaluators.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+                <button
+                  type="button"
+                  onClick={() => setIsLiveModalOpen(false)}
+                  className="px-4 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isProcessing}
+                  className="py-2 px-5 rounded-md bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {isProcessing ? 'Publishing...' : '🚀 Mark Project Live &amp; Complete'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       </div>
     );
   }
@@ -2632,6 +4201,115 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 />
               </div>
 
+              {/* Project-Based Learning (PBL) Setup */}
+              <div className="p-3.5 bg-[#F0FDF4] border border-[#BBF7D0] rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-base">🎓</span>
+                    <span className="text-xs font-bold text-[#166534]">Project-Based Learning Setup</span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-[#15803D] bg-[#DCFCE7] px-2 py-0.5 rounded-full">
+                    Mentor &amp; Team Workflow
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#166534] mb-1">
+                      Team / Group Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Kaling"
+                      value={formTeamName}
+                      onChange={(e) => setFormTeamName(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-white border border-[#86EFAC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#166534] mb-1">
+                      Project Platform / Type
+                    </label>
+                    <select
+                      value={formProjectType}
+                      onChange={(e) => setFormProjectType(e.target.value as 'website' | 'app')}
+                      className="w-full px-3 py-1.5 bg-white border border-[#86EFAC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                    >
+                      <option value="website">Software Development [Website]</option>
+                      <option value="app">Mobile Application [APP]</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Tech Stack 4 Streams */}
+                <div>
+                  <label className="block text-[11px] font-bold text-[#166534] mb-1">
+                    Target Tech Stack (Locks upon Scope Approval)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-[10px] text-[#15803D] font-medium block">1. UI/UX [Brand Kit]</span>
+                      <input
+                        type="text"
+                        value={formTechStackUiUx}
+                        onChange={(e) => setFormTechStackUiUx(e.target.value)}
+                        placeholder="Figma, Brand Kit, Design Tokens"
+                        className="w-full px-2.5 py-1 bg-white border border-[#86EFAC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#15803D] font-medium block">2. Frontend [React JS]</span>
+                      <input
+                        type="text"
+                        value={formTechStackFrontend}
+                        onChange={(e) => setFormTechStackFrontend(e.target.value)}
+                        placeholder="React.js / Next.js, Tailwind CSS"
+                        className="w-full px-2.5 py-1 bg-white border border-[#86EFAC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#15803D] font-medium block">3. Backend &amp; APIs</span>
+                      <input
+                        type="text"
+                        value={formTechStackBackend}
+                        onChange={(e) => setFormTechStackBackend(e.target.value)}
+                        placeholder="Node.js, Express, REST APIs"
+                        className="w-full px-2.5 py-1 bg-white border border-[#86EFAC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#15803D] font-medium block">4. Database &amp; Cloud</span>
+                      <input
+                        type="text"
+                        value={formTechStackDatabase}
+                        onChange={(e) => setFormTechStackDatabase(e.target.value)}
+                        placeholder="Firebase Cloud / PostgreSQL, Vercel"
+                        className="w-full px-2.5 py-1 bg-white border border-[#86EFAC] rounded text-xs text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Weekend Review Meeting */}
+                <div>
+                  <label className="block text-xs font-semibold text-[#166534] mb-1">
+                    First Weekend Review Meeting Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formWeekendMeetingDate}
+                    onChange={(e) => setFormWeekendMeetingDate(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-white border border-[#86EFAC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#16A34A]"
+                  />
+                  <p className="text-[10px] text-[#15803D] mt-0.5">
+                    Team creates Scope of Document first, then submits to Admin/Mentor (who acts as Client) for approval.
+                  </p>
+                </div>
+              </div>
+
+
               {/* Modal Buttons */}
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
                 <button
@@ -3201,6 +4879,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           </div>
         </div>
       )}
-    </div>
+
+      </div>
   );
 };

@@ -148,6 +148,8 @@ export interface TaskNotification {
   read: boolean;
 }
 
+export type WorkStream = 'ui_ux' | 'frontend' | 'backend' | 'database_cloud' | string;
+
 export interface Task {
   id: string;
   taskId?: string; // TSK-XXXX
@@ -170,6 +172,10 @@ export interface Task {
   progress?: number; // 0-100
   instructions?: string; // Employee-facing instructions
   adminNotes?: string; // Internal Admin notes (hidden from employees)
+  stream?: WorkStream; // 'ui_ux' | 'frontend' | 'backend' | 'database_cloud'
+  streamName?: string; // e.g. "UI/UX [Brand Kit]", "Frontend", "Backend", "Database Cloud"
+  sprintWeek?: string; // e.g. "Sprint 1 (Week 1)"
+  weekendMeetingReview?: boolean;
   attachments?: TaskAttachment[];
   comments?: TaskComment[];
   submissions?: TaskSubmission[];
@@ -209,6 +215,58 @@ export interface ProjectMember {
   addedAt?: string;
 }
 
+export interface ProjectLearningPlan {
+  teamName?: string; // e.g. "Kaling"
+  projectType?: 'website' | 'app' | string; // Software Development (Website) or App
+  mentorName?: string; // Admin acts as Project Mentor
+  mentorEmail?: string;
+  scopeOfDocument?: {
+    submitted: boolean;
+    submittedBy?: string;
+    submittedByName?: string;
+    submittedAt?: string;
+    objectives?: string;
+    deliverables?: string;
+    proposedTechStack?: string;
+    documentUrl?: string;
+    content?: string;
+    status: 'pending' | 'submitted' | 'approved' | 'revisions_requested';
+    mentorFeedback?: string;
+    reviewedAt?: string;
+  };
+  techStackLocked: boolean;
+  techStack?: {
+    uiUx?: string; // e.g. Brand Kit, Figma
+    frontend?: string; // e.g. React.js
+    backend?: string; // e.g. Node.js / APIs
+    databaseCloud?: string; // e.g. PostgreSQL / Firebase Cloud
+    database?: string;
+    notes?: string;
+  };
+  workDivisionStatus?: 'pending' | 'in_progress' | 'completed';
+  currentSprint?: string; // e.g. "Sprint 1 (Week 1)"
+  weekendMeeting?: {
+    scheduledDate?: string;
+    agenda?: string;
+    meetingNotes?: string;
+    link?: string;
+    status?: 'scheduled' | 'completed' | 'rescheduled';
+  };
+  stage?: 'scope_pending' | 'scope_submitted' | 'tech_stack_locked' | 'development_sprints' | 'testing' | 'final_report' | 'live';
+  testingReport?: {
+    status?: 'pending' | 'in_progress' | 'passed';
+    testCasesCount?: number;
+    notes?: string;
+  };
+  finalDocumentReport?: {
+    submitted?: boolean;
+    reportUrl?: string;
+    summary?: string;
+  };
+  liveUrl?: string;
+  resources?: { title: string; url: string; type?: string }[];
+}
+
 export interface Project {
   id: string;
   projectId?: string;
@@ -234,6 +292,12 @@ export interface Project {
   requiredDocuments?: string[];
   createdAt?: string;
   archived?: boolean;
+  // Project Based Learning Fields
+  teamName?: string; // Team/Group Name e.g. "Kaling"
+  projectType?: 'website' | 'app' | string;
+  mentorName?: string; // Admin acts as Mentor
+  mentorEmail?: string;
+  learningPlan?: ProjectLearningPlan;
 }
 
 export interface Activity {

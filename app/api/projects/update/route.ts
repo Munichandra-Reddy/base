@@ -77,6 +77,12 @@ export async function POST(request: Request) {
 
     const progress = typeof body.progress === 'number' ? body.progress : (existingData.progress || 0);
 
+    const teamName = body.teamName !== undefined ? String(body.teamName).trim() : existingData.teamName;
+    const projectType = body.projectType !== undefined ? String(body.projectType).trim() : existingData.projectType;
+    const mentorName = body.mentorName !== undefined ? String(body.mentorName).trim() : (existingData.mentorName || managerName);
+    const mentorEmail = body.mentorEmail !== undefined ? String(body.mentorEmail).trim() : (existingData.mentorEmail || managerEmail);
+    const learningPlan = body.learningPlan !== undefined ? { ...existingData.learningPlan, ...body.learningPlan } : existingData.learningPlan;
+
     const updatedProject: Project = {
       ...existingData,
       id,
@@ -94,6 +100,11 @@ export async function POST(request: Request) {
       status,
       progress,
       notes,
+      teamName,
+      projectType,
+      mentorName,
+      mentorEmail,
+      learningPlan,
       updatedAt: new Date().toISOString(),
     };
 

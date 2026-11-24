@@ -131,11 +131,14 @@ export default function Home() {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const clean = parsed.filter((t: any) => !['t-1', 't-2', 't-3', 't-4', 't-5', 't-6'].includes(t.id) && t.assignedTo !== 'Rahul Kumar');
+            return clean;
+          }
         } catch (e) {}
       }
     }
-    return initialTasks;
+    return [];
   });
 
   const [activities, setActivities] = useState<Activity[]>(() => {
@@ -144,11 +147,14 @@ export default function Home() {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const clean = parsed.filter((a: any) => a.userName !== 'Rahul Kumar' && a.userName !== 'Priya Sharma');
+            return clean;
+          }
         } catch (e) {}
       }
     }
-    return initialActivities;
+    return [];
   });
 
   const [projects, setProjects] = useState<Project[]>(() => {
@@ -157,14 +163,18 @@ export default function Home() {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const clean = parsed.filter((p: any) => !['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6'].includes(p.id) && p.name !== 'E-Commerce Website');
+            return clean;
+          }
         } catch (e) {}
       }
     }
-    return initialProjects;
+    return [];
   });
 
   const [campfireUnreadCount, setCampfireUnreadCount] = useState<number>(0);
+  const [selectedChatConvId, setSelectedChatConvId] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('workorbit_chat_messages');
@@ -525,25 +535,28 @@ export default function Home() {
         });
         const unsubTasks = subscribeToTasks((tasksList) => {
           if (tasksList) {
-            setTasks(tasksList);
+            const cleanTasks = tasksList.filter((t) => !['t-1', 't-2', 't-3', 't-4', 't-5', 't-6'].includes(t.id) && t.assignedTo !== 'Rahul Kumar');
+            setTasks(cleanTasks);
             if (typeof window !== 'undefined') {
-              localStorage.setItem('workorbit_tasks', JSON.stringify(tasksList));
+              localStorage.setItem('workorbit_tasks', JSON.stringify(cleanTasks));
             }
           }
         });
         const unsubProj = subscribeToProjects((projList) => {
           if (projList) {
-            setProjects(projList);
+            const cleanProj = projList.filter((p) => !['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6'].includes(p.id) && p.name !== 'E-Commerce Website');
+            setProjects(cleanProj);
             if (typeof window !== 'undefined') {
-              localStorage.setItem('workorbit_projects', JSON.stringify(projList));
+              localStorage.setItem('workorbit_projects', JSON.stringify(cleanProj));
             }
           }
         });
         const unsubFiles = subscribeToFiles((filesList) => {
-          if (filesList && filesList.length > 0) {
-            setFiles(filesList);
+          if (filesList) {
+            const cleanFiles = filesList.filter((f) => !['f-1', 'f-2', 'f-3', 'f-4'].includes(f.id) && f.uploadedBy !== 'Priya Sharma');
+            setFiles(cleanFiles);
             if (typeof window !== 'undefined') {
-              localStorage.setItem('workorbit_files', JSON.stringify(filesList));
+              localStorage.setItem('workorbit_files', JSON.stringify(cleanFiles));
             }
           }
         });
@@ -1256,7 +1269,22 @@ export default function Home() {
     handleMarkAllNotificationsAsRead();
   };
 
-  const pendingTasksCount = tasks.filter((t) => !t.completed).length;
+  const pendingTasksCount = useMemo(() => {
+    if (dashboardRole === 'admin') {
+      return tasks.filter((t) => !t.completed && (t.status || 'pending') !== 'completed').length;
+    }
+    const email = (currentUser?.email || '').toLowerCase().trim();
+    const name = (currentUser?.fullName || '').toLowerCase().trim();
+    const uid = (currentUser as any)?.uid || '';
+    return tasks.filter((t) => {
+      if (t.completed || (t.status || 'pending') === 'completed') return false;
+      if (uid && t.assignedToId === uid) return true;
+      if (t.assignedToEmail && t.assignedToEmail.toLowerCase() === email) return true;
+      if (t.assignedTo && name && t.assignedTo.toLowerCase().includes(name)) return true;
+      if (t.assignedTo && email && t.assignedTo.toLowerCase().includes(email)) return true;
+      return false;
+    }).length;
+  }, [tasks, dashboardRole, currentUser]);
 
   return (
     <div className="h-screen w-full overflow-hidden flex flex-col bg-[#F4F6F8]">
@@ -1458,6 +1486,10 @@ export default function Home() {
                   onNavigateToEmployee={(email) => {
                     handleTabChange('people');
                   }}
+                  onNavigateToChat={(convId) => {
+                    setSelectedChatConvId(convId || null);
+                    handleTabChange('chat');
+                  }}
                 />
               )}
 
@@ -1476,6 +1508,7 @@ export default function Home() {
                   isAdmin={dashboardRole === 'admin'}
                   people={people}
                   projects={projects}
+                  initialConversationId={selectedChatConvId}
                   onUpdateUnreadCount={(cnt) => setCampfireUnreadCount(cnt)}
                   messages={chatMessages}
                   onSendMessage={handleSendMessage}

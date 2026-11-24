@@ -194,6 +194,8 @@ export const TasksView: React.FC<TasksViewProps> = ({
   const [taskDueDate, setTaskDueDate] = useState(new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]);
   const [taskInstructions, setTaskInstructions] = useState('');
   const [taskAdminNotes, setTaskAdminNotes] = useState('');
+  const [taskStream, setTaskStream] = useState<'ui_ux' | 'frontend' | 'backend' | 'database_cloud' | ''>('');
+  const [taskSprintWeek, setTaskSprintWeek] = useState('Sprint 1 (Week 1)');
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -547,6 +549,18 @@ export const TasksView: React.FC<TasksViewProps> = ({
           dueDate: taskDueDate,
           instructions: taskInstructions.trim(),
           adminNotes: taskAdminNotes.trim(),
+          stream: taskStream || undefined,
+          streamName:
+            taskStream === 'ui_ux'
+              ? 'UI/UX [Brand Kit]'
+              : taskStream === 'frontend'
+              ? 'Frontend [React.js]'
+              : taskStream === 'backend'
+              ? 'Backend & APIs'
+              : taskStream === 'database_cloud'
+              ? 'Database Cloud'
+              : undefined,
+          sprintWeek: taskSprintWeek || undefined,
         }),
       });
 
@@ -1081,14 +1095,34 @@ export const TasksView: React.FC<TasksViewProps> = ({
 
                       {/* Column 2: Task Title */}
                       <td className="py-3 px-3.5">
-                        <div className="flex flex-col">
-                          <span
-                            className={`font-semibold text-xs leading-snug ${
-                              task.completed ? 'line-through text-[#94A3B8]' : 'text-[#0F172A]'
-                            }`}
-                          >
-                            {task.title}
-                          </span>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span
+                              className={`font-semibold text-xs leading-snug ${
+                                task.completed ? 'line-through text-[#94A3B8]' : 'text-[#0F172A]'
+                              }`}
+                            >
+                              {task.title}
+                            </span>
+                            {task.stream && (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
+                                {task.stream === 'ui_ux'
+                                  ? '🎨 UI/UX'
+                                  : task.stream === 'frontend'
+                                  ? '💻 Frontend'
+                                  : task.stream === 'backend'
+                                  ? '⚙️ Backend'
+                                  : task.stream === 'database_cloud'
+                                  ? '☁️ Cloud'
+                                  : task.streamName || task.stream}
+                              </span>
+                            )}
+                            {task.sprintWeek && (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
+                                🎯 {task.sprintWeek}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </td>
 
@@ -1888,6 +1922,43 @@ export const TasksView: React.FC<TasksViewProps> = ({
                       )}
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* Architectural Work Stream & Sprint Week */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg">
+                <div>
+                  <label className="block font-bold text-[#0F172A] mb-1">
+                    Work Stream (Optional)
+                  </label>
+                  <select
+                    value={taskStream}
+                    onChange={(e) => setTaskStream(e.target.value as any)}
+                    className="w-full p-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+                  >
+                    <option value="">General (No Stream)</option>
+                    <option value="ui_ux">🎨 1. UI/UX [Brand Kit]</option>
+                    <option value="frontend">💻 2. Frontend [React JS]</option>
+                    <option value="backend">⚙️ 3. Backend &amp; APIs</option>
+                    <option value="database_cloud">☁️ 4. Database Cloud</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#0F172A] mb-1">
+                    Sprint / Target Week
+                  </label>
+                  <select
+                    value={taskSprintWeek}
+                    onChange={(e) => setTaskSprintWeek(e.target.value)}
+                    className="w-full p-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
+                  >
+                    <option value="Sprint 1 (Week 1)">Sprint 1 (Week 1)</option>
+                    <option value="Sprint 2 (Week 2)">Sprint 2 (Week 2)</option>
+                    <option value="Sprint 3 (Week 3)">Sprint 3 (Week 3)</option>
+                    <option value="Sprint 4 (Week 4)">Sprint 4 (Week 4)</option>
+                    <option value="Sprint 5 (Week 5)">Sprint 5 (Week 5)</option>
+                  </select>
                 </div>
               </div>
 

@@ -38,6 +38,10 @@ function normalizeTask(id: string, data: any, index: number = 0): Task {
   const todayStr = new Date().toISOString().split('T')[0];
   const startDate = data.startDate || data.createdAt?.split('T')[0] || todayStr;
   const dueDate = data.dueDate || todayStr;
+  const stream = data.stream || '';
+  const streamName = data.streamName || '';
+  const sprintWeek = data.sprintWeek || '';
+  const weekendMeetingReview = Boolean(data.weekendMeetingReview);
 
   return {
     id,
@@ -61,6 +65,10 @@ function normalizeTask(id: string, data: any, index: number = 0): Task {
     progress,
     instructions: data.instructions || '',
     adminNotes: data.adminNotes || '',
+    stream,
+    streamName,
+    sprintWeek,
+    weekendMeetingReview,
     attachments: Array.isArray(data.attachments) ? data.attachments : [],
     comments: Array.isArray(data.comments) ? data.comments : [],
     submissions: Array.isArray(data.submissions) ? data.submissions : [],
@@ -83,6 +91,13 @@ export async function GET(request: Request) {
 
     const snap = await getDocs(collection(db, 'tasks'));
     let tasksList: Task[] = snap.docs.map((d, idx) => normalizeTask(d.id, d.data(), idx));
+
+    // Filter out legacy dummy hardcoded tasks
+    tasksList = tasksList.filter((t) => {
+      if (['t-1', 't-2', 't-3', 't-4', 't-5', 't-6'].includes(t.id)) return false;
+      if (t.assignedTo === 'Rahul Kumar' && (t.id.startsWith('t-') || t.id.startsWith('TSK-100'))) return false;
+      return true;
+    });
 
     // Sort by createdAt descending
     tasksList.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
@@ -149,6 +164,10 @@ export async function POST(request: Request) {
     const instructions = String(body.instructions || '').trim();
     const adminNotes = String(body.adminNotes || '').trim();
     const attachments = Array.isArray(body.attachments) ? body.attachments : [];
+    const stream = String(body.stream || '').trim();
+    const streamName = String(body.streamName || '').trim();
+    const sprintWeek = String(body.sprintWeek || '').trim();
+    const weekendMeetingReview = Boolean(body.weekendMeetingReview);
 
     // 1. Mandatory Validations
     if (!title) {
@@ -243,6 +262,10 @@ export async function POST(request: Request) {
       progress: 0,
       instructions,
       adminNotes,
+      stream,
+      streamName,
+      sprintWeek,
+      weekendMeetingReview,
       attachments,
       comments: [],
       submissions: [],
