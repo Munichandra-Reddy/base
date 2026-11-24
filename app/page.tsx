@@ -1269,7 +1269,7 @@ export default function Home() {
     handleMarkAllNotificationsAsRead();
   };
 
-  const pendingTasksCount = useMemo(() => {
+  const pendingTasksCount = (() => {
     if (dashboardRole === 'admin') {
       return tasks.filter((t) => !t.completed && (t.status || 'pending') !== 'completed').length;
     }
@@ -1284,7 +1284,7 @@ export default function Home() {
       if (t.assignedTo && email && t.assignedTo.toLowerCase().includes(email)) return true;
       return false;
     }).length;
-  }, [tasks, dashboardRole, currentUser]);
+  })();
 
   return (
     <div className="h-screen w-full overflow-hidden flex flex-col bg-[#F4F6F8]">
