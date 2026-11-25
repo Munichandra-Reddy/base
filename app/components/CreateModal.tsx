@@ -103,9 +103,11 @@ export const CreateModal: React.FC<CreateModalProps> = ({
     return `EMP-${Math.max(1001, maxNum + 1)}`;
   };
 
-  // Sync initial activeType & auto-generate ID when modal opens
+  const prevIsOpenRef = useRef(false);
+
+  // Sync initial activeType & auto-generate ID strictly when modal transitions from closed to open
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !prevIsOpenRef.current) {
       if (initialType === 'employee' && isAdmin) {
         setActiveType('employee');
       } else if (initialType === 'project' && isAdmin) {
@@ -119,7 +121,8 @@ export const CreateModal: React.FC<CreateModalProps> = ({
         setEmpId(computeNextEmpId());
       }
     }
-  }, [isOpen, initialType, isAdmin, people]);
+    prevIsOpenRef.current = isOpen;
+  }, [isOpen, initialType, isAdmin]);
 
   // Task Form State (Initially Empty)
   const [taskTitle, setTaskTitle] = useState('');
