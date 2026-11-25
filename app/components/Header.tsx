@@ -38,7 +38,6 @@ export const Header: React.FC<HeaderProps> = ({
     { label: 'Login API Endpoint Spec', type: 'File', tab: 'files' },
     { label: 'Workspace Employees Directory', type: 'People', tab: 'people' },
     { label: 'Daily Standup Campfire', type: 'Chat', tab: 'chat' },
-    { label: 'Workspace Productivity Reports', type: 'Reports', tab: 'reports' },
   ];
 
   const filteredResults = quickLinks.filter(

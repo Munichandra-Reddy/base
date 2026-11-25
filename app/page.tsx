@@ -14,7 +14,6 @@ import { PeopleView } from './components/PeopleView';
 import { CreateModal } from './components/CreateModal';
 import { NotificationPanel } from './components/NotificationPanel';
 import { NotificationsView } from './components/NotificationsView';
-import { ReportsView } from './components/ReportsView';
 import { AuthView } from './components/AuthView';
 import {
   EmployeeDashboardSkeleton,
@@ -25,7 +24,6 @@ import {
   ChatSkeleton,
   FilesSkeleton,
   PeopleSkeleton,
-  ReportsSkeleton,
 } from './components/Skeletons';
 
 import {
@@ -657,7 +655,6 @@ export default function Home() {
         'files',
         'people',
         'checkins',
-        'reports',
         'notifications',
       ];
 
@@ -670,6 +667,10 @@ export default function Home() {
         const pId = hash.replace('project-', '');
         setSelectedProjectId(pId);
         setActiveTab('projects');
+      } else if (hash === 'reports' || (state && state.tab === 'reports')) {
+        setSelectedProjectId(null);
+        setActiveTab('dashboard');
+        window.history.replaceState({ tab: 'dashboard' }, '', '#dashboard');
       } else if (state && state.tab && validTabs.includes(state.tab)) {
         if (state.tab === 'projects') setSelectedProjectId(null);
         setActiveTab(state.tab);
@@ -696,6 +697,9 @@ export default function Home() {
           '',
           `#${hash}`
         );
+      } else if (hash === 'reports') {
+        setActiveTab('dashboard');
+        window.history.replaceState({ tab: 'dashboard' }, '', '#dashboard');
       } else if (hash) {
         const validTabs: NavTab[] = [
           'dashboard',
@@ -706,12 +710,14 @@ export default function Home() {
           'files',
           'people',
           'checkins',
-          'reports',
           'notifications',
         ];
         if (validTabs.includes(hash as NavTab)) {
           setActiveTab(hash as NavTab);
           window.history.replaceState({ tab: hash }, '', `#${hash}`);
+        } else {
+          setActiveTab('dashboard');
+          window.history.replaceState({ tab: 'dashboard' }, '', '#dashboard');
         }
       } else {
         window.history.replaceState({ tab: 'dashboard' }, '', '#dashboard');
@@ -1405,8 +1411,6 @@ export default function Home() {
               <ChatSkeleton />
             ) : activeTab === 'files' ? (
               <FilesSkeleton />
-            ) : activeTab === 'reports' ? (
-              <ReportsSkeleton />
             ) : (
               <PeopleSkeleton />
             )
@@ -1588,20 +1592,6 @@ export default function Home() {
                   onDeleteNotification={handleDeleteNotification}
                   currentUser={currentUser}
                   isAdmin={dashboardRole === 'admin'}
-                />
-              )}
-
-              {activeTab === 'reports' && (
-                <ReportsView
-                  tasks={tasks}
-                  projects={projects}
-                  people={people}
-                  activities={activities}
-                  currentUser={currentUser}
-                  isAdmin={dashboardRole === 'admin'}
-                  onNavigateToProject={(pId) => handleOpenProject(pId)}
-                  onNavigateToEmployee={() => handleTabChange('people')}
-                  onNavigateToTasks={() => handleTabChange('tasks')}
                 />
               )}
             </>
