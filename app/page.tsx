@@ -13,6 +13,7 @@ import { FilesView } from './components/FilesView';
 import { PeopleView } from './components/PeopleView';
 import { CreateModal } from './components/CreateModal';
 import { NotificationPanel } from './components/NotificationPanel';
+import { ChatIcon } from './components/Icons';
 import { NotificationsView } from './components/NotificationsView';
 import { AuthView } from './components/AuthView';
 import {
@@ -115,6 +116,7 @@ export default function Home() {
   });
 
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
+  const [previousTab, setPreviousTab] = useState<NavTab>('dashboard');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(() => {
     if (typeof window !== 'undefined' && window.location.hash.startsWith('#project-')) {
       return window.location.hash.replace('#project-', '');
@@ -609,6 +611,9 @@ export default function Home() {
     setIsMobileSidebarOpen(false);
     if (tab === 'projects') {
       setSelectedProjectId(null);
+    }
+    if (tab !== 'chat' && activeTab !== 'chat') {
+      setPreviousTab(activeTab);
     }
     setActiveTab(tab);
     if (typeof window !== 'undefined') {
@@ -1611,6 +1616,41 @@ export default function Home() {
         initialType={createModalType}
         isAdmin={dashboardRole === 'admin'}
       />
+
+      {/* Floating Bottom-Right Campfire Chat Button */}
+      <button
+        type="button"
+        id="floating-campfire-chat-btn"
+        name="floatingCampfireChat"
+        onClick={() => {
+          if (activeTab === 'chat') {
+            handleTabChange(previousTab && previousTab !== 'chat' ? previousTab : 'dashboard');
+          } else {
+            setPreviousTab(activeTab);
+            handleTabChange('chat');
+          }
+        }}
+        className={`fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+          activeTab === 'chat'
+            ? 'bg-[#011826] hover:bg-[#022438] text-white focus:ring-[#011826]'
+            : 'bg-[#049FD9] hover:bg-[#0388bc] text-white hover:scale-105 active:scale-95 focus:ring-[#049FD9]'
+        }`}
+        title={activeTab === 'chat' ? 'Close Campfire Chat' : 'Campfire Chat'}
+        aria-label="Campfire Chat"
+      >
+        {activeTab === 'chat' ? (
+          <span className="text-xl font-bold leading-none select-none">✕</span>
+        ) : (
+          <ChatIcon className="w-6 h-6 text-white transition-transform group-hover:scale-110" />
+        )}
+
+        {/* Unread Message Badge */}
+        {campfireUnreadCount > 0 && activeTab !== 'chat' && (
+          <span className="absolute -top-1 -right-1 bg-[#EF4444] text-white text-[11px] font-bold h-5 min-w-[20px] px-1 rounded-full flex items-center justify-center border-2 border-white shadow-xs animate-pulse">
+            {campfireUnreadCount > 99 ? '99+' : campfireUnreadCount}
+          </span>
+        )}
+      </button>
 
     </div>
   );

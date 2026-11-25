@@ -6,7 +6,6 @@ import {
   CheckSquareIcon,
   FolderIcon,
   CalendarIcon,
-  ChatIcon,
   FileIcon,
   UsersIcon,
 } from './Icons';
@@ -86,7 +85,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'tasks' as NavTab, label: 'My Tasks', icon: CheckSquareIcon, badge: tasksCount },
     { id: 'projects' as NavTab, label: 'Projects', icon: FolderIcon },
     { id: 'calendar' as NavTab, label: 'Calendar', icon: CalendarIcon },
-    { id: 'chat' as NavTab, label: 'Campfire Chat', icon: ChatIcon, badge: chatCount },
     { id: 'files' as NavTab, label: 'Files', icon: FileIcon },
     { id: 'people' as NavTab, label: 'Employees', icon: UsersIcon },
   ];
