@@ -52,7 +52,20 @@ export async function GET(request: Request) {
         projectType: data.projectType || 'website',
         mentorName: data.mentorName || data.manager || 'Workspace Admin',
         mentorEmail: data.mentorEmail || data.managerEmail || '',
-        learningPlan: data.learningPlan || undefined,
+        learningPlan: (() => {
+          if (!data.learningPlan) return undefined;
+          const lp = { ...data.learningPlan };
+          // A scope of document can only be approved if it was actually submitted by employees
+          const isSubmitted = Boolean(lp.scopeOfDocument?.submitted);
+          if (!isSubmitted) {
+            if (lp.scopeOfDocument) {
+              lp.scopeOfDocument = { ...lp.scopeOfDocument, status: 'draft' };
+            }
+            lp.techStackLocked = false;
+            lp.stage = 'scope_pending';
+          }
+          return lp;
+        })(),
       });
     });
 

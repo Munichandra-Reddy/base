@@ -917,6 +917,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   // Mentor Review: Approve Scope & Lock Tech Stack
   const handleApproveScopeAndLockTechStack = async () => {
     if (!selectedProject) return;
+    if (!selectedProject.learningPlan?.scopeOfDocument?.submitted) {
+      setActionNotice({
+        type: 'error',
+        message: 'Cannot approve: Employees have not submitted the Scope of Document yet.',
+      });
+      return;
+    }
     setIsProcessing(true);
     setActionNotice(null);
 
@@ -1476,6 +1483,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     const pmProfile = getMemberProfile(selectedProject.manager || selectedProject.managerEmail || '');
     const todayStr = new Date().toISOString().split('T')[0];
 
+    const isScopeSubmitted = Boolean(selectedProject.learningPlan?.scopeOfDocument?.submitted);
+    const isScopeApproved = isScopeSubmitted && selectedProject.learningPlan?.scopeOfDocument?.status === 'approved';
+    const isTechStackLocked = isScopeApproved && Boolean(selectedProject.learningPlan?.techStackLocked);
+
     const projectFiles = files.filter(
       (f) =>
         (f.projectId && (f.projectId === selectedProject.id || f.projectId === selectedProject.projectId)) ||
@@ -1596,7 +1607,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             }`}
           >
             <span>Project Learning Plan (PBL)</span>
-            {selectedProject.learningPlan?.techStackLocked && (
+            {isTechStackLocked && (
               <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
                 Stack Locked
               </span>
@@ -1703,14 +1714,19 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div>
                   <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
                     <span>Stage 1: Scope of Document</span>
-                    {selectedProject.learningPlan?.scopeOfDocument?.status === 'approved' && (
+                    {isScopeApproved && (
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0]">
                         ✓ Approved by Client / Mentor
                       </span>
                     )}
-                    {selectedProject.learningPlan?.scopeOfDocument?.status === 'submitted' && (
+                    {isScopeSubmitted && !isScopeApproved && (
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DBEAFE] text-[#1D4ED8] border border-[#93C5FD]">
                         Submitted (Pending Review)
+                      </span>
+                    )}
+                    {!isScopeSubmitted && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
+                        Awaiting Team Submission
                       </span>
                     )}
                   </h4>
@@ -1728,7 +1744,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <span>
                         {selectedProject.learningPlan.scopeOfDocument.submittedAt ? new Date(selectedProject.learningPlan.scopeOfDocument.submittedAt).toLocaleString() : 'Recently'}
                       </span>
-                      {!selectedProject.learningPlan?.techStackLocked && (
+                      {!isTechStackLocked && !isAdmin && (
                         <button
                           type="button"
                           onClick={() => {
@@ -1790,7 +1806,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   )}
 
                   {/* Admin / Client Review Actions */}
-                  {isAdmin && !selectedProject.learningPlan?.techStackLocked && (
+                  {isAdmin && !isScopeApproved && (
                     <div className="pt-2 flex items-center gap-2 border-t border-[#E2E8F0] flex-wrap">
                       <button
                         type="button"
@@ -1816,14 +1832,32 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg text-xs text-[#92400E] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <strong className="block font-bold">Scope of Document Not Yet Submitted</strong>
+                    <p className="text-[11px] text-[#B45309] mt-0.5">
+                      {isAdmin
+                        ? 'Awaiting team submission. Only assigned employees can submit the Scope of Document.'
+                        : 'Please fill out and submit the Scope of Document for Mentor / Admin review and Tech Stack approval.'}
+                    </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsScopeModalOpen(true)}
-                    className="btn-primary py-1.5 px-3.5 text-xs font-semibold cursor-pointer shrink-0 whitespace-nowrap"
-                  >
-                    Submit Scope Now
-                  </button>
+                  {!isAdmin ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setScopeObjectives(selectedProject.learningPlan?.scopeOfDocument?.objectives || '');
+                        setScopeDeliverables(selectedProject.learningPlan?.scopeOfDocument?.deliverables || '');
+                        setScopeProposedTechStack(selectedProject.learningPlan?.scopeOfDocument?.proposedTechStack || 'React.js, Node.js, Express, PostgreSQL/Firebase');
+                        setScopeDocUrl(selectedProject.learningPlan?.scopeOfDocument?.documentUrl || '');
+                        setScopeContent(selectedProject.learningPlan?.scopeOfDocument?.content || '');
+                        setIsScopeModalOpen(true);
+                      }}
+                      className="btn-primary py-1.5 px-3.5 text-xs font-semibold cursor-pointer shrink-0 whitespace-nowrap"
+                    >
+                      Submit Scope Now
+                    </button>
+                  ) : (
+                    <span className="text-xs font-semibold text-[#92400E] bg-white px-2.5 py-1 rounded border border-[#FDE68A] shrink-0">
+                      Awaiting Employee Submission
+                    </span>
+                  )}
                 </div>
               )}
             </div>
@@ -1834,7 +1868,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div>
                   <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
                     <span>Stage 2: Tech Stack [Lock]</span>
-                    {selectedProject.learningPlan?.techStackLocked ? (
+                    {isTechStackLocked ? (
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0] flex items-center gap-1">
                         <span>LOCKED BY CLIENT / MENTOR</span>
                       </span>
@@ -1846,11 +1880,21 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   </h4>
                 </div>
 
-                {isAdmin && !selectedProject.learningPlan?.techStackLocked && (
+                {isAdmin && !isTechStackLocked && (
                   <button
                     type="button"
                     onClick={handleApproveScopeAndLockTechStack}
-                    className="px-3 py-1.5 rounded-md bg-[#049FD9] text-white hover:bg-[#038bbd] text-xs font-bold cursor-pointer flex items-center gap-1.5"
+                    disabled={!isScopeSubmitted || isProcessing}
+                    title={
+                      !isScopeSubmitted
+                        ? 'Employees must submit the Scope of Document before it can be approved.'
+                        : 'Approve scope and lock tech stack'
+                    }
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 ${
+                      !isScopeSubmitted || isProcessing
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-[#049FD9] text-white hover:bg-[#038bbd] cursor-pointer'
+                    }`}
                   >
                     <span>Lock Tech Stack</span>
                   </button>
@@ -1864,7 +1908,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div>
                   <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
                     <span>Stage 3: Teams &rarr; Work Divide</span>
-                    {selectedProject.learningPlan?.scopeOfDocument?.status === 'approved' ? (
+                    {isScopeApproved ? (
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0]">
                         ✓ Development Unlocked
                       </span>
@@ -1878,27 +1922,53 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               </div>
 
               {/* DEVELOPMENT LOCK GATE: Requires Project Scope Document Approval first */}
-              {selectedProject.learningPlan?.scopeOfDocument?.status !== 'approved' ? (
+              {!isScopeApproved ? (
                 <div className="p-4 bg-[#FEF2F2] border border-[#FCA5A5] rounded-lg text-xs text-[#991B1B] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5">
                     <div>
                       <strong className="block font-bold text-sm">Development Work Locked</strong>
+                      <p className="mt-0.5 text-[11px] text-[#7F1D1D]">
+                        {isScopeSubmitted
+                          ? 'The assigned team has submitted the Scope of Document. Awaiting Admin/Mentor approval before dividing work.'
+                          : 'The assigned team must submit the Scope of Document and get Admin/Mentor approval before dividing work.'}
+                      </p>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setScopeObjectives(selectedProject.learningPlan?.scopeOfDocument?.objectives || '');
-                      setScopeDeliverables(selectedProject.learningPlan?.scopeOfDocument?.deliverables || '');
-                      setScopeProposedTechStack(selectedProject.learningPlan?.scopeOfDocument?.proposedTechStack || 'React.js, Node.js, Express, PostgreSQL/Firebase');
-                      setScopeDocUrl(selectedProject.learningPlan?.scopeOfDocument?.documentUrl || '');
-                      setScopeContent(selectedProject.learningPlan?.scopeOfDocument?.content || '');
-                      setIsScopeModalOpen(true);
-                    }}
-                    className="px-3.5 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded font-bold text-xs shrink-0 cursor-pointer shadow-2xs flex items-center gap-1.5"
-                  >
-                    <span>{selectedProject.learningPlan?.scopeOfDocument?.submitted ? 'Review Scope Document' : 'Submit Scope Document'}</span>
-                  </button>
+                  {isScopeSubmitted ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setScopeObjectives(selectedProject.learningPlan?.scopeOfDocument?.objectives || '');
+                        setScopeDeliverables(selectedProject.learningPlan?.scopeOfDocument?.deliverables || '');
+                        setScopeProposedTechStack(selectedProject.learningPlan?.scopeOfDocument?.proposedTechStack || 'React.js, Node.js, Express, PostgreSQL/Firebase');
+                        setScopeDocUrl(selectedProject.learningPlan?.scopeOfDocument?.documentUrl || '');
+                        setScopeContent(selectedProject.learningPlan?.scopeOfDocument?.content || '');
+                        setIsScopeModalOpen(true);
+                      }}
+                      className="px-3.5 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded font-bold text-xs shrink-0 cursor-pointer shadow-2xs flex items-center gap-1.5"
+                    >
+                      <span>Review Scope Document</span>
+                    </button>
+                  ) : !isAdmin ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setScopeObjectives(selectedProject.learningPlan?.scopeOfDocument?.objectives || '');
+                        setScopeDeliverables(selectedProject.learningPlan?.scopeOfDocument?.deliverables || '');
+                        setScopeProposedTechStack(selectedProject.learningPlan?.scopeOfDocument?.proposedTechStack || 'React.js, Node.js, Express, PostgreSQL/Firebase');
+                        setScopeDocUrl(selectedProject.learningPlan?.scopeOfDocument?.documentUrl || '');
+                        setScopeContent(selectedProject.learningPlan?.scopeOfDocument?.content || '');
+                        setIsScopeModalOpen(true);
+                      }}
+                      className="px-3.5 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded font-bold text-xs shrink-0 cursor-pointer shadow-2xs flex items-center gap-1.5"
+                    >
+                      <span>Submit Scope Document</span>
+                    </button>
+                  ) : (
+                    <span className="text-[11px] font-semibold text-[#991B1B] italic">
+                      Awaiting team submission
+                    </span>
+                  )}
                 </div>
               ) : (
                 <>
@@ -2033,18 +2103,20 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <span className="font-bold text-xs text-[#111827]">
                       Sprint Tasks ({taskMetrics.total} tasks divided)
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setStreamTaskMember(selectedProject.members?.[0] || '');
-                        setStreamTaskDueDate(new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0]);
-                        setIsDivideWorkModalOpen(true);
-                      }}
-                      className="btn-primary py-1.5 px-3.5 text-xs font-bold cursor-pointer flex items-center gap-1.5 shadow-2xs"
-                    >
-                      <PlusIcon className="w-3.5 h-3.5" />
-                      <span>+ Divide Work / Assign Task</span>
-                    </button>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setStreamTaskMember(selectedProject.members?.[0] || '');
+                          setStreamTaskDueDate(new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0]);
+                          setIsDivideWorkModalOpen(true);
+                        }}
+                        className="btn-primary py-1.5 px-3.5 text-xs font-bold cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                      >
+                        <PlusIcon className="w-3.5 h-3.5" />
+                        <span>+ Divide Work / Assign Task</span>
+                      </button>
+                    )}
                   </div>
 
                   {/* 4-Stream Tasks Grid */}
@@ -2824,7 +2896,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-bold text-[#111827]">
-                    {selectedProject?.learningPlan?.scopeOfDocument?.status === 'approved'
+                    {isAdmin
+                      ? 'Review Scope of Document'
+                      : selectedProject?.learningPlan?.scopeOfDocument?.status === 'approved'
                       ? 'Update Scope of Document'
                       : 'Submit Scope of Document'}
                   </h3>
@@ -2920,15 +2994,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   onClick={() => setIsScopeModalOpen(false)}
                   className="px-4 py-2 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold cursor-pointer"
                 >
-                  Cancel
+                  {isAdmin ? 'Close' : 'Cancel'}
                 </button>
-                <button
-                  type="submit"
-                  disabled={isProcessing}
-                  className="btn-primary py-2 px-5 text-xs font-semibold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
-                >
-                  {isProcessing ? 'Submitting...' : 'Submit Scope to Mentor →'}
-                </button>
+                {!isAdmin && (
+                  <button
+                    type="submit"
+                    disabled={isProcessing}
+                    className="btn-primary py-2 px-5 text-xs font-semibold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {isProcessing ? 'Submitting...' : 'Submit Scope to Mentor →'}
+                  </button>
+                )}
               </div>
             </form>
           </div>

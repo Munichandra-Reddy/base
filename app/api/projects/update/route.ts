@@ -81,7 +81,17 @@ export async function POST(request: Request) {
     const projectType = body.projectType !== undefined ? String(body.projectType).trim() : existingData.projectType;
     const mentorName = body.mentorName !== undefined ? String(body.mentorName).trim() : (existingData.mentorName || managerName);
     const mentorEmail = body.mentorEmail !== undefined ? String(body.mentorEmail).trim() : (existingData.mentorEmail || managerEmail);
-    const learningPlan = body.learningPlan !== undefined ? { ...existingData.learningPlan, ...body.learningPlan } : existingData.learningPlan;
+    let learningPlan = body.learningPlan !== undefined ? { ...existingData.learningPlan, ...body.learningPlan } : existingData.learningPlan;
+    if (learningPlan) {
+      const isSubmitted = Boolean(learningPlan.scopeOfDocument?.submitted);
+      if (!isSubmitted) {
+        if (learningPlan.scopeOfDocument) {
+          learningPlan.scopeOfDocument = { ...learningPlan.scopeOfDocument, status: 'draft' };
+        }
+        learningPlan.techStackLocked = false;
+        learningPlan.stage = 'scope_pending';
+      }
+    }
 
     const updatedProject: Project = {
       ...existingData,
