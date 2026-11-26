@@ -1513,16 +1513,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         {/* Top Breadcrumb & Action Header */}
         <div className="bg-white p-4 sm:p-5 rounded-lg border border-[#E5E5E5] shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="min-w-0">
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedProject(null);
-                if (onSelectProject) onSelectProject(null);
-              }}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#049FD9] hover:text-[#0380af] mb-2 cursor-pointer transition-colors"
-            >
-              <span>← Back to Projects</span>
-            </button>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl font-bold text-[#111827]">{selectedProject.name}</h1>
             </div>
