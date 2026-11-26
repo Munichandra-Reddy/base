@@ -1890,7 +1890,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <p className="font-semibold text-[#111827] text-xs">
                     {selectedProject.learningPlan?.techStack?.uiUx || 'Brand Kit, Figma Design System'}
                   </p>
-                  <span className="text-[10px] text-[#64748B] block">Wireframes, brand colors, UI components</span>
                 </div>
 
                 {/* 2. Frontend */}
@@ -1903,7 +1902,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <p className="font-semibold text-[#111827] text-xs">
                     {selectedProject.learningPlan?.techStack?.frontend || 'React.js / Next.js, Tailwind CSS'}
                   </p>
-                  <span className="text-[10px] text-[#64748B] block">Web app screens, state management</span>
                 </div>
 
                 {/* 3. Backend */}
@@ -1916,7 +1914,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <p className="font-semibold text-[#111827] text-xs">
                     {selectedProject.learningPlan?.techStack?.backend || 'Node.js, Express, REST APIs'}
                   </p>
-                  <span className="text-[10px] text-[#64748B] block">Server logic, auth, business APIs</span>
                 </div>
 
                 {/* 4. Database Cloud */}
@@ -1929,7 +1926,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <p className="font-semibold text-[#111827] text-xs">
                     {selectedProject.learningPlan?.techStack?.databaseCloud || 'PostgreSQL / Firebase Cloud'}
                   </p>
-                  <span className="text-[10px] text-[#64748B] block">Cloud DB schema, deployment hosting</span>
                 </div>
               </div>
             </div>
