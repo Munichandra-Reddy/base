@@ -1877,57 +1877,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   </button>
                 )}
               </div>
-
-              {/* 4 Stream Tech Stack Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                {/* 1. UI/UX [Brand Kit] */}
-                <div className="p-3.5 rounded-lg border border-purple-200 bg-purple-50/40 space-y-1.5">
-                  <div className="flex items-center justify-between text-purple-900 font-bold text-[11px]">
-                    <span className="flex items-center gap-1.5">
-                      <span>UI/UX [Brand Kit]</span>
-                    </span>
-                  </div>
-                  <p className="font-semibold text-[#111827] text-xs">
-                    {selectedProject.learningPlan?.techStack?.uiUx || 'Brand Kit, Figma Design System'}
-                  </p>
-                </div>
-
-                {/* 2. Frontend */}
-                <div className="p-3.5 rounded-lg border border-blue-200 bg-blue-50/40 space-y-1.5">
-                  <div className="flex items-center justify-between text-blue-900 font-bold text-[11px]">
-                    <span className="flex items-center gap-1.5">
-                      <span>Frontend</span>
-                    </span>
-                  </div>
-                  <p className="font-semibold text-[#111827] text-xs">
-                    {selectedProject.learningPlan?.techStack?.frontend || 'React.js / Next.js, Tailwind CSS'}
-                  </p>
-                </div>
-
-                {/* 3. Backend */}
-                <div className="p-3.5 rounded-lg border border-amber-200 bg-amber-50/40 space-y-1.5">
-                  <div className="flex items-center justify-between text-amber-900 font-bold text-[11px]">
-                    <span className="flex items-center gap-1.5">
-                      <span>Backend</span>
-                    </span>
-                  </div>
-                  <p className="font-semibold text-[#111827] text-xs">
-                    {selectedProject.learningPlan?.techStack?.backend || 'Node.js, Express, REST APIs'}
-                  </p>
-                </div>
-
-                {/* 4. Database Cloud */}
-                <div className="p-3.5 rounded-lg border border-emerald-200 bg-emerald-50/40 space-y-1.5">
-                  <div className="flex items-center justify-between text-emerald-900 font-bold text-[11px]">
-                    <span className="flex items-center gap-1.5">
-                      <span>Database Cloud</span>
-                    </span>
-                  </div>
-                  <p className="font-semibold text-[#111827] text-xs">
-                    {selectedProject.learningPlan?.techStack?.databaseCloud || 'PostgreSQL / Firebase Cloud'}
-                  </p>
-                </div>
-              </div>
             </div>
 
             {/* 4. STAGE 3: WORK DIVISION (Teams -> work divide) */}
