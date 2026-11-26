@@ -1525,17 +1525,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             </button>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl font-bold text-[#111827]">{selectedProject.name}</h1>
-              {selectedProject.teamName && (
-                <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
-                  Team: {selectedProject.teamName}
-                </span>
-              )}
-              <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
-                {selectedProject.projectType === 'app' ? 'Mobile App' : 'Website'}
-              </span>
-              <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
-                Mentor: {selectedProject.mentorName || selectedProject.manager || 'Admin'}
-              </span>
             </div>
           </div>
 
