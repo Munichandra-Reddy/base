@@ -935,7 +935,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-[#E5E5E5] shadow-xl animate-in slide-in-from-top-3 duration-200">
-          <span className="text-base">{toastMessage.type === 'success' ? '✅' : '⚠️'}</span>
+          <span className="text-base font-bold">{toastMessage.type === 'success' ? '✓' : '!'}</span>
           <span className={`text-xs font-semibold ${toastMessage.type === 'success' ? 'text-[#166534]' : 'text-[#991B1B]'}`}>
             {toastMessage.text}
           </span>
@@ -1120,19 +1120,19 @@ export const TasksView: React.FC<TasksViewProps> = ({
                             {task.stream && (
                               <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
                                 {task.stream === 'ui_ux'
-                                  ? '🎨 UI/UX'
+                                  ? 'UI/UX'
                                   : task.stream === 'frontend'
-                                  ? '💻 Frontend'
+                                  ? 'Frontend'
                                   : task.stream === 'backend'
-                                  ? '⚙️ Backend'
+                                  ? 'Backend'
                                   : task.stream === 'database_cloud'
-                                  ? '☁️ Cloud'
+                                  ? 'Cloud'
                                   : task.streamName || task.stream}
                               </span>
                             )}
                             {task.sprintWeek && (
                               <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
-                                🎯 {task.sprintWeek}
+                                {task.sprintWeek}
                               </span>
                             )}
                           </div>
@@ -1373,7 +1373,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               {selectedTask.instructions && (
                 <div className="p-3.5 bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg text-xs">
                   <div className="font-bold text-[#1E40AF] mb-1 flex items-center gap-1.5">
-                    <span>📋 Employee Instructions & Deliverables:</span>
+                    <span>Employee Instructions & Deliverables:</span>
                   </div>
                   <div className="text-[#1E3A8A] whitespace-pre-wrap leading-relaxed">
                     {selectedTask.instructions}
@@ -1385,7 +1385,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               {isAdmin && selectedTask.adminNotes && (
                 <div className="p-3.5 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg text-xs">
                   <div className="font-bold text-[#B45309] mb-1 flex items-center gap-1.5">
-                    <span>🔒 Confidential Admin Notes (Internal Only):</span>
+                    <span>Confidential Admin Notes (Internal Only):</span>
                   </div>
                   <div className="text-[#92400E] whitespace-pre-wrap leading-relaxed">
                     {selectedTask.adminNotes}
@@ -1737,9 +1737,9 @@ export const TasksView: React.FC<TasksViewProps> = ({
                   </datalist>
                   {matchedProject && (
                     <div className="mt-1.5 p-2 bg-[#E0F2FE] border border-[#BAE6FD] rounded text-xs text-[#0369A1] flex items-center justify-between">
-                      <span>👥 <strong>Dedicated Team:</strong> {matchedProject.teamName || 'Team'} ({projectTeamEmployees.length} members)</span>
+                      <span><strong>Team:</strong> {matchedProject.teamName || 'Team'} ({projectTeamEmployees.length} members)</span>
                       <span className="text-[10px] bg-white text-[#0369A1] px-1.5 py-0.5 rounded border border-[#BAE6FD] font-semibold">
-                        {matchedProject.learningPlan?.scopeOfDocument?.status === 'approved' ? '✓ Scope Approved' : '⏳ Scope Pending'}
+                        {matchedProject.learningPlan?.scopeOfDocument?.status === 'approved' ? '✓ Scope Approved' : 'Scope Pending'}
                       </span>
                     </div>
                   )}
@@ -1856,10 +1856,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
                                     const sa = matchedProject?.learningPlan?.streamAssignments;
                                     const roles: string[] = [];
                                     const isMatch = (val?: string) => val && (val.toLowerCase() === emp.name.toLowerCase() || val.toLowerCase() === (emp.email || '').toLowerCase());
-                                    if (isMatch(sa?.frontend)) roles.push('💻 Frontend');
-                                    if (isMatch(sa?.backend)) roles.push('⚙️ Backend');
-                                    if (isMatch(sa?.database)) roles.push('☁️ Database');
-                                    if (isMatch(sa?.testing)) roles.push('🧪 Testing');
+                                    if (isMatch(sa?.frontend)) roles.push('Frontend');
+                                    if (isMatch(sa?.backend)) roles.push('Backend');
+                                    if (isMatch(sa?.database)) roles.push('Database');
+                                    if (isMatch(sa?.testing)) roles.push('Testing');
                                     if (roles.length > 0) return `${roles.join(', ')} • ${emp.department || 'Team Member'}`;
                                     return `${emp.role || emp.designation || 'Team Member'}${emp.department ? ` • ${emp.department}` : ''}`;
                                   })()}
@@ -1889,10 +1889,10 @@ export const TasksView: React.FC<TasksViewProps> = ({
                     className="w-full p-2 bg-white border border-[#CCCCCC] rounded-md text-xs text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
                   >
                     <option value="">General (No Stream)</option>
-                    <option value="ui_ux">🎨 1. UI/UX [Brand Kit]</option>
-                    <option value="frontend">💻 2. Frontend [React JS]</option>
-                    <option value="backend">⚙️ 3. Backend &amp; APIs</option>
-                    <option value="database_cloud">☁️ 4. Database Cloud</option>
+                    <option value="ui_ux">1. UI/UX [Brand Kit]</option>
+                    <option value="frontend">2. Frontend [React JS]</option>
+                    <option value="backend">3. Backend &amp; APIs</option>
+                    <option value="database_cloud">4. Database Cloud</option>
                   </select>
                 </div>
 
@@ -2164,7 +2164,7 @@ export const TasksView: React.FC<TasksViewProps> = ({
               </div>
 
               <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded text-[11px] text-[#64748B] leading-relaxed">
-                ℹ️ Once submitted, the task status will transition to <strong>In Review</strong> and
+                Once submitted, the task status will transition to <strong>In Review</strong> and
                 Administrator will be notified for verification. Normal progress editing will be
                 paused until review completion.
               </div>

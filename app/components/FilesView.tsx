@@ -211,7 +211,7 @@ export const FilesView: React.FC<FilesViewProps> = ({
       {/* Toast Notice */}
       {actionNotice && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-[#E5E5E5] shadow-xl animate-in slide-in-from-top-3 duration-200">
-          <span className="text-base">{actionNotice.type === 'success' ? '✅' : '⚠️'}</span>
+          <span className="text-base font-bold">{actionNotice.type === 'success' ? '✓' : '!'}</span>
           <span
             className={`text-xs font-semibold ${
               actionNotice.type === 'success' ? 'text-[#166534]' : 'text-[#991B1B]'

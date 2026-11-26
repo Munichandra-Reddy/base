@@ -886,7 +886,7 @@ export const PeopleView: React.FC<PeopleViewProps> = ({
           }`}
         >
           <div className="flex items-center gap-2">
-            <span>{actionNotice.type === 'success' ? '✓' : '⚠️'}</span>
+            <span>{actionNotice.type === 'success' ? '✓' : '!'}</span>
             <span>{actionNotice.message}</span>
           </div>
           <button

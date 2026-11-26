@@ -1352,7 +1352,7 @@ export default function Home() {
       {globalToast && (
         <div className="fixed top-4 right-4 z-50 max-w-md p-3.5 bg-white border border-[#E5E5E5] shadow-xl rounded-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-3 duration-200">
           <div className="flex items-center gap-2.5">
-            <span className="text-base">{globalToast.type === 'success' ? '✅' : '⚠️'}</span>
+            <span className="text-base font-bold">{globalToast.type === 'success' ? '✓' : '!'}</span>
             <span className={`text-xs font-semibold ${globalToast.type === 'success' ? 'text-[#166534]' : 'text-[#991B1B]'}`}>
               {globalToast.message}
             </span>

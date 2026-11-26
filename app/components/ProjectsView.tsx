@@ -1451,8 +1451,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       if (!isMember) {
         return (
           <div className="bg-white rounded-xl border border-[#E5E5E5] p-8 text-center max-w-lg mx-auto mt-12 shadow-sm space-y-4 font-sans">
-            <div className="w-14 h-14 rounded-full bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center mx-auto text-2xl font-bold">
-              🔒
+            <div className="w-14 h-14 rounded-full bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center mx-auto">
+              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 00-2.25 2.25z" />
+              </svg>
             </div>
             <h3 className="text-lg font-bold text-[#111827]">Access Restricted</h3>
             <p className="text-xs text-[#595959] leading-relaxed">
@@ -1525,14 +1527,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <h1 className="text-xl font-bold text-[#111827]">{selectedProject.name}</h1>
               {selectedProject.teamName && (
                 <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
-                  👥 Team: {selectedProject.teamName}
+                  Team: {selectedProject.teamName}
                 </span>
               )}
               <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
-                {selectedProject.projectType === 'app' ? '📱 Mobile App' : '💻 Website'}
+                {selectedProject.projectType === 'app' ? 'Mobile App' : 'Website'}
               </span>
               <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
-                🎓 Mentor: {selectedProject.mentorName || selectedProject.manager || 'Admin'}
+                Mentor: {selectedProject.mentorName || selectedProject.manager || 'Admin'}
               </span>
             </div>
           </div>
@@ -1590,7 +1592,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             }`}
           >
             <div className="flex items-center gap-2">
-              <span>{actionNotice.type === 'success' ? '✓' : '⚠️'}</span>
+              <span>{actionNotice.type === 'success' ? '✓' : '!'}</span>
               <span>{actionNotice.message}</span>
             </div>
             <button
@@ -1614,11 +1616,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 : 'border-transparent text-[#64748B] hover:text-[#111827]'
             }`}
           >
-            <span className="text-sm">🎓</span>
             <span>Project Learning Plan (PBL)</span>
             {selectedProject.learningPlan?.techStackLocked && (
               <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
-                🔒 Stack Locked
+                Stack Locked
               </span>
             )}
           </button>
@@ -1730,7 +1731,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     )}
                     {selectedProject.learningPlan?.scopeOfDocument?.status === 'submitted' && (
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DBEAFE] text-[#1D4ED8] border border-[#93C5FD]">
-                        ⏳ Submitted (Pending Review)
+                        Submitted (Pending Review)
                       </span>
                     )}
                   </h4>
@@ -1796,7 +1797,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         rel="noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs text-[#049FD9] hover:underline font-bold"
                       >
-                        <span>📎 View Scope of Document Attachment / Link</span>
+                        <span>View Scope of Document Attachment / Link</span>
                         <span>&nearr;</span>
                       </a>
                     </div>
@@ -1818,7 +1819,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         disabled={isProcessing}
                         className="px-3.5 py-1.5 rounded-md bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold shadow-2xs cursor-pointer flex items-center gap-1.5"
                       >
-                        <span>🔒</span>
                         <span>Approve Scope &amp; Lock Tech Stack (Client Approval)</span>
                       </button>
 
@@ -1857,12 +1857,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <span>Stage 2: Tech Stack [Lock]</span>
                     {selectedProject.learningPlan?.techStackLocked ? (
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0] flex items-center gap-1">
-                        <span>🔒</span>
                         <span>LOCKED BY CLIENT / MENTOR</span>
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#F1F5F9] text-[#64748B] border border-[#E2E8F0]">
-                        ⏳ Unlocked (Awaiting Scope Approval)
+                        Unlocked (Awaiting Scope Approval)
                       </span>
                     )}
                   </h4>
@@ -1874,7 +1873,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     onClick={handleApproveScopeAndLockTechStack}
                     className="px-3 py-1.5 rounded-md bg-[#049FD9] text-white hover:bg-[#038bbd] text-xs font-bold cursor-pointer flex items-center gap-1.5"
                   >
-                    <span>🔒 Lock Tech Stack</span>
+                    <span>Lock Tech Stack</span>
                   </button>
                 )}
               </div>
@@ -1885,10 +1884,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="p-3.5 rounded-lg border border-purple-200 bg-purple-50/40 space-y-1.5">
                   <div className="flex items-center justify-between text-purple-900 font-bold text-[11px]">
                     <span className="flex items-center gap-1.5">
-                      <span>🎨</span>
                       <span>UI/UX [Brand Kit]</span>
                     </span>
-                    {selectedProject.learningPlan?.techStackLocked && <span className="text-[10px]">🔒</span>}
                   </div>
                   <p className="font-semibold text-[#111827] text-xs">
                     {selectedProject.learningPlan?.techStack?.uiUx || 'Brand Kit, Figma Design System'}
@@ -1900,10 +1897,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="p-3.5 rounded-lg border border-blue-200 bg-blue-50/40 space-y-1.5">
                   <div className="flex items-center justify-between text-blue-900 font-bold text-[11px]">
                     <span className="flex items-center gap-1.5">
-                      <span>💻</span>
                       <span>Frontend</span>
                     </span>
-                    {selectedProject.learningPlan?.techStackLocked && <span className="text-[10px]">🔒</span>}
                   </div>
                   <p className="font-semibold text-[#111827] text-xs">
                     {selectedProject.learningPlan?.techStack?.frontend || 'React.js / Next.js, Tailwind CSS'}
@@ -1915,10 +1910,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="p-3.5 rounded-lg border border-amber-200 bg-amber-50/40 space-y-1.5">
                   <div className="flex items-center justify-between text-amber-900 font-bold text-[11px]">
                     <span className="flex items-center gap-1.5">
-                      <span>⚙️</span>
                       <span>Backend</span>
                     </span>
-                    {selectedProject.learningPlan?.techStackLocked && <span className="text-[10px]">🔒</span>}
                   </div>
                   <p className="font-semibold text-[#111827] text-xs">
                     {selectedProject.learningPlan?.techStack?.backend || 'Node.js, Express, REST APIs'}
@@ -1930,10 +1923,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="p-3.5 rounded-lg border border-emerald-200 bg-emerald-50/40 space-y-1.5">
                   <div className="flex items-center justify-between text-emerald-900 font-bold text-[11px]">
                     <span className="flex items-center gap-1.5">
-                      <span>☁️</span>
                       <span>Database Cloud</span>
                     </span>
-                    {selectedProject.learningPlan?.techStackLocked && <span className="text-[10px]">🔒</span>}
                   </div>
                   <p className="font-semibold text-[#111827] text-xs">
                     {selectedProject.learningPlan?.techStack?.databaseCloud || 'PostgreSQL / Firebase Cloud'}
@@ -1955,7 +1946,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]">
-                        🔒 Development Locked
+                        Development Locked
                       </span>
                     )}
                   </h4>
@@ -1966,7 +1957,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {selectedProject.learningPlan?.scopeOfDocument?.status !== 'approved' ? (
                 <div className="p-4 bg-[#FEF2F2] border border-[#FCA5A5] rounded-lg text-xs text-[#991B1B] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-2xl">🔒</span>
                     <div>
                       <strong className="block font-bold text-sm">Development Work Locked</strong>
                     </div>
@@ -1983,7 +1973,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     }}
                     className="px-3.5 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded font-bold text-xs shrink-0 cursor-pointer shadow-2xs flex items-center gap-1.5"
                   >
-                    <span>📄</span>
                     <span>{selectedProject.learningPlan?.scopeOfDocument?.submitted ? 'Review Scope Document' : 'Submit Scope Document'}</span>
                   </button>
                 </div>
@@ -1994,7 +1983,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#E2E8F0]">
                       <div>
                         <h5 className="font-bold text-[#111827] text-xs flex items-center gap-1.5">
-                          <span>🎯</span>
                           <span>Assign Stream Responsibilities (Team Roles)</span>
                           <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0]">
                             ✓ Scope Approved
@@ -2005,7 +1993,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         </p>
                       </div>
                       <span className="text-[10px] font-semibold text-[#0369A1] bg-[#E0F2FE] px-2.5 py-1 rounded-md border border-[#BAE6FD]">
-                        👥 Team Members: {selectedProject.members?.length || 0}
+                        Team Members: {selectedProject.members?.length || 0}
                       </span>
                     </div>
 
@@ -2014,7 +2002,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <div className="p-3 bg-white border border-[#E2E8F0] rounded-lg space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-[#0369A1] flex items-center gap-1">
-                            <span>💻</span> Frontend Development
+                            Frontend Development
                           </span>
                         </div>
                         <p className="text-[10px] text-[#64748B]">Assign one employee</p>
@@ -2040,7 +2028,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <div className="p-3 bg-white border border-[#E2E8F0] rounded-lg space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-[#0284C7] flex items-center gap-1">
-                            <span>⚙️</span> Backend Development
+                            Backend Development
                           </span>
                         </div>
                         <p className="text-[10px] text-[#64748B]">Assign one employee</p>
@@ -2066,7 +2054,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <div className="p-3 bg-white border border-[#E2E8F0] rounded-lg space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-emerald-700 flex items-center gap-1">
-                            <span>☁️</span> Database Management
+                            Database Management
                           </span>
                         </div>
                         <p className="text-[10px] text-[#64748B]">Assign one employee</p>
@@ -2092,7 +2080,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <div className="p-3 bg-white border border-[#E2E8F0] rounded-lg space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-purple-700 flex items-center gap-1">
-                            <span>🧪</span> Testing (QA)
+                            Testing (QA)
                           </span>
                         </div>
                         <p className="text-[10px] text-[#64748B]">Assign one employee</p>
@@ -2168,7 +2156,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                                 {t.title}
                               </p>
                               <div className="flex items-center justify-between pt-1 border-t border-[#F8FAFC] text-[10px]">
-                                <span className="text-[#64748B] truncate max-w-[90px]">👤 {t.assignedTo}</span>
+                                <span className="text-[#64748B] truncate max-w-[90px]">{t.assignedTo}</span>
                                 <div>{renderStatusBadge(t.status || 'pending')}</div>
                               </div>
                             </div>
@@ -2191,7 +2179,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <span>Stage 5: Testing &rarr; Final Document &rarr; Live</span>
                     {selectedProject.learningPlan?.liveUrl && (
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#BBF7D0]">
-                        🚀 Live Product
+                        Live Product
                       </span>
                     )}
                   </h4>
@@ -2230,7 +2218,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       rel="noreferrer"
                       className="text-[#049FD9] font-bold hover:underline block"
                     >
-                      📎 View Final Project Report &nearr;
+                      View Final Project Report &nearr;
                     </a>
                   ) : (
                     <span className="text-[#94A3B8]">Pending report submission</span>
@@ -2248,7 +2236,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       rel="noreferrer"
                       className="text-[#16A34A] font-bold hover:underline block"
                     >
-                      🚀 Open Live Website / App &nearr;
+                      Open Live Website / App &nearr;
                     </a>
                   ) : (
                     <span className="text-[#94A3B8]">Deployment pending</span>
@@ -2310,7 +2298,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                 <div className={`p-3 rounded-lg border ${isOverdue ? 'bg-[#FEF2F2] border-[#EF4444]/30 text-[#991B1B]' : 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'}`}>
                   <div className="flex items-center justify-between font-bold text-xs">
-                    <span>{isOverdue ? '⚠️ Project Overdue' : '✓ Timeline Status'}</span>
+                    <span>{isOverdue ? 'Project Overdue' : 'Timeline Status'}</span>
                     <span>{daysRemainingText}</span>
                   </div>
                   <p className="text-[11px] mt-1 opacity-90">
@@ -2761,8 +2749,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <div>
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5] flex items-center justify-center shrink-0 text-base">
-                              📄
+                            <div className="w-8 h-8 rounded-lg bg-[#F4F6F8] border border-[#E5E5E5] flex items-center justify-center shrink-0 text-[#64748B]">
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                              </svg>
                             </div>
                             <div className="min-w-0">
                               <h5 className="font-semibold text-xs text-[#1E293B] truncate" title={file.name}>
@@ -2914,7 +2904,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">📄</span>
                   <h3 className="text-base font-bold text-[#111827]">
                     {selectedProject?.learningPlan?.scopeOfDocument?.status === 'approved'
                       ? 'Update Scope of Document'
@@ -3003,7 +2992,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               </div>
 
               <div className="p-3 bg-[#F0FDF4] border border-[#BBF7D0] rounded-md text-[11px] text-[#166534]">
-                💡 <strong>Next Step:</strong> Once submitted, the Project Manager / Mentor (who also acts as the Client) will review this scope and lock the official Tech Stack before dividing work.
+                <strong>Next Step:</strong> Once submitted, the Project Manager / Mentor (who also acts as the Client) will review this scope and lock the official Tech Stack before dividing work.
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
@@ -3041,7 +3030,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">⚡</span>
                   <h3 className="text-base font-bold text-[#111827]">Divide Work to Team Members</h3>
                 </div>
                 <p className="text-xs text-[#64748B]">
@@ -3066,10 +3054,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { key: 'ui_ux', label: '🎨 1. UI/UX [Brand Kit]', desc: selectedProject?.learningPlan?.techStack?.uiUx || 'Figma' },
-                    { key: 'frontend', label: '💻 2. Frontend [React JS]', desc: selectedProject?.learningPlan?.techStack?.frontend || 'React/Next.js' },
-                    { key: 'backend', label: '⚙️ 3. Backend & APIs', desc: selectedProject?.learningPlan?.techStack?.backend || 'Node/Express' },
-                    { key: 'database_cloud', label: '☁️ 4. Database Cloud', desc: selectedProject?.learningPlan?.techStack?.databaseCloud || selectedProject?.learningPlan?.techStack?.database || 'Firebase/Cloud' },
+                    { key: 'ui_ux', label: '1. UI/UX [Brand Kit]', desc: selectedProject?.learningPlan?.techStack?.uiUx || 'Figma' },
+                    { key: 'frontend', label: '2. Frontend [React JS]', desc: selectedProject?.learningPlan?.techStack?.frontend || 'React/Next.js' },
+                    { key: 'backend', label: '3. Backend & APIs', desc: selectedProject?.learningPlan?.techStack?.backend || 'Node/Express' },
+                    { key: 'database_cloud', label: '4. Database Cloud', desc: selectedProject?.learningPlan?.techStack?.databaseCloud || selectedProject?.learningPlan?.techStack?.database || 'Firebase/Cloud' },
                   ].map((s) => (
                     <button
                       key={s.key}
@@ -3225,7 +3213,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">📅</span>
                   <h3 className="text-base font-bold text-[#111827]">Weekly Sprint &amp; Weekend Meeting</h3>
                 </div>
                 <p className="text-xs text-[#64748B]">
@@ -3317,7 +3304,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">✏️</span>
                   <h3 className="text-base font-bold text-[#111827]">Request Scope Document Revisions</h3>
                 </div>
                 <p className="text-xs text-[#64748B]">
@@ -3385,7 +3371,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">🚀</span>
                   <h3 className="text-base font-bold text-[#111827]">Product Testing, Report &amp; Go Live</h3>
                 </div>
                 <p className="text-xs text-[#64748B]">
@@ -3432,7 +3417,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
               <div className="p-3 bg-[#ECFDF5] border border-[#A7F3D0] rounded-md text-xs text-[#065F46] space-y-1">
                 <div className="font-bold flex items-center gap-1.5">
-                  <span>✅</span> Final Deliverable Checklist:
+                  Final Deliverable Checklist:
                 </div>
                 <p className="text-[11px]">
                   • Product QA Testing passed across UI/UX, Frontend, Backend, Cloud.<br />
@@ -3454,7 +3439,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   disabled={isProcessing}
                   className="py-2 px-5 rounded-md bg-[#16A34A] hover:bg-[#15803D] text-white text-xs font-bold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
                 >
-                  {isProcessing ? 'Publishing...' : '🚀 Mark Project Live &amp; Complete'}
+                  {isProcessing ? 'Publishing...' : 'Mark Project Live & Complete'}
                 </button>
               </div>
             </form>
@@ -3480,7 +3465,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           }`}
         >
           <div className="flex items-center gap-2">
-            <span>{actionNotice.type === 'success' ? '✓' : '⚠️'}</span>
+            <span>{actionNotice.type === 'success' ? '✓' : '!'}</span>
             <span>{actionNotice.message}</span>
           </div>
           <button
@@ -3769,7 +3754,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="p-3.5 bg-[#F0FDF4] border border-[#BBF7D0] rounded-lg space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-base">🎓</span>
                     <span className="text-xs font-bold text-[#166534]">Project-Based Learning Setup</span>
                   </div>
                   <span className="text-[10px] font-semibold text-[#15803D] bg-[#DCFCE7] px-2 py-0.5 rounded-full">
@@ -4063,7 +4047,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="p-3.5 bg-[#F0FDF4] border border-[#BBF7D0] rounded-lg space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-base">🎓</span>
                     <span className="text-xs font-bold text-[#166534]">Project-Based Learning Setup</span>
                   </div>
                   <span className="text-[10px] font-semibold text-[#15803D] bg-[#DCFCE7] px-2 py-0.5 rounded-full">
@@ -4700,8 +4683,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans"
         >
           <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-xl w-full max-w-sm p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="w-10 h-10 rounded-full bg-[#FEF2F2] text-[#EF4444] flex items-center justify-center font-bold text-lg mx-auto">
-              ⚠️
+            <div className="w-10 h-10 rounded-full bg-[#FEF2F2] text-[#EF4444] flex items-center justify-center mx-auto">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
             </div>
             <div className="text-center space-y-1">
               <h3 className="font-bold text-base text-[#111827]">Archive or Delete Project</h3>

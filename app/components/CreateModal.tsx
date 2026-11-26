@@ -575,7 +575,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             <form id="create-employee-form" onSubmit={handleEmployeeSubmit} className="space-y-3.5">
               {empError && (
                 <div className="p-3 bg-[#FEF2F2] border border-[#EF4444]/30 text-[#EF4444] rounded-lg text-xs font-semibold flex items-center gap-2">
-                  <span>⚠️</span>
+                  <span className="font-bold">!</span>
                   <span>{empError}</span>
                 </div>
               )}
@@ -746,7 +746,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
 
               {/* Notice */}
               <div className="p-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-[11px] text-[#64748B] leading-relaxed">
-                ✉️ An invitation email will automatically be delivered to the employee with a secure link to set their confidential password.
+                An invitation email will automatically be delivered to the employee with a secure link to set their confidential password.
               </div>
             </form>
           ) : activeType === 'task' ? (
@@ -805,9 +805,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 </datalist>
                 {matchedTaskProject && (
                   <div className="mt-1.5 p-2 bg-[#E0F2FE] border border-[#BAE6FD] rounded text-xs text-[#0369A1] flex items-center justify-between">
-                    <span>👥 <strong>Team Name:</strong> {matchedTaskProject.teamName || 'Team'} ({eligibleTaskEmployees.length} members)</span>
+                    <span><strong>Team Name:</strong> {matchedTaskProject.teamName || 'Team'} ({eligibleTaskEmployees.length} members)</span>
                     <span className="text-[10px] bg-white px-1.5 py-0.5 rounded border border-[#BAE6FD] font-semibold">
-                      {matchedTaskProject.learningPlan?.scopeOfDocument?.status === 'approved' ? '✓ Scope Approved' : '⏳ Scope Pending'}
+                      {matchedTaskProject.learningPlan?.scopeOfDocument?.status === 'approved' ? '✓ Scope Approved' : 'Scope Pending'}
                     </span>
                   </div>
                 )}
@@ -987,12 +987,12 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     onChange={(e) => setTaskStream(e.target.value as any)}
                     className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-xs font-semibold text-[#222222] focus:outline-none focus:border-[#049FD9] cursor-pointer"
                   >
-                    <option value="frontend">💻 Frontend Development</option>
-                    <option value="backend">⚙️ Backend Development</option>
-                    <option value="database">☁️ Database Management</option>
-                    <option value="testing">🧪 Testing (QA)</option>
-                    <option value="ui_ux">🎨 UI/UX Design</option>
-                    <option value="general">📁 General</option>
+                    <option value="frontend">Frontend Development</option>
+                    <option value="backend">Backend Development</option>
+                    <option value="database">Database Management</option>
+                    <option value="testing">Testing (QA)</option>
+                    <option value="ui_ux">UI/UX Design</option>
+                    <option value="general">General</option>
                   </select>
                 </div>
               </div>
@@ -1001,7 +1001,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
             <form id="create-project-form" onSubmit={handleProjectSubmit} className="space-y-4">
               {projectError && (
                 <div className="p-3 bg-[#FEF2F2] border border-[#EF4444]/30 text-[#EF4444] rounded-lg text-xs font-semibold flex items-center gap-2">
-                  <span>⚠️</span>
+                  <span className="font-bold">!</span>
                   <span>{projectError}</span>
                 </div>
               )}
