@@ -1717,126 +1717,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         {/* TAB 0: PROJECT-BASED LEARNING (PBL) ROADMAP & EXECUTION */}
         {detailsTab === 'learning' && (
           <div className="space-y-5">
-            {/* 1. VISUAL LEARNING LIFECYCLE PIPELINE */}
-            <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div>
-                  <h3 className="text-sm font-bold text-[#111827] flex items-center gap-2">
-                    <span>Project-Based Learning Lifecycle</span>
-                    <span className="text-[11px] font-normal text-[#64748B]">
-                      (Admin Mentor/Client &rarr; Team &ldquo;{selectedProject.teamName || 'Team'}&rdquo;)
-                    </span>
-                  </h3>
-                  <p className="text-xs text-[#64748B] mt-0.5">
-                    Follows the structured PBL roadmap: Scope of Document &rarr; Tech Stack Lock &rarr; Work Division (4 Streams) &rarr; Weekly Sprints &amp; Weekend Meets &rarr; Testing &amp; Live Product.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => onNavigateToChat ? onNavigateToChat(`project_${selectedProject.id}`) : setDetailsTab('messages')}
-                  className="px-3 py-1.5 rounded-md bg-[#049FD9] text-white hover:bg-[#038bbd] text-xs font-semibold shadow-2xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
-                >
-                  <ChatIcon className="w-3.5 h-3.5" />
-                  <span>Open Team Group Chat</span>
-                </button>
-              </div>
-
-              {/* 5-Step Visual Stepper */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-2">
-                {/* Step 1: Scope of Document */}
-                <div className={`p-3 rounded-lg border text-xs space-y-1 ${
-                  selectedProject.learningPlan?.scopeOfDocument?.status === 'approved'
-                    ? 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'
-                    : selectedProject.learningPlan?.scopeOfDocument?.status === 'submitted'
-                    ? 'bg-[#EFF6FF] border-[#2563EB]/30 text-[#1D4ED8]'
-                    : 'bg-[#FFFBEB] border-[#D97706]/30 text-[#92400E]'
-                }`}>
-                  <div className="flex items-center justify-between font-bold text-[11px]">
-                    <span>1. Scope of Document</span>
-                    <span>
-                      {selectedProject.learningPlan?.scopeOfDocument?.status === 'approved'
-                        ? '✓ Done'
-                        : selectedProject.learningPlan?.scopeOfDocument?.status === 'submitted'
-                        ? '⏳ In Review'
-                        : '⚠️ Required'}
-                    </span>
-                  </div>
-                  <p className="text-[10px] opacity-80">
-                    {selectedProject.learningPlan?.scopeOfDocument?.status === 'approved'
-                      ? 'Approved by Mentor/Client'
-                      : selectedProject.learningPlan?.scopeOfDocument?.status === 'submitted'
-                      ? 'Submitted for Client approval'
-                      : 'Team must submit scope'}
-                  </p>
-                </div>
-
-                {/* Step 2: Tech Stack Lock */}
-                <div className={`p-3 rounded-lg border text-xs space-y-1 ${
-                  selectedProject.learningPlan?.techStackLocked
-                    ? 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'
-                    : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B]'
-                }`}>
-                  <div className="flex items-center justify-between font-bold text-[11px]">
-                    <span>2. Tech Stack [Lock]</span>
-                    <span>{selectedProject.learningPlan?.techStackLocked ? '🔒 Locked' : 'Pending'}</span>
-                  </div>
-                  <p className="text-[10px] opacity-80">
-                    {selectedProject.learningPlan?.techStackLocked
-                      ? 'Tech Stack locked by Client'
-                      : 'Locked after Scope review'}
-                  </p>
-                </div>
-
-                {/* Step 3: Work Division (4 Streams) */}
-                <div className={`p-3 rounded-lg border text-xs space-y-1 ${
-                  taskMetrics.total > 0
-                    ? 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'
-                    : selectedProject.learningPlan?.techStackLocked
-                    ? 'bg-[#EFF6FF] border-[#2563EB]/30 text-[#1D4ED8]'
-                    : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B]'
-                }`}>
-                  <div className="flex items-center justify-between font-bold text-[11px]">
-                    <span>3. Work Division</span>
-                    <span>{taskMetrics.total > 0 ? `✓ ${taskMetrics.total} Tasks` : 'Ready'}</span>
-                  </div>
-                  <p className="text-[10px] opacity-80">
-                    UI/UX, Frontend, Backend, Cloud
-                  </p>
-                </div>
-
-                {/* Step 4: Sprints & Weekend Meet */}
-                <div className={`p-3 rounded-lg border text-xs space-y-1 ${
-                  selectedProject.learningPlan?.weekendMeeting?.scheduledDate
-                    ? 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'
-                    : 'bg-[#EFF6FF] border-[#2563EB]/30 text-[#1D4ED8]'
-                }`}>
-                  <div className="flex items-center justify-between font-bold text-[11px]">
-                    <span>4. Weekly Sprints</span>
-                    <span>Weekend Meet</span>
-                  </div>
-                  <p className="text-[10px] opacity-80">
-                    {selectedProject.learningPlan?.currentSprint || 'Weekly Sprint'}
-                  </p>
-                </div>
-
-                {/* Step 5: Product Live */}
-                <div className={`p-3 rounded-lg border text-xs space-y-1 ${
-                  selectedProject.learningPlan?.liveUrl
-                    ? 'bg-[#F0FDF4] border-[#16A34A]/30 text-[#166534]'
-                    : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B]'
-                }`}>
-                  <div className="flex items-center justify-between font-bold text-[11px]">
-                    <span>5. Product Live</span>
-                    <span>{selectedProject.learningPlan?.liveUrl ? '🚀 Live' : 'Testing/Report'}</span>
-                  </div>
-                  <p className="text-[10px] opacity-80">
-                    Testing &rarr; Report &rarr; Live
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* 2. STAGE 1: SCOPE OF DOCUMENT REVIEW / SUBMISSION */}
             <div className="bg-white p-5 rounded-lg border border-[#E5E5E5] shadow-2xs space-y-3.5">
               <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
@@ -1853,30 +1733,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         ⏳ Submitted (Pending Review)
                       </span>
                     )}
-                    {(!selectedProject.learningPlan?.scopeOfDocument?.status || selectedProject.learningPlan?.scopeOfDocument?.status === 'pending' || selectedProject.learningPlan?.scopeOfDocument?.status === 'revisions_requested') && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
-                        ⚠️ Scope Submission Required
-                      </span>
-                    )}
                   </h4>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setScopeObjectives(selectedProject.learningPlan?.scopeOfDocument?.objectives || '');
-                      setScopeDeliverables(selectedProject.learningPlan?.scopeOfDocument?.deliverables || '');
-                      setScopeProposedTechStack(selectedProject.learningPlan?.scopeOfDocument?.proposedTechStack || 'React.js, Node.js, Express, PostgreSQL/Firebase');
-                      setScopeDocUrl(selectedProject.learningPlan?.scopeOfDocument?.documentUrl || '');
-                      setScopeContent(selectedProject.learningPlan?.scopeOfDocument?.content || '');
-                      setIsScopeModalOpen(true);
-                    }}
-                    className="px-3 py-1.5 rounded-md bg-[#F4F6F8] hover:bg-[#E2E8F0] text-[#111827] text-xs font-semibold border border-[#E5E5E5] transition-colors cursor-pointer flex items-center gap-1.5"
-                  >
-                    <span>📄</span>
-                    <span>{selectedProject.learningPlan?.scopeOfDocument?.submitted ? 'Update Scope Doc' : 'Submit Scope of Document'}</span>
-                  </button>
                 </div>
               </div>
 
@@ -1887,9 +1744,27 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <span>
                       Submitted by: <strong className="text-[#111827]">{selectedProject.learningPlan.scopeOfDocument.submittedByName || selectedProject.learningPlan.scopeOfDocument.submittedBy}</strong>
                     </span>
-                    <span>
-                      {selectedProject.learningPlan.scopeOfDocument.submittedAt ? new Date(selectedProject.learningPlan.scopeOfDocument.submittedAt).toLocaleString() : 'Recently'}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span>
+                        {selectedProject.learningPlan.scopeOfDocument.submittedAt ? new Date(selectedProject.learningPlan.scopeOfDocument.submittedAt).toLocaleString() : 'Recently'}
+                      </span>
+                      {!selectedProject.learningPlan?.techStackLocked && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setScopeObjectives(selectedProject.learningPlan?.scopeOfDocument?.objectives || '');
+                            setScopeDeliverables(selectedProject.learningPlan?.scopeOfDocument?.deliverables || '');
+                            setScopeProposedTechStack(selectedProject.learningPlan?.scopeOfDocument?.proposedTechStack || 'React.js, Node.js, Express, PostgreSQL/Firebase');
+                            setScopeDocUrl(selectedProject.learningPlan?.scopeOfDocument?.documentUrl || '');
+                            setScopeContent(selectedProject.learningPlan?.scopeOfDocument?.content || '');
+                            setIsScopeModalOpen(true);
+                          }}
+                          className="text-[#049FD9] hover:underline font-semibold ml-2 cursor-pointer"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {selectedProject.learningPlan.scopeOfDocument.objectives && (
