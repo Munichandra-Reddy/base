@@ -2202,16 +2202,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 {/* Product Testing */}
                 <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-1">
                   <span className="text-[#64748B] font-bold block text-[10px] uppercase">1. Product Testing</span>
-                  <span className="font-semibold text-[#111827] block">
-                    {taskMetrics.completed > 0 ? `QA in progress (${taskMetrics.completed} verified)` : 'Pre-testing setup'}
-                  </span>
-                  <span className="text-[10px] text-[#64748B]">Automated tests &amp; manual validation</span>
+                  {taskMetrics.completed > 0 && (
+                    <span className="font-semibold text-[#111827] block">
+                      QA in progress ({taskMetrics.completed} verified)
+                    </span>
+                  )}
                 </div>
 
                 {/* Final Document (Project Report) */}
                 <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-1">
                   <span className="text-[#64748B] font-bold block text-[10px] uppercase">2. Final Document (Project Report)</span>
-                  {selectedProject.learningPlan?.finalDocumentReport?.reportUrl ? (
+                  {selectedProject.learningPlan?.finalDocumentReport?.reportUrl && (
                     <a
                       href={selectedProject.learningPlan.finalDocumentReport.reportUrl}
                       target="_blank"
@@ -2220,16 +2221,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     >
                       View Final Project Report &nearr;
                     </a>
-                  ) : (
-                    <span className="text-[#94A3B8]">Pending report submission</span>
                   )}
-                  <span className="text-[10px] text-[#64748B]">Complete project documentation &amp; specs</span>
                 </div>
 
                 {/* Live Product */}
                 <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-1">
                   <span className="text-[#64748B] font-bold block text-[10px] uppercase">3. Live Deployment</span>
-                  {selectedProject.learningPlan?.liveUrl ? (
+                  {selectedProject.learningPlan?.liveUrl && (
                     <a
                       href={selectedProject.learningPlan.liveUrl}
                       target="_blank"
@@ -2238,10 +2236,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     >
                       Open Live Website / App &nearr;
                     </a>
-                  ) : (
-                    <span className="text-[#94A3B8]">Deployment pending</span>
                   )}
-                  <span className="text-[10px] text-[#64748B]">Production URL for client demonstration</span>
                 </div>
               </div>
             </div>
