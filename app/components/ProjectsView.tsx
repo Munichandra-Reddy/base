@@ -2204,9 +2204,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     {selectedProject.learningPlan?.currentSprint || 'Sprint 1 (Week 1)'}
                   </span>
                 </div>
-                <p className="text-[#64748B]">
-                  Work is organized into target sprint weeks. Team members execute their module tasks and demo deliverables during the weekend meeting.
-                </p>
                 <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg space-y-2">
                   <div className="flex justify-between">
                     <span className="text-[#64748B]">Current Sprint:</span>
@@ -2242,9 +2239,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     Edit Meeting
                   </button>
                 </div>
-                <p className="text-[#64748B]">
-                  Every weekend meeting aligns team members with Project Manager / Client to review UI/UX, Frontend, Backend, and Cloud work.
-                </p>
                 <div className="p-3 bg-[#F0FDF4] border border-[#16A34A]/30 rounded-lg space-y-2 text-[#166534]">
                   <div className="flex justify-between font-bold text-xs">
                     <span>Scheduled Date:</span>
