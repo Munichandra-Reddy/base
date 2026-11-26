@@ -2817,10 +2817,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsScopeModalOpen(false);
           }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 font-sans"
         >
-          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-2xl w-full max-w-lg p-6 space-y-4 my-8 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E5E5E5]">
+          <div className="bg-white rounded-xl border border-[#E5E5E5] shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh] my-auto animate-in fade-in zoom-in-95 duration-150 overflow-hidden">
+            <div className="flex items-center justify-between p-5 pb-3 border-b border-[#E5E5E5] shrink-0 bg-white">
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-bold text-[#111827]">
@@ -2829,20 +2829,20 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       : 'Submit Scope of Document'}
                   </h3>
                 </div>
-                <p className="text-xs text-[#64748B]">
+                <p className="text-xs text-[#64748B] mt-0.5">
                   Team <span className="font-semibold text-[#0284C7]">{selectedProject?.teamName || 'Kaling'}</span> submits specifications for Mentor review &amp; tech stack locking.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsScopeModalOpen(false)}
-                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer"
+                className="w-7 h-7 rounded-md bg-[#F4F6F8] text-[#595959] hover:text-[#111827] flex items-center justify-center text-xs cursor-pointer shrink-0"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSaveScopeSubmission} className="space-y-3.5">
+            <form onSubmit={handleSaveScopeSubmission} className="p-5 overflow-y-auto flex-1 space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#111827] mb-1">
                   Scope Document URL or Design Link (Optional)
@@ -2914,7 +2914,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <strong>Next Step:</strong> Once submitted, the Project Manager / Mentor (who also acts as the Client) will review this scope and lock the official Tech Stack before dividing work.
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5] sticky bottom-0 bg-white">
                 <button
                   type="button"
                   onClick={() => setIsScopeModalOpen(false)}
@@ -3097,7 +3097,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5] sticky bottom-0 bg-white">
                 <button
                   type="button"
                   onClick={() => setIsDivideWorkModalOpen(false)}
@@ -3188,7 +3188,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5] sticky bottom-0 bg-white">
                 <button
                   type="button"
                   onClick={() => setIsWeekendMeetingModalOpen(false)}
@@ -3254,7 +3254,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5] sticky bottom-0 bg-white">
                 <button
                   type="button"
                   onClick={() => setIsRevisionModalOpen(false)}
@@ -3345,7 +3345,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 </p>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5] sticky bottom-0 bg-white">
                 <button
                   type="button"
                   onClick={() => setIsLiveModalOpen(false)}
@@ -3778,7 +3778,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
 
               {/* Modal Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5] sticky bottom-0 bg-white">
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
@@ -4071,7 +4071,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
 
               {/* Modal Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5] sticky bottom-0 bg-white">
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
@@ -4354,7 +4354,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               </div>
 
               {/* Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5]">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5E5] sticky bottom-0 bg-white">
                 <button
                   type="button"
                   onClick={() => setEditingProject(null)}
