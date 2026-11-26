@@ -1724,11 +1724,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         Submitted (Pending Review)
                       </span>
                     )}
-                    {!isScopeSubmitted && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
-                        Awaiting Team Submission
-                      </span>
-                    )}
                   </h4>
                 </div>
               </div>
@@ -1832,11 +1827,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg text-xs text-[#92400E] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <strong className="block font-bold">Scope of Document Not Yet Submitted</strong>
-                    <p className="text-[11px] text-[#B45309] mt-0.5">
-                      {isAdmin
-                        ? 'Awaiting team submission. Only assigned employees can submit the Scope of Document.'
-                        : 'Please fill out and submit the Scope of Document for Mentor / Admin review and Tech Stack approval.'}
-                    </p>
                   </div>
                   {!isAdmin ? (
                     <button
