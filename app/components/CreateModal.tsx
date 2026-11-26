@@ -224,7 +224,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
   const [projectMembers, setProjectMembers] = useState<string[]>([]);
   const [projectStartDate, setProjectStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [projectDeadline, setProjectDeadline] = useState(() => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
-  const [projectPriority, setProjectPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
+  const [projectPriority, setProjectPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [projectStatus, setProjectStatus] = useState<'planning' | 'active'>('planning');
   const [projectNotes, setProjectNotes] = useState('');
   const [projectTeamName, setProjectTeamName] = useState('Kaling');
@@ -805,7 +805,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                 </datalist>
                 {matchedTaskProject && (
                   <div className="mt-1.5 p-2 bg-[#E0F2FE] border border-[#BAE6FD] rounded text-xs text-[#0369A1] flex items-center justify-between">
-                    <span>👥 <strong>Dedicated Team:</strong> {matchedTaskProject.teamName || 'Team'} ({eligibleTaskEmployees.length} members)</span>
+                    <span>👥 <strong>Team Name:</strong> {matchedTaskProject.teamName || 'Team'} ({eligibleTaskEmployees.length} members)</span>
                     <span className="text-[10px] bg-white px-1.5 py-0.5 rounded border border-[#BAE6FD] font-semibold">
                       {matchedTaskProject.learningPlan?.scopeOfDocument?.status === 'approved' ? '✓ Scope Approved' : '⏳ Scope Pending'}
                     </span>
@@ -1070,15 +1070,14 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
                     <option value="high">High</option>
-                    <option value="critical">Critical</option>
                   </select>
                 </div>
               </div>
 
-              {/* Dedicated Team Name */}
+              {/* Team Name */}
               <div>
                 <label className="block text-xs font-semibold text-[#222222] mb-1">
-                  Dedicated Team Name <span className="text-[#DC2626]">*</span>
+                  Team Name <span className="text-[#DC2626]">*</span>
                 </label>
                 <input
                   type="text"
@@ -1090,9 +1089,6 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                   onChange={(e) => setProjectTeamName(e.target.value)}
                   className="w-full p-2.5 bg-white border border-[#CCCCCC] rounded-md text-sm font-medium text-[#222222] focus:outline-none focus:border-[#049FD9] focus:ring-1 focus:ring-[#049FD9] transition-all"
                 />
-                <p className="text-[11px] text-[#64748B] mt-0.5">
-                  Only employees assigned to this dedicated team will be able to access and view the project.
-                </p>
               </div>
 
               {/* 4. Team Members Checklist with Search Box */}
