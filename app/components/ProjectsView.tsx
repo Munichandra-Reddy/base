@@ -1866,9 +1866,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       </span>
                     )}
                   </h4>
-                  <p className="text-xs text-[#64748B] mt-0.5">
-                    Locked technical specifications agreed between the Client/Mentor and the Team.
-                  </p>
                 </div>
 
                 {isAdmin && !selectedProject.learningPlan?.techStackLocked && (
@@ -1962,9 +1959,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       </span>
                     )}
                   </h4>
-                  <p className="text-xs text-[#64748B] mt-0.5">
-                    Client/Mentor assigns core development responsibilities and divides weekly sprint tasks across the dedicated team.
-                  </p>
                 </div>
               </div>
 
@@ -1975,9 +1969,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <span className="text-2xl">🔒</span>
                     <div>
                       <strong className="block font-bold text-sm">Development Work Locked</strong>
-                      <p className="text-[11px] text-[#B91C1C] mt-0.5">
-                        Before starting development, the assigned team must first submit the <strong>Project Scope Document</strong> containing project requirements, planned features, technologies, and proposed tech stack. Until the Admin reviews and approves the document, the tech stack remains locked and no development work can begin.
-                      </p>
                     </div>
                   </div>
                   <button
@@ -2204,9 +2195,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       </span>
                     )}
                   </h4>
-                  <p className="text-xs text-[#64748B] mt-0.5">
-                    Final deliverables: QA testing, Project Report documentation, and live deployment link.
-                  </p>
                 </div>
 
                 <button
