@@ -1859,9 +1859,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       </span>
                     )}
                   </h4>
-                  <p className="text-xs text-[#64748B] mt-0.5">
-                    Team prepares the Scope of Document (SRS, architecture, features, proposed tech stack) and submits to Project Manager (acting as Client).
-                  </p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -1965,9 +1962,6 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg text-xs text-[#92400E] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <strong className="block font-bold">Scope of Document Not Yet Submitted</strong>
-                    <p className="text-[11px] opacity-90 mt-0.5">
-                      The team has not yet submitted the Scope of Document for client review. Team members or mentor can click &ldquo;Submit Scope of Document&rdquo; to proceed.
-                    </p>
                   </div>
                   <button
                     type="button"
