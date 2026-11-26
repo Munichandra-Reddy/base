@@ -1585,11 +1585,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         )}
 
         {/* Sub-tabs Navigation */}
-        <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs px-4 flex items-center gap-2 overflow-x-auto text-xs font-semibold">
+        <div className="bg-white rounded-lg border border-[#E5E5E5] shadow-2xs px-4 flex items-center gap-1 sm:gap-2 overflow-x-auto whitespace-nowrap text-xs font-semibold scrollbar-none">
           <button
             type="button"
             onClick={() => setDetailsTab('learning')}
-            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               detailsTab === 'learning'
                 ? 'border-[#049FD9] text-[#049FD9] font-bold'
                 : 'border-transparent text-[#64748B] hover:text-[#111827]'
@@ -1605,18 +1605,18 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setDetailsTab('overview')}
-            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer ${
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
               detailsTab === 'overview'
                 ? 'border-[#049FD9] text-[#049FD9] font-bold'
                 : 'border-transparent text-[#64748B] hover:text-[#111827]'
             }`}
           >
-            Overview & Metrics
+            <span>Overview &amp; Metrics</span>
           </button>
           <button
             type="button"
             onClick={() => setDetailsTab('team')}
-            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               detailsTab === 'team'
                 ? 'border-[#049FD9] text-[#049FD9] font-bold'
                 : 'border-transparent text-[#64748B] hover:text-[#111827]'
@@ -1630,7 +1630,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setDetailsTab('tasks')}
-            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               detailsTab === 'tasks'
                 ? 'border-[#049FD9] text-[#049FD9] font-bold'
                 : 'border-transparent text-[#64748B] hover:text-[#111827]'
@@ -1644,7 +1644,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setDetailsTab('messages')}
-            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               detailsTab === 'messages'
                 ? 'border-[#049FD9] text-[#049FD9] font-bold'
                 : 'border-transparent text-[#64748B] hover:text-[#111827]'
@@ -1656,7 +1656,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setDetailsTab('meetings')}
-            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               detailsTab === 'meetings'
                 ? 'border-[#049FD9] text-[#049FD9] font-bold'
                 : 'border-transparent text-[#64748B] hover:text-[#111827]'
@@ -1668,7 +1668,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setDetailsTab('updates')}
-            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               detailsTab === 'updates'
                 ? 'border-[#049FD9] text-[#049FD9] font-bold'
                 : 'border-transparent text-[#64748B] hover:text-[#111827]'
@@ -1680,14 +1680,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           <button
             type="button"
             onClick={() => setDetailsTab('files')}
-            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
+            className={`py-3 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
               detailsTab === 'files'
                 ? 'border-[#049FD9] text-[#049FD9] font-bold'
                 : 'border-transparent text-[#64748B] hover:text-[#111827]'
             }`}
           >
             <FolderIcon className="w-3.5 h-3.5" />
-            <span>Docs & Files</span>
+            <span>Docs &amp; Files</span>
             <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#E2E8F0] text-[#475569]">
               {projectFiles.length}
             </span>
