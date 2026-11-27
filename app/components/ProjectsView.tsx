@@ -448,11 +448,22 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
     return validProjects.filter((p) => {
       const isPM =
-        (p.managerEmail && p.managerEmail.toLowerCase() === userEmail) ||
-        (p.manager && p.manager.toLowerCase().includes(userName));
+        (p.managerEmail && p.managerEmail.toLowerCase().trim() === userEmail) ||
+        (p.manager && p.manager.toLowerCase().trim().includes(userName));
       const isMember = (p.members || []).some((m) => {
-        const ml = m.toLowerCase();
-        return ml.includes(userEmail) || ml.includes(userName);
+        const ml = m.toLowerCase().trim();
+        if (userEmail && (ml === userEmail || ml.includes(userEmail) || userEmail.includes(ml))) return true;
+        if (userName && (ml === userName || ml.includes(userName) || userName.includes(ml))) return true;
+        const profile = people.find((person) => {
+          const pName = person.name.toLowerCase().trim();
+          const pEmail = person.email.toLowerCase().trim();
+          return pName === ml || pEmail === ml;
+        });
+        if (profile) {
+          if (userEmail && profile.email.toLowerCase().trim() === userEmail) return true;
+          if (userName && profile.name.toLowerCase().trim() === userName) return true;
+        }
+        return false;
       });
       return isPM || isMember;
     });
@@ -1447,14 +1458,27 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     if (!isAdmin && currentUser) {
       const userEmail = (currentUser.email || '').toLowerCase().trim();
       const userName = (currentUser.fullName || '').toLowerCase().trim();
+      const isPM =
+        (selectedProject.managerEmail && selectedProject.managerEmail.toLowerCase().trim() === userEmail) ||
+        (selectedProject.manager && selectedProject.manager.toLowerCase().trim() === userName);
       const members = (selectedProject.members || []).map((m) => m.toLowerCase().trim());
-      const isMember = members.some(
-        (m) =>
-          m === userName ||
-          m === userEmail ||
-          (userName && (m.includes(userName) || userName.includes(m))) ||
-          (userEmail && (m.includes(userEmail) || userEmail.includes(m)))
-      );
+      const isMember =
+        isPM ||
+        members.some((m) => {
+          if (m === userName || m === userEmail) return true;
+          if (userName && (m.includes(userName) || userName.includes(m))) return true;
+          if (userEmail && (m.includes(userEmail) || userEmail.includes(m))) return true;
+          const p = people.find((person) => {
+            const pName = person.name.toLowerCase().trim();
+            const pEmail = person.email.toLowerCase().trim();
+            return pName === m || pEmail === m;
+          });
+          if (p) {
+            if (userEmail && p.email.toLowerCase().trim() === userEmail) return true;
+            if (userName && p.name.toLowerCase().trim() === userName) return true;
+          }
+          return false;
+        });
       if (!isMember) {
         return (
           <div className="bg-white rounded-xl border border-[#E5E5E5] p-8 text-center max-w-lg mx-auto mt-12 shadow-sm space-y-4 font-sans">
@@ -1482,6 +1506,64 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     const taskMetrics = getProjectTaskMetrics(selectedProject);
     const pmProfile = getMemberProfile(selectedProject.manager || selectedProject.managerEmail || '');
     const todayStr = new Date().toISOString().split('T')[0];
+
+    const pmName = (selectedProject.manager || '').toLowerCase().trim();
+    const pmEmail = (selectedProject.managerEmail || '').toLowerCase().trim();
+
+    // Deduplicated, clean team members for this project (PM first, then unique members)
+    const projectTeamMembers = (() => {
+      const seen = new Set<string>();
+      const list: Array<{
+        rawString: string;
+        name: string;
+        email: string;
+        isPM: boolean;
+        profile?: Person;
+      }> = [];
+
+      const rawList = [...(selectedProject.members || [])];
+      if (selectedProject.manager && !rawList.some((m) => m.toLowerCase().trim() === pmName)) {
+        rawList.unshift(selectedProject.manager);
+      }
+
+      for (const mStr of rawList) {
+        const clean = String(mStr || '').trim();
+        if (!clean) continue;
+
+        const profile = getMemberProfile(clean);
+        const resolvedEmail = (profile?.email || (clean.includes('@') ? clean : '')).toLowerCase().trim();
+        const resolvedName = (profile?.name || (clean.includes('@') ? '' : clean)).trim();
+
+        const isPM = Boolean(
+          clean.toLowerCase() === pmName ||
+          (pmEmail && clean.toLowerCase() === pmEmail) ||
+          (resolvedEmail && pmEmail && resolvedEmail === pmEmail) ||
+          (resolvedName && pmName && resolvedName.toLowerCase() === pmName)
+        );
+
+        const dedupKey = isPM ? '__pm__' : (resolvedEmail || resolvedName || clean).toLowerCase();
+        if (seen.has(dedupKey)) continue;
+        seen.add(dedupKey);
+
+        const displayName = isPM && selectedProject.manager
+          ? selectedProject.manager
+          : (resolvedName || clean);
+
+        list.push({
+          rawString: clean,
+          name: displayName,
+          email: resolvedEmail || (isPM ? pmEmail : ''),
+          isPM,
+          profile: profile || (isPM ? pmProfile : undefined),
+        });
+      }
+
+      return list.sort((a, b) => {
+        if (a.isPM && !b.isPM) return -1;
+        if (!a.isPM && b.isPM) return 1;
+        return a.name.localeCompare(b.name);
+      });
+    })();
 
     const isScopeSubmitted = Boolean(selectedProject.learningPlan?.scopeOfDocument?.submitted);
     const isScopeApproved = isScopeSubmitted && selectedProject.learningPlan?.scopeOfDocument?.status === 'approved';
@@ -1635,7 +1717,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           >
             <span>Project Team</span>
             <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-[#E2E8F0] text-[#475569]">
-              {(selectedProject.members || []).length}
+              {projectTeamMembers.length}
             </span>
           </button>
           <button
@@ -1977,7 +2059,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         </p>
                       </div>
                       <span className="text-[10px] font-semibold text-[#0369A1] bg-[#E0F2FE] px-2.5 py-1 rounded-md border border-[#BAE6FD]">
-                        Team Members: {selectedProject.members?.length || 0}
+                        Team Members: {projectTeamMembers.filter((m) => !m.isPM).length || projectTeamMembers.length}
                       </span>
                     </div>
 
@@ -1997,8 +2079,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                             className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
                           >
                             <option value="">Assign one employee...</option>
-                            {(selectedProject.members || []).map((m) => (
-                              <option key={m} value={m}>{m}</option>
+                            {(projectTeamMembers.filter((m) => !m.isPM).length > 0
+                              ? projectTeamMembers.filter((m) => !m.isPM)
+                              : projectTeamMembers
+                            ).map((m) => (
+                              <option key={m.name} value={m.name}>{m.name}</option>
                             ))}
                           </select>
                         ) : (
@@ -2023,8 +2108,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                             className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
                           >
                             <option value="">Assign one employee...</option>
-                            {(selectedProject.members || []).map((m) => (
-                              <option key={m} value={m}>{m}</option>
+                            {(projectTeamMembers.filter((m) => !m.isPM).length > 0
+                              ? projectTeamMembers.filter((m) => !m.isPM)
+                              : projectTeamMembers
+                            ).map((m) => (
+                              <option key={m.name} value={m.name}>{m.name}</option>
                             ))}
                           </select>
                         ) : (
@@ -2049,8 +2137,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                             className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
                           >
                             <option value="">Assign one employee...</option>
-                            {(selectedProject.members || []).map((m) => (
-                              <option key={m} value={m}>{m}</option>
+                            {(projectTeamMembers.filter((m) => !m.isPM).length > 0
+                              ? projectTeamMembers.filter((m) => !m.isPM)
+                              : projectTeamMembers
+                            ).map((m) => (
+                              <option key={m.name} value={m.name}>{m.name}</option>
                             ))}
                           </select>
                         ) : (
@@ -2075,8 +2166,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                             className="w-full p-1.5 bg-white border border-[#CCCCCC] rounded text-xs font-semibold text-[#111827] focus:outline-none focus:border-[#049FD9] cursor-pointer"
                           >
                             <option value="">Assign one employee...</option>
-                            {(selectedProject.members || []).map((m) => (
-                              <option key={m} value={m}>{m}</option>
+                            {(projectTeamMembers.filter((m) => !m.isPM).length > 0
+                              ? projectTeamMembers.filter((m) => !m.isPM)
+                              : projectTeamMembers
+                            ).map((m) => (
+                              <option key={m.name} value={m.name}>{m.name}</option>
                             ))}
                           </select>
                         ) : (
@@ -2097,7 +2191,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          setStreamTaskMember(selectedProject.members?.[0] || '');
+                          setStreamTaskMember(projectTeamMembers.find((m) => !m.isPM)?.name || projectTeamMembers[0]?.name || '');
                           setStreamTaskDueDate(new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0]);
                           setIsDivideWorkModalOpen(true);
                         }}
@@ -2304,7 +2398,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   </div>
                   <div className="flex justify-between py-1">
                     <span className="text-[#64748B]">Team Size:</span>
-                    <span className="font-bold text-[#049FD9]">{(selectedProject.members || []).length} assigned members</span>
+                    <span className="font-bold text-[#049FD9]">{projectTeamMembers.length} assigned members</span>
                   </div>
                 </div>
               </div>
@@ -2392,7 +2486,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div>
                 <h3 className="font-bold text-base text-[#111827]">Project Team & Roles</h3>
                 <p className="text-xs text-[#64748B] mt-0.5">
-                  {(selectedProject.members || []).length} assigned workspace members
+                  {projectTeamMembers.length} assigned workspace members
                 </p>
               </div>
               {isAdmin && (
@@ -2408,24 +2502,22 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             </div>
 
             <div className="divide-y divide-[#F1F5F9]">
-              {(selectedProject.members || []).map((memberStr) => {
-                const profile = getMemberProfile(memberStr);
-                const isPM =
-                  memberStr.toLowerCase() === (selectedProject.manager || '').toLowerCase() ||
-                  (selectedProject.managerEmail && memberStr.toLowerCase() === selectedProject.managerEmail.toLowerCase());
+              {projectTeamMembers.map((member) => {
+                const profile = member.profile;
+                const isPM = member.isPM;
 
                 return (
-                  <div key={memberStr} className="py-3 flex items-center justify-between gap-3 text-xs">
+                  <div key={member.name} className="py-3 flex items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-3 min-w-0">
                       <div
                         className={`w-9 h-9 rounded-full ${profile?.avatarBg || 'bg-[#049FD9] text-white'} font-bold flex items-center justify-center text-xs shrink-0`}
                       >
-                        {profile?.avatar || memberStr[0]?.toUpperCase() || 'M'}
+                        {profile?.avatar || member.name[0]?.toUpperCase() || 'M'}
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-[#111827] truncate">
-                            {profile?.name || memberStr}
+                            {member.name}
                           </span>
                           {isPM && (
                             <span className="px-2 py-0.2 rounded text-[10px] font-bold bg-[#E0F2FE] text-[#0284C7] border border-[#BAE6FD]">
@@ -2434,17 +2526,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           )}
                         </div>
                         <div className="text-[11px] text-[#64748B] truncate">
-                          {profile?.department || 'Engineering'} • {profile?.role || profile?.designation || 'Team Member'}
-                          {profile?.email && ` • ${profile.email}`}
+                          {profile?.department || 'Engineering'} • {profile?.role || profile?.designation || (isPM ? 'Project Manager' : 'Team Member')}
+                          {member.email && ` • ${member.email}`}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      {profile?.email && onNavigateToEmployee && (
+                      {member.email && onNavigateToEmployee && (
                         <button
                           type="button"
-                          onClick={() => onNavigateToEmployee(profile.email)}
+                          onClick={() => onNavigateToEmployee(member.email)}
                           className="px-2.5 py-1 text-xs text-[#049FD9] hover:underline cursor-pointer"
                         >
                           View Profile
@@ -2455,7 +2547,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           type="button"
                           onClick={() => {
                             setManagingTeamProject(selectedProject);
-                            handleRemoveTeamMember(memberStr);
+                            handleRemoveTeamMember(member.rawString);
                           }}
                           className="px-2 py-1 text-xs text-[#EF4444] hover:bg-[#FEF2F2] rounded cursor-pointer"
                           title="Remove from project"
@@ -3073,16 +3165,12 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   className="w-full px-3 py-2 bg-white border border-[#CCCCCC] rounded-md text-xs font-medium text-[#111827] focus:outline-none focus:border-[#049FD9]"
                 >
                   <option value="">Select team member...</option>
-                  {(selectedProject?.members && selectedProject.members.length > 0
-                    ? activeEmployees.filter((emp) =>
-                        selectedProject.members.some(
-                          (m) => m.toLowerCase() === emp.name.toLowerCase() || m.toLowerCase() === (emp.email || '').toLowerCase()
-                        )
-                      )
-                    : activeEmployees
-                  ).map((emp) => (
-                    <option key={emp.id} value={emp.name}>
-                      {emp.name} ({emp.role || emp.designation || 'Member'})
+                  {(projectTeamMembers.filter((m) => !m.isPM).length > 0
+                    ? projectTeamMembers.filter((m) => !m.isPM)
+                    : projectTeamMembers
+                  ).map((m) => (
+                    <option key={m.name} value={m.name}>
+                      {m.name} {m.profile?.role || m.profile?.designation ? `(${m.profile?.role || m.profile?.designation})` : (m.isPM ? '(PM)' : '(Member)')}
                     </option>
                   ))}
                 </select>
@@ -4522,7 +4610,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 >
                   <option value="">Select active employee to add...</option>
                   {activeEmployees
-                    .filter((e) => !(managingTeamProject.members || []).includes(e.name))
+                    .filter((e) => {
+                      const empNameLower = e.name.toLowerCase().trim();
+                      const empEmailLower = (e.email || '').toLowerCase().trim();
+                      return !(managingTeamProject.members || []).some((m) => {
+                        const mLower = m.toLowerCase().trim();
+                        return mLower === empNameLower || (empEmailLower && mLower === empEmailLower);
+                      });
+                    })
                     .map((emp) => (
                       <option key={emp.id} value={emp.name}>
                         {emp.name} ({emp.role || emp.designation} - {emp.department})
@@ -4533,45 +4628,75 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             </div>
 
             {/* Members List */}
-            <div className="space-y-2 pt-2 border-t border-[#E5E5E5]">
-              <span className="text-xs font-semibold text-[#111827] block">
-                Current Members ({(managingTeamProject.members || []).length})
-              </span>
-              <div className="max-h-48 overflow-y-auto divide-y divide-[#F1F5F9] border border-[#E5E5E5] rounded-md p-1">
-                {(managingTeamProject.members || []).map((mStr) => {
-                  const emp = getMemberProfile(mStr);
-                  const isPM = mStr.toLowerCase() === (managingTeamProject.manager || '').toLowerCase();
+            {(() => {
+              const seen = new Set<string>();
+              const modalMembers: Array<{ raw: string; name: string; isPM: boolean; dept: string; role: string }> = [];
+              const pmName = (managingTeamProject.manager || '').toLowerCase().trim();
+              const pmEmail = (managingTeamProject.managerEmail || '').toLowerCase().trim();
 
-                  return (
-                    <div key={mStr} className="p-2 flex items-center justify-between gap-2 text-xs">
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-[#111827]">{emp?.name || mStr}</span>
-                          {isPM && (
-                            <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#E0F2FE] text-[#0284C7]">
-                              PM
-                            </span>
-                          )}
+              for (const mStr of managingTeamProject.members || []) {
+                const clean = String(mStr || '').trim();
+                if (!clean) continue;
+                const emp = getMemberProfile(clean);
+                const resolvedEmail = (emp?.email || (clean.includes('@') ? clean : '')).toLowerCase().trim();
+                const resolvedName = (emp?.name || (clean.includes('@') ? '' : clean)).trim();
+                const isPM = Boolean(
+                  clean.toLowerCase() === pmName ||
+                  (pmEmail && clean.toLowerCase() === pmEmail) ||
+                  (resolvedEmail && pmEmail && resolvedEmail === pmEmail) ||
+                  (resolvedName && pmName && resolvedName.toLowerCase() === pmName)
+                );
+
+                const dedupKey = isPM ? '__pm__' : (resolvedEmail || resolvedName || clean).toLowerCase();
+                if (seen.has(dedupKey)) continue;
+                seen.add(dedupKey);
+
+                modalMembers.push({
+                  raw: clean,
+                  name: isPM && managingTeamProject.manager ? managingTeamProject.manager : (resolvedName || clean),
+                  isPM,
+                  dept: emp?.department || 'General',
+                  role: emp?.role || emp?.designation || (isPM ? 'Project Manager' : 'Team Member'),
+                });
+              }
+
+              return (
+                <div className="space-y-2 pt-2 border-t border-[#E5E5E5]">
+                  <span className="text-xs font-semibold text-[#111827] block">
+                    Current Members ({modalMembers.length})
+                  </span>
+                  <div className="max-h-48 overflow-y-auto divide-y divide-[#F1F5F9] border border-[#E5E5E5] rounded-md p-1">
+                    {modalMembers.map((m) => (
+                      <div key={m.name} className="p-2 flex items-center justify-between gap-2 text-xs">
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-semibold text-[#111827]">{m.name}</span>
+                            {m.isPM && (
+                              <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-[#E0F2FE] text-[#0284C7]">
+                                PM
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-[#64748B] block">
+                            {m.dept} • {m.role}
+                          </span>
                         </div>
-                        <span className="text-[10px] text-[#64748B] block">
-                          {emp?.department || 'General'} • {emp?.role || emp?.designation || 'Team Member'}
-                        </span>
-                      </div>
 
-                      {!isPM && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveTeamMember(mStr)}
-                          className="text-xs text-[#EF4444] hover:underline cursor-pointer"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+                        {!m.isPM && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTeamMember(m.raw)}
+                            className="text-xs text-[#EF4444] hover:underline cursor-pointer"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             <div className="flex justify-end pt-2">
               <button

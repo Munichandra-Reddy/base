@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,14 +48,11 @@ export async function POST(request: Request) {
       }
 
       const identifier = newMemberName || newMemberEmail;
-      if (members.includes(identifier) || (newMemberEmail && members.includes(newMemberEmail))) {
+      if (members.some((m) => m.toLowerCase() === identifier.toLowerCase())) {
         return NextResponse.json({ success: false, error: `${identifier} is already a member of this project.` }, { status: 400 });
       }
 
       members.push(identifier);
-      if (newMemberEmail && !members.includes(newMemberEmail)) {
-        members.push(newMemberEmail);
-      }
 
       await setDoc(projRef, { members, updatedAt: new Date().toISOString() }, { merge: true });
 
@@ -106,9 +103,25 @@ export async function POST(request: Request) {
         );
       }
 
-      members = members.filter(
-        (m) => m.toLowerCase() !== memberToRemove.toLowerCase()
-      );
+      const toRemove = new Set<string>();
+      toRemove.add(memberToRemove.toLowerCase());
+      try {
+        const empSnap = await getDocs(collection(db, 'employees'));
+        const empDocs = empSnap.docs.map((d) => d.data());
+        const matched = empDocs.find(
+          (e) =>
+            (e.name && e.name.toLowerCase() === memberToRemove.toLowerCase()) ||
+            (e.fullName && e.fullName.toLowerCase() === memberToRemove.toLowerCase()) ||
+            (e.email && e.email.toLowerCase() === memberToRemove.toLowerCase())
+        );
+        if (matched) {
+          if (matched.name) toRemove.add(String(matched.name).toLowerCase().trim());
+          if (matched.fullName) toRemove.add(String(matched.fullName).toLowerCase().trim());
+          if (matched.email) toRemove.add(String(matched.email).toLowerCase().trim());
+        }
+      } catch (e) {}
+
+      members = members.filter((m) => !toRemove.has(m.toLowerCase().trim()));
 
       await setDoc(projRef, { members, updatedAt: new Date().toISOString() }, { merge: true });
 

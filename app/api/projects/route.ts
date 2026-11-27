@@ -11,7 +11,11 @@ export async function GET(request: Request) {
     const userEmail = searchParams.get('email')?.toLowerCase().trim();
     const userRole = searchParams.get('role')?.toLowerCase().trim();
 
-    const snap = await getDocs(collection(db, 'projects'));
+    const [snap, empSnap] = await Promise.all([
+      getDocs(collection(db, 'projects')),
+      getDocs(collection(db, 'employees')),
+    ]);
+    const empDocs = empSnap.docs.map((d) => d.data());
     let projectList: Project[] = [];
 
     snap.docs.forEach((d) => {
@@ -23,6 +27,31 @@ export async function GET(request: Request) {
       if (['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'prj_1795169922693_z6wz', 'prj_1795170215729_ie8a', 'prj_1795170328299_vjn1', 'p-1791616801241', 'p-1791624872977', 'p-1791618846792'].includes(id)) return;
       if (['E-Commerce Website', 'Cloud Infrastructure Migration', 'AI Customer Assistant', 'Global Inventory Sync (Production Scale)', 'Global Inventory Sync'].includes(pName)) return;
       if (['PRJ-1010', 'PRJ-1011', 'PRJ-1012'].includes(prjId)) return;
+
+      // Clean and deduplicate members (canonical names, no duplicate raw emails)
+      const rawMembers: string[] = Array.isArray(data.members) ? data.members : [];
+      const cleanMembersSet = new Set<string>();
+      if (data.manager) cleanMembersSet.add(String(data.manager).trim());
+
+      rawMembers.forEach((m) => {
+        const str = String(m || '').trim();
+        if (!str) return;
+        const matched = empDocs.find(
+          (e) =>
+            (e.name && e.name.toLowerCase() === str.toLowerCase()) ||
+            (e.fullName && e.fullName.toLowerCase() === str.toLowerCase()) ||
+            (e.email && e.email.toLowerCase() === str.toLowerCase())
+        );
+        if (matched) {
+          cleanMembersSet.add(String(matched.fullName || matched.name || str).trim());
+        } else if (!str.includes('@')) {
+          cleanMembersSet.add(str);
+        } else if (data.managerEmail && str.toLowerCase() === data.managerEmail.toLowerCase()) {
+          // Skip raw PM email
+        } else {
+          cleanMembersSet.add(str);
+        }
+      });
 
       projectList.push({
         id: d.id,
@@ -36,7 +65,7 @@ export async function GET(request: Request) {
         manager: data.manager || 'Workspace Admin',
         managerEmail: data.managerEmail || '',
         managerId: data.managerId || '',
-        members: Array.isArray(data.members) ? data.members : [],
+        members: Array.from(cleanMembersSet),
         memberDetails: Array.isArray(data.memberDetails) ? data.memberDetails : [],
         startDate: data.startDate || '',
         endDate: data.endDate || data.deadline || '',
@@ -71,11 +100,22 @@ export async function GET(request: Request) {
 
     // If an employee is requesting (not admin), filter to projects they belong to
     if (userEmail && userRole !== 'admin') {
+      const currentEmp = empDocs.find((e) => e.email && e.email.toLowerCase() === userEmail);
+      const currentEmpNames = [
+        userEmail,
+        currentEmp?.name?.toLowerCase().trim(),
+        currentEmp?.fullName?.toLowerCase().trim(),
+      ].filter(Boolean) as string[];
+
       projectList = projectList.filter((p) => {
+        const pmLower = (p.manager || '').toLowerCase();
         const isManager = (p.managerEmail && p.managerEmail.toLowerCase() === userEmail) ||
-                          (p.manager && p.manager.toLowerCase().includes(userEmail));
-        const isMember = (p.members || []).some((m) => m.toLowerCase().includes(userEmail));
-        return isManager || isMember;
+                          (pmLower && currentEmpNames.some((n) => pmLower.includes(n)));
+        const isMember = (p.members || []).some((m) => {
+          const cleanM = String(m).toLowerCase().trim();
+          return currentEmpNames.some((n) => cleanM === n || cleanM.includes(n));
+        });
+        return Boolean(isManager || isMember);
       });
     }
 
@@ -171,10 +211,9 @@ export async function POST(request: Request) {
       projectId = candidateId;
     }
 
-    // 3. Guarantee PM and assigned team members (both name & email) are in project membership
+    // 3. Project Manager and unique assigned team members
     const membersSet = new Set<string>();
     if (managerName) membersSet.add(managerName);
-    if (managerEmail) membersSet.add(managerEmail);
 
     try {
       const empSnap = await getDocs(collection(db, 'employees'));
@@ -183,7 +222,6 @@ export async function POST(request: Request) {
       rawMembers.forEach((m) => {
         const clean = String(m || '').trim();
         if (clean) {
-          membersSet.add(clean);
           const matched = empDocs.find(
             (e) =>
               (e.name && e.name.toLowerCase() === clean.toLowerCase()) ||
@@ -191,9 +229,9 @@ export async function POST(request: Request) {
               (e.email && e.email.toLowerCase() === clean.toLowerCase())
           );
           if (matched) {
-            if (matched.email) membersSet.add(String(matched.email).toLowerCase().trim());
-            if (matched.fullName) membersSet.add(String(matched.fullName).trim());
-            if (matched.name) membersSet.add(String(matched.name).trim());
+            membersSet.add(String(matched.fullName || matched.name || clean).trim());
+          } else {
+            membersSet.add(clean);
           }
         }
       });
