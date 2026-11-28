@@ -28,7 +28,7 @@ const firebaseConfig = {
 // Initialize Firebase app singleton safely across SSR and Client
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// Initialize Firestore with auto-detect transport and multi-tab cache
+// Initialize Firestore with forced long-polling to prevent ERR_QUIC_PROTOCOL_ERROR.QUIC_NETWORK_IDLE_TIMEOUT and 400 channel errors
 let firestoreDb: ReturnType<typeof getFirestore>;
 if (typeof window !== 'undefined') {
   try {
@@ -37,7 +37,7 @@ if (typeof window !== 'undefined') {
 
   try {
     firestoreDb = initializeFirestore(app, {
-      experimentalAutoDetectLongPolling: true,
+      experimentalForceLongPolling: true,
       localCache: persistentLocalCache({
         tabManager: persistentMultipleTabManager(),
       }),
@@ -45,7 +45,7 @@ if (typeof window !== 'undefined') {
   } catch {
     try {
       firestoreDb = initializeFirestore(app, {
-        experimentalAutoDetectLongPolling: true,
+        experimentalForceLongPolling: true,
       });
     } catch {
       firestoreDb = getFirestore(app);
