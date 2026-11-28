@@ -659,7 +659,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
-        {/* RIGHT COLUMN (1 SPAN): My Tasks & Recent Activity */}
+        {/* RIGHT COLUMN (1 SPAN): My Tasks */}
         <div className="space-y-6">
           {/* Card 5: My Tasks Widget */}
           <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
@@ -774,44 +774,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   );
                 })
               )}
-            </div>
-          </div>
-
-          {/* Card 6: Recent Activity Widget */}
-          <div className="bg-white rounded-[4px] border border-[#E5E5E5] p-5 shadow-2xs space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-[#222222] text-sm">Recent Activity</h3>
-              {onViewActivity && (
-                <button
-                  type="button"
-                  onClick={onViewActivity}
-                  className="text-xs font-medium text-[#049FD9] hover:text-[#004BAF] hover:underline cursor-pointer"
-                >
-                  View All
-                </button>
-              )}
-            </div>
-
-            <div className="space-y-3.5">
-              {activities.slice(0, 5).map((act) => (
-                <div key={act.id} className="flex items-start gap-3 text-xs">
-                  <div
-                    className={`w-8 h-8 rounded-full ${act.avatarBg} font-extrabold flex items-center justify-center shrink-0 shadow-2xs text-xs mt-0.5`}
-                  >
-                    {act.userAvatar}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[#334155] leading-snug break-words">
-                      <span className="font-bold text-[#0F172A]">{act.userName}</span>{' '}
-                      <span className="text-[#64748B]">{act.action}</span>{' '}
-                      <span className="font-semibold text-[#0F172A]">"{act.target}"</span>
-                    </div>
-                    <div className="text-[10px] font-medium text-[#64748B] mt-0.5">
-                      {act.timeAgo}
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
